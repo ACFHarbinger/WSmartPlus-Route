@@ -1,5 +1,14 @@
-"""
-Training Monitor mode for the Streamlit dashboard.
+"""Training Monitor mode for the Streamlit dashboard.
+
+This module provides real-time visualization and audit capabilities for active
+and historical DRL training runs. It includes hyperparameter inspection,
+loss curve plotting, convergence status alerts, and multi-run comparison tools.
+
+Example:
+    render_training_monitor()
+
+Attributes:
+    render_training_monitor: Main entry point for the training dashboard.
 """
 
 import os
@@ -39,7 +48,11 @@ STATUS_TEMPLATE = jinja_env.get_template("status_pill.html")
 
 
 def _render_run_overview(selected_runs: List[str]) -> None:
-    """Display hyperparameters and run configuration for selected runs."""
+    """Displays hyperparameters and run configuration for selected runs.
+
+    Args:
+        selected_runs: List of selected run names (folder identifiers).
+    """
     with st.expander("Run Configuration", expanded=len(selected_runs) == 1):
         for run_name in selected_runs:
             hparams = load_hparams(run_name)
@@ -72,7 +85,12 @@ def _render_run_overview(selected_runs: List[str]) -> None:
 
 
 def _render_training_progress(runs_data: Dict[str, pd.DataFrame], selected_runs: List[str]) -> None:
-    """Display training progress bars based on current vs total epochs."""
+    """Displays training progress bars based on current vs total epochs.
+
+    Args:
+        runs_data: Mapping from run name to its metrics DataFrame.
+        selected_runs: List of active run names to visualize.
+    """
     for run_name in selected_runs:
         hparams = load_hparams(run_name)
         total_epochs = hparams.get("n_epochs")
@@ -102,7 +120,11 @@ def _render_training_progress(runs_data: Dict[str, pd.DataFrame], selected_runs:
 
 
 def _render_convergence_status(runs_data: Dict[str, pd.DataFrame]) -> None:
-    """Show convergence status for each run (plateau detection)."""
+    """Detects and displays convergence status (plateau detection).
+
+    Args:
+        runs_data: Mapping from run name to its metrics DataFrame.
+    """
     window = 10
     threshold = 0.001  # 0.1% relative improvement
 
@@ -153,7 +175,11 @@ def _render_convergence_status(runs_data: Dict[str, pd.DataFrame]) -> None:
 
 
 def render_training_monitor() -> None:
-    """Render the Training Monitor mode."""
+    """Renders the Training Monitor page.
+
+    Orchestrates run discovery, data loading, and the sequential rendering of
+    analysis sections (Overview, KPIs, Loss Curves, Metrics).
+    """
     st.title("Training Monitor")
 
     # Discover available runs

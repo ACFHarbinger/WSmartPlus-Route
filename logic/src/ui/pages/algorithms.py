@@ -1,8 +1,16 @@
-"""
-Algorithms Registry Page.
+"""Algorithms Registry Page.
 
-Displays all registered policies, models, and components with advanced filtering
-by tags, paradigms, and pipeline phases.
+This module provides a unified interface for exploring the global registry
+of optimization solvers, neural models, and algorithmic operators. It
+supports discovery via semantic tags, technical metadata auditing, and
+pipeline phase classification.
+
+Example:
+    render_algorithms()
+
+Attributes:
+    render_algorithms: Main entry point for the registry dashboard.
+    render_algo_card: Reusable UI component for single algorithm display.
 """
 
 from typing import Any, Dict, Set
@@ -18,12 +26,26 @@ from logic.src.enums.trainer_tags import TrainerTag
 
 
 def get_tag_display_name(tag: AnyTag) -> str:
-    """Returns a readable name for a tag including its category."""
+    """Returns a readable name for a tag including its category.
+
+    Args:
+        tag: An instance of any registry tag (Policy, Model, etc.).
+
+    Returns:
+        str: Formatted display name (e.g., 'Policy: CONSTRUCTION').
+    """
     return f"{tag.__class__.__name__.replace('Tag', '')}: {tag.name}"
 
 
 def get_tag_color(tag: AnyTag) -> str:
-    """Returns a CSS color based on the tag type."""
+    """Returns a CSS hex color based on the semantic tag category.
+
+    Args:
+        tag: An instance of any registry tag.
+
+    Returns:
+        str: Hex color code for UI rendering.
+    """
     if isinstance(tag, PolicyTag):
         return "#28B463"  # Green
     if isinstance(tag, ModelTag):
@@ -38,7 +60,11 @@ def get_tag_color(tag: AnyTag) -> str:
 
 
 def render_algo_card(item: Dict[str, Any]) -> None:
-    """Renders a single algorithm as a card-like expander."""
+    """Renders a single algorithm as a card-like expander.
+
+    Args:
+        item: Registry record containing 'name', 'doc', 'tags', and 'obj'.
+    """
     with st.expander(f"**{item['name']}**", expanded=False):
         # Short description
         st.markdown(f"_{item['doc']}_")
@@ -74,7 +100,11 @@ def render_algo_card(item: Dict[str, Any]) -> None:
 
 
 def render_algorithms() -> None:  # noqa: C901
-    """Renders the Algorithms registry page in the Streamlit UI."""
+    """Orchestrates and renders the core Algorithms Registry dashboard.
+
+    Handles registry retrieval, multi-tag filtering logic, and categorized
+    tab layout.
+    """
 
     st.title("🧩 Policy Algorithms Registry")
     st.markdown(

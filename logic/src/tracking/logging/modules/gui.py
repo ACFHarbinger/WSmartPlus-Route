@@ -17,7 +17,7 @@ Example:
 import json
 import os
 import threading
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import jinja2
 import pandas as pd

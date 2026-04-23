@@ -1,3 +1,20 @@
+"""Performance visualization components for simulation results.
+
+This module provides specialized chart renderers for analyzing mathematical
+performance across different routing policies. It includes radar charts for
+multi-objective comparison, descriptive statistics tables, and interactive
+time-series charts for daily performance monitoring.
+
+Example:
+    render_policy_comparison(entries, current_day)
+
+Attributes:
+    render_policy_comparison: Renders a radar chart for multi-objective analysis.
+    render_summary_statistics: Renders a tabular overview of performance.
+    render_metric_charts: Visualizes daily telemetry as interactive line charts.
+    render_tracking_run_metrics: Displays metrics from the WSTracker backend.
+"""
+
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -19,7 +36,15 @@ from logic.src.ui.services.tracking_service import (
 
 
 def render_policy_comparison(entries: List[Any], selected_day: int) -> None:
-    """Render radar chart comparing all policies for the selected day."""
+    """Renders a radar chart comparing all active policies for a specific day.
+
+    Visualizes normalized values across multiple objectives (profit, distance,
+    load, overflows, cost, efficiency) to highlight performance tradeoffs.
+
+    Args:
+        entries: Master list of parsed simulation log entries.
+        selected_day: The simulation day index to analyze.
+    """
     policies = get_unique_policies(entries)
     if len(policies) < 2:
         return
@@ -49,7 +74,12 @@ def render_policy_comparison(entries: List[Any], selected_day: int) -> None:
 
 
 def render_summary_statistics(entries: List[Any], controls: Dict[str, Any]) -> None:
-    """Render descriptive statistics table."""
+    """Renders a comprehensive descriptive statistics table for simulation results.
+
+    Args:
+        entries: Master list of parsed simulation log entries.
+        controls: User filter settings containing 'selected_policy'.
+    """
     summary = compute_summary_statistics(entries, policy=controls["selected_policy"])
     if not summary:
         return
@@ -74,7 +104,12 @@ def render_summary_statistics(entries: List[Any], controls: Dict[str, Any]) -> N
 
 
 def render_metric_charts(entries: List[Any], controls: Dict[str, Any]) -> None:
-    """Render evaluation metrics charts with user-selectable metrics."""
+    """Renders daily performance line charts for user-selected metrics.
+
+    Args:
+        entries: Master list of parsed simulation log entries.
+        controls: User filter settings containing 'selected_policy'.
+    """
     df = compute_daily_stats(entries, policy=controls["selected_policy"])
 
     if not df.empty:

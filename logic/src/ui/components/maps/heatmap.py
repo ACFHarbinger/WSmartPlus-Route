@@ -1,5 +1,13 @@
-"""
-Folium map renderer for showing bin fill levels as a heatmap.
+"""Folium map renderer for showing bin fill levels as a heatmap.
+
+This module provides spatial visualization for waste container states,
+mapping lat/lon coordinates to colored markers based on fill level gradients.
+
+Example:
+    m = create_bin_heatmap(locations, fill_levels)
+
+Attributes:
+    create_bin_heatmap: Renders the interactive fill-level map.
 """
 
 from typing import Any, Dict, List

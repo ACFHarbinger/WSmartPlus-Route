@@ -1,7 +1,20 @@
-"""
-Data loading and caching services for the dashboard.
+"""Data loading and caching services for the Streamlit dashboard.
 
-Provides cached access to training logs and simulation outputs.
+This module provides high-level utilities for discovering and loading
+training logs (Lightning CSVs) and simulation telemetry (JSONL files).
+It utilizes Streamlit's caching mechanisms to ensure responsive UI
+interactions even with large datasets.
+
+Attributes:
+    discover_training_runs: Scans logs/output for versioned training folders.
+    load_hparams: Reads hyperparameter YAML files for a given run.
+    load_training_metrics: Loads Lightning metrics into a Pandas DataFrame.
+    load_policy_params: Retrieves policy configuration from tracking DB.
+
+Example:
+    >>> from logic.src.ui.services.data_loader import discover_training_runs
+    >>> runs = discover_training_runs()
+    >>> print(f"Found {len(runs)} training versions.")
 """
 
 import json
@@ -30,17 +43,29 @@ from logic.src.ui.services.log_parser import (
 
 
 def get_project_root() -> Path:
-    """Get the project root directory (assumes app runs from project root)."""
+    """Retrieves the absolute path to the project root directory.
+
+    Returns:
+        Path: The validated project root directory.
+    """
     return Path.cwd()
 
 
 def get_logs_dir() -> Path:
-    """Get the logs directory path."""
+    """Retrieves the absolute path to the training logs directory.
+
+    Returns:
+        Path: The directory where model checkpoints and metrics are stored.
+    """
     return get_project_root() / "logs"
 
 
 def get_simulation_output_dir() -> Path:
-    """Get the simulation output directory path."""
+    """Retrieves the absolute path to the simulation output directory.
+
+    Returns:
+        Path: The directory containing simulation JSONL logs.
+    """
     return get_project_root() / "assets" / "output"
 
 
@@ -51,11 +76,10 @@ def get_simulation_output_dir() -> Path:
 
 @st.cache_data(ttl=60)
 def discover_training_runs() -> List[Tuple[str, Path]]:
-    """
-    Discover all training runs in logs/output.
+    """Scans the designated logs directory for valid training runs.
 
     Returns:
-        List of (version_name, metrics_csv_path) tuples.
+        List[Tuple[str, Path]]: A sequence of (version_name, metrics_csv_path).
     """
     output_dir = get_logs_dir() / "output"
     runs: List[Tuple[str, Path]] = []
@@ -73,14 +97,13 @@ def discover_training_runs() -> List[Tuple[str, Path]]:
 
 @st.cache_data(ttl=60)
 def load_hparams(version_name: str) -> Dict[str, Any]:
-    """
-    Load hparams.yaml for a training version.
+    """Loads hyperparameters for a specific Lightning training version.
 
     Args:
-        version_name: Version folder name (e.g., "version_0").
+        version_name: Identifier for the version (e.g., "version_0").
 
     Returns:
-        Dict with hyperparameters, or empty dict if not found.
+        Dict[str, Any]: Mapping of hyperparameter keys to values.
     """
     hparams_path = get_logs_dir() / "output" / version_name / "hparams.yaml"
     if not hparams_path.exists():
@@ -94,14 +117,13 @@ def load_hparams(version_name: str) -> Dict[str, Any]:
 
 @st.cache_data(ttl=60)
 def load_training_metrics(metrics_path: str) -> pd.DataFrame:
-    """
-    Load training metrics from a Lightning CSV file.
+    """Loads training performance metrics from a CSV file.
 
     Args:
-        metrics_path: Path to the metrics.csv file.
+        metrics_path: Absolute path to the metrics.csv file.
 
     Returns:
-        DataFrame with training metrics.
+        pd.DataFrame: A DataFrame indexed by epoch/step with metric columns.
     """
     path = Path(metrics_path)
     if not path.exists():
@@ -115,14 +137,13 @@ def load_training_metrics(metrics_path: str) -> pd.DataFrame:
 
 
 def load_multiple_training_runs(version_names: List[str]) -> Dict[str, pd.DataFrame]:
-    """
-    Load metrics from multiple training runs for comparison.
+    """Retrieves and merges metrics from multiple training runs.
 
     Args:
-        version_names: List of version folder names (e.g., ["version_0", "version_1"]).
+        version_names: List of version identifiers (e.g., ["version_0", "version_1"]).
 
     Returns:
-        Dict mapping version name to DataFrame.
+        Dict[str, pd.DataFrame]: Mapping of version name to its metrics DataFrame.
     """
     runs = discover_training_runs()
     version_to_path = {name: str(path) for name, path in runs}
@@ -142,7 +163,15 @@ def load_multiple_training_runs(version_names: List[str]) -> Dict[str, pd.DataFr
 
 @st.cache_data(ttl=60)
 def load_policy_params(policy_name: str, sample_id: int) -> Dict[str, Any]:
-    """Retrieve structured policy configuration from the tracking database."""
+    """Retrieves structured policy configuration from the tracking database.
+
+    Args:
+        policy_name: Identifier for the routing policy.
+        sample_id: index of the simulation sample.
+
+    Returns:
+        Dict[str, Any]: Mapping of configuration parameter names to values.
+    """
     db_path = get_project_root() / "assets" / "tracking" / "tracking.db"
     if not db_path.exists():
         return {}
@@ -192,11 +221,10 @@ def load_policy_params(policy_name: str, sample_id: int) -> Dict[str, Any]:
 
 @st.cache_data(ttl=60)
 def discover_simulation_logs() -> List[Tuple[str, Path]]:
-    """
-    Discover all simulation log files in assets/output.
+    """Identifies all simulation telemetry (JSONL) files in the output directory.
 
     Returns:
-        List of (relative_path_display, absolute_path) tuples.
+        List[Tuple[str, Path]]: Sequence of (display_name, absolute_path).
     """
     output_dir = get_simulation_output_dir()
     logs: List[Tuple[str, Path]] = []
@@ -214,14 +242,13 @@ def discover_simulation_logs() -> List[Tuple[str, Path]]:
 
 @st.cache_data(ttl=30)
 def load_simulation_log(log_path: str) -> List[Dict[str, Any]]:
-    """
-    Load and parse a simulation log file (cached).
+    """Loads and parses a simulation JSONL file with caching enabled.
 
     Args:
-        log_path: Absolute path to the .jsonl file.
+        log_path: Absolute filesystem path to the log file.
 
     Returns:
-        List of parsed entry dictionaries.
+        List[Dict[str, Any]]: Sequence of daily telemetry records as dictionaries.
     """
     path = Path(log_path)
     entries = parse_log_file(path)
@@ -231,27 +258,25 @@ def load_simulation_log(log_path: str) -> List[Dict[str, Any]]:
 
 
 def load_simulation_log_fresh(log_path: str) -> List[DayLogEntry]:
-    """
-    Load a simulation log without caching (for live tailing).
+    """Loads a simulation log without caching, suitable for live tailing.
 
     Args:
-        log_path: Absolute path to the .jsonl file.
+        log_path: Absolute filesystem path to the log file.
 
     Returns:
-        List of DayLogEntry objects.
+        List[DayLogEntry]: Sequence of parsed daily record dataclasses.
     """
     return parse_log_file(Path(log_path))
 
 
 def get_simulation_metadata(entries: List[DayLogEntry]) -> Dict[str, Any]:
-    """
-    Extract metadata from simulation entries.
+    """Extracts summary metadata (policies, samples, day range) from telemetry.
 
     Args:
-        entries: List of parsed log entries.
+        entries: Master list of parsed log entries.
 
     Returns:
-        Dict with policies, samples, day_range.
+        Dict[str, Any]: Mapping with 'policies', 'samples', and 'day_range'.
     """
     return {
         "policies": get_unique_policies(entries),
@@ -261,14 +286,13 @@ def get_simulation_metadata(entries: List[DayLogEntry]) -> Dict[str, Any]:
 
 
 def entries_to_dataframe(entries: List[DayLogEntry]) -> pd.DataFrame:
-    """
-    Convert log entries to a pandas DataFrame.
+    """Converts dataclass-style log entries into a flattened Pandas DataFrame.
 
     Args:
-        entries: List of DayLogEntry objects.
+        entries: Master list of DayLogEntry dataclasses.
 
     Returns:
-        DataFrame with flattened metrics.
+        pd.DataFrame: A long-form DataFrame with metric columns.
     """
     rows = []
     for entry in entries:
@@ -287,15 +311,14 @@ def entries_to_dataframe(entries: List[DayLogEntry]) -> pd.DataFrame:
 
 
 def compute_daily_stats(entries: List[DayLogEntry], policy: Optional[str] = None) -> pd.DataFrame:
-    """
-    Compute mean and std of metrics per day.
+    """Computes daily averages and standard deviations for all metrics.
 
     Args:
-        entries: List of log entries.
-        policy: Optional policy filter.
+        entries: Master list of log entries.
+        policy: Optional filter to restrict analysis to a single policy.
 
     Returns:
-        DataFrame with day, metric_mean, metric_std columns.
+        pd.DataFrame: Statistics indexed by day with [metric]_mean and [metric]_std.
     """
     aggregated = aggregate_metrics_by_day(entries, policy)
 

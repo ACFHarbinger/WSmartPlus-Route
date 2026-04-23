@@ -1,8 +1,21 @@
-"""
-Chart-heavy section renderers for the Training Monitor page.
+"""Chart-heavy section renderers for the Training Monitor page.
 
-Extracted from ``training.py`` to keep module sizes under 400 LoC.
-Functions are re-exported from the original module for backward compatibility.
+This module provides specialized visualization components for analyzing
+Deep Reinforcement Learning training dynamics. It includes renderers for
+learning rate schedules, summary KPI cards, epoch timing analysis, and
+multi-run performance comparison tables.
+
+Example:
+    import pandas as pd
+    df = pd.DataFrame({"epoch": [1, 2], "loss": [0.5, 0.4]})
+    _render_training_kpis(df)
+
+Attributes:
+    _render_lr_schedule: Plots learning rate dynamics over time.
+    _render_training_kpis: Displays high-level status cards for training.
+    _render_epoch_timing: Visualizes training velocity and hardware efficiency.
+    _render_run_comparison: Renders a side-by-side performance matrix.
+    _render_all_metrics_table: Provides a raw data explorer for metrics.
 """
 
 from typing import Any, Dict, List
@@ -17,7 +30,11 @@ from logic.src.ui.styles.kpi import create_kpi_row
 
 
 def _render_lr_schedule(runs_data: Dict[str, pd.DataFrame]) -> None:
-    """Plot learning rate over time if available."""
+    """Plots the learning rate schedule over time if data is available.
+
+    Args:
+        runs_data: Mapping from run name to its metrics DataFrame.
+    """
     has_lr = False
     fig = go.Figure()
 
@@ -64,7 +81,14 @@ def _render_lr_schedule(runs_data: Dict[str, pd.DataFrame]) -> None:
 
 
 def _render_training_kpis(runs_data: Dict[str, pd.DataFrame]) -> None:
-    """Display summary KPI cards for each selected run."""
+    """Displays summary KPI cards for each selected experiment run.
+
+    Calculates and renders metrics like epoch count, step count, latest loss,
+    best loss, and validation performance using standardized styles.
+
+    Args:
+        runs_data: Mapping from run name to its metrics DataFrame.
+    """
     for run_name, df in runs_data.items():
         if df.empty:
             continue
@@ -111,7 +135,11 @@ def _render_training_kpis(runs_data: Dict[str, pd.DataFrame]) -> None:
 
 
 def _render_epoch_timing(runs_data: Dict[str, pd.DataFrame]) -> None:
-    """Display epoch timing analysis."""
+    """Displays epoch timing analysis and hardware efficiency metrics.
+
+    Args:
+        runs_data: Mapping from run name to its metrics DataFrame.
+    """
     has_timing = any(
         "time/epoch_s" in df.columns and not df["time/epoch_s"].dropna().empty for df in runs_data.values()
     )
@@ -162,7 +190,12 @@ def _render_run_comparison(
     selected_runs: List[str],
     runs_data: Dict[str, pd.DataFrame],
 ) -> None:
-    """Side-by-side run comparison table (only for 2+ runs)."""
+    """Renders a side-by-side run comparison table for multiple experiments.
+
+    Args:
+        selected_runs: List of selected run names to compare.
+        runs_data: Mapping from run name to its metrics DataFrame.
+    """
     if len(selected_runs) < 2:
         return
 
@@ -209,7 +242,11 @@ def _render_run_comparison(
 
 
 def _render_all_metrics_table(runs_data: Dict[str, pd.DataFrame]) -> None:
-    """Full data explorer with download button."""
+    """Renders a full data explorer with filtering and download capabilities.
+
+    Args:
+        runs_data: Mapping from run name to its metrics DataFrame.
+    """
     with st.expander("Full Metrics Table"):
         for run_name, df in runs_data.items():
             if df.empty:

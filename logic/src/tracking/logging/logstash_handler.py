@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import logging
 import socket
-from typing import Any
 
 from .json_formatter import JsonFormatter
 

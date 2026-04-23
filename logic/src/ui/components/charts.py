@@ -1,7 +1,16 @@
-"""
-Plotly chart generators for the dashboard.
+"""Plotly chart generators for the dashboard.
 
-Provides reusable chart components for training and simulation visualization.
+This module provides reusable visualization components for cross-mode
+performance auditing. It supports sparklines, multi-axis training curves,
+radar/spider policy comparisons, and geospatial heatmaps.
+
+Example:
+    spark_html = create_sparkline_svg([0.1, 0.4, 0.2, 0.7])
+
+Attributes:
+    apply_moving_average: Utility to smooth noisy telemetry data.
+    create_sparkline_svg: Lightweight SVG generator for inline KPIs.
+    create_training_loss_chart: Multi-run comparison with dual Y-axes.
 """
 
 from typing import Dict, List, Optional
@@ -15,7 +24,15 @@ from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
 
 
 def apply_moving_average(data: pd.Series, window: int) -> pd.Series:
-    """Apply moving average smoothing to a series."""
+    """Applies moving average smoothing to a numeric series.
+
+    Args:
+        data: Input telemetry series.
+        window: Sliding window size.
+
+    Returns:
+        pd.Series: Smoothed data series.
+    """
     if window <= 1:
         return data
     return data.rolling(window=window, min_periods=1).mean()
@@ -27,8 +44,7 @@ def create_sparkline_svg(
     height: int = 20,
     color: str = "rgba(255,255,255,0.8)",
 ) -> str:
-    """
-    Create a lightweight inline SVG sparkline.
+    """Creates a lightweight inline SVG sparkline for KPI cards.
 
     Args:
         values: Data points for the sparkline.
@@ -74,8 +90,7 @@ def create_training_loss_chart(
     x_axis: str = "epoch",
     smoothing: int = 1,
 ) -> go.Figure:
-    """
-    Create a multi-run comparison chart with optional dual Y-axes.
+    """Creates a multi-run comparison chart with optional dual Y-axes.
 
     Args:
         runs_data: Dict mapping run name to DataFrame.
@@ -163,8 +178,7 @@ def create_simulation_metrics_chart(
     x_axis: str = "day",
     show_std: bool = True,
 ) -> go.Figure:
-    """
-    Create a chart for simulation metrics over time.
+    """Creates a line chart for simulation metrics over time with bands.
 
     Args:
         df: DataFrame with day and metric columns.
@@ -237,8 +251,7 @@ def create_radar_chart(
     policy_metrics: Dict[str, Dict[str, float]],
     metrics: List[str],
 ) -> go.Figure:
-    """
-    Create a radar/spider chart comparing metrics across policies.
+    """Creates a radar/spider chart comparing policies across N dimensions.
 
     Each metric is normalized to 0-1 scale for fair comparison.
 
@@ -311,8 +324,7 @@ def create_stacked_bar_chart(
     y_label: str = "",
     colors: Optional[List[str]] = None,
 ) -> go.Figure:
-    """
-    Create a stacked bar chart with multiple data series.
+    """Creates a stacked bar chart for categorical multi-series data.
 
     Args:
         categories: X-axis category labels.
@@ -357,8 +369,7 @@ def create_heatmap_chart(
     df: pd.DataFrame,
     title: str = "Heatmap",
 ) -> go.Figure:
-    """
-    Create a Plotly heatmap from a numeric DataFrame.
+    """Creates an interactive Plotly heatmap from a numeric DataFrame.
 
     Args:
         df: DataFrame with numeric values. Rows are Y-axis, columns are X-axis.

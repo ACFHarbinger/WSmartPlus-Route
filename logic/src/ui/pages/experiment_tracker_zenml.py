@@ -1,7 +1,14 @@
-"""
-ZenML pipeline runs section for the Experiment Tracker page.
+"""ZenML pipeline runs section for the Experiment Tracker page.
 
-Extracted from ``experiment_tracker.py`` to keep module sizes under 400 LoC.
+This module provides specialized visualization for ZenML orchestration
+pipelines. It supports step-level status tracking, pipeline lineage auditing,
+and status distribution charting for complex ML workflows.
+
+Example:
+    render_zenml_tracker()
+
+Attributes:
+    _render_zenml_pipelines: Main entry point for the ZenML dashboard section.
 """
 
 from typing import Dict
@@ -18,7 +25,11 @@ from logic.src.ui.services.tracking_service import (
 
 
 def _render_zenml_pipelines() -> None:
-    """ZenML pipeline runs with step status drill-down."""
+    """Renders the ZenML pipeline run table and step-level drill-down interface.
+
+    Discovers all historical pipeline runs and provides interactive status
+    summaries and timing analysis for orchestrated workflows.
+    """
     st.subheader("🚀 ZenML Pipeline Runs")
 
     zenml_runs = load_zenml_pipeline_runs()

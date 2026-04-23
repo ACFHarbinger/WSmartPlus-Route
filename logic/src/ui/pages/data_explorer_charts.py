@@ -1,7 +1,19 @@
-"""
-Chart rendering functions for the Data Explorer page.
+"""Chart rendering functions for the Data Explorer page.
 
-Extracted from ``data_explorer.py`` to keep module sizes under 400 LoC.
+This module provides specialized visualization components for the interactive
+data exploration dashboard. It includes multi-series line charts, Pareto
+tradeoff scatter plots, TensorDict coordinate maps, and statistical
+distribution analyzers for DRL datasets.
+
+Example:
+    import pandas as pd
+    df = pd.DataFrame({"x": [1, 2], "y": [10, 20]})
+    render_summary_stats(df)
+
+Attributes:
+    _CHART_TYPES: Supported visualization modes for the explorer.
+    _numeric_columns: Utility to discover numerical data in DataFrames.
+    _resolve_column: Maps UI column labels to internal DataFrame keys.
 """
 
 from typing import Any, Callable, Dict, List, Optional
@@ -37,7 +49,17 @@ _CHART_TYPES = [
 
 
 def _resolve_column(columns: List[Any], col_text: str) -> Any:
-    """Resolve a column name, handling integer column names from combo text."""
+    """Resolves a UI column name string to the actual DataFrame column key.
+
+    Handles mixed-type column keys (e.g., integers from NumPy arrays).
+
+    Args:
+        columns: List of valid column keys from the target DataFrame.
+        col_text: The user-selected column label from a UI component.
+
+    Returns:
+        Any: The resolved column key or None if not found.
+    """
     if col_text in columns:
         return col_text
     try:
@@ -50,24 +72,49 @@ def _resolve_column(columns: List[Any], col_text: str) -> Any:
 
 
 def _numeric_columns(df: pd.DataFrame) -> List[str]:
-    """Return string names of numeric columns."""
+    """Retrieves string labels for all numerical columns in a DataFrame.
+
+    Args:
+        df: Input DataFrame to scan.
+
+    Returns:
+        List[str]: String representations of numerical column keys.
+    """
     return [str(c) for c in df.select_dtypes(include=["number"]).columns]
 
 
 def _has_distribution_meta(df: pd.DataFrame) -> bool:
-    """Check whether DataFrame contains simulation distribution metadata."""
+    """Checks if a DataFrame contains simulation distribution metadata.
+
+    Args:
+        df: Input DataFrame to scan.
+
+    Returns:
+        bool: True if distribution metadata columns are present.
+    """
     return "__Distributions__" in df.columns
 
 
 def _unique_distributions(df: pd.DataFrame) -> List[str]:
-    """Return sorted unique distribution values."""
+    """Retrieves a sorted list of unique simulation distribution labels.
+
+    Args:
+        df: Input DataFrame containing '__Distributions__' metadata.
+
+    Returns:
+        List[str]: Sorted unique distribution names.
+    """
     if "__Distributions__" not in df.columns:
         return []
     return sorted(df["__Distributions__"].dropna().unique().tolist())
 
 
 def _render_visualization_tab(df: pd.DataFrame) -> None:
-    """Render the enhanced Visualization tab."""
+    """Renders the comprehensive Visualization tab for the Data Explorer.
+
+    Args:
+        df: The currently active DataFrame to visualize.
+    """
 
     str_columns = [str(c) for c in df.columns.tolist()]
     numeric_cols = _numeric_columns(df)
@@ -161,7 +208,14 @@ def _render_line_bar_chart(
     x_col: str,
     y_cols: List[str],
 ) -> None:
-    """Render Line Chart or Bar Chart with multi-Y support."""
+    """Renders Line or Bar charts with multi-series support.
+
+    Args:
+        df: The dataset containing plotting data.
+        chart_type: Either 'Line Chart' or 'Bar Chart'.
+        x_col: The column label for the horizontal axis.
+        y_cols: List of column labels for vertical axes/series.
+    """
     columns = df.columns.tolist()
 
     if not y_cols:
@@ -245,7 +299,14 @@ def _render_scatter_chart(
     y_col: str,
     extra_opts: Dict[str, Any],
 ) -> None:
-    """Render Scatter Plot with optional color-by and Pareto front."""
+    """Renders Scatter plots with optional Pareto and color mapping.
+
+    Args:
+        df: The dataset containing plotting data.
+        x_col: The column label for the horizontal axis.
+        y_col: The column label for the vertical axis.
+        extra_opts: Visual configuration including 'color_by' and 'pareto'.
+    """
     columns = df.columns.tolist()
     x_key = _resolve_column(columns, x_col)
     y_key = _resolve_column(columns, y_col)
@@ -286,7 +347,13 @@ def _render_area_chart(
     x_col: str,
     y_col: str,
 ) -> None:
-    """Render an Area Chart."""
+    """Renders an Area Chart for temporal or sequential data.
+
+    Args:
+        df: The dataset containing plotting data.
+        x_col: The column label for the horizontal axis.
+        y_col: The column label for the vertical axis.
+    """
     columns = df.columns.tolist()
     x_key = _resolve_column(columns, x_col)
     y_key = _resolve_column(columns, y_col)
@@ -312,7 +379,15 @@ def _render_selected_chart(
     extra_opts: Dict[str, Any],
     local_vars: Dict[str, Any],
 ) -> None:
-    """Dispatch to the appropriate chart renderer."""
+    """Dispatches plot requests to specialized visual renderers.
+
+    Args:
+        df: The dataset containing plotting data.
+        chart_type: The target visualization mode from _CHART_TYPES.
+        x_col: The primary horizontal axis column label.
+        extra_opts: Rendering configuration for scatter/histograms.
+        local_vars: Context-specific variables for multi-series charts.
+    """
     columns = df.columns.tolist()
 
     if chart_type == "Heatmap":
@@ -356,7 +431,17 @@ def _render_selected_chart(
 
 
 def _find_td_table(tables: Dict[str, pd.DataFrame], key: str) -> Optional[pd.DataFrame]:
-    """Return the DataFrame whose table label starts with ``'<key> ('``."""
+    """Retrieves a specific tensor-derived table by key identifier.
+
+    Handles the label formatting used in TensorDict discovery.
+
+    Args:
+        tables: Mapping of table labels to DataFrames.
+        key: The raw tensor key to find.
+
+    Returns:
+        Optional[pd.DataFrame]: The matched DataFrame or None.
+    """
     for label, df in tables.items():
         if label.startswith(f"{key} ("):
             return df
@@ -369,7 +454,14 @@ def _render_td_coord_section(
     depot_keys: List[str],
     lazy_loader: Optional[Callable[[str], Optional[pd.DataFrame]]] = None,
 ) -> None:
-    """Scatter-plot coordinate tensors with optional depot overlay."""
+    """Renders interactive coordinate scatter maps with optional depot overlay.
+
+    Args:
+        tables: Mapping of already loaded DataFrames.
+        coord_keys: Keys identified as geospatial coordinate tensors.
+        depot_keys: Keys identified as single-point depot tensors.
+        lazy_loader: Optional callable for on-demand loading of large tensors.
+    """
     st.subheader("Coordinate Map")
 
     ctrl = st.columns([2, 2, 2])
@@ -453,7 +545,15 @@ def _render_td_dist_section(
     scalar_keys: List[str],
     lazy_loader: Optional[Callable[[str], Optional[pd.DataFrame]]] = None,
 ) -> None:
-    """Histogram + per-node box-plot for a selected scalar tensor key."""
+    """Renders statistical distribution views for numerical tensors.
+
+    Calculates histograms and per-node box plots to analyze dataset balance.
+
+    Args:
+        tables: Mapping of already loaded DataFrames.
+        scalar_keys: Keys identified as numerical/scalar tensors.
+        lazy_loader: Optional callable for on-demand loading of large tensors.
+    """
     st.subheader("Tensor Distributions")
 
     sel_key = st.selectbox("Select Key", options=scalar_keys, key="td_dist_key")
@@ -504,13 +604,12 @@ def _render_td_overview_tab(
     tables: Dict[str, pd.DataFrame],
     lazy_loader: Optional[Callable[[str], Optional[pd.DataFrame]]] = None,
 ) -> None:
-    """Render the TensorDict Overview tab.
+    """Renders the comprehensive structural overview tab for TensorDict files.
 
     Args:
-        td_meta: Metadata dict produced by ``_load_td_file``.
-        tables: Named DataFrames from the same load call.
-        lazy_loader: Optional callable ``(key) -> DataFrame`` for path-based
-            datasets where tensors are not pre-loaded into ``tables``.
+        td_meta: Metadata dictionary describing tensor shapes and types.
+        tables: Mapping of already loaded DataFrames.
+        lazy_loader: Optional callable for on-demand loading of large tensors.
     """
     filename = td_meta.get("filename", "unknown")
     batch_size = td_meta.get("batch_size")

@@ -18,8 +18,18 @@ Expected log format (.jsonl, one record per day):
     {"day": 1, "policy": "gurobi", "tour": [0, 5, 12, 8, 0],
      "kg": 125.5, "km": 45.2, "cost": 22.6, "profit": 50.2, "overflows": 0}
 
-Usage::
+Attributes:
+    PYDECK_TOOLTIP_HTML: HTML string for the PyDeck tooltip.
+    PYDECK_TOOLTIP_STYLE: Dictionary for the PyDeck tooltip style.
+    _load_jsonl: Loads and parses a .jsonl simulation log.
+    _reconstruct_fill_levels: Reconstructs fill levels from the simulation log.
+    _build_column_data: Builds column data for the PyDeck map.
+    _build_arc_data: Builds arc data for the PyDeck map.
+    _render_day_kpis: Renders the day KPIs.
+    _render_static_bins: Renders the static bins.
+    render_pydeck_animated_map: Main entry point for the animated map.
 
+Example:
     from logic.src.ui.components.maps.pydeck_animated import render_pydeck_animated_map
 
     render_pydeck_animated_map(
@@ -207,7 +217,16 @@ def _load_jsonl(
     path: Path,
     policy_filter: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    """Load and parse a .jsonl simulation log, optionally filtering by policy."""
+    """
+    Load and parse a .jsonl simulation log, optionally filtering by policy.
+
+    Args:
+        path: Path to the .jsonl log file.
+        policy_filter: Optional policy name to filter log entries by.
+
+    Returns:
+        List[Dict[str, Any]]: List of parsed log records.
+    """
     records: List[Dict[str, Any]] = []
     try:
         with open(path, "r", encoding="utf-8") as fh:
@@ -238,6 +257,15 @@ def _reconstruct_fill_levels(
 
     Each bin accumulates ``daily_increment`` percent per day and resets to 0.0
     when it appears in the collected tour (indices are 1-based, depot = 0).
+
+    Args:
+        bins: List of bin coordinate dictionaries.
+        records: Simulation log records.
+        up_to_day: The simulation day to reconstruct fill levels for.
+        daily_increment: Percentage added per bin per day.
+
+    Returns:
+        List[float]: Reconstructed fill levels (0-100) for each bin.
     """
     n = len(bins)
     fill = [0.0] * n
@@ -264,7 +292,16 @@ def _build_column_data(
     bins: List[Dict[str, float]],
     fill_levels: List[float],
 ) -> List[Dict[str, Any]]:
-    """Build ColumnLayer records with dynamic colour (green→red gradient)."""
+    """
+    Build ColumnLayer records with dynamic colour (green→red gradient).
+
+    Args:
+        bins: Bin coordinate list.
+        fill_levels: Reconstructed fill percentages.
+
+    Returns:
+        List[Dict[str, Any]]: Records formatted for Pydeck ColumnLayer.
+    """
     data: List[Dict[str, Any]] = []
     for i, b in enumerate(bins):
         pct = fill_levels[i] if i < len(fill_levels) else 0.0
@@ -292,6 +329,14 @@ def _build_arc_data(
     Build ArcLayer records for vehicle movements on a specific day.
 
     Depot is treated as node index 0, bins as indices 1 … N.
+
+    Args:
+        bins: Master list of bin coordinates.
+        records: Simulation log records.
+        day: The day to extract route arcs for.
+
+    Returns:
+        List[Dict[str, Any]]: Records formatted for Pydeck ArcLayer.
     """
     rec = next((r for r in records if r["day"] == day), None)
     if rec is None:
@@ -326,7 +371,12 @@ def _build_arc_data(
 
 
 def _render_day_kpis(record: Dict[str, Any]) -> None:
-    """Display per-day KPI metrics below the map."""
+    """
+    Display per-day KPI metrics below the map.
+
+    Args:
+        record: The log record for the selected day.
+    """
     kpi_defs: List[Tuple[str, str, str]] = [
         ("kg", "Waste (kg)", ".1f"),
         ("km", "Distance (km)", ".1f"),
@@ -348,7 +398,16 @@ def _render_static_bins(
     zoom: int,
     pdk: Any,
 ) -> None:
-    """Fallback: render bin locations as scatter dots when no log is available."""
+    """
+    Fallback: render bin locations as scatter dots when no log is available.
+
+    Args:
+        bins: List of bin coordinate dictionaries.
+        lat: Latitude for view initialization.
+        lon: Longitude for view initialization.
+        zoom: Initial zoom level.
+        pdk: The PyDeck module instance.
+    """
     if not bins:
         st.info("No bin locations provided.")
         return

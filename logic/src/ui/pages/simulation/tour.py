@@ -1,3 +1,18 @@
+"""Tour sequence and raw telemetry inspection components.
+
+This module provides tabular and JSON-based views for inspecting the
+specific sequence of nodes visited in a collection route. It includes
+stop counts, node coordinates, and raw data exploration for debugging
+simulation results.
+
+Example:
+    render_tour_details(selected_entry)
+
+Attributes:
+    render_tour_details: Visualizes the ordered sequence of collection stops.
+    render_raw_data_view: Provides a JSON explorer for the full day telemetry.
+"""
+
 from typing import Any
 
 import pandas as pd
@@ -5,7 +20,11 @@ import streamlit as st
 
 
 def render_tour_details(display_entry: Any) -> None:
-    """Render tour sequence and leg details."""
+    """Renders the detailed stop sequence and leg distance metrics.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+    """
     st.subheader("Tour Details")
     data = display_entry.data
     tour = data.get("tour", [])
@@ -45,7 +64,11 @@ def render_tour_details(display_entry: Any) -> None:
 
 
 def render_raw_data_view(display_entry: Any) -> None:
-    """Render raw data view for debugging."""
+    """Renders the raw JSON telemetry record for auditing and debugging.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+    """
     st.subheader("Raw Data (JSON)")
     st.markdown(
         f"**Policy**: `{display_entry.policy}` | "

@@ -1,5 +1,21 @@
-"""
-Dashboard components for the Streamlit UI.
+"""Streamlit dashboard page entry points.
+
+This package exports the main rendering functions for each dashboard mode,
+allowing for dynamic layout switching in the core app orchestrator.
+
+Example:
+    from logic.src.ui.pages import render_algorithms
+    render_algorithms()
+
+Attributes:
+    render_training_monitor: Real-time DRL training metrics.
+    render_simulation_visualizer: Interactive tour/bin visualization.
+    render_simulation_summary: KPI and KPI comparison dashboard.
+    render_benchmark_analysis: Cross-hardware solver analysis.
+    render_data_explorer: Interactive dataset profiling.
+    render_experiment_tracker: Multi-backend run auditing.
+    render_hpo_tracker: Optuna study visualization.
+    render_algorithms: Global registry discovery interface.
 """
 
 from .algorithms import render_algorithms

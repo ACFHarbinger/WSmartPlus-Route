@@ -1,5 +1,15 @@
-"""
-Plotly charts for benchmark visualization.
+"""Plotly charts for benchmark visualization.
+
+This module provides specialized Plotly renderers for cross-solver
+performance auditing. It supports latency vs throughput tradeoff scatter
+plots and multi-instance bar chart comparisons.
+
+Example:
+    fig = create_benchmark_comparison_chart(df, "latency", "Latency Comparison")
+
+Attributes:
+    create_benchmark_comparison_chart: Renders multi-run metric comparisons.
+    create_latency_throughput_scatter: Visualizes inference efficiency.
 """
 
 import pandas as pd
@@ -12,8 +22,17 @@ from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
 def create_benchmark_comparison_chart(
     df: pd.DataFrame, metric: str, title: str, x_axis: str = "policy", color_col: str = "num_nodes"
 ) -> go.Figure:
-    """
-    Create a bar chart comparing benchmark metrics across policies/models.
+    """Creates a bar chart comparing benchmark metrics across policies/models.
+
+    Args:
+        df: Input DataFrame containing benchmark results.
+        metric: Column name of the metric to plot.
+        title: Chart title.
+        x_axis: Column to use for the X-axis (e.g., 'policy').
+        color_col: Column to use for color grouping (e.g., 'num_nodes').
+
+    Returns:
+        go.Figure: Interactive bar chart.
     """
     if df.empty or metric not in df.columns:
         return go.Figure()
@@ -69,8 +88,16 @@ def create_benchmark_comparison_chart(
 def create_latency_throughput_scatter(
     df: pd.DataFrame, latency_col: str = "latency", throughput_col: str = "throughput", color_col: str = "num_nodes"
 ) -> go.Figure:
-    """
-    Create a scatter plot for latency vs throughput.
+    """Creates a scatter plot analyzing latency vs throughput efficiency.
+
+    Args:
+        df: Input DataFrame containing benchmark telemetry.
+        latency_col: Column name for latency data.
+        throughput_col: Column name for throughput data.
+        color_col: Column name for discrete color mapping.
+
+    Returns:
+        go.Figure: Multi-dimensional efficiency scatter plot.
     """
     if df.empty or latency_col not in df.columns or throughput_col not in df.columns:
         return go.Figure()

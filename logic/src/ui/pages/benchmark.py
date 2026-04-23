@@ -1,5 +1,15 @@
-"""
-Benchmark Analysis mode for the Streamlit dashboard.
+"""Benchmark Analysis mode for the Streamlit dashboard.
+
+This module provides visual auditing of solver performance across multiple
+hardware architectures and problem instances. It supports latency vs
+throughput tradeoff analysis, multi-run aggregation, and environment
+metadata discovery.
+
+Example:
+    render_benchmark_analysis()
+
+Attributes:
+    render_benchmark_analysis: Main entry point for the benchmark dashboard.
 """
 
 from typing import Any, Dict, List
@@ -23,7 +33,11 @@ from logic.src.ui.styles.kpi import create_kpi_row
 
 
 def _render_benchmark_kpis(df: pd.DataFrame) -> None:
-    """Display summary KPI cards for the benchmark dataset."""
+    """Displays summary KPI cards for the benchmark dataset.
+
+    Args:
+        df: Input DataFrame containing benchmark results.
+    """
     metrics: Dict[str, Any] = {"Total Runs": len(df)}
 
     # Unique policies/models
@@ -55,7 +69,11 @@ def _render_benchmark_kpis(df: pd.DataFrame) -> None:
 
 
 def _render_benchmark_metadata(df: pd.DataFrame) -> None:
-    """Display benchmark environment and configuration info."""
+    """Displays benchmark hardware environment and configuration metadata.
+
+    Args:
+        df: Input DataFrame containing run metadata.
+    """
     has_metadata = any(col in df.columns for col in ["device", "num_nodes", "batch_size"])
     if not has_metadata:
         return
@@ -95,7 +113,11 @@ def _render_benchmark_metadata(df: pd.DataFrame) -> None:
 
 
 def _render_performance_table(filtered_df: pd.DataFrame) -> None:
-    """Enhanced performance table with column selector and formatting."""
+    """Renders an enhanced performance table with interactive column selection.
+
+    Args:
+        filtered_df: Filtered benchmark results for display.
+    """
     st.subheader("Benchmark Results")
     st.caption(f"{len(filtered_df)} entries")
 
@@ -118,7 +140,11 @@ def _render_performance_table(filtered_df: pd.DataFrame) -> None:
 
 
 def _render_comparison_charts(filtered_df: pd.DataFrame) -> None:
-    """Enhanced comparison charts with grouping selector."""
+    """Renders cross-run metric comparison charts with dynamic grouping.
+
+    Args:
+        filtered_df: The dataset containing plotting data.
+    """
     st.subheader("Metric Comparison")
 
     # Identify numeric metrics
@@ -152,7 +178,11 @@ def _render_comparison_charts(filtered_df: pd.DataFrame) -> None:
 
 
 def _render_latency_throughput(filtered_df: pd.DataFrame) -> None:
-    """Latency vs throughput scatter plot."""
+    """Renders latency vs throughput scatter plots for neural solvers.
+
+    Args:
+        filtered_df: The dataset containing plotting data.
+    """
     st.subheader("Inference Efficiency")
     if "latency" in filtered_df.columns and "throughput" in filtered_df.columns:
         fig = create_latency_throughput_scatter(pd.DataFrame(filtered_df))
@@ -162,7 +192,11 @@ def _render_latency_throughput(filtered_df: pd.DataFrame) -> None:
 
 
 def _render_per_run_details(filtered_df: pd.DataFrame) -> None:
-    """Drill-down into a single benchmark entry."""
+    """Renders a detailed JSON drill-down for a single benchmark entry.
+
+    Args:
+        filtered_df: The dataset containing candidate records.
+    """
     st.subheader("Per-Run Details")
 
     if filtered_df.empty:
@@ -202,7 +236,10 @@ def _render_per_run_details(filtered_df: pd.DataFrame) -> None:
 
 
 def render_benchmark_analysis() -> None:
-    """Render the Benchmark Analysis mode."""
+    """Orchestrates and renders the core Benchmark Analysis dashboard.
+
+    Handles file ingestion, interactive filtering, and multi-tab rendering.
+    """
     st.title("Benchmark Analysis")
     st.markdown("Analyze performance metrics, latency, and throughput across different solvers and models.")
 
