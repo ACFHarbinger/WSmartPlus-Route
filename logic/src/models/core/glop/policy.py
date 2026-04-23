@@ -1,12 +1,22 @@
-"""
-GLOP Policy.
+"""GLOP Policy: Global-Local Optimization Policy.
 
-Global-Local Optimization Policy combining NAR partitioning with local solvers.
+This module implements `GLOPPolicy`, a two-stage hierarchical model that first
+partitions a large problem into sub-clusters using a NAR encoder, and then
+refines each cluster using dedicated local solvers (e.g., greedy TSP).
+
+Attributes:
+    SubProblemSolverType: Type alias for local solver callables.
+    GLOPPolicy: Hierarchical partitioning policy.
+
+Example:
+    >>> from logic.src.models.core.glop.policy import GLOPPolicy
+    >>> policy = GLOPPolicy(env_name="cvrp", subprob_solver='greedy')
+    >>> out = policy(td, my_env)
 """
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Literal, Optional
+from typing import Any, Callable, Dict, Literal, Optional, Union
 
 import torch
 from tensordict import TensorDict
@@ -20,16 +30,17 @@ SubProblemSolverType = Callable[[torch.Tensor], torch.Tensor]
 
 
 class GLOPPolicy(NonAutoregressivePolicy):
-    """
-    GLOP: Global-Local Optimization Policy.
+    """GLOP: Global-Local Optimization Policy.
 
-    Two-stage hierarchical approach:
-    1. Global: Use NAR encoder to partition nodes into groups
-    2. Local: Solve each partition with a local solver (insertion, neural TSP)
+    Decomposes large-scale optimization into:
+    1. Global Partitioning: Discrete node clustering via Non-Autoregressive model.
+    2. Local Optimization: Fine-grained routing within each cluster.
 
-    Reference:
-        Ye et al. "GLOP: Learning Global Partition and Local Construction
-        for Solving Large-scale Routing Problems in Real-time" (2023)
+    Attributes:
+        n_samples (int): parallel partition variants to explore.
+        subprob_solver (Union[SubProblemSolverType, str]): Logic for sub-problem routing.
+        subprob_batch_size (int): Max sub-problems processed in one local pass.
+        adapter_class (Type): Environment-specific adapter for partition integration.
     """
 
     def __init__(
@@ -38,21 +49,20 @@ class GLOPPolicy(NonAutoregressivePolicy):
         n_samples: int = 10,
         temperature: float = 1.0,
         embed_dim: int = 64,
-        subprob_solver: SubProblemSolverType | str = "greedy",
+        subprob_solver: Union[SubProblemSolverType, str] = "greedy",
         subprob_batch_size: int = 2000,
-        **encoder_kwargs,
+        **encoder_kwargs: Any,
     ) -> None:
-        """
-        Initialize GLOP policy.
+        """Initializes the GLOP policy.
 
         Args:
-            env_name: Environment name.
-            n_samples: Number of samples for multistart.
-            temperature: Temperature for sampling.
-            embed_dim: Embedding dimension.
-            subprob_solver: Solver for local subproblems.
-            subprob_batch_size: Batch size for subproblem solving.
-            **encoder_kwargs: Additional encoder arguments.
+            env_name: Targeted optimization task.
+            n_samples: Count of sampling trials for the partitioner.
+            temperature: Softness of the partition sampling.
+            embed_dim: Intermediate feature width.
+            subprob_solver: Identifier or callback for the local router.
+            subprob_batch_size: Throughput limit for local solver execution.
+            **encoder_kwargs: Extra parameters for the NAR encoder.
         """
         super().__init__(
             env_name=env_name,
@@ -68,7 +78,6 @@ class GLOPPolicy(NonAutoregressivePolicy):
         self.subprob_solver = subprob_solver
         self.subprob_batch_size = subprob_batch_size
 
-        # Get appropriate adapter for environment
         self.adapter_class = get_adapter(env_name)
 
     def forward(  # type: ignore[override]
@@ -80,29 +89,30 @@ class GLOPPolicy(NonAutoregressivePolicy):
         return_actions: bool = False,
         return_entropy: bool = False,
         strategy: Optional[str] = None,
-        **decoding_kwargs,
+        **decoding_kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass with global partitioning + local solving.
+        """Encodes partitions and refines them via local construction.
 
         Args:
-            td: TensorDict with problem data.
-            env: Environment instance.
-            phase: Current phase.
-            calc_reward: Whether to calculate reward.
-            return_actions: Whether to return actions.
-            return_entropy: Whether to return entropy.
+            td: Environment state.
+            env: Current optimization task.
+            phase: Execution phase.
+            calc_reward: Whether to evaluate final tour quality.
+            return_actions: Whether to include the full refined tour in output.
+            return_entropy: Whether to track partitioner uncertainty.
+            strategy: Overriding decoding strategy for the partitioner.
+            **decoding_kwargs: Extra parameters for NAR decoding.
 
         Returns:
-            Dictionary with reward, log_likelihood, and optionally actions.
+            Dict[str, Any]: Results including 'reward' and optionally 'actions'.
         """
-        # Stage 1: Global partitioning via NAR policy
+        # Phase 1: Partition nodes using the NAR encoder
         par_out = super().forward(
             td=td,
             env=env,  # type: ignore[arg-type]
             phase=phase,
             calc_reward=False,
-            return_actions=True,  # Need partition actions
+            return_actions=True,
             return_entropy=return_entropy,
             num_starts=self.n_samples,
             strategy=strategy,  # type: ignore[arg-type]
@@ -111,18 +121,17 @@ class GLOPPolicy(NonAutoregressivePolicy):
 
         partition_actions = par_out["actions"]
 
-        # Stage 2: Local solving
+        # Phase 2: Solve each partition locally
         local_out = self._local_policy(td, partition_actions)
         final_actions = local_out["actions"]
 
-        # Build output
+        # Harmonize outputs
         out = par_out
         if return_actions:
             out["actions"] = final_actions
         else:
             out.pop("actions", None)
 
-        # Calculate reward on final solution
         if calc_reward and env is not None:
             from logic.src.utils.decoding import batchify
 
@@ -138,20 +147,18 @@ class GLOPPolicy(NonAutoregressivePolicy):
         td: TensorDict,
         partition_actions: torch.Tensor,
     ) -> Dict[str, Any]:
-        """
-        Apply local solver to each partition.
+        """Orchestrates local solver application across all partitions.
 
         Args:
-            td: Problem TensorDict.
-            partition_actions: Partition assignments.
+            td: Original problem state.
+            partition_actions: Cluster assignments [B*Samples, N].
 
         Returns:
-            Dictionary with refined actions.
+            Dict[str, Any]: Refined actions merged back into full tours.
         """
-        # Reshape for n_samples handling
-        # (n_samples * batch) -> (batch * n_samples)
         from logic.src.utils.decoding import unbatchify
 
+        # Transform to internal shape for adapter processing
         partition_actions_reshaped = (
             unbatchify(partition_actions, self.n_samples)
             .transpose(0, 1)
@@ -159,20 +166,20 @@ class GLOPPolicy(NonAutoregressivePolicy):
             .view(-1, partition_actions.size(-1))
         )
 
-        # Create adapter
+        # Initialize environment-aware partition adapter
         adapter = self.adapter_class(
             td,
             partition_actions_reshaped,
             subprob_batch_size=self.subprob_batch_size,
         )
 
-        # Solve subproblems
+        # Iterate through sub-problem batches
         solver = self._get_solver()
         for mapping in adapter.get_batched_subprobs():
             subprob_actions = solver(mapping.subprob_coordinates)
             adapter.update_actions(mapping, subprob_actions)
 
-        # Get final actions and reshape back
+        # Extract and restore original batch/sample ordering
         actions = adapter.get_actions().to(td.device)
         batch_size = td.batch_size[0] if td.batch_size else partition_actions.size(0) // self.n_samples
         actions = actions.view(batch_size, self.n_samples, -1).transpose(0, 1).contiguous()
@@ -181,47 +188,45 @@ class GLOPPolicy(NonAutoregressivePolicy):
         return {"actions": actions}
 
     def _get_solver(self) -> SubProblemSolverType:
-        """Get the subproblem solver function."""
+        """Retrieves the concrete solver implementation based on config."""
         if isinstance(self.subprob_solver, str):
             if self.subprob_solver == "greedy":
                 return self._greedy_tsp_solver
             elif self.subprob_solver == "nearest":
                 return self._nearest_neighbor_solver
             else:
-                raise ValueError(f"Unknown solver: {self.subprob_solver}")
+                raise ValueError(f"Unknown local solver: {self.subprob_solver}")
         return self.subprob_solver
 
     @staticmethod
     def _greedy_tsp_solver(coords: torch.Tensor) -> torch.Tensor:
-        """
-        Simple greedy TSP solver.
+        """Baseline greedy/nearest neighbor solver for local segments.
 
         Args:
-            coords: Coordinates (num_nodes, 2).
+            coords: Spatial coordinates [N_sub, 2].
 
         Returns:
-            Tour as node indices.
+            torch.Tensor: Node sequence trial [N_sub].
         """
         n = coords.size(0)
         if n <= 1:
             return torch.arange(n)
 
-        visited = torch.zeros(n, dtype=torch.bool)
+        visited = torch.zeros(n, dtype=torch.bool, device=coords.device)
         tour = [0]
         visited[0] = True
 
         for _ in range(n - 1):
             current = tour[-1]
-            # Find nearest unvisited
             dists = torch.cdist(coords[current : current + 1], coords).squeeze(0)
             dists[visited] = float("inf")
             nearest = dists.argmin().item()
-            tour.append(nearest)  # type: ignore[arg-type]
-            visited[nearest] = True  # type: ignore[index]
+            tour.append(nearest)  # type: ignore
+            visited[nearest] = True
 
-        return torch.tensor(tour)
+        return torch.tensor(tour, device=coords.device)
 
     @staticmethod
     def _nearest_neighbor_solver(coords: torch.Tensor) -> torch.Tensor:
-        """Nearest neighbor heuristic (alias for greedy)."""
+        """Alias for greedy TSP construction."""
         return GLOPPolicy._greedy_tsp_solver(coords)

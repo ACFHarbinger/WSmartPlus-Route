@@ -1,18 +1,22 @@
+"""Unstringing operators package.
+
+This package provides GPU-accelerated implementations of the sophisticated
+unstringing operators family (Types I-IV). Unstringing operators improve
+tour quality by removing a node and reconnecting the route with multiple
+segment reversals, creating powerful moves that can escape deep local optima.
+
+Attributes:
+    vectorized_type_i_unstringing: Type I operator (2 segment reversals).
+    vectorized_type_ii_unstringing: Type II operator (alternative reversal ordering).
+    vectorized_type_iii_unstringing: Type III operator (3 segment reversals).
+    vectorized_type_iv_unstringing: Type IV operator (selective reversals).
+
+Example:
+    >>> from logic.src.models.policies.operators import unstringing
+    >>> opt_tours = unstringing.vectorized_type_i_unstringing(tours, dist)
 """
-Vectorized Unstringing and Stringing (US) operators for WSmart-Route.
 
-This module provides GPU-accelerated implementations of the sophisticated unstringing
-operators family. Unstringing operators remove a node and reconnect the route with
-multiple segment reversals, creating powerful k-opt moves that can escape deep local optima.
-
-Operator Hierarchy (by complexity):
-- Type I:   2 segment reversals, 4 arc deletions, 3 arc insertions
-- Type II:  2 segment reversals (alternative ordering)
-- Type III: 3 segment reversals, 5 arc deletions, 4 arc insertions
-- Type IV:  Complex rearrangement with selective reversals (most powerful)
-
-All operators support batch processing for parallel evaluation across multiple instances.
-"""
+from __future__ import annotations
 
 from .type_i import vectorized_type_i_unstringing
 from .type_ii import vectorized_type_ii_unstringing

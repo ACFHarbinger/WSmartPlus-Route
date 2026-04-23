@@ -1,6 +1,8 @@
-"""
-Random Local Search Policy expert.
-Performs iterative local search moves sampled from a set of operators based on provided probabilities.
+"""Random local search policy expert.
+
+This module provides an expert policy that performs stochastic local search by
+iteratively sampling and applying improvement operators from a configurable pool.
+Useful for generating expert trajectories during imitation learning.
 """
 
 from __future__ import annotations
@@ -25,34 +27,40 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
 class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
-    """
-    Random Local Search expert policy.
+    """Random Local Search expert policy.
 
-    Iteratively applies local search operators sampled from a probability distribution.
-    Useful for imitation learning and adaptive refinement.
+    Iteratively applies local search operators sampled from a probability
+    distribution. This stochastic search explores the local neighborhood of
+    initial solutions to find improvements across multiple operator types.
+
+    Attributes:
+        n_iterations: Total refinements per step.
+        op_probs_dict: Configuration for operator selection frequency.
+        probs: Normalized probability distribution for sampling.
+        ops: Ordered list of operator identifiers.
+        op_map: Internal mapping from strings to operator functions.
     """
 
     def __init__(
         self,
         env_name: str,
         n_iterations: int = 100,
-        op_probs: dict[str, float] | None = None,
+        op_probs: Optional[Dict[str, float]] = None,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
-        """
-        Initialize RandomLocalSearchPolicy.
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the random local search policy.
 
         Args:
-            env_name: Name of the environment.
+            env_name: Name of the problem environment.
             n_iterations: Number of search iterations (operator applications).
             op_probs: Dictionary mapping operator names to selection probabilities.
-                     Normalized internally if they don't sum to 1.
-                     Supported keys: 'two_opt', 'swap', 'relocate', 'two_opt_star', 'swap_star', 'three_opt'.
+                Supported: 'two_opt', 'swap', 'relocate', 'two_opt_star',
+                'swap_star', 'three_opt'.
             seed: Random seed for reproducibility.
-            device: Device to use for computation.
-            **kwargs: Additional arguments for ConstructivePolicy.
+            device: Computation device.
+            **kwargs: Additional hyperparameters.
         """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.n_iterations = n_iterations
@@ -88,18 +96,33 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        strategy: str = "greedy",  # Ignored
+        strategy: str = "greedy",
         num_starts: int = 1,
         max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Refine solutions using stochastic local search.
+        """Refine solutions using stochastic local search.
+
+        Args:
+            td: Input state TensorDict.
+            env: The environment being solved.
+            strategy: Selection strategy (ignored).
+            num_starts: Dummy parameter for interface compliance.
+            max_steps: Maximum steps (ignored).
+            phase: Current execution context ('train', 'val', or 'test').
+            return_actions: Whether to include refined routes in output.
+            **kwargs: Extra parameters like 'initial_solution'.
+
+        Returns:
+            Dict[str, Any]: Results dictionary containing:
+                - actions (torch.Tensor): Padded action sequences.
+                - reward (torch.Tensor): Calculated reward for the solution.
+                - cost (torch.Tensor): Raw objective value from the engine.
+                - log_likelihood (torch.Tensor): Zero vector (RLS is non-pi).
         """
         batch_size = td.batch_size[0]
-        device = td.device
 
         # 1. Extract environment data
         locs = td["locs"]
@@ -134,7 +157,6 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             current_routes[b, : len(r)] = torch.tensor(r, device=device)
 
         # 3. Iterative Stochastic Local Search
-        # Pre-sample operators for all iterations
         self.probs = self.probs.to(device)
 
         op_indices = torch.multinomial(
@@ -146,7 +168,6 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             op_func = self.op_map[op_name]
 
             # Apply operator
-            # We set max_iterations=1 to ensure we respect our n_iterations and stochasticity
             current_routes = op_func(current_routes, dist_matrix, max_iterations=1, generator=self.generator)
 
             self._viz_record(iteration=_rls_iter, op_name=op_name)
@@ -160,9 +181,6 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         dists = dist_matrix[batch_ids, from_n, to_n] if dist_matrix.dim() == 3 else dist_matrix[from_n, to_n]
 
         costs = dists.sum(dim=1)
-
-        # RL4CO return format
-        # We return the routed result as actions.
 
         # Compute rewards (profit - cost)
         R = getattr(env, "waste_weight", 1.0)
@@ -182,16 +200,24 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             "cost": costs,
         }
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepare state for pickling (handle non-picklable Generator).
+
+        Returns:
+            Dict[str, Any]: Picklable state dictionary.
+        """
         state = self.__dict__.copy()
         state["generator_state"] = self.generator.get_state()
         state["generator_device"] = str(self.generator.device)
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after unpickling.
+
+        Args:
+            state: The state dictionary to restore.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)

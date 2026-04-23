@@ -1,8 +1,16 @@
-"""
-Attention Model Policy for RL4CO.
+"""Attention Model Policy for RL training.
 
-Adapts the existing GATEncoder and AttentionDecoder to the RL4CO architecture
-using TensorDict for state management.
+This module provides an RL4CO-compatible wrapper around the GATEncoder and
+AttentionDecoder components. It utilizes TensorDict for standardized state
+management across different reinforcement learning environments.
+
+Attributes:
+    AttentionModelPolicy: A constructive policy combining GAT and attention decoding.
+
+Example:
+    >>> from logic.src.models.core.attention_model.policy import AttentionModelPolicy
+    >>> policy = AttentionModelPolicy(env_name="vrp", embed_dim=128)
+    >>> out = policy(td, env, strategy="greedy")
 """
 
 from __future__ import annotations
@@ -23,8 +31,17 @@ from logic.src.utils.tasks.dummy_problem import DummyProblem
 
 
 class AttentionModelPolicy(AutoregressivePolicy):
-    """
-    RL4CO-style Policy using existing Attention Model components.
+    """RL4CO-style Policy for constructive routing.
+
+    Leverages a Graph Attention Network (GAT) to encode nodes and a Glimpse-based
+    decoder to autoregressively select the next stop in a route.
+
+    Attributes:
+        init_embedding (nn.Module): Problem-specific initial feature projection.
+        encoder (GraphAttentionEncoder): Graph-level feature extractor.
+        decoder (GlimpseDecoder): Step-wise decision maker with attention glimpse.
+        env_name (str): Persistent identifier for specific routing domains.
+        embed_dim (int): feature vector dimensionality.
     """
 
     encoder: GraphAttentionEncoder
@@ -38,9 +55,19 @@ class AttentionModelPolicy(AutoregressivePolicy):
         n_encode_layers: int = 3,
         n_heads: int = 8,
         normalization: str = "batch",
-        **kwargs,
-    ):
-        """Initialize AttentionModelPolicy."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the AttentionModelPolicy.
+
+        Args:
+            env_name: Name of the environment registry entry.
+            embed_dim: Latent representation size.
+            hidden_dim: Hidden size for FFN and attention sublayers.
+            n_encode_layers: Number of transformer encoder layers.
+            n_heads: Parallel attention heads.
+            normalization: Type of normalization ('batch', 'instance', 'layer').
+            **kwargs: Additional parameters for the sub-components.
+        """
         super().__init__(env_name=env_name, embed_dim=embed_dim)
 
         self.init_embedding = get_init_embedding(env_name, embed_dim)
@@ -69,10 +96,29 @@ class AttentionModelPolicy(AutoregressivePolicy):
         strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass executing the constructive solution generation.
+        """Executes one-shot or multi-start constructive decoding.
+
+        Args:
+            td: TensorDict containing instance metadata and state.
+            env: Environment object for reward and state updates.
+            strategy: Action selection tactic ('greedy', 'sampling').
+            num_starts: Number of parallel construction attempts.
+            actions: Pre-defined tour to evaluate (for teacher forcing).
+            **kwargs: Control arguments including 'return_init_embeds'.
+
+        Returns:
+            Dict[str, Any]: Policy results including:
+                - reward (torch.Tensor): Calculated reward for the routes.
+                - log_likelihood (torch.Tensor): Cumulative log prob of actions.
+                - actions (torch.Tensor): Selected node indices.
+                - entropy (torch.Tensor): Total policy entropy across steps.
+                - td (TensorDict): Final environment state after decoding.
+
+        Raises:
+            RuntimeError: If encoder or decoder subnets are uninitialized.
+            ValueError: If `env_name` is missing from the state.
         """
         # 1. Initialize embeddings
         init_embeds = self.init_embedding(td)
@@ -100,7 +146,6 @@ class AttentionModelPolicy(AutoregressivePolicy):
         step_idx = 0
 
         # Assuming environment is already reset
-        # Sync batch size for TorchRL compatibility
         if hasattr(env, "batch_size"):
             env.batch_size = td.batch_size
 
@@ -110,12 +155,8 @@ class AttentionModelPolicy(AutoregressivePolicy):
                 raise ValueError("env_name must be set")
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
 
-            # Get logits from decoder
+            # Get logits from decoder (mask=True for invalid)
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
-            # mask returned by _get_log_p is the INVALID mask (True=masked)
-
-            # AttentionDecoder now returns (batch, n_nodes) already averaged over heads
-            # logits = logits[:, 0, :]
 
             # Invert mask for _select_action (expects True=VALID)
             if mask.dim() == 3:
@@ -131,7 +172,8 @@ class AttentionModelPolicy(AutoregressivePolicy):
             else:
                 # Select action
                 action, log_p, entropy_step = self._select_action(logits, valid_mask, strategy)
-                entropy = entropy + entropy_step
+                if isinstance(entropy_step, torch.Tensor):
+                    entropy = entropy + entropy_step
 
             # Update state
             td["action"] = action
@@ -142,11 +184,10 @@ class AttentionModelPolicy(AutoregressivePolicy):
             output_actions.append(action)
             step_idx += 1
 
-        # Collect reward
+        # Collect results
         if len(output_actions) > 0:
             actions_tensor = torch.stack(output_actions, dim=1)
         else:
-            # Handle empty actions (should not happen in normal VRP but maybe in some edge cases)
             actions_tensor = torch.zeros((td.batch_size[0], 0), device=td.device, dtype=torch.long)
 
         reward = env.get_reward(td, actions_tensor)

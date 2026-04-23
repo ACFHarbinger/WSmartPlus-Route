@@ -1,8 +1,19 @@
-"""
-MDAM Multi-Head Attention module.
+"""MDAM Multi-Head Attention module.
 
-This module implements the MDAM-specific MHA that can optionally return
-intermediate attention weights and value matrices for encoder-decoder coupling.
+This module provides the MultiHeadAttentionMDAM layer, which implements the
+specialized multi-head attention mechanism used in the Multi-Decoder Attention
+Model (MDAM). It supports returning intermediate tensors required for dynamic
+embedding updates during decoding.
+
+Attributes:
+    MultiHeadAttentionMDAM: MDAM-specific attention mechanism with coupling support.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.mdam_attention import MultiHeadAttentionMDAM
+    >>> model = MultiHeadAttentionMDAM(embed_dim=128, n_heads=8)
+    >>> q = torch.randn(1, 4, 128)
+    >>> out = model(q)
 """
 
 from __future__ import annotations
@@ -16,16 +27,29 @@ from torch import nn
 
 
 class MultiHeadAttentionMDAM(nn.Module):
-    """
-    Multi-Head Attention for MDAM with optional return of attention weights and values.
+    """Multi-Head Attention for MDAM with optional routing feedback.
 
-    Unlike standard MHA, this module can return intermediate attention weights (attn)
-    and value matrices (V) when `last_one=True`. These are used by the MDAM encoder's
-    `change()` method to dynamically update embeddings during decoding.
+    Unlike standard MHA, this specialized module can return intermediate attention
+    weights and value matrices. These are leveraged by the MDAM encoder to
+    perform "dynamic re-encoding" where embeddings are updated based on the
+    decoder's attention patterns.
 
     Reference:
-        Xin et al. "Multi-Decoder Attention Model with Embedding Glimpse for
-        Solving Vehicle Routing Problems" (AAAI 2021)
+        Xin, L., et al. (2021). Multi-Decoder Attention Model with Embedding
+        Glimpse for Solving Vehicle Routing Problems. AAAI Conference on
+        Artificial Intelligence.
+
+    Attributes:
+        embed_dim (int): Total dimensionality of the input/output embeddings.
+        n_heads (int): Number of parallel attention heads.
+        num_heads (int): Alias for `n_heads` for backward compatibility.
+        val_dim (int): Dimensionality of values per head (full `embed_dim` for MDAM).
+        norm_factor (float): Scaling factor for scores (1 / sqrt(embed_dim)).
+        W_query (nn.Parameter): Learnable query projection weights for each head.
+        W_key (nn.Parameter): Learnable key projection weights for each head.
+        W_val (nn.Parameter): Learnable value projection weights for each head.
+        W_out (nn.Parameter): Learnable output projection weights for consolidation.
+        last_one (bool): Whether to return intermediate attention tensors.
     """
 
     def __init__(
@@ -34,14 +58,12 @@ class MultiHeadAttentionMDAM(nn.Module):
         n_heads: int,
         last_one: bool = False,
     ) -> None:
-        """
-        Initialize MDAM Multi-Head Attention.
+        """Initializes MultiHeadAttentionMDAM.
 
         Args:
-            embed_dim: Total embedding dimension.
-            n_heads: Number of attention heads.
-            last_one: If True, forward returns (out, attn, V) instead of just out.
-                     Used for the last encoder layer to enable dynamic re-encoding.
+            embed_dim: Feature dimensionality of input embeddings.
+            n_heads: Number of parallel attention heads.
+            last_one: If True, `forward` returns (output, attention, values).
         """
         super().__init__()
 
@@ -61,10 +83,11 @@ class MultiHeadAttentionMDAM(nn.Module):
         self.last_one = last_one
 
     def _init_parameters(self) -> None:
-        """Initialize parameters with uniform distribution."""
+        """Initializes weights using a uniform distribution."""
         for param in self.parameters():
-            stdv = 1.0 / math.sqrt(param.size(-1))
-            param.data.uniform_(-stdv, stdv)
+            if param.dim() > 0:
+                stdv = 1.0 / math.sqrt(param.size(-1))
+                param.data.uniform_(-stdv, stdv)
 
     def forward(
         self,
@@ -72,24 +95,23 @@ class MultiHeadAttentionMDAM(nn.Module):
         h: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None,
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
-        """
-        Compute multi-head attention.
+        """Computes the MDAM multi-head attention update.
 
         Args:
-            q: Query tensor of shape (batch_size, n_query, embed_dim).
-            h: Key/Value tensor of shape (batch_size, graph_size, embed_dim).
-               If None, computes self-attention (h = q).
-            mask: Attention mask of shape (batch_size, n_query, graph_size).
-                  True values indicate positions to mask out.
+            q: Query sequence tensor of shape (batch, n_query, dim).
+            h: Key/Value sequence tensor of shape (batch, n_graph, dim).
+                If None, defaults to self-attention on `q`.
+            mask: Boolean attention mask (batch, n_query, n_graph).
+                True indicates blocked positions.
 
         Returns:
-            If last_one=False:
-                Output tensor of shape (batch_size, n_query, embed_dim).
-            If last_one=True:
-                Tuple of (output, attn, V) where:
-                - output: (batch_size, n_query, embed_dim)
-                - attn: (n_heads, batch_size, n_query, graph_size)
-                - V: (n_heads, batch_size, graph_size, embed_dim)
+            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+                If `last_one` is False:
+                    - Transformed output tensor of shape (batch, n_query, dim).
+                If `last_one` is True:
+                    - output: Transformed features (batch, n_query, dim).
+                    - attn: Attention weights (heads, batch, n_query, n_graph).
+                    - V: Internal value matrices (heads, batch, n_graph, dim).
         """
         if h is None:
             h = q  # Self-attention

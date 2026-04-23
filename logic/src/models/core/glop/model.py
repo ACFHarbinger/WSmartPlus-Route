@@ -1,7 +1,16 @@
-"""
-GLOP Model.
+"""GLOP Model for large-scale routing.
 
-REINFORCE training for Global-Local Optimization Policy.
+This module implements `GLOP` (Global-Local Optimization), a hierarchical
+approach that learns to partition a large problem into smaller sub-problems
+(Meta-partitioning) which are then solved by local constructive solvers.
+
+Attributes:
+    GLOP: Training orchestrator for the hierarchical partitioning model.
+
+Example:
+    >>> from logic.src.models.core.glop.model import GLOP
+    >>> model = GLOP(env=large_scale_env, policy_kwargs={'n_samples': 4})
+    >>> out = model(td)
 """
 
 from __future__ import annotations
@@ -18,15 +27,17 @@ from .policy import GLOPPolicy
 
 
 class GLOP(nn.Module):
-    """
-    GLOP Model: Global-Local Optimization with REINFORCE.
+    """Global-Local Optimization Policy (GLOP).
 
-    Trains a NAR partitioning policy using REINFORCE with mean baseline.
-    The local solvers are typically non-differentiable heuristics.
+    Trains a neural partitioner using REINFORCE. The model learns to cluster
+    nodes into manageable segments such that the total cost after local
+    construction and merge is minimized.
 
-    Reference:
-        Ye et al. "GLOP: Learning Global Partition and Local Construction
-        for Solving Large-scale Routing Problems in Real-time" (2023)
+    Attributes:
+        env (RL4COEnvBase): Environment instance for state transitions.
+        policy (GLOPPolicy): Neural partitioner and local solver wrapper.
+        baseline (str): Reinforcement learning baseline (default: "mean").
+        n_samples (int): count of parallel partition candidates per instance.
     """
 
     def __init__(
@@ -35,21 +46,20 @@ class GLOP(nn.Module):
         policy: Optional[GLOPPolicy] = None,
         policy_kwargs: Optional[Dict[str, Any]] = None,
         baseline: str = "mean",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Initialize GLOP model.
+        """Initializes the GLOP model.
 
         Args:
-            env: Environment for training.
-            policy: Pre-built policy or None to create default.
-            policy_kwargs: Arguments for policy construction.
-            baseline: Baseline type (only "mean" supported).
+            env: heavy-duty optimization environment.
+            policy: Optional pre-configured partitioning policy.
+            policy_kwargs: parameter map for automated policy creation.
+            baseline: identifier for reward normalization.
+            **kwargs: Unused extra parameters.
         """
         super().__init__()
 
         policy_kwargs = policy_kwargs or {}
-
         self.env = env
         self.baseline = baseline
 
@@ -65,18 +75,18 @@ class GLOP(nn.Module):
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
         phase: str = "train",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass through GLOP policy.
+        """Executes the partitioning and local optimization pipeline.
 
         Args:
-            td: Problem instance.
-            env: Environment.
-            phase: Training phase.
+            td: Environment state.
+            env: Optional environment override.
+            phase: Current execution phase ('train', 'val', 'test').
+            **kwargs: Extra parameters for the policy logic.
 
         Returns:
-            Policy output dictionary.
+            Dict[str, Any]: results including 'reward', 'log_likelihood', and 'actions'.
         """
         if env is None:
             env = self.env
@@ -88,20 +98,19 @@ class GLOP(nn.Module):
         batch_idx: int,
         phase: str,
     ) -> Dict[str, Any]:
-        """
-        Shared step for training/validation/testing.
+        """Standardized execution step for Lightning-style pipelines.
 
         Args:
-            batch: Batch of problem instances.
-            batch_idx: Batch index.
-            phase: Current phase.
+            batch: Data container with problem instances.
+            batch_idx: Sequential index of the batch.
+            phase: Descriptive label for the current pass.
 
         Returns:
-            Dictionary with loss and metrics.
+            Dict[str, Any]: execution metadata including loss and top rewards.
         """
         td = self.env.reset(batch)
 
-        # Forward pass
+        # Forward pass with action tracking
         out = self.policy(
             td=td,
             env=self.env,
@@ -109,19 +118,19 @@ class GLOP(nn.Module):
             return_actions=True,
         )
 
-        # Reshape reward for n_samples
+        # Performance aggregation
         from logic.src.utils.decoding import unbatchify
 
         reward = unbatchify(out["reward"], self.n_samples)
-        max_reward, max_idxs = reward.max(dim=-1)
+        max_reward, _ = reward.max(dim=-1)
         out["max_reward"] = max_reward
 
-        # Compute loss for training
+        # Gradient computation
         if phase == "train":
-            assert self.n_samples > 1, "n_samples must be > 1 for training"
+            assert self.n_samples > 1, "GLOP training requires multiple samples for baseline"
             log_likelihood = unbatchify(out["log_likelihood"], self.n_samples)
 
-            # Mean baseline advantage
+            # Standard REINFORCE with leave-one-out mean baseline
             advantage = reward - reward.mean(dim=-1, keepdim=True)
             loss = -(advantage * log_likelihood).mean()
             out["loss"] = loss
@@ -136,33 +145,32 @@ class GLOP(nn.Module):
         reward: Optional[torch.Tensor] = None,
         log_likelihood: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
-        """
-        Calculate REINFORCE loss with mean baseline.
+        """Computes REINFORCE gradients based on policy outputs.
 
         Args:
-            td: Problem instance.
-            batch: Batch data.
-            policy_out: Output from policy forward pass.
-            reward: Override reward.
-            log_likelihood: Override log_likelihood.
+            td: problem state.
+            batch: input data.
+            policy_out: mapping of constructed rewards and probabilities.
+            reward: optional override for the reward tensor.
+            log_likelihood: optional override for the likelihood tensor.
 
         Returns:
-            Updated policy_out with loss.
+            Dict[str, Any]: updated policy output containing 'loss'.
         """
-        reward = reward if reward is not None else policy_out["reward"]
-        log_likelihood = log_likelihood if log_likelihood is not None else policy_out["log_likelihood"]
+        reward_val = reward if reward is not None else policy_out["reward"]
+        log_prob = log_likelihood if log_likelihood is not None else policy_out["log_likelihood"]
 
-        # Reshape for multi-sample
+        # Group by sample dimensions
         from logic.src.utils.decoding import unbatchify
 
-        reward = unbatchify(reward, self.n_samples)
-        log_likelihood = unbatchify(log_likelihood, self.n_samples)
+        reward_flat = unbatchify(reward_val, self.n_samples)
+        log_prob_flat = unbatchify(log_prob, self.n_samples)
 
-        # Mean baseline
-        advantage = reward - reward.mean(dim=-1, keepdim=True)
-        loss = -(advantage * log_likelihood).mean()
+        # Mean-centered policy gradient
+        advantage = reward_flat - reward_flat.mean(dim=-1, keepdim=True)
+        loss = -(advantage * log_prob_flat).mean()
 
         policy_out["loss"] = loss
-        policy_out["max_reward"] = reward.max(dim=-1).values.mean()
+        policy_out["max_reward"] = reward_flat.max(dim=-1).values.mean()
 
         return policy_out

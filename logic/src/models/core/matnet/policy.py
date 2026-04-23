@@ -1,11 +1,19 @@
-"""policy.py module.
+"""MatNet Policy for matrix-form problems.
+
+This module provides the `MatNetPolicy`, which integrates the specialized
+MatNet encoder and decoder components to solve problems where the input is
+primarily a cost or distance matrix (e.g., ATSP, FFSP).
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    MatNetPolicy: Autoregressive policy for matrix-based constructive search.
 
 Example:
-    >>> import policy
+    >>> from logic.src.models.core.matnet.policy import MatNetPolicy
+    >>> policy = MatNetPolicy(embed_dim=256, hidden_dim=512, problem=env.problem)
+    >>> out = policy(td, env)
 """
+
+from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
@@ -21,9 +29,18 @@ from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoder
 
 
 class MatNetPolicy(AutoregressivePolicy):
-    """
-    MatNet Policy for matrix-based Combinatorial Optimization.
-    Unifies MatNetEncoder and MatNetDecoder with proper initialization.
+    """Matrix-aware neural policy.
+
+    Implements the row and column embedding architecture from Kwon et al. (2021).
+    The encoder processes the cost matrix into dual embeddings, which the
+    decoder then uses to construct a solution.
+
+    Attributes:
+        encoder (MatNetEncoder): Specialized matrix-score attention encoder.
+        decoder (MatNetDecoder): Autoregressive constructor for matrix problems.
+        init_embedding (MatNetInitEmbedding): Statistical feature projection.
+        problem (Any): Problem domain context.
+        embed_dim (int): feature vector size.
     """
 
     encoder: MatNetEncoder
@@ -38,21 +55,21 @@ class MatNetPolicy(AutoregressivePolicy):
         n_heads: int = 8,
         tanh_clipping: float = 10.0,
         normalization: str = "instance",
-        **kwargs,
-    ):
-        """Initialize Class.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the MatNetPolicy.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            hidden_dim (int): Description of hidden_dim.
-            problem (Any): Description of problem.
-            num_layers (int): Description of num_layers.
-            n_heads (int): Description of n_heads.
-            tanh_clipping (float): Description of tanh_clipping.
-            normalization (str): Description of normalization.
-            kwargs (Any): Description of kwargs.
+            embed_dim: Internal latent feature size.
+            hidden_dim: Hidden layer size for FFN/attention.
+            problem: domain problem definition.
+            num_layers: Depth of the matrix encoder stack.
+            n_heads: Number of attention heads.
+            tanh_clipping: range value for logit normalization.
+            normalization: Type of normalization layer ('instance', 'batch').
+            **kwargs: Additional parameters for the MatNetDecoder.
         """
-        super(MatNetPolicy, self).__init__(env_name=None)
+        super().__init__(env_name=None)
         self.problem = problem
         self.embed_dim = embed_dim
 
@@ -75,12 +92,12 @@ class MatNetPolicy(AutoregressivePolicy):
             **kwargs,
         )
 
-    def set_strategy(self, strategy: str, temp: Optional[float] = None):
-        """Set strategy.
+    def set_strategy(self, strategy: str, temp: Optional[float] = None) -> None:
+        """Configures the current action selection tactic.
 
         Args:
-            strategy (str): Description of strategy.
-            temp (Optional[float]): Description of temp.
+            strategy: Identifier for the mode (e.g. 'greedy', 'sampling').
+            temp: soft-max temperature for sampling diversity.
         """
         if self.decoder is not None and hasattr(self.decoder, "set_strategy"):
             self.decoder.set_strategy(strategy, temp)
@@ -91,14 +108,30 @@ class MatNetPolicy(AutoregressivePolicy):
         env: Optional[RL4COEnvBase] = None,
         strategy: str = "sampling",
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Policy forward pass.
+        """Constructs a solution from the provided matrix data.
+
+        Identifies a cost matrix in `td` (keys: 'dist', 'cost_matrix'),
+        encodes it into row/col latents, and construction is handled by the decoder.
+
         Args:
-            input_data: Dict containing 'dist' or 'cost_matrix' of shape [batch, row_size, col_size]
+            td: problem state container.
+            env: Optional environment for transition logic.
+            strategy: selection strategy.
+            num_starts: Number of construction attempts.
+            **kwargs: Extra parameters including 'cost_weights'.
+
+        Returns:
+            Dict[str, Any]: Construction results containing:
+                - log_p (torch.Tensor): Cumulative log likelihood.
+                - actions (torch.Tensor): Output node indices.
+
+        Raises:
+            ValueError: If no cost matrix is found in the input.
+            AssertionError: If subnets are not properly initialized.
         """
-        # Get matrix (e.g. distance or cost matrix)
+        # Search for matrix (e.g. distance or cost matrix)
         matrix = td.get("dist")
         if matrix is None:
             matrix = td.get("cost_matrix")
@@ -109,15 +142,14 @@ class MatNetPolicy(AutoregressivePolicy):
         if matrix.dim() == 2:
             matrix = matrix.unsqueeze(0)
 
-        # Initial row and column embeddings from matrix stats
+        # 1. Initial row and column embeddings from matrix stats
         row_emb, col_emb = self.init_embedding(matrix)
 
-        # Encoding using mixed-score attention
+        # 2. Encoding using mixed-score attention
         assert self.encoder is not None, "Encoder is not initialized"
         row_emb, col_emb = self.encoder(row_emb, col_emb, matrix)
 
-        # Decoding
-        # We pass row_emb as embeddings and col_emb via kwargs
+        # 3. Decoding
         assert self.decoder is not None, "Decoder is not initialized"
         cost_weights = kwargs.get("cost_weights")
         log_p, actions = self.decoder(td, row_emb, cost_weights=cost_weights, col_embeddings=col_emb, **kwargs)

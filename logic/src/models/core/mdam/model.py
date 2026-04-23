@@ -1,14 +1,18 @@
-"""
-MDAM (Multi-Decoder Attention Model).
+"""Multi-Decoder Attention Model (MDAM) for diverse routing.
 
-REINFORCE-based training wrapper for MDAM policy with custom baseline
-that uses the maximum reward across paths.
+This module provides the `MDAM` wrapper, which trains multiple independent
+decoders sharing a common encoder. It employs a specialized REINFORCE scheme
+where the baseline is the maximum reward across all decoders, encouraging
+diversity through KL-divergence regularization.
+
+Attributes:
+    MDAM: Diverse multi-policy training wrapper.
 """
 
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import torch
 from tensordict import TensorDict
@@ -22,27 +26,27 @@ from .policy import MDAMPolicy
 
 def mdam_rollout(
     baseline_self: Any,
-    model: nn.Module,
+    model: MDAM,
     env: RL4COEnvBase,
     batch_size: int = 64,
-    device: str = "cpu",
+    device: Union[str, torch.device] = "cpu",
     dataset: Any = None,
 ) -> torch.Tensor:
-    """
-    Custom rollout function for MDAM baseline.
+    """Specialized rollout for MDAM that selects the best path per instance.
 
-    Takes the maximum reward across all paths as the baseline value.
+    Computes the maximum reward across all decoder paths to provide a tight
+    baseline for the REINFORCE advantage.
 
     Args:
-        baseline_self: Baseline instance (for accessing dataset).
-        model: MDAM model.
-        env: Environment.
-        batch_size: Batch size for rollout.
-        device: Device to run on.
-        dataset: Dataset to use (or baseline's dataset if None).
+        baseline_self: Instance of the baseline object being patched.
+        model: MDAM architecture instance.
+        env: Target problem environment.
+        batch_size: Batch size for inference passes.
+        device: Hardware device to execute on.
+        dataset: Input data for rollout evaluation.
 
     Returns:
-        Tensor of baseline rewards (batch_size,).
+        torch.Tensor: Best-path rewards per instance [Batch].
     """
     dataset = baseline_self.dataset if dataset is None else dataset
 
@@ -50,18 +54,10 @@ def mdam_rollout(
     model = model.to(device)
 
     def eval_model(batch: TensorDict) -> torch.Tensor:
-        """Eval model.
-
-        Args:
-            batch (TensorDict): Description of batch.
-
-        Returns:
-            Any: Description of return value.
-        """
         with torch.inference_mode():
             batch = env.reset(batch.to(device))
             result = model(batch, env, strategy="greedy")
-            # Take max reward across paths
+            # Baseline is the best realization among decoders
             return result["reward"].max(dim=1).values
 
     dl = DataLoader(
@@ -75,16 +71,17 @@ def mdam_rollout(
 
 
 class MDAM(nn.Module):
-    """
-    MDAM Model with REINFORCE Training.
+    """MDAM training wrapper with Multi-Path Baseline.
 
-    Multi-Decoder Attention Model trains multiple diverse policies
-    to increase the chance of finding good solutions. Uses REINFORCE
-    with a custom baseline that takes the max reward across paths.
+    Implements the diverse training strategy from Xin et al. (AAAI 2021).
+    Encourages population-style coverage of the solution space.
 
-    Reference:
-        Xin et al. "Multi-Decoder Attention Model with Embedding Glimpse for
-        Solving Vehicle Routing Problems" (AAAI 2021)
+    Attributes:
+        env (RL4COEnvBase): Environment for states and rewards.
+        kl_weight (float): Scalar weighting for the diversity entropy term.
+        policy (MDAMPolicy): The underlying multi-decoder neural policy.
+        baseline_type (str): Meta-identifier for RL baseline logic.
+        baseline (Optional[Any]): Concrete baseline object (set during training).
     """
 
     def __init__(
@@ -96,56 +93,48 @@ class MDAM(nn.Module):
         baseline_kwargs: Optional[Dict[str, Any]] = None,
         kl_weight: float = 0.01,
     ) -> None:
-        """
-        Initialize MDAM model.
+        """Initializes the MDAM model.
 
         Args:
-            env: Environment for training.
-            policy: Pre-built MDAM policy or None to create default.
-            baseline: Baseline type ('rollout', 'exponential', 'critic').
-            policy_kwargs: Arguments for policy construction.
-            baseline_kwargs: Arguments for baseline construction.
-            kl_weight: Weight for KL divergence loss term.
+            env: Targeted problem environment.
+            policy: Pre-instantiated MDAM policy.
+            baseline: Identifier for the RL baseline method.
+            policy_kwargs: Dictionary for default policy setup.
+            baseline_kwargs: Dictionary for baseline parameters.
+            kl_weight: Diversity regularization strength.
         """
         super().__init__()
 
         policy_kwargs = policy_kwargs or {}
-        baseline_kwargs = baseline_kwargs or {}
-
         self.env = env
         self.kl_weight = kl_weight
 
-        # Create policy
         if policy is None:
             self.policy = MDAMPolicy(env_name=env.name, **policy_kwargs)
         else:
             self.policy = policy
 
-        # Store baseline type for external handling
         self.baseline_type = baseline
-        self.baseline_kwargs = baseline_kwargs
-
-        # Baseline will be set up by training module if needed
-        self.baseline = None
+        self.baseline_kwargs = baseline_kwargs or {}
+        self.baseline: Optional[Any] = None
 
     def forward(
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
         phase: str = "train",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass through policy.
+        """Routes execution to the underlying MDAM policy.
 
         Args:
-            td: Problem instance TensorDict.
-            env: Environment (uses self.env if None).
-            phase: Training phase.
-            **kwargs: Additional arguments.
+            td: problem state container.
+            env: Environment reference.
+            phase: Current execution mode.
+            **kwargs: Extra parameters.
 
         Returns:
-            Policy output dictionary.
+            Dict[str, Any]: Multi-path construction results.
         """
         if env is None:
             env = self.env
@@ -159,44 +148,43 @@ class MDAM(nn.Module):
         reward: Optional[torch.Tensor] = None,
         log_likelihood: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
-        """
-        Calculate REINFORCE loss with KL divergence regularization.
+        """Computes REINFORCE loss with competitive multi-path baseline.
+
+        Incorporates KL-divergence to penalize policy collapse toward a single
+        mode, ensuring decoder diversity.
 
         Args:
-            td: Problem instance.
-            batch: Batch data (may contain baseline info).
-            policy_out: Output from policy forward pass.
-            reward: Override reward (uses policy_out if None).
-            log_likelihood: Override log_likelihood (uses policy_out if None).
+            td: current problem state.
+            batch: Data batch (may contain pre-computed baseline).
+            policy_out: Map containing 'reward', 'log_likelihood', and 'entropy'.
+            reward: Optional override for the reward tensor.
+            log_likelihood: Optional override for the log_likelihood tensor.
 
         Returns:
-            Updated policy_out with loss components.
+            Dict[str, Any]: Updated result map including the scalar 'loss'.
         """
         extra = batch.get("extra", None)
         reward = reward if reward is not None else policy_out["reward"]
         log_likelihood = log_likelihood if log_likelihood is not None else policy_out["log_likelihood"]
-        kl_divergence = policy_out.get("entropy", torch.tensor(0.0))
+        kl_divergence = policy_out.get("entropy", torch.tensor(0.0, device=td.device))
 
-        # Baseline evaluation
+        # Evaluate baseline
         if self.baseline is not None and extra is None:
             bl_val, bl_loss = self.baseline.eval(td, reward, self.env)
         else:
-            bl_val = extra if extra is not None else torch.tensor(0.0)
-            bl_loss = torch.tensor(0.0)
+            bl_val = extra if extra is not None else torch.tensor(0.0, device=reward.device)
+            bl_loss = torch.tensor(0.0, device=reward.device)
 
-        # Handle baseline shape for multi-path reward
-        # reward: (batch, num_paths), bl_val: (batch,)
-        if isinstance(bl_val, torch.Tensor) and len(bl_val.shape) > 0:
+        # Broadcast baseline [B] to multi-path reward [B, NumDecoders]
+        if isinstance(bl_val, torch.Tensor) and len(bl_val.shape) == 1:
             bl_val = bl_val.unsqueeze(1)
 
-        # Advantage = reward - baseline
+        # Advantage based on the best path found so far
         advantage = reward - bl_val
-
-        # REINFORCE loss
         reinforce_loss = -(advantage * log_likelihood).mean()
 
-        # Total loss with KL divergence regularization
-        # Note: We *subtract* KL divergence to *encourage* diversity
+        # Final loss: REINFORCE + Baseline + Entropy Regularization
+        # Subtracting KL weight encourages increased entropy (diversity)
         loss = reinforce_loss + bl_loss - self.kl_weight * kl_divergence
 
         policy_out.update(
@@ -212,16 +200,14 @@ class MDAM(nn.Module):
 
     @staticmethod
     def patch_baseline_rollout(baseline: Any) -> None:
-        """
-        Patch a rollout baseline to use MDAM-specific rollout.
+        """Injects MDAM-aware multi-path logic into a standard RL baseline.
 
-        Call this after creating the baseline to use max-across-paths
-        for baseline estimation.
+        Overwrites the evaluation rollout of the baseline object to use the
+        competitive max-reward strategy.
 
         Args:
-            baseline: Baseline instance to patch.
+            baseline: RL baseline instance to modify.
         """
-        # Check if it's a warmup baseline wrapping a rollout
         if hasattr(baseline, "baseline"):
             inner = baseline.baseline
             if hasattr(inner, "rollout"):

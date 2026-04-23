@@ -1,6 +1,19 @@
+"""Multi-Head Attention (MHA) logic for constructive decoders.
+
+This module provides utility functions for computing attention-based logits
+and reshaping tensors for multi-head attention mechanisms used in decoders.
+
+Attributes:
+    one_to_many_logits: Function to compute attention logits for multiple nodes.
+    make_heads: Function to reshape tensors for multi-head attention.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.glimpse.attention import one_to_many_logits, make_heads
+    >>> k_heads = make_heads(k_tensor, n_heads=8)
+    >>> logits = one_to_many_logits(query, k_heads, v_heads, logit_k, mask, n_heads=8)
 """
-Multi-Head Attention (MHA) logic for constructuve decoders.
-"""
+
+from __future__ import annotations
 
 import math
 from typing import Optional
@@ -20,8 +33,22 @@ def one_to_many_logits(
     mask_val: float = -math.inf,
     tanh_clipping: float = 10.0,
 ) -> torch.Tensor:
-    """
-    Compute attention logits for a query against multiple nodes.
+    """Computes attention logits for a query against multiple nodes.
+
+    Args:
+        query: Query embeddings of shape (batch, steps, embed_dim).
+        glimpse_K: Key embeddings for glimpse attention.
+        glimpse_V: Value embeddings for glimpse attention.
+        logit_K: Key embeddings for final logit computation.
+        mask: Mask for visited/invalid nodes.
+        n_heads: Number of attention heads.
+        graph_mask: Optional graph-level mask.
+        dist_bias: Optional distance or cost bias.
+        mask_val: Value to use for masked nodes.
+        tanh_clipping: Scaling factor for tanh logit clipping.
+
+    Returns:
+        torch.Tensor: Logits for node selection of shape (batch, graph_size).
     """
     batch_size, num_steps, embed_dim = query.size()
     key_size = embed_dim // n_heads
@@ -75,7 +102,16 @@ def one_to_many_logits(
 
 
 def make_heads(v: torch.Tensor, n_heads: int, num_steps: Optional[int] = None) -> torch.Tensor:
-    """Reshape tensor into heads."""
+    """Reshapes tensor into heads for multi-head attention.
+
+    Args:
+        v: Input tensor of shape (batch, size, embed_dim).
+        n_heads: Number of attention heads.
+        num_steps: Optional number of steps (defaults to graph size).
+
+    Returns:
+        torch.Tensor: Reshaped tensor of shape (batch, n_heads, size, head_dim).
+    """
     batch_size, graph_size, embed_dim = v.size()
     if num_steps is None:
         num_steps = graph_size

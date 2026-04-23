@@ -1,10 +1,8 @@
-"""transductive_base.py module.
+"""Transductive (Test-time Adaptation) model base module.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import transductive_base
+This module provides the abstract foundation for transductive methods, such as
+Active Search and EAS, which perform instance-specific weight adaptation or
+stochastic search during the inference phase to refine solution quality.
 """
 
 from __future__ import annotations
@@ -20,12 +18,18 @@ from logic.src.envs.base.base import RL4COEnvBase
 
 
 class TransductiveModel(nn.Module, ABC):
-    """
-    Base class for transductive methods.
+    """Base class for transductive search methods.
 
-    Transductive models perform search or adaptation at inference time.
-    Common examples include Active Search (Bello et al.), EAS (Hottung et al.),
-    and other instance-specific fine-tuning methods.
+    Transductive models perform weight optimization or stochastic search at
+    inference time for each problem instance. This allows the model to escape
+    local minima of the pre-trained policy by adapting to the specific features
+    of the current instance.
+
+    Attributes:
+        model: The underlying constructive or improvement policy.
+        optimizer_kwargs: Parameters for the search optimizer.
+        n_search_steps: Number of optimization iterations per instance.
+        kwargs: Additional model configuration parameters.
     """
 
     def __init__(
@@ -34,8 +38,15 @@ class TransductiveModel(nn.Module, ABC):
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
         n_search_steps: int = 10,
         **kwargs: Any,
-    ):
-        """Initialize TransductiveModel."""
+    ) -> None:
+        """Initialize the TransductiveModel.
+
+        Args:
+            model: The base neural policy to be adapted.
+            optimizer_kwargs: Keyword arguments for the Adam optimizer (e.g., 'lr').
+            n_search_steps: Number of search/adaptation steps to perform.
+            **kwargs: Additional parameters stored in `self.kwargs`.
+        """
         super().__init__()
         self.model = model
         self.optimizer_kwargs = optimizer_kwargs or {"lr": 1e-4}
@@ -43,13 +54,24 @@ class TransductiveModel(nn.Module, ABC):
         self.kwargs = kwargs
 
     def _setup_optimizer(self, params: Any) -> torch.optim.Optimizer:
-        """Initialize the optimizer for the search phase."""
+        """Initialize the optimizer used for the test-time search phase.
+
+        Args:
+            params: Iterable of parameters to optimize.
+
+        Returns:
+            torch.optim.Optimizer: An initialized Adam optimizer.
+        """
         return torch.optim.Adam(params, **self.optimizer_kwargs)
 
     def _get_search_params(self) -> Any:
-        """
-        Define which parameters to optimize during search.
-        Default is all model parameters. Subclasses can override.
+        """Define the subset of parameters to optimize during the search.
+
+        Subclasses (like EAS) can override this to optimize only specific
+        adapter layers or embeddings rather than the full model.
+
+        Returns:
+            Any: An iterable of torch.nn.Parameter objects.
         """
         return self.model.parameters()
 
@@ -60,21 +82,28 @@ class TransductiveModel(nn.Module, ABC):
         strategy: str = "greedy",
         **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Execute search or adaptation on the given instances.
+        """Execute the transductive search loop on the provided instances.
+
+        Clones the original model state, performs the specified number of
+        optimization steps using sampling-based REINFORCE, and restores the
+        original state before returning the best found solution.
 
         Args:
-            td: TensorDict containing problem instance(s).
-            env: Optional environment for transition logic.
-            strategy: Final decoding strategy.
-            **kwargs: Additional arguments for the model.
+            td: TensorDict containing problem instance metadata.
+            env: Environment object for transitions and reward calculation.
+            strategy: Final decoding strategy to apply (after search).
+            **kwargs: Additional control arguments for the policy pass.
 
         Returns:
-            Dictionary containing final results (reward, actions, etc.).
+            Dict[str, Any]: Best results found during search including:
+                - reward (torch.Tensor): Highest reward achieved.
+                - actions (torch.Tensor): Corresponding action sequence.
+                - search_history (List[Dict]): Logging of the search metrics.
+
+        Raises:
+            ValueError: If the model forward pass does not return rewards or probs.
         """
         # Save original state to restore after search
-        # Save original state to restore later
-        # Use manual copy to avoid recursion in deepcopy with complex models
         original_state = {k: v.cpu().detach().clone() for k, v in self.model.state_dict().items()}
 
         optimizer = self._setup_optimizer(self._get_search_params())
@@ -87,14 +116,11 @@ class TransductiveModel(nn.Module, ABC):
         for _ in range(self.n_search_steps):
             optimizer.zero_grad()
 
-            # Forward pass on the instances
-            # We use sampling during search to explore
-            # We pass return_pi=True to get actions
+            # Forward pass on the instances (sampling for exploration)
             out = self.model(td, env, strategy="sampling", return_pi=True, **kwargs)
 
-            # Support both Tuple and TensorDict returns from AttentionModel
+            # Handle variant return types from dynamic AttentionModels
             if isinstance(out, tuple):
-                # (cost, ll, cost_dict, pi, entropy)
                 cost = out[0]
                 log_p = out[1]
                 actions = out[3]
@@ -110,7 +136,7 @@ class TransductiveModel(nn.Module, ABC):
             if reward is None or log_p is None:
                 raise ValueError("Reward or log_p not found in model output")
 
-            # Update best found
+            # Update best-so-far state
             if best_reward is None:
                 best_reward = reward.detach().clone()
                 best_actions = actions.detach().clone() if actions is not None else None
@@ -118,13 +144,15 @@ class TransductiveModel(nn.Module, ABC):
                 better = reward > best_reward
                 best_reward = torch.where(better, reward.detach(), best_reward)
                 if best_actions is not None and actions is not None:
-                    # Handle different sequence lengths by padding
+                    # Sync sequence lengths (padding) if necessary
                     if actions.size(1) != best_actions.size(1):
                         max_len = max(actions.size(1), best_actions.size(1))
-                        # Pad with 0 (depot)
                         if actions.size(1) < max_len:
                             padding = torch.zeros(
-                                actions.size(0), max_len - actions.size(1), dtype=actions.dtype, device=actions.device
+                                actions.size(0),
+                                max_len - actions.size(1),
+                                dtype=actions.dtype,
+                                device=actions.device,
                             )
                             actions = torch.cat([actions, padding], dim=1)
                         if best_actions.size(1) < max_len:
@@ -136,26 +164,31 @@ class TransductiveModel(nn.Module, ABC):
                             )
                             best_actions = torch.cat([best_actions, padding], dim=1)
 
-                    # For actions, we need to mask correctly
-                    # actions: [B, seq_len]
                     better_expanded = better.view(-1, 1).expand_as(best_actions)
                     best_actions = torch.where(better_expanded, actions.detach(), best_actions)
 
-            # Compute loss (REINFORCE with best-so-far baseline)
-            # Minimize -(reward - best_reward) * log_p
-            # We use a simple mean baseline for better stability if best_reward is not per-instance
+            # Optimization Step (REINFORCE with moving baseline)
             advantage = reward - reward.mean()
             loss = -(advantage * log_p).mean()
 
             loss.backward()
             optimizer.step()
 
-            search_history.append({"mean_reward": reward.mean().item(), "best_reward": best_reward.mean().item()})
+            search_history.append(
+                {
+                    "mean_reward": reward.mean().item(),
+                    "best_reward": best_reward.mean().item(),
+                }
+            )
 
-        # Final output
-        final_out = {"reward": best_reward, "actions": best_actions, "search_history": search_history}
+        # Build final output package
+        final_out = {
+            "reward": best_reward,
+            "actions": best_actions,
+            "search_history": search_history,
+        }
 
-        # Restore original state
+        # Restore original global weights
         self.model.load_state_dict(original_state)
 
         return final_out

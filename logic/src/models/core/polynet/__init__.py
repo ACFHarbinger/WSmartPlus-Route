@@ -1,10 +1,15 @@
-"""__init__.py module.
+"""PolyNet: Learning Diverse Solution Strategies.
+
+This package provides PolyNet models that learn multiple distinct search
+behaviors for combinatorial optimization using strategy conditioning and
+the Poppy loss function.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    PolyNet: Training wrapper for multi-strategy learning.
+    PolyNetPolicy: Behavior-conditioned construction policy.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.polynet import PolyNet
 """
 
 from .model import PolyNet as PolyNet

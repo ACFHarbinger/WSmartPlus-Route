@@ -1,5 +1,18 @@
-"""
-Sub-networks (Encoders, Decoders, Predictors) for the neural models.
+"""Sub-networks (Encoders, Decoders, Predictors) for neural models.
+
+This package provides various building blocks for neural combinatorial optimization
+models, including different flavors of encoders (Graph Attention, MatNet, MLP) and
+decoders (Pointer, MDAM).
+
+Attributes:
+    GraphAttentionEncoder: Standard GAT-based encoder.
+    PointerDecoder: Classic pointer network decoder.
+    GraphAttentionDecoder: GAT-based decoder.
+
+Example:
+    >>> from logic.src.models.subnets import GraphAttentionEncoder, PointerDecoder
+    >>> encoder = GraphAttentionEncoder(node_dim=2, embed_dim=128)
+    >>> decoder = PointerDecoder(embed_dim=128)
 """
 
 from .decoders.gat import GraphAttentionDecoder as GraphAttentionDecoder
@@ -50,5 +63,5 @@ from .encoders import (
 from .encoders import (
     TransGraphConvEncoder as TransGraphConvEncoder,
 )
-from .helpers.gru_fill_predictor import GatedRecurrentUnitFillPredictor as GatedRecurrentUnitFillPredictor
-from .helpers.lstm_fill_predictor import LongShortTermMemoryFillPredictor as LongShortTermMemoryFillPredictor
+from .other.gru_fill_predictor import GatedRecurrentUnitFillPredictor as GatedRecurrentUnitFillPredictor
+from .other.lstm_fill_predictor import LongShortTermMemoryFillPredictor as LongShortTermMemoryFillPredictor

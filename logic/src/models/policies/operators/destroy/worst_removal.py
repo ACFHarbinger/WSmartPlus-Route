@@ -1,32 +1,38 @@
-"""worst_removal.py module.
+"""Worst removal operator.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import worst_removal
+This module provides a GPU-accelerated implementation of the worst removal
+heuristic, which greedily identifies and ejects nodes from the tour that
+contribute most to its total distance.
 """
+
+from __future__ import annotations
 
 from typing import Optional, Tuple
 
 import torch
-from torch import Tensor
 
 
 def vectorized_worst_removal(
-    tours: Tensor, dist_matrix: Tensor, n_remove: int, generator: Optional[torch.Generator] = None
-) -> Tuple[Tensor, Tensor]:
-    """
-    Vectorized worst removal (highest saving).
+    tours: torch.Tensor,
+    dist_matrix: torch.Tensor,
+    n_remove: int,
+    generator: Optional[torch.Generator] = None,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Vectorized worst removal (highest cost-savings ejection).
+
+    Calculates the savings (edge cost reduction) obtained by removing each
+    node and its adjacent edges. Prioritizes nodes with the highest savings.
 
     Args:
-        tours (Tensor): (B, N)
-        dist_matrix (Tensor): (B, N_all, N_all) or (1, N_all, N_all)
-        n_remove (int): Number to remove
-        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
+        tours: Batch of node sequences of shape [B, N].
+        dist_matrix: Global distance matrix of shape [B, N_all, N_all] or [1, N_all, N_all].
+        n_remove: Number of nodes to remove per tour.
+        generator: PyTorch generator for random number generation.
 
     Returns:
-        Tuple[Tensor, Tensor]: New tours, Removed nodes
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - new_tours: Sequence after removal of shape [B, N - n_remove].
+            - removed_nodes: IDs of the ejected nodes of shape [B, n_remove].
     """
     B, N = tours.shape
     device = tours.device

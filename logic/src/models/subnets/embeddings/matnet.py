@@ -1,25 +1,46 @@
+"""MatNet Embedding module.
+
+This module implements the MatNet initial embedding, which encodes row and column
+statistics from cost matrices into high-dimensional space.
+
+Attributes:
+    MatNetInitEmbedding: Encoder for matrix-based inputs (e.g., cross-matrix metrics).
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
+    >>> embed = MatNetInitEmbedding(embed_dim=128)
+    >>> row_emb, col_emb = embed(cost_matrix)
 """
-MatNet Embedding.
-"""
+
+from __future__ import annotations
+
+from typing import Tuple
 
 import torch
 from torch import nn
 
 
 class MatNetInitEmbedding(nn.Module):
-    """
-    Initial embedding layer for MatNet.
-    Projects row and column statistics (mean, min, etc.) of the cost matrix.
-    Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon et al., 2021)
+    """Initial embedding layer for MatNet.
+
+    Projects row and column statistics (mean, min) of the input cost matrix
+    to generate dual embeddings for bipartite graphs or matrix-based CO problems.
+
+    Reference:
+        Kwon et al. "MatNet: Matrix Encoding Network for Combinatorial
+        Optimization" (NeurIPS 2021)
+
+    Attributes:
+        row_stats_proj (nn.Linear): Linear projection for row-level statistics.
+        col_stats_proj (nn.Linear): Linear projection for column-level statistics.
     """
 
-    def __init__(self, embed_dim: int, normalization: str = "instance"):
-        """
-        Initialize MatNetInitEmbedding.
+    def __init__(self, embed_dim: int, normalization: str = "instance") -> None:
+        """Initializes MatNetInitEmbedding.
 
         Args:
-            embed_dim: Embedding dimension.
-            normalization: Normalization type.
+            embed_dim: Target embedding dimensionality for rows and columns.
+            normalization: Type of normalization to apply (default: "instance").
         """
         super().__init__()
         # We project: mean, min, (and potentially others like max or std)
@@ -27,13 +48,15 @@ class MatNetInitEmbedding(nn.Module):
         self.row_stats_proj = nn.Linear(2, embed_dim)
         self.col_stats_proj = nn.Linear(2, embed_dim)
 
-    def forward(self, matrix):
-        """
+    def forward(self, matrix: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Encodes matrix statistics into row and column embeddings.
+
         Args:
-            matrix: [batch, row_size, col_size]
+            matrix: Input cost/distance matrix of shape (batch, row_size, col_size).
+
         Returns:
-            row_emb: [batch, row_size, embed_dim]
-            col_emb: [batch, col_size, embed_dim]
+            Tuple: Row embeddings (batch, row_size, dim) and column
+                embeddings (batch, col_size, dim).
         """
         # Row stats: mean and min
         row_mean = matrix.mean(dim=2, keepdim=True)

@@ -1,11 +1,22 @@
-"""
-Problem-specific initialization embeddings.
+"""Problem-specific initialization embeddings.
 
 Each problem type requires different input features to be embedded
 before being processed by the encoder.
+
+Attributes:
+    INIT_EMBEDDING_REGISTRY (Dict[str, nn.Module]): Registry for problem-specific
+        static input embeddings.
+    DYNAMIC_EMBEDDING_REGISTRY (Dict[str, nn.Module]): Registry for dynamic
+        state-based embeddings.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings import get_init_embedding
+    >>> embedding = get_init_embedding("vrpp", embed_dim=128)
 """
 
 from __future__ import annotations
+
+from typing import Any, Dict
 
 from torch import nn
 
@@ -47,7 +58,7 @@ from .state import (
 from .static import StaticEmbedding
 
 # Embedding registry
-INIT_EMBEDDING_REGISTRY = {
+INIT_EMBEDDING_REGISTRY: Dict[str, Any] = {
     "vrpp": VRPPInitEmbedding,
     "cvrpp": CVRPPInitEmbedding,
     "wcvrp": WCVRPInitEmbedding,
@@ -57,22 +68,24 @@ INIT_EMBEDDING_REGISTRY = {
     "scwcvrp": WCVRPInitEmbedding,
 }
 
-DYNAMIC_EMBEDDING_REGISTRY = {
+DYNAMIC_EMBEDDING_REGISTRY: Dict[str, Any] = {
     "static": StaticEmbedding,
     "dynamic": DynamicEmbedding,
 }
 
 
 def get_init_embedding(env_name: str, embed_dim: int = 128) -> nn.Module:
-    """
-    Get problem-specific initial embedding layer.
+    """Gets problem-specific initial embedding layer.
 
     Args:
         env_name: Environment/problem name.
         embed_dim: Embedding dimension.
 
     Returns:
-        Initialized embedding module.
+        nn.Module: Initialized embedding module.
+
+    Raises:
+        ValueError: If the environment name is not registered.
     """
     if env_name not in INIT_EMBEDDING_REGISTRY:
         raise ValueError(
@@ -81,7 +94,7 @@ def get_init_embedding(env_name: str, embed_dim: int = 128) -> nn.Module:
     return INIT_EMBEDDING_REGISTRY[env_name](embed_dim=embed_dim)
 
 
-__all__ = [
+__all__: list[str] = [
     "VRPPInitEmbedding",
     "CVRPPInitEmbedding",
     "WCVRPInitEmbedding",

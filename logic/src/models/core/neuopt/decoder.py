@@ -1,15 +1,16 @@
-"""decoder.py module.
+"""NeuOpt Decoder implementation.
+
+This module implements the `NeuOptDecoder`, which identifies high-quality
+local search moves by evaluating node-to-node transition probabilities
+conditioned on the global problem context.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import decoder
+    NeuOptDecoder: Pairwise action decoder for guided local search moves.
 """
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -21,40 +22,68 @@ from logic.src.models.common.improvement.decoder import ImprovementDecoder
 
 
 class NeuOptDecoder(ImprovementDecoder):
-    """
-    NeuOpt Decoder: Guided move selection.
+    """NeuOpt Decoder for selecting improvement moves.
+
+    Employs a pairwise attention mechanism to compute the similarity between
+    all node pairs in a batch, selecting the directed edge or move that promises
+    the highest objective improvement.
+
+    Attributes:
+        project_q (nn.Linear): Dimensionality projector for query features.
+        project_k (nn.Linear): Dimensionality projector for key features.
+        scale (float): attention normalization constant.
+        seed (int): RNG seed for reproducible move sampling.
+        generator (torch.Generator): Local random search generator.
     """
 
-    def __init__(self, embed_dim: int = 128, seed: int = 42, **kwargs):
-        """Initialize Class.
+    def __init__(
+        self,
+        embed_dim: int = 128,
+        seed: int = 42,
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the NeuOpt decoder.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            kwargs (Any): Description of kwargs.
+            embed_dim: width of the embedded node features.
+            seed: random seed for sampling-based move selection.
+            **kwargs: Extra parameters including 'device'.
         """
         super().__init__(embed_dim=embed_dim)
         self.project_q = nn.Linear(embed_dim, embed_dim)
         self.project_k = nn.Linear(embed_dim, embed_dim)
         self.scale = embed_dim**-0.5
-        self.seed = kwargs.get("seed", 42)
-        self.init_device = kwargs.get("device", "cpu")
-        self.generator = torch.Generator(device=self.init_device).manual_seed(self.seed)
+        self.seed = kwargs.get("seed", seed)
+        init_device = kwargs.get("device", "cpu")
+        self.generator = torch.Generator(device=init_device).manual_seed(self.seed)
 
     @property
     def device(self) -> torch.device:
-        """Get device of the model."""
+        """Determines the current execution device.
+
+        Returns:
+            torch.device: Current placement of solver parameters.
+        """
         return next(self.parameters()).device
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Serializes current state for persistence.
+
+        Returns:
+            Dict[str, Any]: Attribute map with generator state extracted.
+        """
         state = self.__dict__.copy()
         state["generator_state"] = self.generator.get_state()
         state["generator_device"] = str(self.generator.device)
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restores policy parameters and RNG state.
+
+        Args:
+            state: Serialized dictionary of solver attributes.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)
@@ -66,10 +95,20 @@ class NeuOptDecoder(ImprovementDecoder):
         td: TensorDict,
         embeddings: torch.Tensor | Tuple[torch.Tensor, ...],
         env: RL4COEnvBase,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Predict move (idx1, idx2).
+        """Predicts a promising neighborhood move (idx1, idx2).
+
+        Args:
+            td: problem state container with current solution.
+            embeddings: encoded node features [B, N, D].
+            env: active environment dynamics.
+            **kwargs: execution flags including 'strategy'.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]:
+                - log_p: log-likelihood of the selected move [B].
+                - actions: indices of nodes to modify [B, 2].
         """
         h = embeddings[0] if isinstance(embeddings, tuple) else embeddings
         bs, n, _ = h.shape
@@ -80,7 +119,7 @@ class NeuOptDecoder(ImprovementDecoder):
         # scores: [bs, n, n]
         scores = torch.matmul(q, k.transpose(1, 2)) * self.scale
 
-        # Mask invalid moves (diagonal)
+        # Mask invalid moves (identity diagonal)
         mask = torch.eye(n, device=h.device).bool().unsqueeze(0).expand(bs, -1, -1)
         scores.masked_fill_(mask, float("-inf"))
 

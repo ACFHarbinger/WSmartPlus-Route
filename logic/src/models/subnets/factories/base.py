@@ -1,4 +1,14 @@
-"""Abstract base for neural component factories and decoder utility."""
+"""
+Abstract base for neural component factories and decoder utility.
+
+Attributes:
+    NeuralComponentFactory: Abstract interface for creating encoders and decoders.
+    _create_decoder_by_type: Internal utility for instantiating decoders by string identifiers.
+
+Example:
+    >>> # Factories are usually inherited or used via specific implementations
+    >>> from logic.src.models.subnets.factories.base import NeuralComponentFactory
+"""
 
 from __future__ import annotations
 
@@ -18,18 +28,17 @@ from logic.src.models.subnets.decoders.ptr import PointerDecoder
 
 
 def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
-    """
-    Create a decoder instance based on decoder_type.
+    """Instantiates a decoder based on the specified type name.
 
     Args:
-        decoder_type: Type of decoder ('attention', 'deep', 'pointer').
-        **kwargs: Arguments to pass to the decoder constructor.
+        decoder_type (str): Type identifier ('attention', 'deep', 'pointer', 'mdam', 'polynet', 'aco').
+        kwargs: Configuration arguments passed directly to the decoder constructor.
 
     Returns:
-        nn.Module: The decoder instance.
+        nn.Module: The instantiated decoder module.
 
     Raises:
-        ValueError: If decoder_type is not recognized.
+        ValueError: If the decoder_type is not recognized.
     """
     decoder_type = decoder_type.lower()
     if decoder_type in ("attention", "glimpse"):
@@ -53,6 +62,9 @@ def _create_decoder_by_type(decoder_type: str, **kwargs: Any) -> nn.Module:
 class NeuralComponentFactory(ABC):
     """
     Abstract Factory for creating neural components (Encoders and Decoders).
+
+    Attributes:
+        None: Abstract base class does not maintain state.
     """
 
     @abstractmethod
@@ -62,7 +74,16 @@ class NeuralComponentFactory(ABC):
         activation_config: Optional[ActivationConfig] = None,
         **kwargs: Any,
     ) -> nn.Module:
-        """Create an encoder instance."""
+        """Create an encoder instance.
+
+        Args:
+            norm_config (Optional[NormalizationConfig]): Normalization settings. Defaults to None.
+            activation_config (Optional[ActivationConfig]): Activation settings. Defaults to None.
+            kwargs: Architecture-specific configuration.
+
+        Returns:
+            nn.Module: The instantiated encoder module.
+        """
         pass
 
     @abstractmethod
@@ -73,5 +94,15 @@ class NeuralComponentFactory(ABC):
         activation_config: Optional[ActivationConfig] = None,
         **kwargs: Any,
     ) -> nn.Module:
-        """Create a decoder instance based on decoder_type."""
+        """Create a decoder instance based on decoder_type.
+
+        Args:
+            decoder_type (str): Type of decoder ('attention', 'deep', 'pointer'). Defaults to 'attention'.
+            norm_config (Optional[NormalizationConfig]): Normalization settings. Defaults to None.
+            activation_config (Optional[ActivationConfig]): Activation settings. Defaults to None.
+            kwargs: Architecture-specific configuration.
+
+        Returns:
+            nn.Module: The instantiated decoder module.
+        """
         pass

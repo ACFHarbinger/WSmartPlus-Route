@@ -1,10 +1,14 @@
-"""__init__.py module.
+"""NARGNN: Non-Autoregressive Graph Neural Networks.
+
+This package provides non-autoregressive models that use GNNs to predict
+edge discovery heatmaps for efficient construction.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    NARGNN: REINFORCE training wrapper for heatmap models.
+    NARGNNPolicy: Heatmap prediction and decoding policy.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.nargnn import NARGNNPolicy
 """
 
 from .model import NARGNN as NARGNN

@@ -3,6 +3,14 @@ Custom CSS stylesheet for the Streamlit dashboard.
 
 Loads modular CSS files from the 'css' directory and wraps them
 via a Jinja2 template to ensure a clean Python AST.
+
+Attributes:
+    CUSTOM_CSS: The consolidated and template-wrapped CSS string.
+
+Example:
+    >>> from logic.src.ui.styles.css import CUSTOM_CSS
+    >>> print(CUSTOM_CSS[:50])
+    <style>...
 """
 
 import os
@@ -11,7 +19,11 @@ import jinja2
 
 
 def _load_css() -> str:
-    """Read modular CSS files and wrap them using a template."""
+    """Read modular CSS files and wrap them using a template.
+
+    Returns:
+        str: Consolidated CSS wrapped in an HTML container.
+    """
     # 1. Setup paths and Jinja2 environment
     base_dir = os.path.dirname(os.path.abspath(__file__))
     css_dir = os.path.join(base_dir, "css")

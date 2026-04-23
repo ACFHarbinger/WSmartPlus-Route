@@ -1,8 +1,16 @@
-"""MoE Graph Attention Encoder."""
+"""MoE Graph Attention Encoder.
+
+Attributes:
+    MoEGraphAttentionEncoder: MoE (Mixture of Experts) Graph Attention Encoder.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.moe import MoEGraphAttentionEncoder
+    >>> encoder = MoEGraphAttentionEncoder(n_heads=8, embed_dim=128, n_layers=3)
+"""
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, List, Optional
 
 from torch import nn
 
@@ -14,8 +22,7 @@ from .moe_multi_head_attention_layer import MoEMultiHeadAttentionLayer
 
 
 class MoEGraphAttentionEncoder(TransformerEncoderBase):
-    """
-    MoE (Mixture of Experts) Graph Attention Encoder.
+    """MoE (Mixture of Experts) Graph Attention Encoder.
 
     Extends TransformerEncoderBase with MoE-specific multi-head attention layers.
     Each layer uses a mixture of expert feed-forward networks for improved
@@ -27,94 +34,90 @@ class MoEGraphAttentionEncoder(TransformerEncoderBase):
     - Dropout application
     - Standard forward pass
 
-    Parameters
-    ----------
-    n_heads : int
-        Number of attention heads.
-    embed_dim : int
-        Embedding dimension.
-    n_layers : int
-        Number of encoder layers.
-    n_sublayers : Optional[int], default=None
-        Number of sublayers (unused, kept for API compatibility).
-    feed_forward_hidden : int, default=512
-        Hidden dimension for each expert's feed-forward network.
-    normalization : str, default="batch"
-        Normalization type: "batch", "layer", "instance", or "group".
-    norm_eps_alpha : float, default=1e-05
-        Epsilon for normalization stability.
-    norm_learn_affine : bool, default=True
-        Whether to learn affine parameters in normalization.
-    norm_track_stats : bool, default=False
-        Whether to track running stats in batch norm.
-    norm_momentum_beta : float, default=0.1
-        Momentum for batch norm running stats.
-    lrnorm_k : float, default=1.0
-        Local response normalization parameter.
-    gnorm_groups : int, default=3
-        Number of groups for group normalization.
-    activation_function : str, default="gelu"
-        Activation function name.
-    af_param : float, default=1.0
-        Activation function parameter.
-    af_threshold : float, default=6.0
-        Activation threshold.
-    af_replacement_value : float, default=6.0
-        Activation replacement value.
-    af_num_params : int, default=3
-        Number of activation parameters.
-    af_uniform_range : list, default=[0.125, 1/3]
-        Uniform range for activation.
-    dropout_rate : float, default=0.1
-        Dropout probability.
-    agg : Any, default=None
-        Aggregation method (unused, kept for API compatibility).
-    connection_type : str, default="skip"
-        Connection type: "skip", "dense", or "hyper".
-    expansion_rate : int, default=4
-        Expansion factor for hyper-connections.
-    num_experts : int, default=4
-        Number of expert networks in MoE.
-    k : int, default=2
-        Number of experts to activate per input (top-k routing).
-    noisy_gating : bool, default=True
-        Whether to use noisy gating for exploration.
-    **kwargs
-        Additional keyword arguments.
+    Attributes:
+        num_experts (int): Number of expert networks in MoE.
+        k (int): Number of experts to activate per input (top-k routing).
+        noisy_gating (bool): Whether to use noisy gating for exploration.
+        activation_function (str): Activation function name.
+        af_param (float): Activation function parameter.
+        af_threshold (float): Activation threshold.
+        af_replacement_value (float): Activation replacement value.
+        af_num_params (int): Number of activation parameters.
+        af_uniform_range (List[float]): Uniform range for activation.
+        normalization (str): Normalization type.
+        norm_eps_alpha (float): Epsilon for normalization stability.
+        norm_learn_affine (bool): Whether to learn affine parameters.
+        norm_track_stats (bool): Whether to track running stats.
+        norm_momentum_beta (float): Momentum for batch norm stats.
+        lrnorm_k (float): Local response normalization parameter.
+        gnorm_groups (int): Number of groups for group normalization.
+        n_sublayers (Optional[int]): Number of sublayers (unused).
+        agg (Optional[Any]): Aggregation method (unused).
     """
 
     def __init__(
         self,
-        n_heads,
-        embed_dim,
-        n_layers,
-        n_sublayers=None,
-        feed_forward_hidden=512,
-        normalization="batch",
-        norm_eps_alpha=1e-05,
-        norm_learn_affine=True,
-        norm_track_stats=False,
-        norm_momentum_beta=0.1,
-        lrnorm_k=1.0,
-        gnorm_groups=3,
-        activation_function="gelu",
-        af_param=1.0,
-        af_threshold=6.0,
-        af_replacement_value=6.0,
-        af_num_params=3,
-        af_uniform_range=None,
-        dropout_rate=0.1,
-        agg=None,
-        connection_type="skip",
-        expansion_rate=4,
-        num_experts=4,
-        k=2,
-        noisy_gating=True,
+        n_heads: int,
+        embed_dim: int,
+        n_layers: int,
+        n_sublayers: Optional[int] = None,
+        feed_forward_hidden: int = 512,
+        normalization: str = "batch",
+        norm_eps_alpha: float = 1e-05,
+        norm_learn_affine: bool = True,
+        norm_track_stats: bool = False,
+        norm_momentum_beta: float = 0.1,
+        lrnorm_k: float = 1.0,
+        gnorm_groups: int = 3,
+        activation_function: str = "gelu",
+        af_param: float = 1.0,
+        af_threshold: float = 6.0,
+        af_replacement_value: float = 6.0,
+        af_num_params: int = 3,
+        af_uniform_range: Optional[List[float]] = None,
+        dropout_rate: float = 0.1,
+        agg: Optional[Any] = None,
+        connection_type: str = "skip",
+        expansion_rate: int = 4,
+        num_experts: int = 4,
+        k: int = 2,
+        noisy_gating: bool = True,
         norm_config: Optional[NormalizationConfig] = None,
         activation_config: Optional[ActivationConfig] = None,
-        **kwargs,
-    ):
-        """Initialize the MoEGraphAttentionEncoder."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the MoEGraphAttentionEncoder.
+
+        Args:
+            n_heads: Number of attention heads.
+            embed_dim: Embedding dimension.
+            n_layers: Number of encoder layers.
+            n_sublayers: Number of sublayers (unused, kept for API compatibility).
+            feed_forward_hidden: Hidden dimension for each expert's feed-forward network.
+            normalization: Normalization type ("batch", "layer", "instance", or "group").
+            norm_eps_alpha: Epsilon for normalization stability.
+            norm_learn_affine: Whether to learn affine parameters in normalization.
+            norm_track_stats: Whether to track running stats in batch norm.
+            norm_momentum_beta: Momentum for batch norm running stats.
+            lrnorm_k: Local response normalization parameter.
+            gnorm_groups: Number of groups for group normalization.
+            activation_function: Activation function name.
+            af_param: Activation function parameter.
+            af_threshold: Activation threshold.
+            af_replacement_value: Activation replacement value.
+            af_num_params: Number of activation parameters.
+            af_uniform_range: Uniform range for activation.
+            dropout_rate: Dropout probability.
+            agg: Aggregation method (unused, kept for API compatibility).
+            connection_type: Connection type ("skip", "dense", or "hyper").
+            expansion_rate: Expansion factor for hyper-connections.
+            num_experts: Number of expert networks in MoE.
+            k: Number of experts to activate per input (top-k routing).
+            noisy_gating: Whether to use noisy gating for exploration.
+            norm_config: Optional normalization configuration.
+            activation_config: Optional activation function configuration.
+            kwargs: Additional keyword arguments.
+        """
         # Store MoE-specific parameters for _create_layer()
         self.num_experts = num_experts
         self.k = k
@@ -175,18 +178,13 @@ class MoEGraphAttentionEncoder(TransformerEncoderBase):
         self.agg = agg
 
     def _create_layer(self, layer_idx: int) -> nn.Module:
-        """
-        Create a single MoE multi-head attention layer.
+        """Creates a single MoE multi-head attention layer.
 
-        Parameters
-        ----------
-        layer_idx : int
-            Index of the layer being created (0 to n_layers-1).
+        Args:
+            layer_idx: Index of the layer being created (0 to n_layers-1).
 
-        Returns
-        -------
-        nn.Module
-            MoEMultiHeadAttentionLayer instance with MoE feed-forward.
+        Returns:
+            nn.Module: MoEMultiHeadAttentionLayer instance with MoE feed-forward.
         """
         return MoEMultiHeadAttentionLayer(
             self.n_heads,

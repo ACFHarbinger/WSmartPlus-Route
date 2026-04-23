@@ -1,12 +1,16 @@
-"""
-Vectorized HGS Algorithm.
+"""Vectorized Hybrid Genetic Search (HGS) algorithm.
+
+This module implements the HGS algorithm for the Vehicle Routing Problem,
+following the principles of diversity-aware population management and
+intensified local search (Education). It is fully vectorized to allow
+parallel evolution of multiple batch instances on the GPU.
 """
 
 from __future__ import annotations
 
 import random
 import time
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import torch
 
@@ -25,34 +29,48 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
 class VectorizedHGS(PolicyVizMixin):
-    """
-    Main class for the Vectorized Hybrid Genetic Search (HGS) algorithm.
-    Orchestrates the evolution process, including initialization, selection, crossover,
-    local search (education), and survivor selection.
+    """Vectorized Hybrid Genetic Search (HGS) Solver.
 
-    Args:
-        dist_matrix (torch.Tensor): Distance matrix.
-        wastes (torch.Tensor): Wastes tensor.
-        vehicle_capacity (float/torch.Tensor): Vehicle capacity.
-        max_iterations (int): Maximum number of iterations for local search.
-        time_limit (float): Time limit for the search in seconds.
-        generator: Torch generator for reproducibility.
+    Orchestrates the HGS meta-heuristic by managing a population of giant tours,
+    applying genetic recombination (OX crossover), and intensifying offspring
+    quality via multiple parallel local search operators (Education).
+
+    Attributes:
+        dist_matrix: pairwise distances [B, N, N] or [N, N].
+        wastes: node-wise demand/waste values.
+        vehicle_capacity: maximum capacity per route.
+        max_iterations: internal loop limit for local search operators.
+        time_limit: wall-clock search budget.
+        device: hardware target.
+        seed: RNG initialization constant.
+        generator: torch device-side RNG.
+        rng: CPU-side python RNG for high-level branching.
     """
 
     def __init__(
         self,
         dist_matrix: torch.Tensor,
         wastes: torch.Tensor,
-        vehicle_capacity: Any,
+        vehicle_capacity: Union[float, torch.Tensor],
         max_iterations: int = 50,
         time_limit: float = 1.0,
         device: str = "cuda",
         seed: int = 42,
         generator: Optional[torch.Generator] = None,
         rng: Optional[random.Random] = None,
-    ):
-        """
-        Initialize the HGS solver.
+    ) -> None:
+        """Initialize the HGS solver.
+
+        Args:
+            dist_matrix: node-to-node cost tensor.
+            wastes: node filling rates or demands.
+            vehicle_capacity: constraint for the split algorithm.
+            max_iterations: local search iteration limit.
+            time_limit: total runtime budget.
+            device: hardware identifier.
+            seed: random seed for both CPU and GPU RNGs.
+            generator: existing torch generator (optional).
+            rng: existing python Random instance (optional).
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -71,8 +89,12 @@ class VectorizedHGS(PolicyVizMixin):
         else:
             self.rng = random.Random(self.seed)
 
-    def __getstate__(self):
-        """Prepare state for pickling."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepares state for serialization, extracting generator state.
+
+        Returns:
+            Dict[str, Any]: Object map suitable for pickling.
+        """
         state = self.__dict__.copy()
         if "generator" in state and state["generator"] is not None:
             state["generator_state"] = state["generator"].get_state()
@@ -80,8 +102,12 @@ class VectorizedHGS(PolicyVizMixin):
             del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restores search state and re-syncs device RNGs.
+
+        Args:
+            state: Serialized attribute dictionary.
+        """
         gen_state = state.pop("generator_state", None)
         gen_device = state.pop("generator_device", None)
         self.__dict__.update(state)
@@ -100,26 +126,29 @@ class VectorizedHGS(PolicyVizMixin):
         time_limit: Optional[float] = None,
         max_vehicles: int = 0,
         crossover_rate: float = 0.7,
-    ) -> Tuple[Union[torch.Tensor, List[List[Any]]], torch.Tensor]:
-        """
-        Runs the HGS algorithm starting from a set of initial solutions (Expert Imitation Mode).
+    ) -> Tuple[Union[torch.Tensor, List[List[int]]], torch.Tensor]:
+        """Run the evolutionary search starting from provided base solutions.
+
+        Implements the main HGS pipeline: Selection -> Crossover -> Education ->
+        Survivor Selection -> Diversity Monitoring -> Optional Restart.
 
         Args:
-            initial_solutions (torch.Tensor): Initial solutions (giant tours) (B, N).
-            n_generations (int): Number of generations to run.
-            population_size (int): Size of the genetic population.
-            elite_size (int): Number of elite individuals to preserve during restarting.
-            time_limit (float, optional): Override time limit in seconds.
-            max_vehicles (int, optional): Maximum number of vehicles allowed (0 for unlimited).
-            crossover_rate (float): Probability of applying crossover per generation.
+            initial_solutions: baseline giant tours [B, N].
+            n_generations: maximum generation cycles.
+            population_size: size of the genetic pool.
+            elite_size: number of top individuals kept for the next generation.
+            time_limit: runtime override in seconds.
+            max_vehicles: fleet size constraint.
+            crossover_rate: probability of recombination per child.
 
         Returns:
-            tuple: (best_routes, best_cost)
+            Tuple[Union[torch.Tensor, List[List[int]]], torch.Tensor]:
+                - best_routes: optimized node sequences.
+                - best_final_costs: corresponding costs [B].
         """
         B, N = initial_solutions.size()
         start_time = time.time()
 
-        # Initial Evaluation
         _, costs = vectorized_linear_split(
             initial_solutions,
             self.dist_matrix,
@@ -129,36 +158,27 @@ class VectorizedHGS(PolicyVizMixin):
         )
 
         pop = VectorizedPopulation(population_size, self.device, self.generator)
-        # 1. Initialization: Create the initial population from guest solutions (Expert Imitation).
-        # In HGS, the population is split into feasible and infeasible sub-populations.
         pop.initialize(initial_solutions, costs, elite_size)
 
         no_improv = 0
         best_cost_tracker = pop.costs.min().item()
 
-        # 2. Main Evolutionary Loop
         for _gen in range(n_generations):
             if time_limit is not None and (time.time() - start_time > time_limit):
                 break
 
-            # 3. Selection: Binary Tournament Selection
-            # Select two parents from the population. HGS uses biased fitness which
-            # combines objective value and a diversity rank based on distance to neighbors.
+            # 1. Selection & Recombination
             p1, p2 = pop.get_parents(n_offspring=1)
             p1 = p1.squeeze(1)
             p2 = p2.squeeze(1)
 
-            # 4. Crossover: Ordered Crossover (OX) for giant tours
-            # Combines segments from parents while maintaining relative order of cities.
-            # With probability (1 - crossover_rate), skip crossover and clone parent.
             offspring_giant = (
                 vectorized_ordered_crossover(p1, p2, self.device, self.generator)
                 if self.rng.random() < crossover_rate
                 else p1.clone()
             )
 
-            # 5. Evaluation & Splitting:
-            # Convert the giant tour offspring into actual routes using a linear split algorithm.
+            # 2. Linear Split (Giant Tour -> CVRP Routes)
             routes_list, split_costs = vectorized_linear_split(
                 offspring_giant,
                 self.dist_matrix,
@@ -167,13 +187,10 @@ class VectorizedHGS(PolicyVizMixin):
                 max_vehicles=max_vehicles,
             )
 
-            # 6. Education Phase (Local Search Intensification):
-            # Apply a sequence of neighborhood operators to improve the offspring's cost.
-            # This 'Education' step is what makes it a 'Hybrid' genetic algorithm.
+            # 3. Education Phase (Intensified Local Search)
             improved_routes, improved_costs = self.educate(routes_list, split_costs, max_vehicles)
 
-            # 7. Giant Tour Reconstruction:
-            # Flatten the improved routes back into a single sequence for the next generation.
+            # 4. Reconstruction (Routes -> Giant Tour)
             giant_candidates = torch.zeros((B, N), dtype=torch.long, device=self.device)
             improved_routes_cpu = improved_routes.cpu().numpy()
 
@@ -185,14 +202,9 @@ class VectorizedHGS(PolicyVizMixin):
                 else:
                     giant_candidates[b, :] = offspring_giant[b, :]
 
-            # 8. Survivor Selection:
-            # Add the improved offspring back into the population.
-            # The population manager will then prune individuals to maintain the size limit,
-            # using 'Biased Fitness' to balance objective quality and population diversity.
+            # 5. Survivor Selection (Diversity-Aware Pruning)
             pop.add_individuals(giant_candidates, improved_costs, elite_size)
 
-            # 9. Stagnation Check & Restart:
-            # If the best solution hasn't improved for many generations, trigger a restart.
             current_best = pop.costs.min().item()
             if current_best < best_cost_tracker - 1e-4:
                 best_cost_tracker = current_best
@@ -202,23 +214,18 @@ class VectorizedHGS(PolicyVizMixin):
 
             restarted = False
             if no_improv > 50:
-                # Restart Mechanism:
-                # Keep the elite individuals and replace the rest with new random solutions.
-                # This helps escape local optima and explores different regions of the search space.
+                # 6. Diversification / Restart
                 k = elite_size
-                # Keep Elite
                 sorted_idx = torch.argsort(pop.biased_fitness, dim=1)[:, :k]
                 elite_pop = torch.gather(pop.population, 1, sorted_idx.unsqueeze(2).expand(-1, -1, N))
                 elite_cost = torch.gather(pop.costs, 1, sorted_idx)
 
-                # Generate and evaluate new random solutions to diversify the population.
                 n_rest = pop.max_size - k
                 new_pop = torch.zeros((B, n_rest, N), dtype=torch.long, device=self.device)
                 for b in range(B):
                     for i in range(n_rest):
                         new_pop[b, i] = torch.randperm(N, device=self.device, generator=self.generator) + 1
 
-                # Evaluate new population...
                 b_sz, n_rst, n_nds = new_pop.shape
                 flat_pop = new_pop.view(b_sz * n_rst, n_nds)
 
@@ -232,12 +239,11 @@ class VectorizedHGS(PolicyVizMixin):
                     flat_pop,
                     flat_dist,
                     flat_wastes,
-                    flat_cap,
+                    cast(float, flat_cap),
                     max_vehicles=max_vehicles,
                 )
                 new_costs = new_costs_flat.view(b_sz, n_rst)
 
-                # Merge elite and new individuals back into the population.
                 pop.population = torch.cat([elite_pop, new_pop], dim=1)
                 pop.costs = torch.cat([elite_cost, new_costs], dim=1)
                 pop.compute_biased_fitness(elite_size)
@@ -265,11 +271,25 @@ class VectorizedHGS(PolicyVizMixin):
         return best_routes, best_final_costs
 
     def educate(
-        self, routes_list: list[list[int]], split_costs: torch.Tensor, max_vehicles: int = 0
+        self,
+        routes_list: List[List[int]],
+        split_costs: torch.Tensor,
+        max_vehicles: int = 0,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Education Phase (Local Search Intensification).
-        Applies standard neighborhood operators.
+        """Education Phase: Intensified parallel local search.
+
+        Iteratively applies neighborhood operators (Relocate, Swap, Opt) to improve
+        solution quality. This constitutes the 'Hybrid' component of the algorithm.
+
+        Args:
+            routes_list: base node sequences from the split operator.
+            split_costs: initial costs before optimization [B].
+            max_vehicles: fleet constraint (passed to split if needed).
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]:
+                - improved_routes: sequences after education [B, max_L].
+                - improved_costs: updated costs after neighborhood search [B].
         """
         B = len(routes_list)
         max_l = max(len(r) for r in routes_list)
@@ -279,31 +299,46 @@ class VectorizedHGS(PolicyVizMixin):
             offspring_routes[b, : len(r)] = torch.tensor(r, device=self.device)
 
         if max_l > 2:
-            # Apply various local search moves iteratively
             improved_routes = vectorized_two_opt(
-                offspring_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+                offspring_routes,
+                self.dist_matrix,
+                max_iterations=self.max_iterations,
+                generator=self.generator,
             )
             improved_routes = vectorized_three_opt(
-                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+                improved_routes,
+                self.dist_matrix,
+                max_iterations=self.max_iterations,
+                generator=self.generator,
             )
             improved_routes = vectorized_swap(
-                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+                improved_routes,
+                self.dist_matrix,
+                max_iterations=self.max_iterations,
+                generator=self.generator,
             )
             improved_routes = vectorized_relocate(
-                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+                improved_routes,
+                self.dist_matrix,
+                max_iterations=self.max_iterations,
+                generator=self.generator,
             )
             improved_routes = vectorized_two_opt_star(
-                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+                improved_routes,
+                self.dist_matrix,
+                max_iterations=self.max_iterations,
+                generator=self.generator,
             )
             improved_routes = vectorized_swap_star(
-                improved_routes, self.dist_matrix, max_iterations=self.max_iterations, generator=self.generator
+                improved_routes,
+                self.dist_matrix,
+                max_iterations=self.max_iterations,
+                generator=self.generator,
             )
 
-            # Re-calculate costs after local search optimization
             from_n = improved_routes[:, :-1]
             to_n = improved_routes[:, 1:]
 
-            # Flexible distance matrix support (batch, non-batch, 2D, 3D)
             if self.dist_matrix.dim() == 3 and self.dist_matrix.size(0) == B:
                 batch_ids = torch.arange(B, device=self.device).view(B, 1)
                 dists = self.dist_matrix[batch_ids, from_n, to_n]

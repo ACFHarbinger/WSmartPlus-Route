@@ -1,43 +1,69 @@
-"""Pointer attention module."""
+"""Pointer attention module.
+
+This module provides the PointerAttention class, which implements the bahdanau-style
+attention mechanism used by Pointer Networks.
+
+Attributes:
+    PointerAttention: Attention mechanism for pointing to specific input elements.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.ptr.pointer_attention import PointerAttention
+    >>> attention = PointerAttention(dim=128)
+    >>> ref_proj, logits = attention(query, reference)
+"""
+
+from __future__ import annotations
 
 import math
+from typing import Tuple
 
 import torch
 from torch import nn
 
 
 class PointerAttention(nn.Module):
-    """A generic attention module for a decoder in seq2seq."""
+    """Generic attention module for pointer-style decoders.
 
-    def __init__(self, dim, use_tanh=False, C=10):
-        """
-        Initializes PointerAttention.
+    Calculates compatibility scores between a query vector (recurrent state)
+    and a reference sequence (encoder outputs) to produce selection logits.
+
+    Attributes:
+        use_tanh (bool): Whether to use tanh exploration.
+        project_query (nn.Linear): Linear projection for the query vector.
+        project_ref (nn.Conv1d): 1D convolution projection for the reference sequence.
+        C (float): Tanh exploration scaling constant.
+        tanh (nn.Tanh): Tanh activation function.
+        v (nn.Parameter): Learnable attention weight vector.
+    """
+
+    def __init__(self, dim: int, use_tanh: bool = False, C: float = 10.0) -> None:
+        """Initializes PointerAttention.
 
         Args:
-            dim: Dimension of attention vector.
+            dim: Dimension of the attention vector.
             use_tanh: Whether to use tanh exploration.
             C: Tanh exploration constant.
         """
-        super(PointerAttention, self).__init__()
+        super().__init__()
         self.use_tanh = use_tanh
         self.project_query = nn.Linear(dim, dim)
         self.project_ref = nn.Conv1d(dim, dim, 1, 1)
-        self.C = C  # tanh exploration
+        self.C = C
         self.tanh = nn.Tanh()
 
         self.v = nn.Parameter(torch.FloatTensor(dim))
         self.v.data.uniform_(-(1.0 / math.sqrt(dim)), 1.0 / math.sqrt(dim))
 
-    def forward(self, query, ref):
-        """
-        Calculate attention logits.
+    def forward(self, query: torch.Tensor, ref: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Calculates attention logits for a given query and reference set.
 
         Args:
-            query: Hidden state of the decoder at the current time step (batch x dim).
-            ref: Set of hidden states from the encoder (sourceL x batch x hidden_dim).
+            query: Current decoder hidden state of shape (batch, dim).
+            ref: Reference sequence from the encoder of shape (sourceL, batch, dim).
 
         Returns:
-            Projected reference and logits.
+            Tuple[torch.Tensor, torch.Tensor]: Projected references and the resulting
+                attention logits.
         """
         # ref is now [batch_size x hidden_dim x sourceL]
         ref = ref.permute(1, 2, 0)

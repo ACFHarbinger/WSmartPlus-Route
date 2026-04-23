@@ -1,48 +1,51 @@
-"""
-Regular (Periodic) Selection Strategy.
+"""Regular selection strategy.
+
+This module provides a periodic collection strategy that marks all bins for
+collection on scheduled days based on a fixed frequency interval.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Any, Optional, Union
 
 import torch
-from torch import Tensor
 
 from .base import VectorizedSelector
 
 
 class RegularSelector(VectorizedSelector):
-    """
-    Periodic collection strategy.
+    """Periodic collection strategy.
 
     Selects all bins on scheduled collection days based on a fixed frequency.
+    If it is a collection day for a specific batch, all active bins in that
+    batch are marked as mandatory.
     """
 
-    def __init__(self, frequency: int = 3):
-        """
-        Initialize RegularSelector.
+    def __init__(self, frequency: int = 3) -> None:
+        """Initialize the regular selector.
 
         Args:
-            frequency: Collection interval in days. Default: 3 (collect every 3rd day).
+            frequency: Collection interval in days (e.g., 3 means collect every 3rd day).
         """
         self.frequency = frequency
 
     def select(
         self,
-        fill_levels: Tensor,
-        current_day: Optional[Tensor] = None,
+        fill_levels: torch.Tensor,
+        current_day: Optional[Union[torch.Tensor, int]] = None,
         frequency: Optional[int] = None,
-        **kwargs,
-    ) -> Tensor:
-        """
-        Select all bins if today is a scheduled collection day.
+        **kwargs: Any,
+    ) -> torch.Tensor:
+        """Select all bins if today is a scheduled collection day.
 
         Args:
-            fill_levels: Current fill levels (batch_size, num_nodes).
-            current_day: Current simulation day (batch_size,) or scalar.
+            fill_levels: Current fill levels [B, N].
+            current_day: Current simulation day [B] or scalar.
             frequency: Optional override for collection frequency.
+            **kwargs: Extra parameters (ignored).
 
         Returns:
-            Tensor: Boolean mask (batch_size, num_nodes).
+            torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
         batch_size, num_nodes = fill_levels.shape
         device = fill_levels.device
@@ -56,7 +59,7 @@ class RegularSelector(VectorizedSelector):
             mandatory = torch.ones(batch_size, num_nodes, dtype=torch.bool, device=device)
         else:
             # Ensure current_day is a tensor
-            if not isinstance(current_day, Tensor):
+            if not isinstance(current_day, torch.Tensor):
                 current_day = torch.tensor(current_day, device=device)
 
             # Expand to batch if scalar

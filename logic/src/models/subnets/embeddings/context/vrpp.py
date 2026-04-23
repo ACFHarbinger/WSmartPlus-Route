@@ -1,8 +1,20 @@
-"""VRPP specific context embedder."""
+"""VRPP specific context embedding module.
+
+This module provides the VRPPContextEmbedder, which handles initial state
+projections and dynamic context extraction for Vehicle Routing Problems with Profits.
+
+Attributes:
+    VRPPContextEmbedder: Context embedder tailored for VRPP/CVRP variants.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.context.vrpp import VRPPContextEmbedder
+    >>> embedder = VRPPContextEmbedder(embed_dim=128)
+    >>> context = embedder(embeddings, state)
+"""
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict
 
 import torch
 from torch import nn
@@ -13,15 +25,24 @@ from .base import ContextEmbedder
 
 
 class VRPPContextEmbedder(ContextEmbedder):
-    """Context Embedder for VRP with Profits (VRPP) families."""
+    """Context embedder for VRP with Profits (VRPP) and CVRP families.
 
-    def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0):
-        """Initialize Class.
+    Handles initial node features (locations + waste/demand) and extracts
+    dynamic step features such as current vehicle load or remaining capacity.
+
+    Attributes:
+        init_embed (nn.Linear): Projection for non-depot customer features.
+        init_embed_depot (nn.Linear): Projection for depot location.
+        project_step_context (nn.Linear): Projection for fused step context.
+    """
+
+    def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0) -> None:
+        """Initializes VRPPContextEmbedder.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            node_dim (int): Description of node_dim.
-            temporal_horizon (int): Description of temporal_horizon.
+            embed_dim: Target embedding dimensionality.
+            node_dim: Base dimensionality of node features.
+            temporal_horizon: Size of temporal feature window (if any).
         """
         super().__init__(embed_dim, node_dim, temporal_horizon)
         input_dim = node_dim
@@ -34,15 +55,15 @@ class VRPPContextEmbedder(ContextEmbedder):
         # Step context projection: current_node_embed + state_features
         self.project_step_context = nn.Linear(self.step_context_dim, embed_dim)
 
-    def init_node_embeddings(self, nodes: dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
-        """Init node embeddings.
+    def init_node_embeddings(self, nodes: Dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
+        """Initializes node embeddings from locations and problem-specific features.
 
         Args:
-            nodes (dict[str, Any]): Description of nodes.
-            temporal_features (bool): Description of temporal_features.
+            nodes: Input dictionary containing 'locs'/'loc', 'waste'/'demand', 'depot'.
+            temporal_features: Whether to include temporal features if horizon > 0.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Initial node embeddings including the depot.
         """
         # Initial node embedding: locs + waste
         # Waste is usually [batch_size, num_nodes]
@@ -51,7 +72,12 @@ class VRPPContextEmbedder(ContextEmbedder):
         locs = nodes.get("locs") if "locs" in nodes.keys() else nodes.get("loc")
         if locs is None:
             # Fallback for missing locs
-            return torch.zeros(1, 1, self.embed_dim, device=nodes.device if hasattr(nodes, "device") else None)
+            return torch.zeros(
+                1,
+                1,
+                self.embed_dim,
+                device=nodes.device if hasattr(nodes, "device") else None,
+            )
 
         # Use waste for node quantities
         waste = nodes.get("waste")
@@ -65,13 +91,20 @@ class VRPPContextEmbedder(ContextEmbedder):
             node_features.append(waste)
 
         # Add temporal features if available
-        if self.temporal_horizon > 0:
+        if self.temporal_horizon > 0 and temporal_features:
             temp_feat = nodes.get("temporal_features")
             if temp_feat is not None:
                 node_features.append(temp_feat)
             else:
                 # Pad with zeros if missing
-                node_features.append(torch.zeros(locs.size(0), locs.size(1), self.temporal_horizon, device=locs.device))
+                node_features.append(
+                    torch.zeros(
+                        locs.size(0),
+                        locs.size(1),
+                        self.temporal_horizon,
+                        device=locs.device,
+                    )
+                )
 
         node_features_tensor = torch.cat(node_features, -1)
 
@@ -98,9 +131,16 @@ class VRPPContextEmbedder(ContextEmbedder):
         )
 
     def _step_context(self, embeddings: torch.Tensor, state: Any) -> torch.Tensor:
-        """
-        Get VRPP-specific step context.
-        Concatenates current node embedding and remaining capacity/load.
+        """Extracts current VRPP step context.
+
+        Fuses current node embedding with system status (e.g., current load).
+
+        Args:
+            embeddings: Current node embeddings.
+            state: Current environment state.
+
+        Returns:
+            torch.Tensor: Projected step context embedding.
         """
         batch_size = embeddings.size(0)
         current_node = state.get_current_node() if hasattr(state, "get_current_node") else state.get("current_node")
@@ -110,14 +150,18 @@ class VRPPContextEmbedder(ContextEmbedder):
 
         # 1. Current node embedding [batch, 1, embed_dim]
         current_node_embed = embeddings.gather(
-            1, current_node.unsqueeze(1).unsqueeze(-1).expand(batch_size, 1, self.embed_dim)
+            1,
+            current_node.unsqueeze(1).unsqueeze(-1).expand(batch_size, 1, self.embed_dim),
         )
 
         # 2. State features (e.g. current_load) [batch, 1, 1]
         # In TensorDictStateWrapper, we often have 'current_load' or 'remaining_capacity'
         state_features = state.get("current_load", None)
         if state_features is None:
-            state_features = state.get("remaining_capacity", torch.zeros(batch_size, 1, device=embeddings.device))
+            state_features = state.get(
+                "remaining_capacity",
+                torch.zeros(batch_size, 1, device=embeddings.device),
+            )
 
         if state_features.dim() == 1:
             state_features = state_features.unsqueeze(-1)
@@ -130,8 +174,11 @@ class VRPPContextEmbedder(ContextEmbedder):
 
     @property
     def step_context_dim(self) -> int:
-        """
-        VRPP context usually adds remaining length/capacity info (OFFSET)
-        to the current node embedding (embed_dim).
+        """Gets the dimensionality of the fused VRPP step context.
+
+        Aggregates node embedding dim and step-specific metadata offset.
+
+        Returns:
+            int: Dimension size.
         """
         return self.embed_dim + VRPP_STEP_CONTEXT_OFFSET

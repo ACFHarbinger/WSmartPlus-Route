@@ -1,10 +1,11 @@
 """__init__.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    DeepACOEncoder: DeepACO Encoder.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.subnets.encoders.deepaco import DeepACOEncoder
+    >>> encoder = DeepACOEncoder(n_layers=3, embed_dim=128)
 """
 
 from .encoder import DeepACOEncoder

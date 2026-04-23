@@ -1,6 +1,18 @@
+"""Attention computation for MDAM.
+
+This module provides the core attention implementation for the Multi-Decoder
+Attention Model (MDAM), including compatibility computation, glimpse mechanism,
+and logit generation.
+
+Attributes:
+    compute_mdam_logits: Function to compute attention-based selection probabilities.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.mdam.attention import compute_mdam_logits
+    >>> log_p, glimpse = compute_mdam_logits(query, glimpse_K, glimpse_V, logit_K, ...)
 """
-Attention computation for MDAM.
-"""
+
+from __future__ import annotations
 
 import math
 from typing import Optional, Tuple
@@ -21,7 +33,23 @@ def compute_mdam_logits(
     mask_inner: bool,
     mask_logits: bool,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Compute attention-based logits."""
+    """Computes attention-based selection logits and updated query glimpse.
+
+    Args:
+        query: Transformed step context query of shape (batch, steps, dim).
+        glimpse_K: Key embeddings for compatibility calculation.
+        glimpse_V: Value embeddings for glimpse aggregation.
+        logit_K: Key embeddings for final selection logit calculation.
+        mask: Valid node mask of shape (batch, nodes).
+        num_heads: Number of parallel attention heads.
+        project_out: Post-attention linear projection layer.
+        tanh_clipping: Factor for logit value clipping.
+        mask_inner: Whether to apply mask during internal compatibility check.
+        mask_logits: Whether to apply mask to the final produced logits.
+
+    Returns:
+        Tuple: Log probabilities (batch, steps, nodes) and final query glimpse.
+    """
     batch_size, num_steps, embed_dim = query.size()
     key_size = embed_dim // num_heads
 

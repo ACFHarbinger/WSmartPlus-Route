@@ -1,8 +1,25 @@
-"""
-PolyNet Attention Module.
+"""PolyNet Attention Module.
 
-Implements K-strategy conditioning via binary vectors for diverse solution learning.
-Based on Hottung et al. (2024): https://arxiv.org/abs/2402.14048
+This module provides the PolyNetAttention layer, which implements K-strategy
+conditioning via binary vectors to enable learning of diverse solution
+strategies within a single neural network.
+
+Reference:
+    Hottung, A., et al. (2024). PolyNet: Learning Diverse Solution Strategies
+    for Neural Combinatorial Optimization. arXiv preprint arXiv:2402.14048.
+
+Attributes:
+    PolyNetAttention: Attention mechanism with binary strategy conditioning.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.polynet_attention import PolyNetAttention
+    >>> poly = PolyNetAttention(k=4, embed_dim=128)
+    >>> q = torch.randn(1, 1, 128)
+    >>> k = torch.randn(1, 10, 128)
+    >>> v = torch.randn(1, 10, 128)
+    >>> lk = torch.randn(1, 10, 128)
+    >>> logits = poly(q, k, v, lk)
 """
 
 from __future__ import annotations
@@ -17,18 +34,24 @@ from torch import nn
 
 
 class PolyNetAttention(nn.Module):
-    """
-    PolyNet Attention with K-strategy binary conditioning.
+    """PolyNet Attention with K-strategy binary conditioning.
 
-    Extends pointer attention to condition logits on K different binary vectors,
-    allowing learning of K diverse solution strategies from a single model.
+    Extends standard multi-head attention to condition glimpse vectors on K different
+    binary identifier vectors. This forces the model to branch its decision logic,
+    facilitating the discovery of multiple distinct high-quality paths for complex
+    optimization problems.
 
-    The binary vectors are generated as the first K elements of the set of all
-    binary vectors of length ceil(log2(K)).
-
-    Reference:
-        Hottung et al. "PolyNet: Learning Diverse Solution Strategies for
-        Neural Combinatorial Optimization" (2024)
+    Attributes:
+        k (int): Number of distinct strategies to learn.
+        embed_dim (int): Dimensionality of input features.
+        num_heads (int): Number of attention heads.
+        mask_inner (bool): Whether to mask padding in internal attention.
+        check_nan (bool): Whether to perform runtime NaN checks on logits.
+        binary_vector_dim (int): Number of bits required to encode k strategies.
+        binary_vectors (torch.Tensor): Precomputed binary identifier vectors.
+        project_out (nn.Linear): Linear output projection for concatenated heads.
+        poly_layer_1 (nn.Linear): First conditioning transformation.
+        poly_layer_2 (nn.Linear): Second conditioning transformation for residuals.
     """
 
     binary_vectors: torch.Tensor
@@ -43,17 +66,16 @@ class PolyNetAttention(nn.Module):
         out_bias: bool = False,
         check_nan: bool = True,
     ) -> None:
-        """
-        Initialize PolyNet attention.
+        """Initializes PolyNetAttention.
 
         Args:
-            k: Number of strategies to learn.
-            embed_dim: Embedding dimension.
-            poly_layer_dim: Hidden dimension of PolyNet layers.
-            num_heads: Number of attention heads.
-            mask_inner: Whether to mask inner attention.
-            out_bias: Whether to use bias in output projection.
-            check_nan: Whether to check for NaN values.
+            k: Number of parallel strategies to learn.
+            embed_dim: Dimensionality of inputs and internal representations.
+            poly_layer_dim: Dimensionality of conditioning mlp hidden layer.
+            num_heads: Number of parallel attention heads.
+            mask_inner: Whether to block padding during internal attention pass.
+            out_bias: Whether to use a bias term in the glimpse projection.
+            check_nan: Whether to enable runtime sanity checks for invalid values.
         """
         super().__init__()
 
@@ -66,7 +88,7 @@ class PolyNetAttention(nn.Module):
         # Binary vector dimension: ceil(log2(k)) bits needed
         self.binary_vector_dim = max(1, math.ceil(math.log2(k)))
 
-        # Generate K binary vectors as non-trainable parameter
+        # Generate K binary vectors as non-trainable buffer
         all_binary = list(itertools.product([0, 1], repeat=self.binary_vector_dim))
         binary_vectors = torch.tensor(all_binary[:k], dtype=torch.float32)
         self.register_buffer("binary_vectors", binary_vectors)
@@ -86,18 +108,17 @@ class PolyNetAttention(nn.Module):
         logit_key: torch.Tensor,
         attn_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """
-        Compute attention logits with K-strategy conditioning.
+        """Computes K-conditioned attention logits.
 
         Args:
-            query: Query tensor (batch, num_steps, embed_dim).
-            key: Key tensor (batch, graph_size, embed_dim).
-            value: Value tensor (batch, graph_size, embed_dim).
-            logit_key: Logit key tensor (batch, graph_size, embed_dim).
-            attn_mask: Attention mask (batch, graph_size). True = valid.
+            query: Query feature tensor of shape (batch, n_steps, dim).
+            key: Key feature tensor of shape (batch, nodes, dim).
+            value: Value feature tensor of shape (batch, nodes, dim).
+            logit_key: Specialized key for final dot product (batch, nodes, dim).
+            attn_mask: Boolean attention mask (batch, nodes). True indicates valid.
 
         Returns:
-            Logits tensor (batch, num_steps, graph_size).
+            torch.Tensor: Computed logits of shape (batch, n_steps, nodes).
         """
         # Compute inner multi-head attention
         heads = self._inner_mha(query, key, value, attn_mask)
@@ -131,7 +152,15 @@ class PolyNetAttention(nn.Module):
         num_solutions: int,
         device: torch.device,
     ) -> torch.Tensor:
-        """Get binary strategy vectors for given number of solutions."""
+        """Retrieves and cycles precomputed binary strategy vectors.
+
+        Args:
+            num_solutions: Number of parallel paths being evaluated.
+            device: Target device for the tensor returned.
+
+        Returns:
+            torch.Tensor: Binary strategy matrix.
+        """
         # Repeat binary vectors to cover all solutions
         repeats = math.ceil(num_solutions / self.k)
         vectors = self.binary_vectors.repeat(repeats, 1)[:num_solutions]
@@ -144,7 +173,17 @@ class PolyNetAttention(nn.Module):
         value: torch.Tensor,
         attn_mask: Optional[torch.Tensor],
     ) -> torch.Tensor:
-        """Perform inner multi-head attention."""
+        """Internal multi-head attention implementation.
+
+        Args:
+            query: Input queries.
+            key: Input keys.
+            value: Input values.
+            attn_mask: Padding/Adjacency mask.
+
+        Returns:
+            torch.Tensor: Aggregated multi-head representation.
+        """
         q = self._make_heads(query)
         k = self._make_heads(key)
         v = self._make_heads(value)
@@ -153,18 +192,20 @@ class PolyNetAttention(nn.Module):
         if self.mask_inner and attn_mask is not None:
             # Add dimensions for heads and query positions
             if attn_mask.ndim == 2:
-                attn_mask = attn_mask.unsqueeze(1).unsqueeze(2)
+                m = attn_mask.unsqueeze(1).unsqueeze(2)
             elif attn_mask.ndim == 3:
-                attn_mask = attn_mask.unsqueeze(1)
+                m = attn_mask.unsqueeze(1)
+            else:
+                m = attn_mask
         else:
-            attn_mask = None
+            m = None
 
         # Scaled dot-product attention
         scale = math.sqrt(q.size(-1))
         scores = torch.matmul(q, k.transpose(-2, -1)) / scale
 
-        if attn_mask is not None:
-            scores = scores.masked_fill(~attn_mask, float("-inf"))
+        if m is not None:
+            scores = scores.masked_fill(~m, float("-inf"))
 
         attn_weights = F.softmax(scores, dim=-1)
         heads = torch.matmul(attn_weights, v)
@@ -177,7 +218,14 @@ class PolyNetAttention(nn.Module):
         return heads
 
     def _make_heads(self, v: torch.Tensor) -> torch.Tensor:
-        """Reshape tensor for multi-head attention."""
+        """Reshapes and transposes a tensor for multi-head attention.
+
+        Args:
+            v: Input tensor (batch, seq, dim).
+
+        Returns:
+            torch.Tensor: Reshaped tensor (batch, heads, seq, head_dim).
+        """
         batch_size = v.size(0)
         seq_len = v.size(1)
         head_dim = self.embed_dim // self.num_heads

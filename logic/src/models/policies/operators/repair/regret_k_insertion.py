@@ -1,19 +1,39 @@
-"""
-Regret-K insertion repair operator (vectorized).
+"""Regret-K insertion repair operator.
+
+This module provides a GPU-accelerated implementation of the Regret-K insertion
+repair heuristic, which prioritizes reinserting nodes that have a large
+difference (regret) between their best and kth-best insertion positions.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Optional, Tuple
 
 import torch
-from torch import Tensor
 
 
 def vectorized_regret_k_insertion(
-    tours: Tensor, removed_nodes: Tensor, dist_matrix: Tensor, k: int = 2, generator: Optional[torch.Generator] = None
-) -> Tensor:
-    """
-    Vectorized Regret-K insertion.
-    Inserts removed nodes into best positions based on the regret criterion.
+    tours: torch.Tensor,
+    removed_nodes: torch.Tensor,
+    dist_matrix: torch.Tensor,
+    k: int = 2,
+    generator: Optional[torch.Generator] = None,
+) -> torch.Tensor:
+    """Vectorized Regret-K insertion.
+
+    Inserts removed nodes into the best positions based on the regret
+    criterion: selecting the node that would result in the greatest lost
+    opportunity if not inserted in its primary best position.
+
+    Args:
+        tours: Batch of current sequences of shape [B, N_curr].
+        removed_nodes: Batch of nodes to insert of shape [B, N_rem].
+        dist_matrix: Edge cost tensor of shape [B, N, N].
+        k: Regret factor (kth-best minus best).
+        generator: Torch device-side RNG.
+
+    Returns:
+        torch.Tensor: Repaired tours of shape [B, N_curr + N_rem].
     """
     B, _ = tours.shape
     device = tours.device
@@ -30,7 +50,7 @@ def vectorized_regret_k_insertion(
         regret, top_pos = _compute_regrets(costs, k, pending_mask)
 
         # 2. Select node with Max Regret
-        max_regret_val, node_idx_in_rem = torch.max(regret, dim=1)
+        _, node_idx_in_rem = torch.max(regret, dim=1)
 
         # 3. Apply Insertion
         node_to_insert = torch.gather(removed_nodes, 1, node_idx_in_rem.unsqueeze(1))
@@ -45,10 +65,19 @@ def vectorized_regret_k_insertion(
     return tours
 
 
-def _compute_insertion_costs(tours, removed_nodes, dist):
-    """Computes insertion costs for all pending nodes at all positions."""
+def _compute_insertion_costs(tours: torch.Tensor, removed_nodes: torch.Tensor, dist: torch.Tensor) -> torch.Tensor:
+    """Computes insertion costs for all pending nodes at all positions.
+
+    Args:
+        tours: Sequences of shape [B, N].
+        removed_nodes: Available nodes of shape [B, N_rem].
+        dist: Cost matrix of shape [B, Nmax, Nmax].
+
+    Returns:
+        torch.Tensor: 3D cost tensor of shape [B, N_rem, N].
+    """
     B, N_curr = tours.shape
-    B_rem, N_rem = removed_nodes.shape
+    _, N_rem = removed_nodes.shape
     device = tours.device
 
     t_prev = tours.unsqueeze(1).expand(-1, N_rem, -1)
@@ -63,8 +92,19 @@ def _compute_insertion_costs(tours, removed_nodes, dist):
     return d_pn + d_nn - d_pn_exist
 
 
-def _compute_regrets(costs, k, pending_mask):
-    """Calculates regret based on top-k insertion costs."""
+def _compute_regrets(costs: torch.Tensor, k: int, pending_mask: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Calculates regret based on top-k insertion costs.
+
+    Args:
+        costs: Price tensor of shape [B, N_rem, N].
+        k: Regret depth.
+        pending_mask: Availability tracker of shape [B, N_rem].
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - regret_scores: Scores per node ([B, N_rem]).
+            - best_positions: Best insertion indices ([B, N_rem]).
+    """
     topk_vals, topk_indices = torch.topk(costs, k=k, dim=2, largest=False)
 
     best_costs = topk_vals[:, :, 0]
@@ -75,8 +115,17 @@ def _compute_regrets(costs, k, pending_mask):
     return regret, topk_indices[:, :, 0]
 
 
-def _apply_insertion(tours, node, pos):
-    """Inserts a node into the tour at the specified position."""
+def _apply_insertion(tours: torch.Tensor, node: torch.Tensor, pos: torch.Tensor) -> torch.Tensor:
+    """Inserts a node into the tour at the specified position.
+
+    Args:
+        tours: Sequences of shape [B, N].
+        node: Node to insert of shape [B, 1].
+        pos: Target index of shape [B, 1].
+
+    Returns:
+        torch.Tensor: Updated sequences of shape [B, N+1].
+    """
     B, N_curr = tours.shape
     device = tours.device
 

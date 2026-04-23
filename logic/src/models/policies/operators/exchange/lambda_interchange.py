@@ -1,10 +1,11 @@
-"""
-Lambda-interchange operator (vectorized).
+"""Lambda-interchange operator.
 
-Lambda-interchange is a systematic exploration of the cross-exchange neighborhood
-with segment lengths ranging from 0 to λ. This is a powerful operator that
-generalizes many simpler moves.
+This module provides a GPU-accelerated implementation of the Lambda-interchange
+operator, a generalized version of cross-exchange that systematically explores
+segment swaps of lengths ranging from 0 to λ_max.
 """
+
+from __future__ import annotations
 
 from typing import Optional
 
@@ -22,54 +23,26 @@ def vectorized_lambda_interchange(
     max_iterations: int = 50,
     generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
-    """
-    Vectorized λ-interchange local search across a batch of tours using PyTorch.
+    """Vectorized λ-interchange local search across a batch of tours.
 
-    λ-interchange systematically explores the cross-exchange neighborhood by trying
-    all combinations of segment lengths from 0 to λ_max. This creates a rich
-    neighborhood that includes:
-    - λ=0: One-sided relocations (equivalent to relocate operator)
-    - λ=1: Single node swaps and relocations
-    - λ=2: Two-node segment exchanges
-    - λ=k: k-node segment exchanges
-
-    The operator iteratively applies cross-exchange with all segment length combinations
-    until no improvement is found. This is more thorough than a single cross-exchange
-    call but also more computationally expensive.
-
-    Algorithm:
-    1. For λ_a in [0, λ_max]:
-        For λ_b in [0, λ_max]:
-            Skip if both are 0 (no-op)
-            Apply cross-exchange with segment lengths (λ_a, λ_b)
-            If improvement found, restart from λ=0
-    2. Repeat until no improvement found in full sweep
+    Systematically explores the cross-exchange neighborhood for all segment
+    length combinations (λ_a, λ_b) where 0 <= λ_i <= λ_max. This exhaustive
+    sweep captures moves such as:
+    - (0, 1): Node relocation
+    - (1, 1): Single node swap
+    - (2, 2): Two-node segment exchange
 
     Args:
-        tours: Batch of tours [B, N] where B=batch size, N=tour length
-        distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-        capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-        wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
-        lambda_max: Maximum segment length to consider (default: 2)
-            Higher values = larger neighborhood but slower
-        max_iterations: Maximum number of full neighborhood sweeps (default: 50)
-        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
+        tours: Batch of node sequences of shape [B, N].
+        distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+        capacities: Vehicle capacity per instance of shape [B] or scalar.
+        wastes: Node demand metadata of shape [B, N+1] or [N+1].
+        lambda_max: Maximum segment length to consider (typically 1-3).
+        max_iterations: Limit for neighborhood sweeps (iteration count).
+        generator: Torch device-side RNG (for future randomness).
 
     Returns:
-        torch.Tensor: Improved tours [B, N] with same shape as input
-
-    Note:
-        - Tours should include depot as node 0
-        - For single-route problems, this operator has no effect
-        - This is a wrapper around vectorized_cross_exchange
-        - Complexity: O(λ_max² × N⁴) per sweep
-        - More expensive than single cross-exchange but finds better solutions
-        - Recommended λ_max values: 1-3 (2 is good balance)
-
-    Example:
-        >>> tours = torch.tensor([[0, 3, 1, 0, 2, 4, 0]])  # Two routes
-        >>> dist = torch.rand(5, 5)  # Distance matrix
-        >>> improved = vectorized_lambda_interchange(tours, dist, lambda_max=2)
+        torch.Tensor: Optimized tours of shape [B, N].
     """
     # Handle single tour case
     is_batch = tours.dim() == 2
@@ -81,7 +54,7 @@ def vectorized_lambda_interchange(
         distance_matrix = distance_matrix.unsqueeze(0)
 
     B, N = tours.shape
-    if N < 4:  # Too small for lambda-interchange
+    if N < 4:
         return tours if is_batch else tours.squeeze(0)
 
     # Expand distance matrix if shared
@@ -89,7 +62,7 @@ def vectorized_lambda_interchange(
         distance_matrix = distance_matrix.expand(B, -1, -1)
 
     # Main loop: try all segment length combinations
-    for _iteration in range(max_iterations):
+    for _ in range(max_iterations):
         improved_this_sweep = False
 
         # Systematically explore all (λ_a, λ_b) combinations

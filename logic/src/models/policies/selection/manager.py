@@ -1,11 +1,15 @@
-"""
-Manager (Neural) Selection Strategy.
+"""Manager (Neural) selection strategy.
+
+This module provides a neural network-based selection strategy that wraps a
+trained MandatoryManager to make collection decisions based on learned
+temporal patterns and spatial context.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
 
 import torch
-from torch import Tensor
 
 from logic.src.models.meta.hrl_manager import MandatoryManager
 
@@ -13,29 +17,27 @@ from .base import VectorizedSelector
 
 
 class ManagerSelector(VectorizedSelector):
-    """
-    Neural network-based mandatory selection using MandatoryManager.
+    """Neural network-based selection using MandatoryManager.
 
-    This selector wraps a trained HRL manager to make mandatory decisions
-    based on learned patterns from temporal waste data and spatial context.
-    The manager learns to predict which bins require collection.
+    This selector wraps a trained HRL manager to make mandatory collection
+    decisions. The manager learns to predict which bins require collection
+    based on waste history, spatial distribution, and critical thresholds.
     """
 
     def __init__(
         self,
-        manager=None,
-        manager_config: Optional[dict] = None,
+        manager: Optional[MandatoryManager] = None,
+        manager_config: Optional[Dict[str, Any]] = None,
         threshold: float = 0.5,
         device: str = "cuda",
-    ):
-        """
-        Initialize ManagerSelector.
+    ) -> None:
+        """Initialize the manager selector.
 
         Args:
-            manager: Pre-instantiated MandatoryManager. If None, creates one from config.
-            manager_config: Configuration dict for creating manager if not provided.
-            threshold: Probability threshold for mandatory decision.
-            device: Device for computation ('cpu' or 'cuda').
+            manager: Pre-instantiated MandatoryManager.
+            manager_config: Configuration for creating a manager if not provided.
+            threshold: Probability threshold for mandatory decisions.
+            device: Computation device ('cpu' or 'cuda').
         """
         self.threshold = threshold
         self.device = device
@@ -54,27 +56,23 @@ class ManagerSelector(VectorizedSelector):
 
     def select(
         self,
-        fill_levels: Tensor,
-        locs: Optional[Tensor] = None,
-        waste_history: Optional[Tensor] = None,
+        fill_levels: torch.Tensor,
+        locs: Optional[torch.Tensor] = None,
+        waste_history: Optional[torch.Tensor] = None,
         threshold: Optional[float] = None,
-        **kwargs,
-    ) -> Tensor:
-        """
-        Select bins using the neural manager.
-
-        The manager uses spatial (locations) and temporal (waste history) features
-        to predict which bins must be collected.
+        **kwargs: Any,
+    ) -> torch.Tensor:
+        """Select bins using the neural manager.
 
         Args:
-            fill_levels: Current fill levels (batch_size, num_nodes) in [0, 1].
-            locs: Node locations (batch_size, num_nodes, 2). Required.
-            waste_history: Historical waste levels (batch_size, num_nodes, history).
-                          If None, expands current fill levels as history.
+            fill_levels: Current fill levels [B, N] in [0, 1].
+            locs: Node locations [B, N, 2].
+            waste_history: Historical waste levels [B, N, H].
             threshold: Optional override for probability threshold.
+            **kwargs: Extra parameters (ignored).
 
         Returns:
-            Tensor: Boolean mask (batch_size, num_nodes) where True = must collect.
+            torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
         batch_size, num_nodes = fill_levels.shape
         device = fill_levels.device
@@ -86,8 +84,6 @@ class ManagerSelector(VectorizedSelector):
 
         # Prepare static features (locations)
         if locs is None:
-            # If no locations provided, use dummy coordinates
-            # This is a fallback but locations should be provided for proper operation
             locs = torch.zeros(batch_size, num_nodes, 2, device=device)
 
         # Prepare dynamic features (waste history)
@@ -110,8 +106,12 @@ class ManagerSelector(VectorizedSelector):
 
         return mandatory
 
-    def load_weights(self, path: str):
-        """Load manager weights from checkpoint."""
+    def load_weights(self, path: str) -> None:
+        """Load manager weights from checkpoint.
+
+        Args:
+            path: Path to the weight checkpoint file.
+        """
         checkpoint = torch.load(path, map_location=self.device)
         if "manager_state_dict" in checkpoint:
             self.manager.load_state_dict(checkpoint["manager_state_dict"])

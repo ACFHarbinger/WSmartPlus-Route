@@ -1,5 +1,27 @@
-"""
-Encoder Subnetworks.
+"""Encoder Subnetworks.
+
+Attributes:
+    TransformerEncoderBase: Abstract base class for transformer-style graph encoders.
+    EncoderFeedForwardSubLayer: Reusable Feed-Forward Sub-Layer.
+    MultiHeadAttentionLayerBase: Base class for multi-head attention layers.
+    DeepACOEncoder: DeepACO-style graph encoder.
+    GraphAttConvEncoder: Graph Attention Convolution Encoder.
+    GraphAttentionEncoder: Standard Graph Attention Encoder.
+    GraphConvolutionEncoder: Gated Graph Convolution Encoder.
+    GFACSEncoder: GFlowNet-ACO Heatmap Predictor Encoder.
+    GatedGraphAttConvEncoder: Gated Graph Attention Convolution Encoder.
+    MatNetEncoder: Matrix Encoding Network Encoder.
+    MDAMGraphAttentionEncoder: Multi-Decoder Attention Model Encoder.
+    MLPEncoder: Multilayer Perceptron Encoder.
+    MoEGraphAttentionEncoder: Mixture-of-Experts Graph Attention Encoder.
+    NARGNNEncoder: Non-Autoregressive Graph Neural Network Encoder.
+    NARGNNNodeEncoder: Node-only NARGNN Encoder.
+    PointerEncoder: Pointer Network Encoder.
+    TransGraphConvEncoder: Transformer-based Graph Convolution Encoder.
+
+Example:
+    >>> from logic.src.models.subnets.encoders import MLPEncoder
+    >>> encoder = MLPEncoder(embed_dim=128, n_layers=3)
 """
 
 from .common import (

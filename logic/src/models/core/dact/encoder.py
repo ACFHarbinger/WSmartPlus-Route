@@ -1,15 +1,22 @@
-"""encoder.py module.
+"""DACT Encoder implementation.
+
+This module provides the `DACTEncoder`, which implements the "Dual Aspect"
+encoding strategy. It processes the problem instance from two collaborative
+perspectives: the spatial location of nodes (node aspect) and their relative
+ordering in the current tour (solution aspect).
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    DACTEncoder: Neural encoder for collaborative node-position modelling.
 
 Example:
-    >>> import encoder
+    >>> from logic.src.models.core.dact.encoder import DACTEncoder
+    >>> encoder = DACTEncoder(embed_dim=128)
+    >>> h = encoder(td)
 """
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 import torch
 from tensordict import TensorDict
@@ -21,12 +28,16 @@ from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
 
 
 class DACTEncoder(ImprovementEncoder):
-    """
-    DACT Encoder: Combines node features (spatial) and solution features (positional).
+    """DACT Dual Aspect Collaborative Encoder.
 
-    The "Dual Aspect" involves:
-    1. Node Aspect: How nodes are located (Graph Convolution/Attention)
-    2. Solution Aspect: Where nodes are in the current tour (Positional Encoding)
+    Combines static node features with dynamic solution-dependent features
+    using a Transformer backbone. The solution aspect uses normalized
+    positional indices to represent the current tour order.
+
+    Attributes:
+        node_init (nn.Linear): Initial projection for spatial coordinates.
+        pos_embedding (nn.Module): Positional encoding for tour sequence.
+        layers (nn.ModuleList): Collaborative Transformer stacking.
     """
 
     def __init__(
@@ -35,18 +46,22 @@ class DACTEncoder(ImprovementEncoder):
         num_layers: int = 3,
         num_heads: int = 8,
         pos_type: str = "CPE",
-        **kwargs,
-    ):
-        """Initialize DACTEncoder."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the DACT encoder.
+
+        Args:
+            embed_dim: Internal feature dimension.
+            num_layers: count of transformation blocks.
+            num_heads: count of attention heads per layer.
+            pos_type: Identifier for the positional embedding scheme (e.g., 'CPE').
+            **kwargs: Extra parameters.
+        """
         super().__init__(embed_dim)
 
-        # 1. Node aspect: init embedding + layers
         self.node_init = nn.Linear(2, embed_dim)
-
-        # 2. Solution aspect: positional embedding
         self.pos_embedding = pos_init_embedding(pos_type, embed_dim)
 
-        # 3. Collaborative Transformer layers
         self.layers = nn.ModuleList(
             [
                 nn.ModuleDict(
@@ -54,7 +69,9 @@ class DACTEncoder(ImprovementEncoder):
                         "mha": MultiHeadAttention(num_heads, embed_dim, embed_dim),
                         "norm1": Normalization(embed_dim, "layer"),
                         "ff": nn.Sequential(
-                            nn.Linear(embed_dim, embed_dim * 4), nn.ReLU(), nn.Linear(embed_dim * 4, embed_dim)
+                            nn.Linear(embed_dim, embed_dim * 4),
+                            nn.ReLU(),
+                            nn.Linear(embed_dim * 4, embed_dim),
                         ),
                         "norm2": Normalization(embed_dim, "layer"),
                     }
@@ -63,46 +80,42 @@ class DACTEncoder(ImprovementEncoder):
             ]
         )
 
-    def forward(self, td: TensorDict, **kwargs) -> torch.Tensor:
-        """
-        Encode problem instance and current solution.
+    def forward(self, td: TensorDict, **kwargs: Any) -> torch.Tensor:
+        """Encodes spatial nodes and their current tour positions.
 
         Args:
-            td: TensorDict with 'locs' (customers), 'depot', and 'solution' (tour).
+            td: state container with:
+                - 'locs': [B, N, 2] coordinates.
+                - 'depot': [B, 1, 2] or [B, 2] origin.
+                - 'solution': [B, N+1] node indices representing the tour.
+            **kwargs: unused.
 
         Returns:
-            Embeddings [batch, num_nodes, embed_dim].
+            torch.Tensor: Refined node embeddings [B, N+1, embed_dim].
         """
-        # Combine depot and locs for full nodes
+        # Node processing
         depot = td["depot"].unsqueeze(1) if td["depot"].dim() == 2 else td["depot"]
         locs = td["locs"]
         nodes = torch.cat([depot, locs], dim=1)
-
-        # Initial node embeddings
         h = self.node_init(nodes)
 
-        # Apply positional encoding based on current solution order
-        # solution: [batch, num_nodes] which is the tour (e.g., [0, 5, 2, ...])
+        # Solution processing (Position Aspect)
         solution = td["solution"]
         num_nodes = solution.size(1)
 
-        # solution contains the node ID at each position
-        # We want to find the position index p for each node ID n
-        # This is essentially argsort of the solution
+        # Map node identity to sequence position
         _, pos_idx = solution.sort(dim=1)
         pos_normalized = pos_idx.float() / num_nodes
 
-        # Apply PE
+        # Inject positional info
         h = self.pos_embedding(h, pos_normalized)
 
-        # Pass through transformer layers
+        # Refine via Transformer
         for layer_module in self.layers:
             layer = cast(nn.ModuleDict, layer_module)
-            # Multi-head attention
             h_attn = layer["mha"](h)
             h = layer["norm1"](h + h_attn)
 
-            # Feed forward
             h_ff = layer["ff"](h)
             h = layer["norm2"](h + h_ff)
 

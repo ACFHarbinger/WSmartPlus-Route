@@ -1,4 +1,16 @@
-"""VRPP specific context embedding."""
+"""VRPP specific context embedding module.
+
+This module provides the VRPPState component, which extracts problem-specific
+metadata like remaining tour length or capacity for the VRPP context.
+
+Attributes:
+    VRPPState: State encoder for Vehicle Routing Problems with Profits.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.state.vrpp import VRPPState
+    >>> state_embedder = VRPPState(embed_dim=128)
+    >>> context = state_embedder(embeddings, td)
+"""
 
 from __future__ import annotations
 
@@ -10,25 +22,32 @@ from .env import EnvState
 
 
 class VRPPState(EnvState):
-    """Context embedding for VRPP."""
+    """Context embedding for VRPP.
 
-    def __init__(self, embed_dim: int):
-        """Initialize Class.
+    Evolves the environment context by incorporating dynamic features such
+    as the remaining allowed tour length or available vehicle capacity.
+
+    Attributes:
+        embed_dim (int): Dimensionality of the projected state context.
+    """
+
+    def __init__(self, embed_dim: int) -> None:
+        """Initializes VRPPState.
 
         Args:
-            embed_dim (int): Description of embed_dim.
+            embed_dim: Resulting embedding dimensionality.
         """
         super().__init__(embed_dim, step_context_dim=1)
 
     def _state_embedding(self, embeddings: torch.Tensor, td: Any) -> torch.Tensor:
-        """state embedding.
+        """Extracts remaining resources (length/capacity) from the state.
 
         Args:
-            embeddings (torch.Tensor): Description of embeddings.
-            td (Any): Description of td.
+            embeddings: Current node embeddings (used for device/batch info).
+            td: Environment state dictionary/container.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Normalized state features of shape (batch, 1).
         """
         # Remaining length or capacity
         # We use 'max_length' or 'remaining_capacity'

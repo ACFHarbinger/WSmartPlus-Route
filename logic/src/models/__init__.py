@@ -1,24 +1,31 @@
-"""
-This package contains deep learning models for solving Vehicle Routing and Scheduling Problems.
+"""Deep learning models for Vehicle Routing and Scheduling Problems.
 
-It includes a variety of neural architectures:
+This package provides a comprehensive set of neural architectures for combinatorial
+optimization, organized into constructive, iterative improvement, and transductive
+modeling paradigms.
 
-Constructive Models (Autoregressive):
--   `AttentionModel`: The standard Encoder-Decoder with Multi-Head Attention (Kool et al. 2019).
--   `POMO`: Policy Optimization with Multiple Optima (Kwon et al. 2020) via `AttentionModel` configuration.
--   `PtrNet`: Pointer Network (Vinyals et al. 2015).
+Attributes:
+    AttentionModel: The standard Encoder-Decoder with Multi-Head Attention.
+    TemporalAttentionModel: Attention model with time-window awareness.
+    CriticNetwork: Value function estimator for RL training.
+    MandatoryManager: HRL manager for temporal decision-making.
+    WeightAdjustmentRNN: Meta-learning RNN for dynamic weight scaling.
+    HyperNetwork: Parameters generator for task-conditioned adapters.
+    MatNet: Matrix Encoding Networks for asymmetric/stochastic problems.
+    MDAM: Multi-Decoder Attention Model for diverse solution sampling.
+    DeepACO: Neural-guided Ant Colony Optimization.
+    DACT: Dual-Aspect Collaborative Transformer for local search.
+    N2S: Neural Neighborhood Search for iterative improvement.
+    NeuOpt: Neural Optimizer for routing refinement.
+    PointerNetwork: RNN-based pointer architecture (Vinyals et al.).
+    ActiveSearch: Online model adaptation via test-time optimization.
+    EAS: Efficient Active Search via adapter tuning.
 
-Iterative Improvement Models:
--   `NeuOpt`: Neural Optimizer for VRP.
--   `N2S`: Neural Neighborhood Search.
--   `DACT`: Dual-Aspect Collaborative Transformer.
--   `DeepACO`: Deep Ant Colony Optimization.
-
-Transductive / Matrix Models:
--   `MatNet`: Matrix Encoding Networks (for ATsp/SDVRP).
--   `EAS`: Efficient Active Search (Hottung et al. 2022).
-
-Baselines:
+Example:
+    >>> from logic.src.models import AttentionModel
+    >>> model = AttentionModel(env_name="vrp", num_loc=50)
+    >>> td = env.reset()
+    >>> out = model(td, decode_type="greedy")
 """
 
 from . import common as common

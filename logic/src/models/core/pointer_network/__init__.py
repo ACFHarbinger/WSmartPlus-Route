@@ -1,10 +1,14 @@
-"""__init__.py module.
+"""Pointer Network architectures and policies.
+
+This package provides the classic sequence-to-sequence pointer mechanism for
+combinatorial optimization, implemented using recurrent neural networks.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    PointerNetwork: Standalone LSTM-based pointer architecture.
+    PointerNetworkPolicy: Policy adapter for standard training loops.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.pointer_network import PointerNetworkPolicy
 """
 
 from .model import PointerNetwork as PointerNetwork

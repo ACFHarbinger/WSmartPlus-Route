@@ -1,6 +1,26 @@
-"""Gated Graph Convolution (GatedGCN) with explicit edge updates."""
+"""Gated Graph Convolution (GatedGCN) with explicit edge updates.
+
+This module provides the GatedGraphConvolution layer, which explicitly models
+edge features and uses a gating mechanism to control information flow between
+neighboring nodes in a graph.
+
+Attributes:
+    GatedGraphConvolution: Gated graph convolution layer for node and edge updates.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.gated_graph_convolution import GatedGraphConvolution
+    >>> layer = GatedGraphConvolution(hidden_dim=128)
+    >>> h = torch.randn(1, 10, 128)
+    >>> e = torch.randn(1, 10, 10, 128)
+    >>> mask = torch.zeros(1, 10, 10, dtype=torch.bool)
+    >>> h_out, e_out = layer(h, e, mask)
+"""
+
+from __future__ import annotations
 
 import math
+from typing import Tuple
 
 import torch
 from torch import nn
@@ -10,24 +30,31 @@ from .normalization import Normalization
 
 
 class GatedGraphConvolution(nn.Module):
-    """Implements the Gated Graph ConvNet layer:
-        h_i = ReLU ( U*h_i + Aggr.( sigma_ij, V*h_j) ),
-        sigma_ij = sigmoid( A*h_i + B*h_j + C*e_ij ),
-        e_ij = ReLU ( A*h_i + B*h_j + C*e_ij ),
-        where Aggr. is an aggregation function: sum/mean/max.
-
-    References:
-        - X. Bresson and T. Laurent. An experimental study of neural networks for variable graphs.
-          In International Conference on Learning Representations, 2018.
-        - V. P. Dwivedi, C. K. Joshi, T. Laurent, Y. Bengio, and X. Bresson.
-          Benchmarking graph neural networks. arXiv preprint arXiv:2003.00982, 2020.
-    """
-
-    """
-    Gated Graph Convolution Layer (GatedGCN).
+    """Gated Graph Convolution Layer (GatedGCN).
 
     Explicitly models edge features and uses a gating mechanism to control
     information flow between neighbors. Updates both node and edge features.
+
+    Implements the Gated Graph ConvNet layer as described in Dwivedi et al. (2020).
+
+    Attributes:
+        hidden_dim (int): Dimensionality of hidden features.
+        aggregation (str): Strategy for neighborhood pooling ('sum', 'mean', 'max').
+        norm (str): Type of normalization strategy ('batch', 'layer', 'instance').
+        learn_affine (bool): Whether normalization has learnable parameters.
+        gated (bool): Whether the gating mechanism is active.
+        U (nn.Linear): Transformation for source nodes in node update.
+        V (nn.Linear): Transformation for neighbor nodes in node update.
+        A (nn.Linear): Transformation for source nodes in edge update.
+        B (nn.Linear): Transformation for target nodes in edge update.
+        C (nn.Linear): Transformation for edge features in edge update.
+        norm_h (Normalization): Normalization layer for node features.
+        norm_e (Normalization): Normalization layer for edge features.
+        activation (ActivationFunction): Non-linear activation module.
+
+    References:
+        Dwivedi, V. P., et al. (2020). Benchmarking graph neural networks.
+        arXiv preprint arXiv:2003.00982.
     """
 
     def __init__(
@@ -39,24 +66,25 @@ class GatedGraphConvolution(nn.Module):
         learn_affine: bool = True,
         gated: bool = True,
         bias: bool = True,
-    ):
-        """
+    ) -> None:
+        """Initializes GatedGraphConvolution.
+
         Args:
-            hidden_dim: Dimension of hidden features (input and output are assumed same size).
-            aggregation: Aggregation method ('sum', 'mean', 'max').
+            hidden_dim: Dimensionality of inputs and internal representations.
+            aggregation: Strategy for neighborhood pooling ('sum', 'mean', 'max').
             norm: Normalization type ('batch', 'layer', 'instance').
-            activation: Activation function name.
-            learn_affine: Whether normalization layers have learnable affine parameters.
-            gated: Whether to use the gating mechanism.
-            bias: Whether to use a bias term in linear layers.
+            activation: Activation function name (e.g., 'relu', 'swish').
+            learn_affine: Whether to learn gain and bias in normalization layers.
+            gated: Whether to use gated message passing. Must be True for this layer.
+            bias: Whether to use bias terms in linear transformations.
         """
-        super(GatedGraphConvolution, self).__init__()
+        super().__init__()
         self.hidden_dim = hidden_dim
         self.aggregation = aggregation
         self.norm = norm
         self.learn_affine = learn_affine
         self.gated = gated
-        assert self.gated, "Use gating with GCN, pass the `--gated` flag"
+        assert self.gated, "GatedGraphConvolution requires gated=True."
 
         self.U = nn.Linear(hidden_dim, hidden_dim, bias=bias)
         self.V = nn.Linear(hidden_dim, hidden_dim, bias=bias)
@@ -68,24 +96,28 @@ class GatedGraphConvolution(nn.Module):
         self.norm_e = Normalization(hidden_dim, self.norm, learn_affine)
         self.activation = ActivationFunction(activation)
 
-    def reset_parameters(self):
-        """Initializes the parameters of the layer using uniform distribution."""
+    def reset_parameters(self) -> None:
+        """Initializes the linear layer weights using a uniform distribution."""
         for param in self.parameters():
-            stdv = 1.0 / math.sqrt(param.size(-1))
-            param.data.uniform_(-stdv, stdv)
+            if param.dim() > 0:
+                stdv = 1.0 / math.sqrt(param.size(-1))
+                param.data.uniform_(-stdv, stdv)
 
-    def forward(self, h, e, mask):
-        """
+    def forward(self, h: torch.Tensor, e: torch.Tensor, mask: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Updates node and edge features using GatedGCN logic.
+
         Args:
-            h: Input node features (B x V x H)
-            e: Input edge features (B x V x V x H)
-            mask: Graph adjacency matrices (B x V x V)
+            h: Input node features of shape (batch, nodes, hidden_dim).
+            e: Input edge features of shape (batch, nodes, nodes, hidden_dim).
+            mask: Adjacency/mask tensor of shape (batch, nodes, nodes).
+                True indicates a masked edge.
+
         Returns:
-            Updated node and edge features
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+                - Updated node features of shape (batch, nodes, hidden_dim).
+                - Updated edge features of shape (batch, nodes, nodes, hidden_dim).
         """
-        batch_size, num_nodes, hidden_dim = h.shape
-        # h_in = h
-        # e_in = e
+        _, num_nodes, _ = h.shape
 
         # Linear transformations for node update
         Uh = self.U(h)  # B x V x H
@@ -107,11 +139,12 @@ class GatedGraphConvolution(nn.Module):
         h = self.norm_h(h) if self.norm_h else h
 
         # Normalize edge features
-        # For edges, we need to flatten B, V, V. Normalization handles 3D/4D if mapped correctly.
-        # Normalization(hidden_dim) expects (N, H) or (B, N, H).
-        # For edge (B, V, V, H), we view as (B, V*V, H)
-        B, V, _, H = e.shape
-        e = self.norm_e(e.view(B, -1, H)).view(B, V, V, H) if self.norm_e else e
+        batch_size, nodes_v, _, hidden_dim = e.shape
+        e = (
+            self.norm_e(e.view(batch_size, -1, hidden_dim)).view(batch_size, nodes_v, nodes_v, hidden_dim)
+            if self.norm_e
+            else e
+        )
 
         # Apply non-linearity
         h = self.activation(h)
@@ -119,14 +152,16 @@ class GatedGraphConvolution(nn.Module):
 
         return h, e
 
-    def aggregate(self, Vh, mask, gates):
-        """
+    def aggregate(self, Vh: torch.Tensor, mask: torch.Tensor, gates: torch.Tensor) -> torch.Tensor:
+        """Aggregates neighborhood information using gating and graph structure.
+
         Args:
-            Vh: Neighborhood features (B x V x V x H)
-            gates: Edge gates (B x V x V x H)
-            mask: Graph adjacency matrices (B x V x V)
+            Vh: Neighborhood features of shape (batch, nodes, nodes, hidden_dim).
+            mask: Adjacency mask of shape (batch, nodes, nodes).
+            gates: Edge gates of shape (batch, nodes, nodes, hidden_dim).
+
         Returns:
-            Aggregated neighborhood features (B x V x H)
+            torch.Tensor: Aggregated feature representation of shape (batch, nodes, H).
         """
         # Perform feature-wise gating mechanism
         Vh = gates * Vh  # B x V x V x H

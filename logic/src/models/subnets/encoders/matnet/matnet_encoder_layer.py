@@ -1,8 +1,16 @@
-"""Encoder layer for MatNet."""
+"""Encoder layer for MatNet.
+
+Attributes:
+    MatNetEncoderLayer: Encoder layer for MatNet performing row and column-wise mixed-score attention.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.matnet.matnet_encoder_layer import MatNetEncoderLayer
+    >>> layer = MatNetEncoderLayer(embed_dim=128, n_heads=8)
+"""
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Tuple
 
 import torch
 from torch import nn
@@ -12,10 +20,20 @@ from logic.src.models.subnets.modules.normalization import Normalization
 
 
 class MatNetEncoderLayer(nn.Module):
-    """
-    Encoder layer for MatNet.
+    """Encoder layer for MatNet.
+
     Performs row and column-wise mixed-score attention on matrix embeddings.
-    Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon et al., 2021)
+    Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization
+    (Kwon et al., 2021).
+
+    Attributes:
+        mha (MixedScoreMHA): Mixed-score multi-head attention module.
+        row_norm1 (Normalization): First normalization layer for rows.
+        col_norm1 (Normalization): First normalization layer for columns.
+        row_ff (nn.Sequential): Feed-forward sublayer for rows.
+        col_ff (nn.Sequential): Feed-forward sublayer for columns.
+        row_norm2 (Normalization): Second normalization layer for rows.
+        col_norm2 (Normalization): Second normalization layer for columns.
     """
 
     def __init__(
@@ -24,15 +42,14 @@ class MatNetEncoderLayer(nn.Module):
         n_heads: int,
         feed_forward_hidden: int = 512,
         normalization: str = "instance",
-    ):
-        """
-        Initialize MatNetEncoderLayer.
+    ) -> None:
+        """Initializes the MatNetEncoderLayer.
 
         Args:
             embed_dim: Embedding dimension.
-            n_heads: Number of heads.
-            feed_forward_hidden: Hidden dimension.
-            normalization: Normalization type.
+            n_heads: Number of attention heads.
+            feed_forward_hidden: Hidden dimension for feed-forward layers.
+            normalization: Type of normalization ("instance", "layer", or "batch").
         """
         super(MatNetEncoderLayer, self).__init__()
 
@@ -56,10 +73,22 @@ class MatNetEncoderLayer(nn.Module):
         self.col_norm2 = Normalization(embed_dim, normalization)
 
     def forward(
-        self, row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: Optional[torch.Tensor] = None
-    ) -> tuple[torch.Tensor, torch.Tensor]:
-        """
-        Forward pass.
+        self,
+        row_emb: torch.Tensor,
+        col_emb: torch.Tensor,
+        matrix: torch.Tensor,
+        mask: Optional[torch.Tensor] = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Forward pass.
+
+        Args:
+            row_emb: Row embeddings of shape (batch, row_size, embed_dim).
+            col_emb: Column embeddings of shape (batch, col_size, embed_dim).
+            matrix: Input cost/distance matrix of shape (batch, row_size, col_size).
+            mask: Optional mask tensor of shape (batch, row_size, col_size).
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Updated row and column embeddings.
         """
         # Mixed-Score MHA
         row_res = row_emb

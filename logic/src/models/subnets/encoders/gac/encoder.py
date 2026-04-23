@@ -1,8 +1,16 @@
-"""Graph Attention Convolution Encoder."""
+"""Graph Attention Convolution Encoder.
+
+Attributes:
+    GraphAttConvEncoder: Graph Attention Convolution Encoder using stacked AttentionConvolutionLayers.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.gac import GraphAttConvEncoder
+    >>> encoder = GraphAttConvEncoder(n_heads=8, embed_dim=128, n_layers=3)
+"""
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, List, Optional
 
 from torch import nn
 
@@ -14,10 +22,13 @@ from .attention_convolution_layer import AttentionConvolutionLayer
 
 
 class GraphAttConvEncoder(TransformerEncoderBase):
-    """
-    Graph Attention Convolution Encoder using stacked AttentionConvolutionLayers.
+    """Graph Attention Convolution Encoder using stacked AttentionConvolutionLayers.
 
     Inherits from TransformerEncoderBase for common encoder patterns.
+
+    Attributes:
+        aggregate (str): Aggregation method for graph convolutions.
+        n_sublayers (Optional[int]): Number of sublayers (unused).
     """
 
     def __init__(
@@ -39,58 +50,35 @@ class GraphAttConvEncoder(TransformerEncoderBase):
         threshold: float = 6.0,
         replacement_value: float = 6.0,
         n_params: int = 3,
-        uniform_range: Optional[list] = None,
+        uniform_range: Optional[List[float]] = None,
         dropout_rate: float = 0.1,
         aggregate: str = "sum",
-        **kwargs,
-    ):
-        """
-        Initialize the GraphAttConvEncoder.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the GraphAttConvEncoder.
 
-        Parameters
-        ----------
-        n_heads : int
-            Number of attention heads.
-        embed_dim : int
-            Embedding dimension.
-        n_layers : int
-            Number of encoder layers.
-        n_sublayers : Optional[int], default=None
-            Number of sublayers (unused, kept for API compatibility).
-        feed_forward_hidden : int, default=512
-            Hidden dimension for feed-forward layers.
-        normalization : str, default="batch"
-            Normalization type: "batch", "layer", "instance", or "group".
-        epsilon_alpha : float, default=1e-05
-            Epsilon for normalization stability.
-        learn_affine : bool, default=True
-            Whether to learn affine parameters in normalization.
-        track_stats : bool, default=False
-            Whether to track running stats in batch norm.
-        momentum_beta : float, default=0.1
-            Momentum for batch norm running stats.
-        locresp_k : float, default=1.0
-            Local response normalization parameter.
-        n_groups : int, default=3
-            Number of groups for group normalization.
-        activation : str, default="gelu"
-            Activation function name.
-        af_param : float, default=1.0
-            Activation function parameter.
-        threshold : float, default=6.0
-            Activation threshold.
-        replacement_value : float, default=6.0
-            Activation replacement value.
-        n_params : int, default=3
-            Number of activation parameters.
-        uniform_range : list, default=None
-            Uniform range for activation.
-        dropout_rate : float, default=0.1
-            Dropout probability.
-        aggregate : str, default="sum"
-            Aggregation method for graph convolutions.
-        **kwargs
-            Additional keyword arguments.
+        Args:
+            n_heads: Number of attention heads.
+            embed_dim: Embedding dimension.
+            n_layers: Number of encoder layers.
+            n_sublayers: Number of sublayers (unused, kept for API compatibility).
+            feed_forward_hidden: Hidden dimension for feed-forward layers.
+            normalization: Normalization type ("batch", "layer", "instance", or "group").
+            epsilon_alpha: Epsilon for normalization stability.
+            learn_affine: Whether to learn affine parameters in normalization.
+            track_stats: Whether to track running stats in batch norm.
+            momentum_beta: Momentum for batch norm running stats.
+            locresp_k: Local response normalization parameter.
+            n_groups: Number of groups for group normalization.
+            activation: Activation function name.
+            af_param: Activation function parameter.
+            threshold: Activation threshold.
+            replacement_value: Activation replacement value.
+            n_params: Number of activation parameters.
+            uniform_range: Uniform range for activation.
+            dropout_rate: Dropout probability.
+            aggregate: Aggregation method for graph convolutions.
+            kwargs: Additional keyword arguments.
         """
         # Create config objects from individual parameters
         norm_config = NormalizationConfig(
@@ -130,18 +118,13 @@ class GraphAttConvEncoder(TransformerEncoderBase):
         )
 
     def _create_layer(self, layer_idx: int) -> nn.Module:
-        """
-        Create a single AttentionConvolutionLayer.
+        """Creates a single AttentionConvolutionLayer.
 
-        Parameters
-        ----------
-        layer_idx : int
-            Index of the layer being created (0 to n_layers-1).
+        Args:
+            layer_idx: Index of the layer being created (0 to n_layers-1).
 
-        Returns
-        -------
-        nn.Module
-            AttentionConvolutionLayer instance.
+        Returns:
+            nn.Module: AttentionConvolutionLayer instance.
         """
         return AttentionConvolutionLayer(
             self.n_heads,

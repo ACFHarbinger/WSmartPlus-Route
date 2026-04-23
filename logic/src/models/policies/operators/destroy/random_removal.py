@@ -1,33 +1,36 @@
-"""random_removal.py module.
+"""Random removal operator.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import random_removal
+This module provides a GPU-accelerated implementation of the random removal
+heuristic, which stochastically selects nodes to eject from tours, providing
+diversification for large neighborhood search.
 """
+
+from __future__ import annotations
 
 from typing import Optional, Tuple
 
 import torch
-from torch import Tensor
 
 
 def vectorized_random_removal(
-    tours: Tensor, n_remove: int, generator: Optional[torch.Generator] = None
-) -> Tuple[Tensor, Tensor]:
-    """
-    Vectorized random removal of nodes from tours.
+    tours: torch.Tensor,
+    n_remove: int,
+    generator: Optional[torch.Generator] = None,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Vectorized random removal of nodes from tours.
+
+    Identifies valid customers (non-depots) and stochastically selects
+    n_remove nodes per batch instance using random scoring.
 
     Args:
-        tours (Tensor): Batch of tours (B, N).
-        n_remove (int): Number of nodes to remove.
-        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
+        tours: Batch of node sequences of shape [B, N].
+        n_remove: Number of nodes to eject from each tour.
+        generator: PyTorch generator for random number generation.
 
     Returns:
-        Tuple[Tensor, Tensor]:
-            - Modified tours (B, N-n_remove) (or padded with clean 0s if needed)
-            - Removed nodes (B, n_remove)
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - compressed_tours: Sequence after removal of shape [B, N - n_remove].
+            - removed_nodes: IDs of the ejected nodes of shape [B, n_remove].
     """
     B, N = tours.shape
     device = tours.device

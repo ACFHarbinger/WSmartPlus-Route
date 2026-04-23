@@ -1,13 +1,16 @@
-"""encoder.py module.
+"""N2S Encoder implementation.
+
+This module provides the `N2SEncoder`, which implements a lightweight
+Transformer with neighborhood masking. It attends only to the K-nearest
+neighbors of each node to maintain efficiency and focus on local moves.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import encoder
+    N2SEncoder: Neural encoder for neighborhood-constrained attention.
 """
 
 from __future__ import annotations
+
+from typing import Any
 
 import torch
 from tensordict import TensorDict
@@ -18,11 +21,19 @@ from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
 
 
 class N2SEncoder(ImprovementEncoder):
-    """
-    N2S Encoder: A lightweight transformer with neighborhood masking.
+    """N2S Encoder with sparse neighborhood attention.
 
-    Attends only to K-nearest neighbors to improve efficiency and focus
-    on local search moves.
+    Optimizes the representation of problem nodes by restricting the attention
+    mechanism to a local k-neighbor window, facilitating more efficient
+    iterative enhancement.
+
+    Attributes:
+        k_neighbors (int): number of spatially proximal nodes to attend to.
+        num_heads (int): count of attention heads.
+        mha (MultiHeadAttention): masked attention subnet.
+        norm (Normalization): layer normalization module.
+        ff (nn.Sequential): feed-forward expansion network.
+        init_proj (nn.Linear): Initial spatial coordinate projector.
     """
 
     def __init__(
@@ -30,16 +41,15 @@ class N2SEncoder(ImprovementEncoder):
         embed_dim: int = 128,
         num_heads: int = 8,
         k_neighbors: int = 20,
-        **kwargs,
-    ):
-        """
-        Initialize N2SEncoder.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the N2S encoder.
 
         Args:
-            embed_dim: Embedding dimension.
-            num_heads: Number of attention heads.
-            k_neighbors: Number of nearest neighbors to attend to.
-            **kwargs: Unused arguments.
+            embed_dim: dimensionality of latent features.
+            num_heads: count of attention heads.
+            k_neighbors: size of the local attention window.
+            **kwargs: Unused parameters.
         """
         super().__init__(embed_dim=embed_dim)
         self.k_neighbors = k_neighbors
@@ -53,9 +63,17 @@ class N2SEncoder(ImprovementEncoder):
             nn.Linear(embed_dim * 2, embed_dim),
         )
 
+        # Explicitly initialize projection to avoid lazy init in forward
+        self.init_proj = nn.Linear(2, embed_dim)
+
     def _get_neighborhood_mask(self, td: TensorDict) -> torch.Tensor:
-        """
-        Compute mask for K-nearest neighbors based on spatial distance.
+        """Computes a binary mask based on spatial proximity.
+
+        Args:
+            td: Environment state containing node coordinates ('locs' and 'depot').
+
+        Returns:
+            torch.Tensor: Boolean mask where True indicates an excluded neighbor [B, N, N].
         """
         # locs: [bs, n, 2]
         depot = td["depot"].unsqueeze(1)
@@ -76,21 +94,22 @@ class N2SEncoder(ImprovementEncoder):
 
         return mask
 
-    def forward(self, td: TensorDict, **kwargs) -> torch.Tensor:
-        """
-        Encode nodes with neighborhood-constrained attention.
+    def forward(self, td: TensorDict, **kwargs: Any) -> torch.Tensor:
+        """Encodes node features using neighborhood-constrained attention.
+
+        Args:
+            td: state container with instance data.
+            **kwargs: Unused.
+
+        Returns:
+            torch.Tensor: Refined node embeddings [B, N, embed_dim].
         """
         # Initial embedding (coords)
         depot = td["depot"].unsqueeze(1)
         customers = td["locs"]
-        h = torch.cat([depot, customers], dim=1)  # [bs, n, 2]
+        h_raw = torch.cat([depot, customers], dim=1)  # [bs, n, 2]
 
-        # Linear projection if needed (h is [bs, n, 2], we want embed_dim)
-        # Assuming we have an init_embedding or simple linear
-        if not hasattr(self, "init_proj"):
-            self.init_proj = nn.Linear(2, self.embed_dim).to(h.device)
-
-        h = self.init_proj(h)
+        h = self.init_proj(h_raw)
 
         # Neighborhood mask
         mask = self._get_neighborhood_mask(td)

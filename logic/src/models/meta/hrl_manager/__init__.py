@@ -1,10 +1,10 @@
-"""__init__.py module.
+"""Hierarchical RL Manager.
+
+This package implements the `MandatoryManager`, a high-level coordination agent
+for multi-period waste collection problems.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import __init__
+    MandatoryManager: Neural agent for dispatcher gating and bin prioritization.
 """
 
 from .model import MandatoryManager as MandatoryManager

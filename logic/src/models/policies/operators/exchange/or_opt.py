@@ -1,12 +1,13 @@
-"""
-Or-opt local search operator (vectorized).
+"""Or-opt local search operator.
 
-The Or-opt operator relocates chains of 1-3 consecutive nodes to better positions,
-either within the same route or to different routes. This is particularly effective
-for geographically clustered customers.
+This module provides a GPU-accelerated implementation of the Or-opt operator,
+which improves tours by relocating clusters of consecutive nodes (typically 1-3)
+to more efficient positions across routes.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Optional, Tuple
 
 import torch
 
@@ -18,56 +19,27 @@ def vectorized_or_opt(
     distance_matrix: torch.Tensor,
     capacities: Optional[torch.Tensor] = None,
     wastes: Optional[torch.Tensor] = None,
-    chain_lengths: tuple = (1, 2, 3),
+    chain_lengths: Tuple[int, ...] = (1, 2, 3),
     max_iterations: int = 100,
     generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
-    """
-    Vectorized Or-opt local search across a batch of tours using PyTorch.
+    """Vectorized Or-opt local search using parallel chain evaluation.
 
-    The Or-opt operator tries to relocate chains of consecutive nodes (typically
-    1, 2, or 3 nodes) to better positions in the tour. This is a generalization
-    of node relocation that considers longer sequences.
-
-    For a chain of k nodes starting at position i:
-    Original: ... -> a -> [c1 -> c2 -> ... -> ck] -> b -> ...
-    Or-opt:   ... -> a -> b -> ... -> x -> [c1 -> c2 -> ... -> ck] -> y -> ...
-
-    The algorithm evaluates:
-    1. Removal gain = d(a,c1) + d(ck,b) - d(a,b)
-    2. Insertion cost = d(x,c1) + d(ck,y) - d(x,y)
-    3. Delta = insertion_cost - removal_gain
-
-    This implementation processes batches in parallel for GPU acceleration.
-
-    Algorithm:
-    1. For each chain length k in [1, 2, 3]:
-        a. For all valid chain positions in parallel:
-            - Compute removal gain
-            - For all insertion positions:
-                - Compute insertion cost and delta
-        b. Select best improvement for each tour
-        c. Apply moves where delta < 0
-    2. Repeat until no improvement or max_iterations
+    Systematically evaluates the relocation of node sequences of length 'k'
+    to every possible insertion point in the tour, utilizing GPU parallelism
+    to find the global best move per tour per iteration.
 
     Args:
-        tours: Batch of tours [B, N] where B=batch size, N=tour length
-        distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-        capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-        wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
-        chain_lengths: Tuple of chain lengths to try (default: (1, 2, 3))
-        max_iterations: Maximum number of improvement iterations (default: 100)
-        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
+        tours: Batch of node sequences of shape [B, N].
+        distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+        capacities: Vehicle limits per instance of shape [B] or scalar.
+        wastes: Node demand metadata of shape [B, N+1] or [N+1].
+        chain_lengths: Collection of cluster sizes to attempt.
+        max_iterations: Iteration limit for monotonic improvement.
+        generator: Torch device-side RNG (for future randomness).
 
     Returns:
-        torch.Tensor: Improved tours [B, N] with same shape as input
-
-    Note:
-        - Tours should include depot as node 0
-        - Capacity constraints are checked if capacities and wastes provided
-        - Works with both batched and shared distance matrices
-        - Stops early if no improvement found
-        - Chain lengths > N/2 are automatically skipped
+        torch.Tensor: Optimized tours of shape [B, N].
     """
     device = distance_matrix.device
 
@@ -81,7 +53,7 @@ def vectorized_or_opt(
         distance_matrix = distance_matrix.unsqueeze(0)
 
     B, N = tours.shape
-    if N < 4:  # Too small for or-opt
+    if N < 4:
         return tours if is_batch else tours.squeeze(0)
 
     # Expand distance matrix if shared
@@ -105,7 +77,7 @@ def vectorized_or_opt(
         if chain_len >= N // 2:
             continue
 
-        for _iteration in range(max_iterations):
+        for _ in range(max_iterations):
             improved_any = False
             chain_starts = torch.arange(N - chain_len, device=device)
             n_chains = len(chain_starts)
@@ -154,7 +126,15 @@ def vectorized_or_opt(
 
             improved_any = True
             tours = _apply_or_opt_moves(
-                tours, improved, best_chain_idx, best_insert_pos, chain_starts, chain_len, B, N, device
+                tours,
+                improved,
+                best_chain_idx,
+                best_insert_pos,
+                chain_starts,
+                chain_len,
+                B,
+                N,
+                device,
             )
 
             if not improved_any:
@@ -164,9 +144,36 @@ def vectorized_or_opt(
 
 
 def _compute_removal_info(
-    tours, chain_starts, chain_len, dist_mat, wastes, has_capacity, batch_indices, B, n_chains, N
-):
-    """Computes removal gain and chain wastes."""
+    tours: torch.Tensor,
+    chain_starts: torch.Tensor,
+    chain_len: int,
+    dist_mat: torch.Tensor,
+    wastes: Optional[torch.Tensor],
+    has_capacity: bool,
+    batch_indices: torch.Tensor,
+    B: int,
+    n_chains: int,
+    N: int,
+) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    """Calculates removal gain and sequence demand weights.
+
+    Args:
+        tours: Batch of node sequences of shape [B, N].
+        chain_starts: Matrix of prospective cluster start positions of shape [B, K].
+        chain_len: Number of nodes in the moving cluster.
+        dist_mat: Global distance matrix of shape [B, N+1, N+1].
+        wastes: Demand metadata of shape [B, N+1] or None.
+        has_capacity: Boolean threshold flag.
+        batch_indices: Unit batch index column vector of shape [B, 1].
+        B: Determined batch size.
+        n_chains: Count of evaluation chains.
+        N: Full sequence length.
+
+    Returns:
+        Tuple[torch.Tensor, Optional[torch.Tensor]]: A tuple containing:
+            - removal_gain: Cost differential from removing the cluster.
+            - chain_wastes: Aggregate demand for each identified moving cluster.
+    """
     prev_idx = (chain_starts - 1).clamp(min=0)
     next_idx = (chain_starts + chain_len).clamp(max=N - 1)
 
@@ -187,20 +194,52 @@ def _compute_removal_info(
         chain_wastes = torch.zeros(B, n_chains, device=tours.device)
         for k in range(chain_len):
             nodes = torch.gather(tours, 1, (chain_starts + k).clamp(max=N - 1))
-            chain_wastes += torch.gather(wastes, 1, nodes)
+            chain_wastes += torch.gather(wastes, 1, nodes)  # type: ignore[arg-type]
 
     return removal_gain, chain_wastes
 
 
 def _find_best_insertions(
-    B, n_chains, N, chain_len, chain_starts, tours, dist_mat, rem_gain, chain_wastes, caps, has_cap, b_idx, device
-):
-    """Finds best insertion positions for all chains in batch."""
+    B: int,
+    n_chains: int,
+    N: int,
+    chain_len: int,
+    chain_starts: torch.Tensor,
+    tours: torch.Tensor,
+    dist_mat: torch.Tensor,
+    rem_gain: torch.Tensor,
+    chain_wastes: Optional[torch.Tensor],
+    caps: Optional[torch.Tensor],
+    has_cap: bool,
+    b_idx: torch.Tensor,
+    device: torch.device,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Exhaustively searches for the best insertion point per chain.
+
+    Args:
+        B: Batch instances count.
+        n_chains: Number of parallel clusters being evaluated.
+        N: Full sequence length.
+        chain_len: Relocation cluster size.
+        chain_starts: Coordinate indices for each prospective cluster.
+        tours: Global node sequences of shape [B, N].
+        dist_mat: Distance weights of shape [B, N+1, N+1].
+        rem_gain: Calculated savings from removing clusters.
+        chain_wastes: Precalculated cluster demands.
+        caps: Fleet capacity limits of shape [B].
+        has_cap: Boolean feasibility flag.
+        b_idx: Batch index column vector.
+        device: Hardware identification locator.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - best_delta: Minimum cost differential found for each prospective move.
+            - best_insert_pos: Optimized insertion coordinate per cluster.
+    """
     best_delta = torch.full((B, n_chains), float("inf"), device=device)
     best_insert_pos = torch.zeros((B, n_chains), dtype=torch.long, device=device)
     b_exp = b_idx.expand(B, n_chains)
 
-    # Get chain nodes for insertion cost calculation
     chain_first = torch.gather(tours, 1, chain_starts.unsqueeze(0).expand(B, -1))
     chain_last = torch.gather(tours, 1, (chain_starts + chain_len - 1).clamp(max=N - 1).unsqueeze(0).expand(B, -1))
 
@@ -211,7 +250,6 @@ def _find_best_insertions(
         ins_prev_nodes = torch.gather(tours, 1, ins_prev)
         ins_next_nodes = torch.gather(tours, 1, ins_next)
 
-        # Skip positions inside original chain
         skip_mask = (chain_starts.unsqueeze(0) <= insert_pos) & (insert_pos <= chain_starts.unsqueeze(0) + chain_len)
 
         ins_cost = (
@@ -221,7 +259,7 @@ def _find_best_insertions(
         )
 
         if has_cap:
-            feasible = chain_wastes <= caps.unsqueeze(1)
+            feasible = chain_wastes <= caps.unsqueeze(1)  # type: ignore[operator]
             ins_cost = torch.where(feasible, ins_cost, torch.tensor(float("inf"), device=device))
 
         delta = torch.where(skip_mask, torch.tensor(float("inf"), device=device), ins_cost - rem_gain)
@@ -233,13 +271,38 @@ def _find_best_insertions(
     return best_delta, best_insert_pos
 
 
-def _apply_or_opt_moves(tours, improved, best_chain_idx, best_insert_pos, chain_starts, chain_len, B, N, device):
-    """Applies the best Or-opt moves found to the batch of tours."""
+def _apply_or_opt_moves(
+    tours: torch.Tensor,
+    improved: torch.Tensor,
+    best_chain_idx: torch.Tensor,
+    best_insert_pos: torch.Tensor,
+    chain_starts: torch.Tensor,
+    chain_len: int,
+    B: int,
+    N: int,
+    device: torch.device,
+) -> torch.Tensor:
+    """Updates node order by physically cat-ing segments.
+
+    Args:
+        tours: Target sequences of shape [B, N].
+        improved: Binary boolean activation mask of shape [B].
+        best_chain_idx: Index IDs of winning clusters of shape [B].
+        best_insert_pos: Coordinate targets for winners of shape [B, K].
+        chain_starts: Global pool of starting positions.
+        chain_len: Cluster size.
+        B: Batch size.
+        N: Sequence length.
+        device: Hardware identification locator.
+
+    Returns:
+        torch.Tensor: Updated sequence batch.
+    """
     for b in range(B):
         if improved[b]:
-            idx = best_chain_idx[b].item()
-            start = chain_starts[idx].item()
-            pos = best_insert_pos[b, idx].item()
+            idx = int(best_chain_idx[b].item())
+            start = int(chain_starts[idx].item())
+            pos = int(best_insert_pos[b, idx].item())
 
             chain = tours[b, start : start + chain_len].clone()
             mask = torch.ones(N, dtype=torch.bool, device=device)
@@ -250,6 +313,11 @@ def _apply_or_opt_moves(tours, improved, best_chain_idx, best_insert_pos, chain_
             new_tour = torch.cat([remaining[:adj_pos], chain, remaining[adj_pos:]])
 
             if new_tour.size(0) < N:
-                new_tour = torch.cat([new_tour, torch.zeros(N - new_tour.size(0), dtype=tours.dtype, device=device)])
+                new_tour = torch.cat(
+                    [
+                        new_tour,
+                        torch.zeros(N - new_tour.size(0), dtype=tours.dtype, device=device),
+                    ]
+                )
             tours[b] = new_tour[:N]
     return tours

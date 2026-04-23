@@ -1,4 +1,12 @@
-"""Graph Attention Encoder."""
+"""Graph Attention Encoder.
+
+Attributes:
+    GraphAttentionEncoder: Graph Attention Encoder with stacked MultiHeadAttentionLayers.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
+    >>> encoder = GraphAttentionEncoder(n_heads=8, embed_dim=128, n_layers=3)
+"""
 
 from __future__ import annotations
 
@@ -14,11 +22,14 @@ from .gat_multi_head_attention_layer import GATMultiHeadAttentionLayer
 
 
 class GraphAttentionEncoder(TransformerEncoderBase):
-    """
-    Graph Attention Encoder with stacked MultiHeadAttentionLayers.
+    """Graph Attention Encoder with stacked MultiHeadAttentionLayers.
 
     Supports standard Transformer architecture and Hyper-Networks.
     Inherits from TransformerEncoderBase for common encoder patterns.
+
+    Attributes:
+        n_sublayers (Optional[int]): Number of sublayers (unused, for API compatibility).
+        agg (Any): Aggregation method (unused, for API compatibility).
     """
 
     def __init__(
@@ -34,39 +45,24 @@ class GraphAttentionEncoder(TransformerEncoderBase):
         agg: Any = None,
         connection_type: str = "skip",
         expansion_rate: int = 4,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Initialize the GraphAttentionEncoder.
+        """Initializes the GraphAttentionEncoder.
 
-        Parameters
-        ----------
-        n_heads : int
-            Number of attention heads.
-        embed_dim : int
-            Embedding dimension.
-        n_layers : int
-            Number of encoder layers.
-        n_sublayers : Optional[int], default=None
-            Number of sublayers (unused, kept for API compatibility).
-        feed_forward_hidden : int, default=512
-            Hidden dimension for feed-forward layers.
-        norm_config : Optional[NormalizationConfig], default=None
-            Normalization configuration.
-        activation_config : Optional[ActivationConfig], default=None
-            Activation function configuration.
-        dropout_rate : float, default=0.1
-            Dropout probability.
-        agg : Any, default=None
-            Aggregation method (unused, kept for API compatibility).
-        connection_type : str, default="skip"
-            Connection type: "skip", "dense", or "hyper".
-        expansion_rate : int, default=4
-            Expansion factor for hyper-connections.
-        **kwargs
-            Additional keyword arguments.
+        Args:
+            n_heads: Number of attention heads.
+            embed_dim: Embedding dimension.
+            n_layers: Number of encoder layers.
+            n_sublayers: Number of sublayers (unused).
+            feed_forward_hidden: Hidden dimension for feed-forward layers.
+            norm_config: Normalization configuration.
+            activation_config: Activation function configuration.
+            dropout_rate: Dropout probability.
+            agg: Aggregation method (unused).
+            connection_type: Connection type ("skip", "dense", or "hyper").
+            expansion_rate: Expansion factor for hyper-connections.
+            kwargs: Additional keyword arguments.
         """
-        # Initialize base class (handles layer creation, dropout, default configs)
         super(GraphAttentionEncoder, self).__init__(
             n_heads=n_heads,
             embed_dim=embed_dim,
@@ -80,23 +76,17 @@ class GraphAttentionEncoder(TransformerEncoderBase):
             **kwargs,
         )
 
-        # Store unused parameters for potential future use
         self.n_sublayers = n_sublayers
         self.agg = agg
 
     def _create_layer(self, layer_idx: int) -> nn.Module:
-        """
-        Create a single GAT multi-head attention layer.
+        """Creates a single GAT multi-head attention layer.
 
-        Parameters
-        ----------
-        layer_idx : int
-            Index of the layer being created (0 to n_layers-1).
+        Args:
+            layer_idx: Index of the layer being created.
 
-        Returns
-        -------
-        nn.Module
-            GATMultiHeadAttentionLayer instance.
+        Returns:
+            nn.Module: GATMultiHeadAttentionLayer instance.
         """
         return GATMultiHeadAttentionLayer(
             n_heads=self.n_heads,

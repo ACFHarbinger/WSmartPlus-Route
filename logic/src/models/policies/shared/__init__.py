@@ -1,12 +1,17 @@
-"""
-Split Package.
+"""Shared policy utilities package.
 
-Exports:
-    vectorized_linear_split
-    vectorized_split_limited (_vectorized_split_limited)
-    reconstruct_routes (_reconstruct_routes)
-    reconstruct_limited (_reconstruct_limited)
+This package provides shared algorithmic components used across different
+routing policies, including split algorithms for transforming giant tours
+into multiple routes and utilities for route reconstruction.
+
+Attributes:
+    vectorized_linear_split: Linear time split algorithm.
+    _vectorized_split_limited: Limited capacity split algorithm.
+    _reconstruct_routes: Reconstructs tour sequences from split indices.
+    _reconstruct_limited: Reconstruction utility for limited-capacity scenarios.
 """
+
+from __future__ import annotations
 
 from .limited import vectorized_split_limited
 from .linear import vectorized_linear_split

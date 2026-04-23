@@ -1,12 +1,14 @@
-"""
-Base policy classes for constructive and improvement methods.
+"""Base constructive policy modules.
+
+This module provides the foundation for constructive routing policies, which
+build solutions by selecting nodes sequentially.
 """
 
 from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 from tensordict import TensorDict
@@ -16,11 +18,20 @@ from logic.src.envs.base.base import RL4COEnvBase
 
 
 class ConstructivePolicy(nn.Module, ABC):
-    """
-    Base class for constructive (autoregressive) policies.
+    """Base class for constructive (autoregressive) policies.
 
     Constructive policies build solutions step-by-step by selecting
     one node at a time until the solution is complete.
+
+    Attributes:
+        encoder: Neural encoder for problem state.
+        decoder: Neural decoder for action selection.
+        env_name: Name of the environment.
+        embed_dim: Dimensionality of embeddings.
+        seed: Random seed for reproducibility.
+        device: Device on which the policy resides.
+        generator: Local random number generator for sampling.
+        rng: Standard library random generator.
     """
 
     def __init__(
@@ -31,9 +42,19 @@ class ConstructivePolicy(nn.Module, ABC):
         embed_dim: int = 128,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
-        """Initialize ConstructivePolicy."""
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the ConstructivePolicy.
+
+        Args:
+            encoder: Encoder instance for state processing.
+            decoder: Decoder instance for step-by-step selection.
+            env_name: Name of the environment associated with this policy.
+            embed_dim: Feature dimensionality for latent representations.
+            seed: Seed for random initialization and sampling.
+            device: Computing device ('cpu', 'cuda').
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
@@ -44,16 +65,30 @@ class ConstructivePolicy(nn.Module, ABC):
         self.generator = torch.Generator(device=device).manual_seed(seed)
         self.rng = random.Random(seed) if seed is not None else random.Random()
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepare the policy state for pickling.
+
+        Custom handler that serializes the torch.Generator state correctly
+        since it is not directly picklable.
+
+        Returns:
+            Dict[str, Any]: A serializable dictionary of the policy's state.
+        """
         state = self.__dict__.copy()
         state["generator_state"] = self.generator.get_state()
         state["generator_device"] = str(self.generator.device)
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore the policy state from a pickled object.
+
+        Restores the torch.Generator on the original device with its
+        saved internal state.
+
+        Args:
+            state: Serialized dictionary of the policy's attributes.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)
@@ -64,25 +99,25 @@ class ConstructivePolicy(nn.Module, ABC):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         strategy: str = "sampling",
         num_starts: int = 1,
-        **kwargs,
-    ) -> dict:
-        """
-        Full forward pass: encode + decode until done.
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Execute a full forward pass: encoding followed by sequential decoding.
 
         Args:
-            td: TensorDict containing problem instance.
-            env: Environment for state transitions.
+            td: TensorDict containing the problem instance metadata.
+            env: Environment object for state transitions and masking.
             strategy: Decoding strategy ("sampling", "greedy", "beam_search").
-            num_starts: Number of solution starts for multi-start methods.
+            num_starts: Number of parallel solution attempts.
+            **kwargs: Additional control arguments for decoding.
 
         Returns:
-            Dictionary containing:
-                - reward: Final reward/cost
-                - log_likelihood: Log probability of solution
-                - tour: Sequence of visited nodes
+            Dict[str, Any]: Results dictionary containing:
+                - reward (torch.Tensor): Final reward/cost for the constructed tours.
+                - log_likelihood (torch.Tensor): Log probability of the selections.
+                - actions (torch.Tensor): The sequence of visited node indices.
         """
         raise NotImplementedError
 
@@ -91,19 +126,24 @@ class ConstructivePolicy(nn.Module, ABC):
         logits: torch.Tensor,
         mask: torch.Tensor,
         strategy: str = "sampling",
-        **kwargs,
-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """
-        Select action based on logits and decode type using DecodingStrategy.
+        **kwargs: Any,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Select an action based on logits and the specified strategy.
+
+        Uses the `get_decoding_strategy` utility to apply logic like greedy
+        selection, multinomial sampling, or beam search.
 
         Args:
-            logits: Action logits [batch, num_nodes]
-            mask: Valid action mask [batch, num_nodes]
-            strategy: Decoding strategy name
-            **kwargs: Additional arguments for decoding strategy (temperature, etc.)
+            logits: Predicted action logits of shape [batch, num_nodes].
+            mask: Valid action mask of shape [batch, num_nodes].
+            strategy: Name of the decoding strategy to apply.
+            **kwargs: Additional parameters (e.g., temperature) for the strategy.
 
         Returns:
-            Tuple of (action, log_prob, entropy)
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+                - action: Selected node index.
+                - log_prob: Log probability of the selection.
+                - entropy: Entropy of the action distribution.
         """
         # Get strategy (can be cached if needed)
         from logic.src.utils.decoding import get_decoding_strategy

@@ -1,11 +1,14 @@
-"""hypernetwork.py module.
+"""HyperNetwork for Adaptive Cost Weight Generation.
+
+This module implements a HyperNetwork that dynamically generates reward/cost
+weights for Reinforcement Learning agents based on temporal context and
+current performance metrics.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import hypernetwork
+    HyperNetwork: Meta-model for time-variant weight adjustment.
 """
+
+from __future__ import annotations
 
 import torch
 from torch import nn
@@ -14,44 +17,52 @@ from logic.src.models.subnets.modules import ActivationFunction, Normalization
 
 
 class HyperNetwork(nn.Module):
-    """
-    HyperNetwork that generates adaptive cost weights for time-variant RL tasks.
-    Takes temporal and performance metrics as input and outputs cost weights.
+    """Adaptive Weight-Generating HyperNetwork.
+
+    Takes environmental temporal indices (day of year) and performance metrics (e.g.,
+    current fleet utilization) and projects them into a set of adaptive weights
+    used to scale different objective components in a composite reward function.
+
+    Attributes:
+        input_dim (int): dimension of the incoming metric vector.
+        output_dim (int): count of adjustable reward weights generated.
+        n_days (int): seasonal wrapping period (e.g., 365 for annual).
+        time_embedding (nn.Embedding): latent temporal representation.
+        layers (nn.Sequential): MLP core for feature fusion.
+        activation (nn.Module): ensures positive scalar outputs (Softplus).
     """
 
     def __init__(
         self,
-        input_dim,
-        output_dim,
-        n_days=365,
-        embed_dim=16,
-        hidden_dim=64,
-        normalization="layer",
-        activation="relu",
-        learn_affine=True,
-        bias=True,
-    ):
-        """
-        Initialize the HyperNetwork.
+        input_dim: int,
+        output_dim: int,
+        n_days: int = 365,
+        embed_dim: int = 16,
+        hidden_dim: int = 64,
+        normalization: str = "layer",
+        activation: str = "relu",
+        learn_affine: bool = True,
+        bias: bool = True,
+    ) -> None:
+        """Initializes the HyperNetwork.
 
         Args:
-            input_dim (int): Dimension of input metrics.
-            output_dim (int): Dimension of output weights.
-            n_days (int, optional): Number of days in the year. Defaults to 365.
-            embed_dim (int, optional): Dimension of time embedding. Defaults to 16.
-            hidden_dim (int, optional): Dimension of hidden layers. Defaults to 64.
-            normalization (str, optional): Normalization type. Defaults to 'layer'.
-            activation (str, optional): Activation function. Defaults to 'relu'.
-            learn_affine (bool, optional): Whether to learn affine parameters in norm. Defaults to True.
-            bias (bool, optional): Whether to use bias in linear layers. Defaults to True.
+            input_dim: static/dynamic metrics size.
+            output_dim: expected number of reward weights.
+            n_days: cyclical period for time embeddings.
+            embed_dim: size of the latent time vector.
+            hidden_dim: width of the fusion layers.
+            normalization: type of normalization ('layer', 'batch', etc.).
+            activation: non-linear function type ('relu', 'silu', etc.).
+            learn_affine: whether to train norm parameters.
+            bias: whether to use bias terms in linear layers.
         """
-        super(HyperNetwork, self).__init__()
+        super().__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.n_days = n_days
         self.time_embedding = nn.Embedding(n_days, embed_dim)
 
-        # Combined input: metrics + time embedding
         combined_dim = input_dim + embed_dim
 
         self.layers = nn.Sequential(
@@ -64,30 +75,26 @@ class HyperNetwork(nn.Module):
             nn.Linear(hidden_dim, output_dim, bias=bias),
         )
 
-        # Output activation to ensure positive weights
         self.activation = nn.Softplus()
         self.init_weights()
 
-    def init_weights(self):
-        """
-        Initialize weights for the linear layers using Xavier Uniform initialization.
-        """
+    def init_weights(self) -> None:
+        """Initializes linear layer parameters using Xavier uniform distribution."""
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 nn.init.xavier_uniform_(m.weight)
                 if m.bias is not None:
                     nn.init.zeros_(m.bias)
 
-    def forward(self, metrics, day):
-        """
-        Generate cost weights based on current metrics and temporal information
+    def forward(self, metrics: torch.Tensor, day: torch.Tensor) -> torch.Tensor:
+        """Generates adaptive cost weights for the current context.
 
         Args:
-            metrics: Tensor of performance metrics [batch_size, input_dim]
-            day: Tensor of day indices [batch_size]
+            metrics: current performance or environment metrics [batch_size, input_dim].
+            day: current time indices [batch_size] (e.g., day of year).
 
         Returns:
-            cost_weights: Tensor of generated cost weights [batch_size, output_dim]
+            torch.Tensor: positive importance weights for reward components [batch_size, output_dim].
         """
         # Get time embeddings
         day_embed = self.time_embedding(day % self.n_days)
@@ -98,7 +105,7 @@ class HyperNetwork(nn.Module):
         # Generate raw weights
         raw_weights = self.layers(combined)
 
-        # Apply activation and normalize to sum to constraint
+        # Apply activation to ensure positive weights
         weights = self.activation(raw_weights)
 
         return weights

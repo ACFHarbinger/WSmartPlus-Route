@@ -1,6 +1,24 @@
-"""Graph Convolutional layer with distance-aware edge weighting."""
+"""Graph Convolutional layer with distance-aware edge weighting.
+
+This module provides the DistanceAwareGraphConvolution layer, which scales
+messages during graph propagation based on physical distance metadata.
+
+Attributes:
+    DistanceAwareGraphConvolution: GCN layer using distance-based message scaling.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.distance_graph_convolution import DistanceAwareGraphConvolution
+    >>> model = DistanceAwareGraphConvolution(in_channels=128, out_channels=128)
+    >>> x = torch.randn(1, 10, 128)
+    >>> adj = torch.eye(10)
+    >>> out = model(x, adj)
+"""
+
+from __future__ import annotations
 
 import math
+from typing import Optional
 
 import torch
 from torch import nn
@@ -8,30 +26,43 @@ from torch_geometric.utils import scatter
 
 
 class DistanceAwareGraphConvolution(nn.Module):
-    """
-    Graph Convolution that incorporates distance information into the message passing.
+    """Graph Convolution that incorporates distance into message passing.
 
     Supports different aggregation methods (sum, mean, max) and handles
-    edge features related to physical distance.
+    scaling strategies like inverse distance or exponential decay.
+
+    Attributes:
+        in_channels (int): Dimension of input node features.
+        out_channels (int): Dimension of output node features.
+        aggregation (str): Aggregation method ('sum', 'mean', 'max').
+        distance_influence (str): Weighting strategy ('inverse', 'exponential',
+            'learnable').
+        linear (nn.Linear): Transformation for input features.
+        bias (Optional[nn.Parameter]): Learnable output bias vector.
+        distance_transform (Optional[nn.Sequential]): Transform for learnable weights.
+        temp (Optional[nn.Parameter]): Temperature for exponential decay.
+        alpha (Optional[nn.Parameter]): Power for inverse distance scaling.
     """
 
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
-        distance_influence: str = "inverse",  # Options: "inverse", "exponential", "learnable"
+        distance_influence: str = "inverse",
         aggregation: str = "sum",
         bias: bool = True,
-    ):
-        """
+    ) -> None:
+        """Initializes DistanceAwareGraphConvolution.
+
         Args:
-            in_channels: Dimension of input node features.
-            out_channels: Dimension of output node features.
-            distance_influence: Method to incorporate distance ('inverse', 'exponential', 'learnable').
-            aggregation: Aggregation method ('sum', 'mean', 'max').
-            bias: Whether to use a bias term.
+            in_channels: Input feature dimensionality.
+            out_channels: Output feature dimensionality.
+            distance_influence: Method to incorporate distance. Options are
+                'inverse', 'exponential', or 'learnable'.
+            aggregation: Message pooling mode ('sum', 'mean', 'max').
+            bias: Whether to add a learnable bias term to the output.
         """
-        super(DistanceAwareGraphConvolution, self).__init__()
+        super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.aggregation = aggregation
@@ -57,22 +88,21 @@ class DistanceAwareGraphConvolution(nn.Module):
 
         self.init_parameters()
 
-    def init_parameters(self):
-        """Initializes the parameters of the layer using uniform distribution."""
+    def init_parameters(self) -> None:
+        """Initializes the linear transformation using uniform distribution."""
         for param in self.parameters():
             if param.dim() > 1:
                 stdv = 1.0 / math.sqrt(param.size(-1))
                 param.data.uniform_(-stdv, stdv)
 
-    def get_distance_weights(self, dist_matrix):
-        """
-        Compute edge weights based on distances
+    def get_distance_weights(self, dist_matrix: torch.Tensor) -> torch.Tensor:
+        """Computes continuous edge weights based on physical distances.
 
         Args:
-            dist_matrix: Distance matrix (V x V)
+            dist_matrix: Pairwise distance matrix of shape (V, V).
 
         Returns:
-            Edge weights with same shape as dist_matrix
+            torch.Tensor: Computed weights for each edge (V, V).
         """
         # Avoid division by zero (self-loops have 0 distance)
         eps = 1e-8
@@ -100,15 +130,21 @@ class DistanceAwareGraphConvolution(nn.Module):
 
         return weights
 
-    def forward(self, h, adj, dist_matrix=None):
-        """
+    def forward(
+        self,
+        h: torch.Tensor,
+        adj: torch.Tensor,
+        dist_matrix: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """Applies distance-aware graph convolution to the input batch.
+
         Args:
-            h: Input node features (B x V x H_1)
-            adj: Graph adjacency matrix (V x V) - shared across all batches
-            dist_matrix: Distance matrix (V x V) - shared across all batches
+            h: Input node features (batch, nodes, in_channels).
+            adj: Graph adjacency/mask matrix (nodes, nodes).
+            dist_matrix: Pairwise node distances. Defaults to using `adj` if None.
 
         Returns:
-            Updated node features (B x V x H_2)
+            torch.Tensor: Aggregated node features (batch, nodes, out_channels).
         """
         batch_size, num_nodes = h.size(0), h.size(1)
 
@@ -156,7 +192,7 @@ class DistanceAwareGraphConvolution(nn.Module):
             )
             out = flat_output.view(batch_size, num_nodes, self.out_channels)
 
-        if self.aggregation == "mean":
+        elif self.aggregation == "mean":
             # Calculate weighted node degrees for normalization
             # Handle batched/unbatched weighted_adj
             if weighted_adj.dim() == 3:  # (B, N, N)
@@ -184,15 +220,18 @@ class DistanceAwareGraphConvolution(nn.Module):
 
         return out
 
-    def single_graph_forward(self, h, adj, dist_matrix=None):
-        """
+    def single_graph_forward(
+        self, h: torch.Tensor, adj: torch.Tensor, dist_matrix: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        """Applies distance-aware graph convolution to a single graph.
+
         Args:
-            h: Input node features (N x H_1)
-            adj: Graph adjacency matrix (N x N)
-            dist_matrix: Distance matrix (N x N)
+            h: Input node features (nodes, in_channels).
+            adj: Single graph adjacency matrix (nodes, nodes).
+            dist_matrix: Node pairwise distances. Defaults to `adj` if None.
 
         Returns:
-            Updated node features (N x H_2)
+            torch.Tensor: Updated node features (nodes, out_channels).
         """
         # Transform node features
         support = self.linear(h)

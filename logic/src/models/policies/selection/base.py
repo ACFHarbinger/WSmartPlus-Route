@@ -1,26 +1,41 @@
+"""Base selector module.
+
+This module defines the abstract interface for vectorized bin selection
+strategies, including an instrumentation mechanism for automatic telemetry
+recording across all subclasses.
 """
-Base module for vectorized selection strategies.
-"""
+
+from __future__ import annotations
 
 import functools
 from abc import ABC, abstractmethod
+from typing import Any
 
-from torch import Tensor
+import torch
 
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
 class VectorizedSelector(PolicyVizMixin, ABC):
-    """Abstract base class for vectorized bin selection strategies."""
+    """Abstract base class for vectorized bin selection strategies.
 
-    def __init_subclass__(cls, **kwargs) -> None:
-        """Auto-wrap ``select`` in every concrete subclass to record telemetry."""
+    This class serves as the foundation for all selection heuristics that
+    determine which bins should be collected based on their current fill levels
+    and other environmental features.
+    """
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """Auto-wrap ``select`` in every concrete subclass to record telemetry.
+
+        Args:
+            **kwargs: Class creation arguments passed to super.
+        """
         super().__init_subclass__(**kwargs)
         if "select" in cls.__dict__:
             original = cls.__dict__["select"]
 
             @functools.wraps(original)
-            def _instrumented(self, fill_levels: Tensor, **kw) -> Tensor:
+            def _instrumented(self: Any, fill_levels: torch.Tensor, **kw: Any) -> torch.Tensor:
                 mask = original(self, fill_levels, **kw)
                 day = kw.get("current_day")
                 self._viz_record(
@@ -35,19 +50,17 @@ class VectorizedSelector(PolicyVizMixin, ABC):
     @abstractmethod
     def select(
         self,
-        fill_levels: Tensor,
-        **kwargs,
-    ) -> Tensor:
-        """
-        Select bins that must be collected.
+        fill_levels: torch.Tensor,
+        **kwargs: Any,
+    ) -> torch.Tensor:
+        """Select bins that must be collected.
 
         Args:
-            fill_levels: Current fill levels (batch_size, num_nodes).
-                         Values in [0, 1] where 1.0 = 100% full.
-            **kwargs: Strategy-specific parameters.
+            fill_levels: Current fill levels [B, N] in [0, 1].
+            **kwargs: Strategy-specific parameters (e.g., threshold, current_day).
 
         Returns:
-            Tensor: Boolean mask (batch_size, num_nodes) where True = must collect.
-                    Note: Index 0 is the depot and should always be False.
+            torch.Tensor: Boolean mask [B, N] where True indicates collection.
+                Note: Index 0 (depot) should always be False.
         """
         pass

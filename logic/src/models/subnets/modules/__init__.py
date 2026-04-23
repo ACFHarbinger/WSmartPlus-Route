@@ -1,26 +1,27 @@
-"""
-Neural network modules and building blocks.
+"""Neural network modules and building blocks.
 
-This package contains reusable layers and sub-networks used to build complex VRP models.
+This package contains reusable layers and sub-networks used to build complex
+VRP models, including attention mechanisms, graph convolutions, and custom
+normalization layers.
 
-Attention Mechanisms:
--   `MultiHeadAttention`: Standard MHA.
--   `MultiHeadFlashAttention`: FlashAttention-based MHA (renamed to `flash_attention.py`).
--   `MultiHeadCrossAttention`: Cross-attention between two sequences.
--   `MixedScoreMHA` (MatNet): Attention with mixed scoring functions.
--   `MultiHeadAttentionMDAM`: MDAM-specific attention.
+Attributes:
+    ActivationFunction: Configurable activation factory.
+    MultiHeadAttention: Foundation for neural routing encoders.
+    MultiHeadCrossAttention: Cross-modal attention mechanism.
+    MultiHeadFlashAttention: Memory-efficient attention implementation.
+    GraphConvolution: Standard spatial aggregation layers.
+    GatedGraphConvolution: Gated edge-weighted aggregation.
+    EfficientGraphConvolution: Optimized multi-head graph layer.
+    FeedForward: Standard positional-wise transformation.
+    MPNNEncoder: Message Passing Neural Network sequence encoder.
+    Normalization: Unified wrapper for Layer/Instance/Batch normalization.
+    SkipConnection: Residual and hyper-network wrappers.
+    DynamicHyperConnection: Adaptive state-dependent skip mechanism.
+    StaticHyperConnection: Fixed weight-sharing skip mechanism.
 
-Graph Convolutions:
--   `GraphConvolution`: Basic GCN.
--   `GatedGraphConvolution`: Gated GCN (Residual).
--   `EfficientGraphConvolution`: Memory-efficient GCN.
--   `MessagePassingLayer`: General message passing (MPNN).
-
-Common Components:
--   `Normalization`: Unified interface for Batch/Layer/Instance norm.
--   `FeedForward`: MLP blocks.
--   `SkipConnection`: Residual connections.
--   `ActivationFunction`: Configurable activations.
+Example:
+    >>> from logic.src.models.subnets.modules import MultiHeadAttention
+    >>> mha = MultiHeadAttention(embed_dim=128, n_heads=8)
 """
 
 from .activation_function import ActivationFunction as ActivationFunction

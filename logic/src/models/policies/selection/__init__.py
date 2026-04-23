@@ -1,8 +1,23 @@
-"""
-Selection Strategy Implementations.
+"""Selection strategies package.
 
-This package provides vectorized selection strategies split into multiple modules.
+This package provides vectorized bin selection strategies for identifying
+mandatory nodes across a batch of environments. It includes reactive,
+periodic, predictive, and neural network-based heuristics.
+
+Attributes:
+    VectorizedSelector: Abstract base class for all selectors.
+    LastMinuteSelector: Threshold-based reactive selection.
+    RegularSelector: Periodic collection on scheduled days.
+    LookaheadSelector: Predictive overflow-based selection.
+    RevenueSelector: Revenue-based selection.
+    ServiceLevelSelector: Statistical overflow prediction.
+    CombinedSelector: Logic-based combination of multiple strategies.
+    ManagerSelector: Neural network-based selection (MandatoryManager).
+    get_vectorized_selector: Factory function for easy instantiation by name.
+    create_selector_from_config: Factory for configuration-driven instantiation.
 """
+
+from __future__ import annotations
 
 from .base import VectorizedSelector
 from .combined import CombinedSelector

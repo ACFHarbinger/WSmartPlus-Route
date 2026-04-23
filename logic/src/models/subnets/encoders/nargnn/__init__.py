@@ -1,10 +1,16 @@
 """__init__.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    NARGNNEncoder: Non-Autoregressive Graph Neural Network Encoder.
+    NARGNNNodeEncoder: Node-only NARGNN Encoder.
+    EdgeHeatmapGenerator: Generates heatmap from edge features.
+    GNNLayer: Graph Neural Network Layer.
+    SimplifiedEdgeEmbedding: Simplified edge embedding module.
+    SimplifiedGNNEncoder: Simplified Graph Neural Network Encoder.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.subnets.encoders.nargnn import NARGNNEncoder
+    >>> encoder = NARGNNEncoder(n_layers=3, embed_dim=128)
 """
 
 from .edge_embedding import SimplifiedEdgeEmbedding as SimplifiedEdgeEmbedding

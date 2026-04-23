@@ -1,5 +1,18 @@
-"""
-Normalization layers (Batch, Layer, Instance).
+"""Normalization layers (Batch, Layer, Instance, Group).
+
+This module provides the Normalization wrapper, which unifies various PyTorch
+normalization strategies into a single interface compatible with the project's
+configuration system.
+
+Attributes:
+    Normalization: Unified wrapper for various normalization layers.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.normalization import Normalization
+    >>> norm = Normalization(128, norm_name="layer")
+    >>> x = torch.randn(1, 10, 128)
+    >>> x_norm = norm(x)
 """
 
 from __future__ import annotations
@@ -14,8 +27,14 @@ from logic.src.configs.models.normalization import NormalizationConfig
 
 
 class Normalization(nn.Module):
-    """
-    Wrapper for various Normalization layers (Batch, Layer, Instance).
+    """Wrapper for various Normalization layers.
+
+    Supports Batch, Layer, Instance, Group, and Local Response Normalization.
+    It automatically routes inputs to the appropriate underlying PyTorch module
+    and handles tensor reshaping for compatibility with graph and sequence data.
+
+    Attributes:
+        normalizer (nn.Module): The underlying PyTorch normalization layer.
     """
 
     normalizer: nn.Module
@@ -33,22 +52,23 @@ class Normalization(nn.Module):
         bias: Optional[bool] = True,
         norm_config: Optional[NormalizationConfig] = None,
     ) -> None:
-        """
-        Initializes the normalization layer.
+        """Initializes Normalization.
 
         Args:
-            embed_dim: Embedding dimension.
-            norm_name: Type of normalization ('batch', 'layer', 'instance', 'group', 'local_response').
-            eps_alpha: Epsilon value for numerical stability.
-            learn_affine: If True, learn affine parameters (weight and bias).
-            track_stats: If True, track running statistics for BatchNorm/InstanceNorm.
-            mbval: Momentum for running statistics or beta for LocalResponseNorm.
+            embed_dim: dimensionality of the input feature space.
+            norm_name: Normalization strategy ('batch', 'layer', 'instance',
+                'group', 'local_response').
+            eps_alpha: Numerical stability epsilon (or alpha for LRNorm).
+            learn_affine: Whether to learn gain and bias parameters.
+            track_stats: Whether to track running mean/variance (for BN/IN).
+            mbval: Momentum for stats or beta for LRNorm.
             n_groups: Number of groups for GroupNorm.
-            kval: k value for LocalResponseNorm.
-            bias: If True, add bias for LayerNorm.
-            norm_config: Normalization configuration object.
+            kval: Constant k for LocalResponseNorm.
+            bias: Whether to add a bias term in LayerNorm.
+            norm_config: Pre-populated configuration object. Overrides other args if
+                provided.
         """
-        super(Normalization, self).__init__()
+        super().__init__()
 
         # Use norm_config if provided, otherwise create from individual args
         if norm_config is None:
@@ -116,29 +136,29 @@ class Normalization(nn.Module):
             self.init_parameters()
 
     def init_parameters(self) -> None:
-        """Initializes the affine parameters if applicable."""
+        """Initializes the affine parameters (weights) using uniform distribution."""
         for param in self.parameters():
             if param.dim() > 0:
                 stdv: float = 1.0 / math.sqrt(param.size(-1))
                 param.data.uniform_(-stdv, stdv)
 
     def forward(self, input: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Applies the normalization to the input.
+        """Normalizes the input tensor.
+
+        Handles reshaping for 1D normalization layers (Batch, Instance, Group)
+        automatically to support various sequence/graph shapes.
 
         Args:
-            input: Input tensor.
-            mask: Optional mask (currently not used by normalization layers).
+            input: Tensor to normalize of shape (..., embed_dim).
+            mask: Optional mask (currently ignored by standard norm layers).
 
         Returns:
-            Normalized tensor.
+            torch.Tensor: Normalized tensor with same shape as input.
         """
         if isinstance(self.normalizer, nn.BatchNorm1d):
             return self.normalizer(input.view(-1, input.size(-1))).view(*input.size())
         elif isinstance(self.normalizer, (nn.InstanceNorm1d, nn.GroupNorm)):
             # Normalize over embedding dimension (last)
-            # We need to move the last dimension to the C position (index 1)
-            # and potentially flatten intermediate dimensions if normalizer is 1D
             orig_shape = input.shape
             dims = input.dim()
             if dims > 3:

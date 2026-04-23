@@ -1,6 +1,13 @@
+"""Vectorized linear split algorithm.
+
+This module provides an efficient, GPU-accelerated implementation of the Split
+algorithm, which partitions a giant tour into a set of feasible routes using
+shortest path logic on a directed acyclic graph (DAG).
 """
-Vectorized Linear Split Algorithm.
-"""
+
+from __future__ import annotations
+
+from typing import Optional, Tuple, Union, cast
 
 import torch
 
@@ -8,21 +15,32 @@ from .limited import vectorized_split_limited
 from .reconstruction import reconstruct_routes
 
 
-def vectorized_linear_split(giant_tours, dist_matrix, wastes, vehicle_capacity, max_len=None, max_vehicles=None):
-    """
-    Vectorized Linear Split Algorithm for Batch of Giant Tours.
-    Computes the optimal segmentation of giant tours into routes subject to capacity constraints.
+def vectorized_linear_split(
+    giant_tours: torch.Tensor,
+    dist_matrix: torch.Tensor,
+    wastes: torch.Tensor,
+    vehicle_capacity: Union[float, torch.Tensor],
+    max_len: Optional[int] = None,
+    max_vehicles: Optional[int] = None,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Partitions giant tours into feasible routes using shortest paths.
+
+    Computes the optimal segmentation of node sequences into routes subject to
+    capacity constraints. If `max_vehicles` is provided, it falls back to the
+    limited split variant.
 
     Args:
-        giant_tours: (B, N) tensor of node indices (permutation of 1..N or subset).
-        dist_matrix: (B, N_all, N_all) tensor of distances.
-        wastes: (B, N_all) tensor of wastes.
-        vehicle_capacity: float, scalar or (B,) tensor.
-        max_len: int, maximum route length to consider for efficiency (default: N).
+        giant_tours: Node sequences of shape [B, N].
+        dist_matrix: Pairwise distances of shape [B, N_all, N_all] or [N_all, N_all].
+        wastes: Node waste amounts of shape [B, N_all] or [N_all].
+        vehicle_capacity: Capacity limit (scalar or [B] tensor).
+        max_len: Maximum route length to evaluate for speed.
+        max_vehicles: Optional limit on the number of allowed routes.
 
     Returns:
-        routes: (B, list_of_routes) where each route is a list/tensor of nodes with depot 0.
-        costs: (B,) total cost of the split.
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - routes: Padded route sequences of shape [B, K, N].
+            - costs: Total split cost per batch instance of shape [B].
     """
     B, N = giant_tours.size()
     device = giant_tours.device
@@ -66,7 +84,7 @@ def vectorized_linear_split(giant_tours, dist_matrix, wastes, vehicle_capacity, 
             N,
             device,
             max_vehicles,
-            vehicle_capacity,
+            cast(float, vehicle_capacity),
             cum_load_pad,
             cum_dist_pad,
             d_0_i,

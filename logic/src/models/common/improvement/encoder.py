@@ -1,14 +1,21 @@
-"""improvement_encoder.py module.
+"""Improvement Encoder base module.
+
+This module provides the abstract base class for encoders used in improvement-based
+neural models. These encoders process both the problem instance and the current
+candidate solution to generate latent search space embeddings.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    ImprovementEncoder: Abstract base class for improvement-based encoders.
 
 Example:
-    >>> import improvement_encoder
+    >>> from logic.src.models.common.improvement.encoder import ImprovementEncoder
+    >>> # subclass and implement forward...
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -16,15 +23,22 @@ from torch import nn
 
 
 class ImprovementEncoder(nn.Module, ABC):
-    """
-    Base class for improvement encoders.
+    """Base class for improvement encoders.
 
     Improvement encoders take both the problem instance and the current solution
     to produce embeddings representing the current state of search.
+
+    Attributes:
+        embed_dim (int): Dimensionality of the resulting embeddings.
     """
 
-    def __init__(self, embed_dim: int = 128, **kwargs):
-        """Initialize ImprovementEncoder."""
+    def __init__(self, embed_dim: int = 128, **kwargs: Any) -> None:
+        """Initializes the ImprovementEncoder.
+
+        Args:
+            embed_dim: Internal dimensionality for encoding features.
+            **kwargs: Additional parameters for the parent Module.
+        """
         super().__init__()
         self.embed_dim = embed_dim
 
@@ -32,15 +46,18 @@ class ImprovementEncoder(nn.Module, ABC):
     def forward(
         self,
         td: TensorDict,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
-        """
-        Compute embeddings for the problem instance and current solution.
+        """Computes embeddings for the problem instance and current solution.
 
         Args:
-            td: TensorDict containing problem instance and 'tour' or current solution.
+            td: TensorDict containing the problem instance and current solution
+                (typically in a 'tour' or 'actions' field).
+            **kwargs: Additional control arguments for encoding.
 
         Returns:
-            Embeddings tensor or tuple of tensors.
+            Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
+                Encodings representing the search state, either as a single
+                tensor or a tuple of feature-specific tensors.
         """
         raise NotImplementedError

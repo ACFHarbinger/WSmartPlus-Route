@@ -386,7 +386,7 @@ def main() -> None:
 
     targets: List[tuple] = []
     if os.path.isfile(args.path):
-        targets.append(("", [], [os.path.basename(args.path)]))
+        targets.append((os.path.dirname(args.path), [], [os.path.basename(args.path)]))
     else:
         for root, dirs, files in os.walk(args.path):
             dirs[:] = [d for d in dirs if d not in SKIP_DIRS]

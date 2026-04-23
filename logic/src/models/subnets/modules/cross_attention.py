@@ -1,5 +1,20 @@
-"""
-Multi-Head Cross Attention module.
+"""Multi-Head Cross Attention module.
+
+This module provides the MultiHeadCrossAttention layer, which allows a set of
+queries to attend to a separate set of keys and values (e.g., source-target
+attention). This is essential for encoder-decoder architectures where the
+decoder attends to encoded node features.
+
+Attributes:
+    MultiHeadCrossAttention: Cross-attention with decoupled Q vs KV projections.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.cross_attention import MultiHeadCrossAttention
+    >>> model = MultiHeadCrossAttention(embed_dim=128, n_heads=8)
+    >>> q = torch.randn(1, 10, 128)
+    >>> kv = torch.randn(1, 20, 128)
+    >>> out = model(q, kv)
 """
 
 from __future__ import annotations
@@ -17,9 +32,24 @@ except ImportError:
 
 
 class MultiHeadCrossAttention(nn.Module):
-    """
-    Multi-Head Cross Attention with separate query and key/value projections.
-    Uses PyTorch's native `scaled_dot_product_attention` (SDPA).
+    """Multi-Head Cross Attention with separate query and key/value projections.
+
+    Uses PyTorch's native `scaled_dot_product_attention` (SDPA) for hardware-optimized
+    computation when possible, falling back to manual attention for weight storage
+    or compatibility.
+
+    Attributes:
+        embed_dim (int): Total dimensionality of the input embeddings.
+        n_heads (int): Number of parallel attention heads.
+        head_dim (int): Dimensionality of each individual attention head.
+        store_attn_weights (bool): Whether to explicitly calculate and cache weights.
+        attention_dropout (float): Dropout probability applied to the attention maps.
+        Wq (nn.Linear): Linear projection for input queries.
+        Wkv (nn.Linear): Linear projection for interleaved keys and values.
+        out_proj (nn.Linear): Final linear projection to consolidate head outputs.
+        sdpa_fn (Optional[Callable]): Reference to the functional attention implementation.
+        last_attn (Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]): Cached
+            attention weights and mask from the most recent forward pass.
     """
 
     def __init__(
@@ -31,13 +61,15 @@ class MultiHeadCrossAttention(nn.Module):
         store_attn_weights: bool = False,
         sdpa_fn: Optional[Callable] = None,
     ) -> None:
-        """
+        """Initializes MultiHeadCrossAttention.
+
         Args:
-            embed_dim: Total embedding dimension.
-            n_heads: Number of attention heads.
-            bias: Whether to use bias in linear projections.
-            attention_dropout: Dropout rate for attention weights.
-            store_attn_weights: If True, uses manual attention to store weights (slower).
+            embed_dim: Total dimensionality of the feature space.
+            n_heads: Number of parallel attention heads.
+            bias: Whether to use bias terms in linear transformations.
+            attention_dropout: Dropout rate for the attention scores.
+            store_attn_weights: If True, forces manual path to enable weight introspection.
+            sdpa_fn: Optional functional override for custom attention kernels.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -65,12 +97,16 @@ class MultiHeadCrossAttention(nn.Module):
         kv_input: torch.Tensor,
         mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """
+        """Computes cross-attention between queries and a separate key/value source.
+
         Args:
-            q_input: Query input (batch, n_query, embed_dim)
-            kv_input: Key/Value input (batch, graph_size, embed_dim)
-            mask: Attention mask (batch, n_query, graph_size).
-                  WSmart convention: True = masked (invalid).
+            q_input: Query representation of shape (batch, n_query, dim).
+            kv_input: Target source representation of shape (batch, n_kv, dim).
+            mask: Attention mask of shape (batch, n_query, n_kv).
+                True elements represent masked (invalid) positions.
+
+        Returns:
+            torch.Tensor: Attended representation of shape (batch, n_query, dim).
         """
         batch_size = q_input.size(0)
         n_query = q_input.size(1)
@@ -116,15 +152,28 @@ class MultiHeadCrossAttention(nn.Module):
                 attn_mask=sdpa_mask,
                 dropout_p=self.attention_dropout if self.training else 0.0,
             )
-            # Reshape back: [batch, n_heads, n_query, head_dim] -> [batch, n_query, n_heads, head_dim] -> [batch, n_query, embed_dim]
+            # Reshape back: [batch, n_query, embed_dim]
             out = out.transpose(1, 2).contiguous().view(batch_size, n_query, self.embed_dim)
             return self.out_proj(out)
 
     def _manual_attention(
-        self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask: Optional[torch.Tensor]
+        self,
+        q: torch.Tensor,
+        k: torch.Tensor,
+        v: torch.Tensor,
+        mask: Optional[torch.Tensor],
     ) -> torch.Tensor:
-        """Manual attention implementation for weights storage or fallback."""
+        """Manual attention path for weight inspection or fallback.
 
+        Args:
+            q: Reshaped query tensor of shape (batch, heads, n_query, head_dim).
+            k: Reshaped key tensor of shape (batch, heads, graph_size, head_dim).
+            v: Reshaped value tensor of shape (batch, heads, graph_size, head_dim).
+            mask: Pre-processed boolean mask tensor.
+
+        Returns:
+            torch.Tensor: Computed multi-head attention representation.
+        """
         # Scale q
         q = q * (1.0 / math.sqrt(self.head_dim))
 
@@ -139,7 +188,10 @@ class MultiHeadCrossAttention(nn.Module):
         attn_weights = torch.softmax(attn_logits, dim=-1)
 
         # Store weights
-        self.last_attn = (attn_weights.detach().cpu(), mask.detach().cpu() if mask is not None else None)
+        self.last_attn = (
+            attn_weights.detach().cpu(),
+            mask.detach().cpu() if mask is not None else None,
+        )
 
         if self.attention_dropout > 0.0 and self.training:
             attn_weights = torch.nn.functional.dropout(attn_weights, p=self.attention_dropout)

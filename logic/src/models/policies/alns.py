@@ -1,10 +1,13 @@
-"""
-ALNS Policy wrapper for RL4CO using vectorized implementation.
+"""ALNS Policy wrapper for RL4CO integration.
+
+This module provides the `VectorizedALNS` class, which wraps the high-performance
+ALNS engine to satisfy the `AutoregressivePolicy` interface used in training
+and evaluation pipelines.
 """
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import torch
 from tensordict import TensorDict
@@ -14,12 +17,24 @@ from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
 from logic.src.models.policies.hgs import VectorizedHGS
 
-from .adaptive_large_neighborhood_search import VectorizedALNS as VectorizedALNSEngine
+from .adaptive_large_neighborhood_search import (
+    VectorizedALNS as VectorizedALNSEngine,
+)
 
 
 class VectorizedALNS(AutoregressivePolicy):
-    """
-    ALNS-based Policy wrapper using vectorized GPU-accelerated implementation.
+    """RL4CO-compatible ALNS Policy wrapper.
+
+    Orchestrates the data extraction from environment states (TensorDict),
+    execution of the vectorized ALNS engine, and conversion of the resulting
+    routes back into a standardized action format.
+
+    Attributes:
+        time_limit: Execution timeout for the solver in seconds.
+        max_iterations: Internal search loop limit.
+        max_vehicles: Fleet size limit for discretization.
+        start_temp: Initial temperature for Simulated Annealing.
+        cooling_rate: SA temperature decay factor.
     """
 
     def __init__(
@@ -32,9 +47,21 @@ class VectorizedALNS(AutoregressivePolicy):
         cooling_rate: float = 0.9995,
         device: str = "cpu",
         seed: int = 42,
-        **kwargs,
-    ):
-        """Initialize ALNSPolicy."""
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the ALNS policy wrapper.
+
+        Args:
+            env_name: Identifier for the target RL4CO environment.
+            time_limit: Search timeout in seconds.
+            max_iterations: Number of improvement steps per instance.
+            max_vehicles: Fleet size constraint for the split operator.
+            start_temp: Initial SA temperature.
+            cooling_rate: Decay rate for SA cooling.
+            device: Hardware target.
+            seed: Random initialization constant.
+            **kwargs: Additional policy parameters.
+        """
         super().__init__(env_name=env_name, device=device, seed=seed, **kwargs)
         self.time_limit = time_limit
         self.max_iterations = max_iterations
@@ -46,46 +73,62 @@ class VectorizedALNS(AutoregressivePolicy):
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        strategy: str = "greedy",  # Ignored for ALNS
+        strategy: str = "greedy",
         num_starts: int = 1,
         max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
-        **kwargs,
-    ) -> dict[str, Any]:
-        """
-        Solve instances in the batch using vectorized ALNS.
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Execute the ALNS solver on a batch of environment instances.
+
+        Extracts locations, wastes, and capacities from the TensorDict, executes
+        the vectorized ALNS optimization, and computes rewards for the resulting
+        action sequences.
+
+        Args:
+            td: State bundle containing problem nodes and constraints.
+            env: Relevant environment instance for reward calculation.
+            strategy: Search strategy (ignored; ALNS is meta-heuristic).
+            num_starts: Number of restarts (not applicable).
+            max_steps: Sequence length limit (ignored).
+            phase: Current execution phase ('train', 'val', or 'test').
+            return_actions: Whether to include action tensors in the output.
+            **kwargs: Execution-time overrides (e.g., max_vehicles).
+
+        Returns:
+            Dict[str, Any]: Results including:
+                - reward (torch.Tensor): Calculated reward/cost for the solution.
+                - actions (torch.Tensor): The sequence of applied moves.
+                - log_likelihood (torch.Tensor): Zero vector (ALNS is non-pi).
+                - cost (torch.Tensor): Raw objective values from the engine.
         """
         batch_size = td.batch_size[0]
-        device = td.device
+        device = td.device if td.device is not None else td["locs"].device
 
-        # Extract data
+        # 1. Data Parsing
         customers = td["locs"]  # (batch, num_nodes, 2)
         depot = td["depot"].unsqueeze(1)  # (batch, 1, 2)
         locs = torch.cat([depot, customers], dim=1)  # (batch, num_nodes + 1, 2)
 
-        device = locs.device
         num_nodes = locs.shape[1]
 
-        # Compute distance matrix if needed
+        # Compute Euclidean distance matrix for the engine
         if locs.dim() == 3 and locs.shape[-1] == 2:
-            # Compute Euclidean distance matrix
             diff = locs.unsqueeze(2) - locs.unsqueeze(1)
             dist_matrix = torch.sqrt((diff**2).sum(dim=-1))
         else:
             dist_matrix = locs
 
-        # Extract waste
         waste_at_nodes = td.get("waste", torch.zeros(batch_size, num_nodes - 1, device=device))
-        # Prepend 0 for depot
+        # Prepend 0/None waste for the depot node
         waste = torch.cat([torch.zeros(batch_size, 1, device=device), waste_at_nodes], dim=1)
 
-        # Extract capacity
         capacity = td.get("capacity", torch.ones(batch_size, device=device) * VEHICLE_CAPACITY)
         if capacity.dim() == 0:
             capacity = capacity.expand(batch_size)
 
-        # Create initial solutions (random permutations)
+        # 2. Engine Execution
         initial_solutions = torch.stack(
             [torch.randperm(num_nodes - 1, device=device, generator=self.generator) + 1 for _ in range(batch_size)]
         )
@@ -108,28 +151,24 @@ class VectorizedALNS(AutoregressivePolicy):
             cooling_rate=self.cooling_rate,
         )
 
-        # Convert routes to actions (padded tensor)
+        # 3. Output Packaging
         all_actions = []
         for b in range(batch_size):
             route_nodes_raw = routes_list[b]
-            # Ensure it starts and ends with 0 if not already
             if isinstance(route_nodes_raw, torch.Tensor):
                 route_tensor = route_nodes_raw
             else:
                 route_tensor = torch.tensor(route_nodes_raw, device=device)
 
-            # vectorized_linear_split usually returns routes with 0s.
-            # If not, we add them.
             actions = route_tensor if route_tensor.size(0) > 0 else torch.tensor([0, 0], device=device)
             all_actions.append(actions)
 
-        # Pad actions
+        # Pad variable-length action sequences for batch reward calculation
         max_len = max(len(a) for a in all_actions)
         padded_actions = torch.stack(
             [torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)]) for a in all_actions]
         )
 
-        # Compute reward using the same cost function as the model
         reward = VectorizedHGS._compute_reward(td, env, padded_actions)
 
         return {
