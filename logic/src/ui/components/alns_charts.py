@@ -1,33 +1,17 @@
-"""
-Streamlit visualisation components for ALNS operator weight trajectories.
+"""Visualisation components for ALNS operator weight trajectories.
 
-Plots the roulette-wheel selection probabilities of Destroy and Repair operators
-across ALNS iterations, making the meta-heuristic's exploration dynamics
-fully transparent for analysis and debugging.
+This module provides specialized tools for auditing the roulette-wheel
+selection dynamics of ALNS Destroy and Repair operators. It includes
+a tracked solver subclass, a standalone telemetry tracker, and Plotly
+renderers for probability trajectories.
 
-Two integration patterns are supported:
-
-1. **TrackedVectorizedALNS** (preferred) — A subclass of ``VectorizedALNS`` that
-   overrides ``solve()`` to snapshot weights every ``log_freq`` iterations with
-   zero modification to the original solve logic.
-
-2. **ALNSSnapshotTracker** — A lightweight wrapper that records weights before
-   and after a full solve run.  Use this when you cannot change the class
-   being instantiated (e.g., imported from a third-party source).
-
-Usage::
-
-    from logic.src.ui.components.alns_charts import (
-        TrackedVectorizedALNS,
-        render_alns_operator_charts,
-    )
-
-    solver = TrackedVectorizedALNS(
-        dist_matrix=d, wastes=waste, vehicle_capacity=cap, log_freq=25
-    )
-    solver.solve(initial_solutions, n_iterations=500)
-
+Example:
     render_alns_operator_charts(solver.weight_history)
+
+Attributes:
+    TrackedVectorizedALNS: Drop-in solver that snapshots operator weights.
+    ALNSSnapshotTracker: Non-invasive wrapper for weight recording.
+    render_alns_operator_charts: Main UI orchestrator for dynamics.
 """
 
 from __future__ import annotations
@@ -56,19 +40,24 @@ from logic.src.models.policies.adaptive_large_neighborhood_search import Vectori
 
 
 class TrackedVectorizedALNS:
-    """
-    Drop-in replacement for ``VectorizedALNS`` that records operator weight
-    trajectories during ``solve()``.
+    """Drop-in replacement for VectorizedALNS that records operator weight trajectories.
 
     Inherits all functionality from the original solver and adds a
     ``weight_history`` attribute populated after each call to ``solve()``.
 
-    Args:
-        log_freq: Snapshot operator weights every N ALNS iterations. Default 25.
-        *args / **kwargs: Forwarded verbatim to ``VectorizedALNS.__init__``.
+    Attributes:
+        weight_history: Dictionary containing the weight history for both destroy and repair operators.
+        log_freq: Snapshot operator weights every N ALNS iterations.
+        _inner: The inner VectorizedALNS instance.
     """
 
     def __init__(self, *args: Any, log_freq: int = 25, **kwargs: Any) -> None:
+        """
+        Args:
+            args: Forwarded verbatim to ``VectorizedALNS.__init__``.
+            log_freq: Snapshot operator weights every N ALNS iterations.
+            kwargs: Forwarded verbatim to ``VectorizedALNS.__init__``.
+        """
         self._inner = VectorizedALNS(*args, **kwargs)
         self.log_freq = log_freq
         self.weight_history: Dict[str, List[List[float]]] = {
@@ -78,6 +67,15 @@ class TrackedVectorizedALNS:
 
     # Proxy attribute access to the inner solver
     def __getattr__(self, name: str) -> Any:
+        """
+        Get attribute from the inner solver.
+
+        Args:
+            name: Name of the attribute to get.
+
+        Returns:
+            The attribute from the inner solver.
+        """
         return getattr(self._inner, name)
 
     def solve(
@@ -96,6 +94,15 @@ class TrackedVectorizedALNS:
         Calls the original ``solve()`` in chunks of ``log_freq`` iterations,
         recording ``d_weights`` / ``r_weights`` between chunks so that the
         weight trajectory can be plotted after completion.
+
+        Args:
+            initial_solutions: Initial solutions for the ALNS solver.
+            n_iterations: Number of iterations to run the solver for.
+            time_limit: Time limit for the solver.
+            max_vehicles: Maximum number of vehicles to use.
+            start_temp: Starting temperature for the solver.
+            cooling_rate: Cooling rate for the solver.
+            kwargs: Forwarded verbatim to ``VectorizedALNS.solve``.
 
         Returns:
             The same ``(routes, costs)`` tuple returned by ``VectorizedALNS.solve``.
@@ -151,35 +158,53 @@ class TrackedVectorizedALNS:
 
 
 class ALNSSnapshotTracker:
-    """
-    Records operator weights *before* and *after* a ``VectorizedALNS.solve()``
-    call without subclassing or modifying the solver.
+    """Records operator weights before and after a solver run.
 
-    Use this when you need a quick pre/post comparison::
+    Attributes:
+        weight_history: Dictionary containing the weight history for both destroy and repair operators.
 
+    Example:
         tracker = ALNSSnapshotTracker()
         tracker.before(solver)
         solver.solve(...)
         tracker.after(solver)
-
-        render_alns_operator_charts(tracker.weight_history)
     """
 
     def __init__(self) -> None:
+        """
+        Initialize the snapshot tracker.
+        """
         self.weight_history: Dict[str, List[List[float]]] = {
             "destroy": [],
             "repair": [],
         }
 
     def before(self, solver: Any) -> None:
-        """Snapshot weights immediately before a solve call."""
+        """
+        Snapshot weights immediately before a solve call.
+
+        Args:
+            solver: The ALNS solver instance.
+        """
         self._snapshot(solver, label="before")
 
     def after(self, solver: Any) -> None:
-        """Snapshot weights immediately after a solve call."""
+        """
+        Snapshot weights immediately after a solve call.
+
+        Args:
+            solver: The ALNS solver instance.
+        """
         self._snapshot(solver, label="after")
 
     def _snapshot(self, solver: Any, label: str) -> None:
+        """
+        Snapshot weights immediately before or after a solve call.
+
+        Args:
+            solver: The ALNS solver instance.
+            label: Label indicating whether this is a "before" or "after" snapshot.
+        """
         if hasattr(solver, "d_weights") and hasattr(solver, "r_weights"):
             self.weight_history["destroy"].append(_softmax_probs(solver.d_weights))
             self.weight_history["repair"].append(_softmax_probs(solver.r_weights))
@@ -309,8 +334,21 @@ def _build_chart(
     smooth_window: int,
     height: int,
     colors: List[str],
-) -> Optional[Any]:
-    """Build a Plotly line or stacked-area chart for one operator group."""
+) -> Optional[go.Figure]:
+    """Builds a Plotly line or stacked-area chart for an operator group.
+
+    Args:
+        data: List of weight vectors over time.
+        names: Human-readable operator labels.
+        chart_title: Figure title.
+        chart_type: Either 'line' or 'area'.
+        smooth_window: EMA span.
+        height: Plot height in pixels.
+        colors: Color palette to use.
+
+    Returns:
+        Optional[go.Figure]: Resulting Plotly figure if data exists.
+    """
     if go is None:
         return None
 
@@ -375,7 +413,14 @@ def _render_prob_table(
     repair_data: List[List[float]],
     r_names: List[str],
 ) -> None:
-    """Render a concise table of final operator selection probabilities."""
+    """Renders a concise table of final operator selection probabilities.
+
+    Args:
+        destroy_data: History of destroy weights.
+        d_names: Destroy operator labels.
+        repair_data: History of repair weights.
+        r_names: Repair operator labels.
+    """
 
     rows: List[Dict[str, Any]] = []
 
@@ -394,7 +439,14 @@ def _render_prob_table(
 
 
 def _softmax_probs(weights: Any) -> List[float]:
-    """Convert raw ALNS weights to selection probabilities via normalisation."""
+    """Converts raw ALNS weights to probabilities via normalisation.
+
+    Args:
+        weights: Raw weight vector (Tensor or NumPy).
+
+    Returns:
+        List[float]: Scaled probabilities summing to 1.0.
+    """
     if torch is not None:
         try:
             w = weights.float().cpu() if hasattr(weights, "cpu") else torch.tensor(weights, dtype=torch.float32)

@@ -1,5 +1,14 @@
-"""
-Folium map renderer for multiple vehicle routes.
+"""Folium map renderer for multiple vehicle routes.
+
+This module enables multi-vehicle tour visualization, assigning unique
+color-coded polylines to each vehicle route while rendering shared
+depots and intermediate collection stops.
+
+Example:
+    m = create_multi_route_map(vehicle_tours)
+
+Attributes:
+    create_multi_route_map: Renders the multi-vehicle route dashboard.
 """
 
 from typing import Any, Dict, List, Optional, Tuple

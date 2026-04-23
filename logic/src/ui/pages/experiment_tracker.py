@@ -1,13 +1,16 @@
 """Experiment Tracker mode for the Streamlit dashboard.
 
-Provides a unified view of all tracked experiments from three sources:
+This module provides a unified interface for auditing experiments across
+multiple backends. It integrates high-fidelity telemetry from the native
+WSTracker (SQLite) with optional remote tracking from MLflow and pipeline
+lineage from ZenML.
 
-1. **WSTracker** (SQLite) — native experiment database
-2. **MLflow** (optional) — remote/local tracking server
-3. **ZenML** (optional) — pipeline orchestration runs & step statuses
+Example:
+    render_experiment_tracker()
 
-Sections: Run Table, Run Detail, Metric Explorer, Run Comparison,
-MLflow Explorer, ZenML Pipeline Runs, Artifacts.
+Attributes:
+    HOVER_TEMPLATE: Jinja2 template for interactive Plotly tooltips.
+    render_experiment_tracker: Main entry point for the tracking dashboard.
 """
 
 import json
@@ -64,7 +67,15 @@ def _render_run_table(
     runs: List[Dict[str, Any]],
     run_type_filter: Optional[str],
 ) -> Optional[str]:
-    """Render a filterable table of WSTracker runs; return selected run_id."""
+    """Renders a filterable table of WSTracker experiment runs.
+
+    Args:
+        runs: List of run record dictionaries from the tracking service.
+        run_type_filter: Optional string to filter by (e.g., 'train', 'sim').
+
+    Returns:
+        Optional[str]: The UUID of the selected run for detailed inspection.
+    """
     if run_type_filter and run_type_filter != "All":
         runs = [r for r in runs if r.get("run_type") == run_type_filter]
 
@@ -109,7 +120,14 @@ def _render_run_table(
 
 
 def _render_run_detail(run_id: str) -> None:
-    """Display params and tags for a single WSTracker run."""
+    """Displays comprehensive configuration and metadata for a single run.
+
+    Renders searchable tags, global hyperparameters, and hierarchical
+    per-policy parameter sets for WSmart-Route experiment parity.
+
+    Args:
+        run_id: UUID of the WSTracker run to inspect.
+    """
     st.subheader("🏷️ Tags")
     tags = load_run_tags(run_id)
     if tags:
@@ -167,7 +185,11 @@ def _render_run_detail(run_id: str) -> None:
 
 
 def _render_params_table(params: Dict[str, Any]) -> None:
-    """Helper to render a clean parameters table."""
+    """Renders a standardized tabular view for experiment hyperparameters.
+
+    Args:
+        params: Mapping of parameter names to values.
+    """
     if not params:
         st.caption("No parameters in this category.")
         return
@@ -185,7 +207,11 @@ def _render_params_table(params: Dict[str, Any]) -> None:
 
 
 def _render_metric_explorer(run_id: str) -> None:
-    """Interactive metric explorer for a single WSTracker run."""
+    """Renders an interactive multi-metric time-series plotter.
+
+    Args:
+        run_id: UUID of the WSTracker run to inspect.
+    """
     keys = list_metric_keys(run_id)
     if not keys:
         st.info("No metrics have been logged for this run yet.")
@@ -242,7 +268,14 @@ def _render_metric_explorer(run_id: str) -> None:
 
 
 def _render_run_comparison(runs: List[Dict[str, Any]]) -> None:
-    """Compare WSTracker metrics across 2+ selected runs."""
+    """Renders a performance comparison interface for multiple experiment runs.
+
+    Supports synchronized step-based overlays for shared metrics across
+    different model architectures or routing policies.
+
+    Args:
+        runs: List of candidate run records for comparison.
+    """
     if len(runs) < 2:
         st.info("Need at least 2 WSTracker runs to compare.")
         return
@@ -334,7 +367,11 @@ def _render_run_comparison(runs: List[Dict[str, Any]]) -> None:
 
 
 def _render_artifacts(run_id: str) -> None:
-    """Display logged artifacts for a WSTracker run."""
+    """Renders a register of logged files and artifacts for a tracker run.
+
+    Args:
+        run_id: UUID of the WSTracker run to inspect.
+    """
     artifacts = load_run_artifacts(run_id)
     if not artifacts:
         st.caption("No artifacts logged for this run.")
@@ -372,7 +409,14 @@ _EVENT_TYPE_ICONS = {
 
 
 def _render_dataset_events(run_id: str) -> None:
-    """Display dataset lifecycle events for a WSTracker run."""
+    """Renders the data lineage and dataset lifecycle event timeline.
+
+    Visualizes mutations, augmentations, and hash changes to ensure DRL
+    experiment reproducibility and detect data leakage.
+
+    Args:
+        run_id: UUID of the WSTracker run to inspect.
+    """
     events = load_run_dataset_events(run_id)
     if not events:
         st.caption("No dataset events recorded for this run.")
@@ -463,7 +507,14 @@ def _render_dataset_events(run_id: str) -> None:
 
 
 def _fmt_size(size_bytes: Any) -> str:
-    """Format byte count into a human-readable string."""
+    """Formats a raw byte count into a human-readable storage string.
+
+    Args:
+        size_bytes: Numeric byte count or unparsed object.
+
+    Returns:
+        str: Formatted string (e.g., '14.2 MB') or '—' if invalid.
+    """
     if size_bytes is None:
         return "—"
     try:
@@ -488,7 +539,14 @@ def _fmt_size(size_bytes: Any) -> str:
 def _render_tracker_sidebar(
     run_types: List[str],
 ) -> Dict[str, Any]:
-    """Render sidebar controls for the experiment tracker."""
+    """Renders specialized sidebar controls for the tracking dashboard.
+
+    Args:
+        run_types: Discovered run categories from the active database.
+
+    Returns:
+        Dict[str, Any]: Mapping of current backend configurations and filters.
+    """
     st.sidebar.markdown("---")
     st.sidebar.subheader("🔬 Experiment Tracker")
 
@@ -526,7 +584,11 @@ def _render_tracker_sidebar(
 
 
 def render_experiment_tracker() -> None:
-    """Render the Experiment Tracker mode."""
+    """Orchestrates and renders the multi-backend Experiment Tracker page.
+
+    Manages layout switching between native SQL tracking, MLflow, and
+    ZenML integration.
+    """
     st.title("🔬 Experiment Tracker")
     st.markdown(
         "Unified view of experiments from **WSTracker**, **MLflow**, and **ZenML**. "

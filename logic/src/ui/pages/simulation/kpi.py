@@ -1,3 +1,19 @@
+"""KPI dashboard and metric summary components for simulation results.
+
+This module provides high-level status visualization for simulation
+telemetry. It includes dashboard components for real-time objective
+monitoring with historical sparklines, cumulative totals across multi-day
+runs, and detailed configuration inspection for routing policies.
+
+Example:
+    render_kpi_dashboard(display_entry, all_entries, controls)
+
+Attributes:
+    render_kpi_dashboard: Main UI component for real-time metric monitoring.
+    render_cumulative_summary: Visualizes aggregate performance across days.
+    render_policy_info: Inspects and displays policy-specific hyperparameters.
+"""
+
 import contextlib
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -33,7 +49,13 @@ def render_kpi_dashboard(
     entries: List[Any],
     controls: Dict[str, Any],
 ) -> None:
-    """Render the Key Performance Indicators section with deltas and sparklines."""
+    """Renders the Key Performance Indicators section with deltas and sparklines.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+        entries: Master list of parsed simulation log entries.
+        controls: User filter settings (selected_policy, selected_sample).
+    """
     st.subheader("Key Metrics")
 
     data = display_entry.data
@@ -84,7 +106,12 @@ def render_kpi_dashboard(
 
 
 def render_cumulative_summary(entries: List[Any], controls: Dict[str, Any]) -> None:
-    """Render cumulative/aggregate statistics across all days."""
+    """Renders cumulative and aggregate statistics across the entire simulation run.
+
+    Args:
+        entries: Master list of parsed simulation log entries.
+        controls: User filter settings (selected_policy, selected_sample).
+    """
     cumulative = compute_cumulative_stats(
         entries,
         policy=controls["selected_policy"],
@@ -98,7 +125,11 @@ def render_cumulative_summary(entries: List[Any], controls: Dict[str, Any]) -> N
 
 
 def render_policy_info(display_entry: Any) -> None:
-    """Render policy configuration details parsed from the policy string."""
+    """Renders detailed policy configuration parsed from identifiers and database.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+    """
     with st.expander("Policy Configuration", expanded=False):
         col1, col2, col3 = st.columns(3)
         with col1:

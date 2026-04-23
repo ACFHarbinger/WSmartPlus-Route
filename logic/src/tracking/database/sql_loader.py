@@ -55,7 +55,7 @@ def load_sections(filename: str) -> Dict[str, str]:
     # parts layout after split: [pre_text, name1, body1, name2, body2, ...]
     sections: Dict[str, str] = {}
     it = iter(parts[1:])  # skip any text before the first marker
-    for name, body in zip(it, it):
+    for name, body in zip(it, it, strict=True):
         stripped = body.strip()
         if stripped:
             sections[name] = stripped

@@ -1,7 +1,17 @@
-"""
-Sidebar control panel widgets for the dashboard.
+"""Sidebar control panel widgets for the dashboard.
 
-Provides reusable sidebar components for mode selection and controls.
+This module provides reusable UI components for mode switching, filtering,
+and data ingestion orchestration. It serves as the primary navigation
+and control hub for all dashboard modes.
+
+Example:
+    mode = render_mode_selector()
+    if mode == "training":
+        render_training_monitor()
+
+Attributes:
+    jinja_env: Shared Jinja2 environment for HTML templates.
+    template_dir: Path to UI templates directory.
 """
 
 import os
@@ -23,11 +33,10 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
 
 
 def render_mode_selector() -> str:
-    """
-    Render the main mode selector in the sidebar.
+    """Renders the main mode selector in the sidebar.
 
     Returns:
-        Selected mode: "training" or "simulation"
+        str: Internal mode key (e.g., 'training', 'simulation', 'benchmark').
     """
     st.sidebar.title("🎛️ Control Tower")
     st.sidebar.markdown("---")
@@ -62,11 +71,10 @@ def render_mode_selector() -> str:
 
 
 def render_auto_refresh_toggle() -> Tuple[bool, int]:
-    """
-    Render auto-refresh controls.
+    """Renders auto-refresh controls for real-time monitoring.
 
     Returns:
-        Tuple of (is_enabled, refresh_interval_seconds)
+        Tuple[bool, int]: (is_enabled, refresh_interval_seconds).
     """
     st.sidebar.markdown("---")
     st.sidebar.subheader("🔄 Auto-Refresh")
@@ -87,15 +95,14 @@ def render_training_controls(
     available_runs: List[str],
     available_metrics: List[str],
 ) -> Dict[str, Any]:
-    """
-    Render controls for training monitor mode.
+    """Renders controls for training monitor mode.
 
     Args:
         available_runs: List of available training run names.
         available_metrics: List of available metric names.
 
     Returns:
-        Dict with selected runs, metrics, and settings.
+        Dict[str, Any]: Selected runs, metrics, and smoothing settings.
     """
     st.sidebar.markdown("---")
     st.sidebar.subheader("📈 Training Controls")
@@ -154,7 +161,16 @@ def render_training_controls(
 
 
 def _render_filter_controls(available_logs: List[str], policies: List[str], samples: List[int]) -> Dict[str, Any]:
-    """Render log, policy, and sample selection controls."""
+    """Renders log, policy, and sample selection controls.
+
+    Args:
+        available_logs: List of discovered log file names.
+        policies: List of policy IDs found in the current log.
+        samples: List of sample IDs found in the current log.
+
+    Returns:
+        Dict[str, Any]: Selected log file and filter constraints.
+    """
     st.sidebar.markdown("---")
     st.sidebar.subheader("🗺️ Simulation Controls")
 
@@ -198,7 +214,14 @@ def _render_filter_controls(available_logs: List[str], policies: List[str], samp
 
 
 def _render_playback_controls(day_range: Tuple[int, int]) -> Dict[str, Any]:
-    """Render playback mode and day slider controls."""
+    """Renders playback mode and temporal day slider controls.
+
+    Args:
+        day_range: (min_day, max_day) tuple from simulation data.
+
+    Returns:
+        Dict[str, Any]: Playback state ('is_live', 'selected_day').
+    """
     st.sidebar.markdown("---")
     st.sidebar.subheader("▶️ Playback")
 
@@ -225,7 +248,14 @@ def _render_playback_controls(day_range: Tuple[int, int]) -> Dict[str, Any]:
 
 
 def _render_matrix_loader(distance_strategy: str) -> Dict[str, Any]:
-    """Render controls for loading custom distance matrices."""
+    """Renders controls for loading custom distance matrices from disk.
+
+    Args:
+        distance_strategy: The active distance calculation strategy.
+
+    Returns:
+        Dict[str, Any]: Selected matrix and index files.
+    """
     selected_matrix_file = None
     selected_index_file = None
 
@@ -280,8 +310,7 @@ def render_simulation_controls(
     samples: List[int],
     day_range: Tuple[int, int],
 ) -> Dict[str, Any]:
-    """
-    Render controls for simulation visualizer mode.
+    """Renders controls for the simulation visualizer (Digital Twin) mode.
 
     Args:
         available_logs: List of available log file names.
@@ -290,7 +319,7 @@ def render_simulation_controls(
         day_range: (min_day, max_day) tuple.
 
     Returns:
-        Dict with selected options.
+        Dict[str, Any]: Aggregated selection options for filters and rendering.
     """
     # 1. Filter Controls
     filter_opts = _render_filter_controls(available_logs, policies, samples)
@@ -338,7 +367,7 @@ def render_simulation_controls(
 
 
 def render_about_section() -> None:
-    """Render an about section at the bottom of the sidebar."""
+    """Renders an 'About' section with system stats and version info."""
     st.sidebar.markdown("---")
 
     # Quick stats

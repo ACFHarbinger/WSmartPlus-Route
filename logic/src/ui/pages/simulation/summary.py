@@ -1,12 +1,15 @@
-"""
-Simulation Summary page for the Streamlit dashboard.
+"""Simulation Summary page for the Streamlit dashboard.
 
-Loads simulation output JSON files (mean, std, full, daily) and provides:
-- Policy comparison table with mean +/- std per metric
-- Pareto front scatter for any two selected metrics
-- Per-metric bar chart ranking across policies
-- Per-distribution comparison for the same policy across distributions
-- Daily time-series overlay per policy
+Presents multi-model performance aggregations, Pareto tradeoff surfaces,
+and cross-distribution robustness analysis for simulation experiments.
+
+Example:
+    render_simulation_summary()
+
+Attributes:
+    render_simulation_summary: Main entry point for the summary analysis.
+    _parse_policy_name: Heuristic to split policy identifiers.
+    _DIST_PATTERN: Internal regex for distribution detection.
 """
 
 import json
@@ -36,7 +39,11 @@ _DIST_PATTERN = re.compile(r"_(emp|gamma\d*|uniform)$", re.IGNORECASE)
 
 
 def _discover_output_dirs() -> List[str]:
-    """Find directories under assets/output/ that contain simulation JSONs."""
+    """Finds directories under assets/output/ that contain simulation JSONs.
+
+    Returns:
+        List[str]: Relative paths to valid output directories.
+    """
 
     output_root = os.path.join(ROOT_DIR, "assets", "output")
     dirs: List[str] = []
@@ -53,7 +60,14 @@ def _discover_output_dirs() -> List[str]:
 
 
 def _load_json(path: str) -> Any:
-    """Load and parse a JSON file, returning None on failure."""
+    """Loads and parses a JSON file with error handling.
+
+    Args:
+        path: Absolute filesystem path to the JSON file.
+
+    Returns:
+        Any: Parsed JSON data (typically dict or list) or None on failure.
+    """
     try:
         with open(path, "r") as f:
             return json.load(f)
@@ -62,11 +76,13 @@ def _load_json(path: str) -> Any:
 
 
 def _find_json_files(output_dir: str) -> Dict[str, str]:
-    """
-    Given a directory, discover the different JSON file types.
+    """Discovers the available JSON file types in a given output directory.
 
-    Returns dict with keys like 'mean', 'std', 'full', 'daily_*' mapping
-    to absolute file paths.
+    Args:
+        output_dir: Relative path (from assets/output) to the target directory.
+
+    Returns:
+        Dict[str, str]: Mapping of file types ('mean', 'std', 'full') to paths.
     """
 
     abs_dir = os.path.join(ROOT_DIR, "assets", "output", output_dir)
@@ -99,7 +115,14 @@ def _find_json_files(output_dir: str) -> Dict[str, str]:
 
 
 def _parse_policy_name(raw_name: str) -> Tuple[str, str]:
-    """Split a raw policy key into (base_name, distribution)."""
+    """Splits a raw policy identifier into a base name and distribution type.
+
+    Args:
+        raw_name: Full policy string (e.g., 'hgs_exp_uniform').
+
+    Returns:
+        Tuple[str, str]: (Base policy name, distribution type).
+    """
     match = _DIST_PATTERN.search(raw_name)
     if match:
         dist = match.group(1).lower()
@@ -109,7 +132,14 @@ def _parse_policy_name(raw_name: str) -> Tuple[str, str]:
 
 
 def _extract_distributions(mean_data: Dict[str, Any]) -> List[str]:
-    """Extract sorted unique distributions from mean JSON keys."""
+    """Extracts unique distribution identifiers from the simulation mean data.
+
+    Args:
+        mean_data: Mapping of policy keys to mean metric values.
+
+    Returns:
+        List[str]: Sorted list of unique distribution names encountered.
+    """
     dists_set = set()
     for key in mean_data:
         if isinstance(mean_data[key], dict):
@@ -122,10 +152,14 @@ def _build_summary_df(
     mean_data: Dict[str, Dict[str, float]],
     std_data: Optional[Dict[str, Dict[str, float]]] = None,
 ) -> pd.DataFrame:
-    """
-    Build a summary DataFrame from mean (and optional std) JSON data.
+    """Builds a summary statistical DataFrame from mean and optional std data.
 
-    Columns: Policy, Distribution, Policy_Key, metric1_mean, metric1_std, ...
+    Args:
+        mean_data: Mapping of policy keys to mean metric values.
+        std_data: Optional mapping of policy keys to standard deviation values.
+
+    Returns:
+        pd.DataFrame: A flattened DataFrame with mean and std columns.
     """
     rows: List[Dict[str, Any]] = []
 
@@ -153,10 +187,13 @@ def _build_summary_df(
 
 
 def _build_daily_df(daily_data: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
-    """
-    Flatten a daily JSON (policy -> {metric: [values per day]}) into a long DataFrame.
+    """Flattens daily simulation metrics into a long-form DataFrame.
 
-    Columns: Policy, Distribution, day, metric1, metric2, ...
+    Args:
+        daily_data: Mapping of policy keys to daily metric records.
+
+    Returns:
+        pd.DataFrame: A long-form DataFrame with daily granularity.
     """
     rows: List[Dict[str, Any]] = []
 
@@ -196,7 +233,15 @@ def _render_sidebar_controls(
     available_dirs: List[str],
     distributions: List[str],
 ) -> Dict[str, Any]:
-    """Render sidebar controls for Simulation Summary page."""
+    """Renders sidebar controls for the simulation summary visualization.
+
+    Args:
+        available_dirs: List of directories containing valid JSON results.
+        distributions: List of unique distribution types found in data.
+
+    Returns:
+        Dict[str, Any]: User filter settings (selected_dir, dist_filter).
+    """
     st.sidebar.markdown("---")
     st.sidebar.subheader("Simulation Summary")
 
@@ -227,7 +272,11 @@ def _render_sidebar_controls(
 
 
 def render_simulation_summary() -> None:
-    """Render the Simulation Summary page."""
+    """Renders the comprehensive Simulation Summary page.
+
+    Orchestrates data discovery, distribution extraction, and selective
+    rendering of sub-sections based on user tab selection.
+    """
     st.title("Simulation Summary")
     st.markdown("Compare policy performance across simulation experiments with statistics and Pareto analysis.")
 

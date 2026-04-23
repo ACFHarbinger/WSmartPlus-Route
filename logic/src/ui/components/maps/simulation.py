@@ -1,5 +1,17 @@
-"""
-Folium map renderer for simulation tours.
+"""Folium map renderer for simulation tours.
+
+This module provides the primary Digital Twin visualization for simulation
+playback. It renders depots, bin markers with dynamic fill-level
+visualization, and multi-trip route polylines with support for various
+distance calculation strategies.
+
+Example:
+    m = create_simulation_map(tour_points, bin_states)
+
+Attributes:
+    BIN_POPUP_TEMPLATE: Jinja2 template for bin detail popups.
+    DEPOT_POPUP_TEMPLATE: Jinja2 template for depot detail popups.
+    create_simulation_map: Main simulation map orchestrator.
 """
 
 import contextlib
@@ -134,17 +146,23 @@ def create_simulation_map(  # noqa: C901
     distance_matrix: Optional[pd.DataFrame] = None,
     dist_strategy: str = "hsd",
 ) -> folium.Map:
-    """
-    Create a Folium map visualizing a simulation tour.
+    """Creates a Folium map visualizing a detailed simulation tour.
 
     Args:
         tour: List of tour points with id, type, lat, lng, popup.
-              Bins use IDs 0..N-1, Depot uses ID -1.
         bin_states: Optional list of bin fill levels (0-100).
-        served_indices: Optional list of indices that were served.
-        mandatory: Optional list of 0-indexed bin IDs.
-        all_bin_coords: Optional list of coordinate dicts for ALL bins.
-        collected: Optional list of per-bin collected amounts (kg).
+        served_indices: Optional list of bin IDs that were served.
+        mandatory: Optional list of 0-indexed bin IDs selected for collection.
+        all_bin_coords: Optional coordinates for ALL bins in the environment.
+        collected: Optional kg amounts collected per bin.
+        vehicle_id: Logical vehicle index for color selection.
+        show_route: Whether to render polyline segments.
+        zoom_start: Initial map zoom level.
+        distance_matrix: Optional custom distance matrix for leg labeling.
+        dist_strategy: Key for distance calculation (e.g., 'hsd', 'gdsc').
+
+    Returns:
+        folium.Map: Resulting interactive Leaflet map.
     """
     center = get_map_center(tour)
     m = folium.Map(location=center, zoom_start=zoom_start, tiles="cartodbpositron")
