@@ -1,3 +1,9 @@
+"""Demon Algorithm Acceptance Criterion.
+
+Deterministic criterion that uses a 'demon' credit budget to autorize worsening
+moves.
+"""
+
 from typing import Any, Dict, List, Tuple, cast
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
@@ -8,23 +14,31 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("da")
 class DemonAlgorithm(IAcceptanceCriterion):
-    """
-    Demon Algorithm Acceptance Criterion (Wood, 2000).
+    """Demon Algorithm Acceptance Criterion.
 
     A deterministic alternative to Simulated Annealing that uses a "demon" credit budget.
     Improving moves populate the credit, and worsening moves are accepted only if
-    authorized by the current credit balance.
+    authorized by the current credit balance. Reference: Wood (2000).
 
     Mathematical Formulation (Minimization):
     - Improving Move (delta_f < 0): Always accepted; D = abs(delta_f).
     - Worsening Move (delta_f > 0): Accepted if delta_f <= D. If accepted, D = D - delta_f.
+
+    Attributes:
+        warm_up_steps (int): Number of initial moves for estimation.
+        maximization (bool): Whether the problem is maximization.
+        demon_credit (float): Current authorized credit for worsening moves.
+        history (List[float]): Magnitudes of deltas observed during warm-up.
+        _warmed_up (bool): Flag indicating if warm-up is complete.
     """
 
     def __init__(self, warm_up_steps: int = 5, maximization: bool = False):
-        """
+        """Initialize the Demon Algorithm.
+
         Args:
-            warm_up_steps (int): Number of initial moves used to estimate initial demon credit.
-            maximization (bool): Whether the problem is maximization.
+            warm_up_steps (int): Number of initial moves used to estimate initial
+                demon credit. Defaults to 5.
+            maximization (bool): Whether the problem is maximization. Defaults to False.
         """
         self.warm_up_steps = warm_up_steps
         self.maximization = maximization
@@ -34,12 +48,29 @@ class DemonAlgorithm(IAcceptanceCriterion):
         self._warmed_up = False
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         pass
 
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Determine whether to accept based on current demon credit.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context.
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate is autorized by credit.
+                - metrics (AcceptanceMetrics): Performance metadata.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
@@ -79,6 +110,14 @@ class DemonAlgorithm(IAcceptanceCriterion):
         }
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """Update the demon credit based on the transition result.
+
+        Args:
+            current_obj (ObjectiveValue): Previous solution's objective.
+            candidate_obj (ObjectiveValue): Candidate solution's objective.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
@@ -102,6 +141,11 @@ class DemonAlgorithm(IAcceptanceCriterion):
             self.demon_credit = max(0.0, self.demon_credit - delta)
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current demon credit and warm-up status.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {
             "demon_credit": self.demon_credit,
             "warmed_up": self._warmed_up,

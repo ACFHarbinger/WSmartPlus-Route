@@ -43,7 +43,7 @@ class MultiPhaseRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 phases (List[str]): List of improver names to run in order.
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 wastes (Dict[int, float]): Bin waste mass mapping.

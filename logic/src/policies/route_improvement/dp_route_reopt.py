@@ -51,7 +51,7 @@ class DPRouteReoptRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 dp_max_nodes (int): Maximum nodes per route for DP (default 20).
                 wastes (Dict[int, float]): Bin mass dictionary.

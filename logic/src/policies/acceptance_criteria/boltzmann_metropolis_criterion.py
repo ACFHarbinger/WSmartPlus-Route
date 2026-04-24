@@ -1,5 +1,7 @@
-"""
-Boltzmann-Metropolis Criterion (BMC) / Simulated Annealing.
+"""Boltzmann-Metropolis Criterion (BMC).
+
+Implements the classic Simulated Annealing acceptance logic with a geometric
+cooling schedule.
 """
 
 import math
@@ -14,31 +16,53 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("bmc")
 class BoltzmannAcceptance(IAcceptanceCriterion):
-    """
-    Metropolis-Boltzmann acceptance criterion governed by a geometric cooling schedule.
+    """Metropolis-Boltzmann acceptance criterion.
 
     Improving moves are accepted deterministically. Worsening moves are accepted
     with probability P = exp(Δf / T), where Δf < 0 for maximization.
+
+    Attributes:
+        T (float): Current temperature parameter.
+        alpha (float): Geometric cooling rate factor.
+        rng (random.Random): Random number generator.
     """
 
     def __init__(self, initial_temp: float, alpha: float, seed: Optional[int] = 42):
-        """
+        """Initialize the Boltzmann criterion.
+
         Args:
             initial_temp (float): The starting temperature parameter.
             alpha (float): The geometric cooling rate (typically 0.90 - 0.995).
-            seed (Optional[int]): Random seed for stochastic reproducibility.
+            seed (Optional[int]): Random seed. Defaults to 42.
         """
         self.T = initial_temp
         self.alpha = alpha
         self.rng = random.Random(seed)
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         pass
 
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Determine whether to accept a transition based on current temperature.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context (not used).
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if move is accepted.
+                - metrics (AcceptanceMetrics): State metadata including temperature.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
@@ -55,10 +79,23 @@ class BoltzmannAcceptance(IAcceptanceCriterion):
         return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "temperature": self.T}
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """Apply geometric cooling to the temperature.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the previous solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context (not used).
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         # Geometric decay
         self.T *= self.alpha
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current temperature.
+
+        Returns:
+            Dict[str, Any]: State dictionary containing 'temperature'.
+        """
         return {"temperature": self.T}

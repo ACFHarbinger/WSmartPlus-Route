@@ -1,3 +1,9 @@
+"""Skewed Variable Neighborhood Search (SVNS) Acceptance Criterion.
+
+Accepts candidates based on a combination of objective value and structural
+distance to prevent stagnation.
+"""
+
 from typing import Any, Dict, Tuple, cast
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
@@ -9,8 +15,7 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("svns")
 class SkewedVNSAcceptance(IAcceptanceCriterion):
-    """
-    Skewed Variable Neighborhood Search (SVNS) Acceptance Criterion.
+    """Skewed Variable Neighborhood Search (SVNS) Acceptance Criterion.
 
     Accepts a candidate solution if it is either better than the current solution
     or if it is sufficiently distant (structurally diverse) to justify a slight
@@ -20,33 +25,50 @@ class SkewedVNSAcceptance(IAcceptanceCriterion):
     Mathematical Formulation (Maximization):
     Accept if: f_cand > f_cur - alpha * rho(x_cur, x_cand)
     where rho is the structural distance calculated by an IDistanceMetric.
+
+    Attributes:
+        alpha (float): Scaling factor for structural distance.
+        metric (IDistanceMetric): Metric for computing structural distance rho.
+        maximization (bool): Whether the problem is maximization.
     """
 
     def __init__(self, alpha: float, metric: IDistanceMetric, maximization: bool = True):
-        """
+        """Initialize the Skewed VNS criterion.
+
         Args:
             alpha (float): Scaling factor for structural distance.
             metric (IDistanceMetric): Metric for computing structural distance rho.
-            maximization (bool): Whether the problem is a maximization problem.
+            maximization (bool): Whether the problem is maximization.
+                Defaults to True.
         """
         self.alpha = alpha
         self.metric = metric
         self.maximization = maximization
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         pass
 
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
-        current_obj = cast(float, current_obj)
-        candidate_obj = cast(float, candidate_obj)
-        """
+        """Determine acceptance based on objective and structural distance.
+
         Args:
-            current_obj (float): Objective of the current solution.
-            candidate_obj (float): Objective of the candidate solution.
-            **kwargs: Must contain 'current_sol' and 'candidate_sol' for distance calculation.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Should contain 'current_sol' and 'candidate_sol'
+                for distance calculation.
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate satisfies SVNS condition.
+                - metrics (AcceptanceMetrics): Performance metadata.
         """
         if self.maximization:
             if candidate_obj > current_obj:
@@ -75,9 +97,20 @@ class SkewedVNSAcceptance(IAcceptanceCriterion):
             return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "alpha": self.alpha}
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """No-op update step.
+
+        Args:
+            current_obj (ObjectiveValue): Previous solution's objective.
+            candidate_obj (ObjectiveValue): Candidate solution's objective.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context.
+        """
         current_obj = cast(float, current_obj)
-        candidate_obj = cast(float, candidate_obj)
-        pass
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current alpha scaling factor.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {"alpha": self.alpha}

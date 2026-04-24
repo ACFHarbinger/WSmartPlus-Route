@@ -46,12 +46,12 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 gls_iterations (int): Number of GLS meta-iterations (default 20).
                 gls_inner_iterations (int): Local search move limit per iteration (default 50).
-                gls_lambda_factor (float): Penalty scaling weight (default 0.1).
-                gls_penalty_decay (float): Penalty decay factor (default 1.0).
+                gls_lambda_factor (float): Penalty scaling weight.
+                gls_penalty_decay: Penalty decay factor.
                 gls_base_operator (str): Operator to use (default "or_opt").
                 seed (int): Random seed.
                 wastes (Dict[int, float]): Bin mass dictionary.
