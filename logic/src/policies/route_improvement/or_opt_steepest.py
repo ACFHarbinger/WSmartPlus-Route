@@ -1,9 +1,15 @@
-"""
-Steepest Or-opt Route Improver.
+"""Steepest Or-opt Route Improver.
 
 Delegates to operators.improvement_descent.or_opt_steepest (or its profit
 variant when revenue/cost are configured) to perform chain relocations
 (lengths 1, 2, 3) until a local minimum is reached.
+
+Attributes:
+    OrOptSteepestRouteImprover: Steepest Or-opt improver class.
+
+Example:
+    >>> improver = OrOptSteepestRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -27,12 +33,35 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("or_opt_steepest")
 class OrOptSteepestRouteImprover(IRouteImprovement):
-    """
-    Steepest-descent Or-opt route improver. Performs inter-route and
-    intra-route chain relocations to improve the tour.
+    """Steepest-descent Or-opt route improver.
+
+    Performs inter-route and intra-route chain relocations to improve the tour.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = OrOptSteepestRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, chain_len=2)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply steepest Or-opt improvement to the tour.
+
+        Args:
+            tour (List[int]): The initial tour sequence.
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - max_iter (int): Maximum number of iterations.
+                - chain_lengths (Tuple[int, ...]): Chain lengths to try for relocation.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "OrOptSteepestRouteImprover"}

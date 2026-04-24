@@ -3,6 +3,13 @@ Adaptive Ensemble Route Improver.
 
 A meta-algorithmic orchestrator that dynamically selects and executes high-level
 route improvement strategies (phases) using a performance-weighted Roulette Wheel.
+
+Attributes:
+    AdaptiveEnsembleRouteImprover: The route improvement class.
+
+Example:
+    route_improver = AdaptiveEnsembleRouteImprover()
+    best_tour, metrics = route_improver.process(tour, **kwargs)
 """
 
 import random
@@ -23,13 +30,34 @@ from .common.helpers import split_tour, to_numpy, tour_distance
 )
 @RouteImproverRegistry.register("adaptive_ensemble")
 class AdaptiveEnsembleRouteImprover(IRouteImprovement):
-    """
-    Dynamically orchestrates multiple route improvement algorithms.
+    """Dynamically orchestrates multiple route improvement algorithms.
+
     Maintains a probability distribution over available algorithms and updates
     their selection weights based on real-time objective improvements.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters for the orchestrator.
+
+    Example:
+        >>> improviser = AdaptiveEnsembleRouteImprover()
+        >>> improved_tour, metrics = improviser.process(tour, distance_matrix=dm)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Execute the adaptive ensemble improvement process.
+
+        Args:
+            tour (List[int]): The initial tour to improve.
+            **kwargs (Any): Additional search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - phases (List[str]): Algorithms to include in the ensemble.
+                - iterations (int): Total number of selection iterations.
+                - reaction_factor (float): EMA update factor for algorithm weights.
+                - seed (int): Random seed.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Improved tour and performance metadata.
+        """
         dm = to_numpy(kwargs.get("distance_matrix", kwargs.get("distancesC")))
         if dm is None or not tour:
             return tour, {"algorithm": "AdaptiveEnsembleRouteImprover"}

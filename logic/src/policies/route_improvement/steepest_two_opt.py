@@ -1,9 +1,15 @@
-"""
-Steepest 2-opt Route Improver.
+"""Steepest 2-opt Route Improver.
 
 Delegates to operators.improvement_descent.two_opt_steepest (or its profit
 variant when revenue/cost are configured) to drive each route to a strict
 intra-route 2-opt local minimum.
+
+Attributes:
+    SteepestTwoOptRouteImprover: Steepest 2-opt improvement class.
+
+Example:
+    >>> improver = SteepestTwoOptRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -27,12 +33,35 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("steepest_two_opt")
 class SteepestTwoOptRouteImprover(IRouteImprovement):
-    """
-    Steepest-descent 2-opt route improver. Drives each route to a strict
-    intra-route 2-opt local minimum without changing route membership.
+    """Steepest-descent 2-opt route improver.
+
+    Drives each route to a strict intra-route 2-opt local minimum without
+    changing route membership.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = SteepestTwoOptRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply steepest 2-opt improvement to the tour.
+
+        Args:
+            tour (List[int]): The initial tour sequence.
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - max_iter (int): Maximum number of iterations.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "SteepestTwoOptRouteImprover"}

@@ -1,5 +1,4 @@
-"""
-BRKGA Biased Uniform Crossover Module.
+"""BRKGA Biased Uniform Crossover Module.
 
 Implements the biased uniform crossover operator introduced in Gonçalves &
 Resende (2011) for Biased Random-Key Genetic Algorithms.
@@ -8,6 +7,12 @@ In standard uniform crossover each gene is inherited with probability 0.5
 from either parent.  BRKGA skews this probability to ``bias_elite`` (default
 0.7) in favour of the elite parent, exploiting the fact that elite chromosomes
 encode high-quality solutions.  The non-elite parent provides diversity.
+
+Attributes:
+    biased_crossover: Operator for generating offspring.
+
+Example:
+    >>> child = biased_crossover(elite_parent, non_elite_parent, bias_elite=0.7, rng=rng)
 
 References:
     Gonçalves, J. F., & Resende, M. G. (2011).

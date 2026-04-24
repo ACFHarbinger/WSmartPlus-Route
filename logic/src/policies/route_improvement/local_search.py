@@ -1,5 +1,14 @@
-"""
-Classical Local Search Route Improver.
+"""Classical Local Search Route Improver.
+
+This module provides a unified interface for classical local search operators,
+supporting both simple descent and more complex iterative improvement methods.
+
+Attributes:
+    ClassicalLocalSearchRouteImprover: Unified local search improver class.
+
+Example:
+    >>> improver = ClassicalLocalSearchRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm, ls_operator="2opt")
 """
 
 from typing import Any, List, Tuple
@@ -21,23 +30,37 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("classical_local_search")
 class ClassicalLocalSearchRouteImprover(IRouteImprovement):
-    """
-    Wrapper for classical local search operators from the metaheuristic sub-package.
+    """Wrapper for classical local search operators.
+
     Drives a multi-route tour to a local minimum using steepest descent or
-    iterative improvement.
+    iterative improvement. Supports multiple operators like 2-opt, 3-opt,
+    swap, and more.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = ClassicalLocalSearchRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, ls_operator="2opt")
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply classical local search to the tour.
+        """Apply classical local search to the tour.
 
         Args:
-            tour: The initial tour to refine (includes depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'iterations', 'ls_operator',
-                     'wastes', 'capacity', 'R', 'C'.
+            tour (List[int]): The initial tour sequence.
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - ls_operator (str): Name of the operator to use (e.g., '2opt', '3opt', 'swap').
+                - iterations (int): Maximum number of iterations.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - R (float): Revenue per kg.
+                - C (float): Cost per km.
+                - seed (int): Random seed.
 
         Returns:
-            List[int]: The refined tour after applying the local search operator.
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
         """
 
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))

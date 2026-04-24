@@ -1,3 +1,16 @@
+"""Adaptive Large Neighborhood Search (ALNS) route improver.
+
+This module implements the ALNS algorithm, which dynamically selects ruin and
+recreate operators using a Thompson Sampling bandit to improve routing solutions.
+
+Attributes:
+    AdaptiveLargeNeighborhoodSearchRouteImprover: The ALNS route improvement class.
+
+Example:
+    >>> improver = AdaptiveLargeNeighborhoodSearchRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
+"""
+
 import pickle
 import random
 from typing import Any, List, Tuple
@@ -29,23 +42,37 @@ from .common.helpers import (
 )
 @RouteImproverRegistry.register("adaptive_large_neighborhood_search")
 class AdaptiveLargeNeighborhoodSearchRouteImprover(IRouteImprovement):
-    """
-    Adaptive Large Neighborhood Search (ALNS) route improver.
+    """Adaptive Large Neighborhood Search (ALNS) route improver.
+
     Extends LNS with multiple ruin and recreate operators selected via a bandit.
     Delegates to operators.heuristics.apply_lns for the ruin-and-recreate pass.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters for ALNS.
+
+    Example:
+        >>> improver = AdaptiveLargeNeighborhoodSearchRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, alns_iterations=100)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply ALNS to the tour.
+        """Apply ALNS to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'alns_iterations',
-                     'ruin_fraction', 'alns_bandit_warm_start_path', etc.
+            tour (List[int]): Initial tour (List of bin IDs including depot 0s).
+            **kwargs (Any): Context containing:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - alns_iterations (int): Number of ALNS iterations.
+                - ruin_fraction (float): Fraction of nodes to ruin.
+                - alns_bandit_warm_start_path (str): Path to pre-trained weights.
+                - wastes (Dict[int, float]): Node waste demands.
+                - capacity (float): Vehicle capacity.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - seed (int): Random seed.
 
         Returns:
-            List[int]: Refined tour.
+            Tuple[List[int], ImprovementMetrics]: Improved tour and metadata.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

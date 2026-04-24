@@ -1,5 +1,4 @@
-"""
-Learned Route Improver.
+"""Learned Route Improver.
 
 Uses a pre-trained GNN to score candidate 2-opt and Or-opt moves and applies
 the highest-predicted-improvement move iteratively until no improving move
@@ -9,6 +8,13 @@ is unavailable or predicts no improvements.
 Training is performed offline by tools/train_learned_route_improver.py. The
 route improver loads the trained model at init time and uses it read-only
 during inference.
+
+Attributes:
+    logger (logging.Logger): Module-level logger.
+
+Example:
+    >>> improver = LearnedRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 import logging
@@ -40,8 +46,7 @@ logger = logging.getLogger(__name__)
 
 
 class MoveScorer(nn.Module):
-    """
-    Small GNN that scores candidate moves by predicted improvement delta.
+    """Small GNN that scores candidate moves by predicted improvement delta.
 
     Architecture:
         - Node encoder: 2-layer MLP on (x, y, waste, is_mandatory, is_in_route)
@@ -49,10 +54,24 @@ class MoveScorer(nn.Module):
         - Move head: 2-layer MLP on (aggregated endpoint embeddings, move type one-hot)
           → scalar predicted delta
 
-    Total params: ~50k.
+    Attributes:
+        node_encoder (nn.Sequential): Encodes node features.
+        edge_encoder (nn.Sequential): Encodes edge features.
+        move_head (nn.Sequential): Predicts improvement delta from embeddings.
+
+    Example:
+        >>> scorer = MoveScorer()
+        >>> scores = scorer(node_features, move_endpoints, move_types)
     """
 
     def __init__(self, node_dim: int = 5, edge_dim: int = 2, hidden_dim: int = 64) -> None:
+        """Initialise the MoveScorer.
+
+        Args:
+            node_dim (int): Input dimension for node features.
+            edge_dim (int): Input dimension for edge features.
+            hidden_dim (int): Hidden layer size.
+        """
         super().__init__()
         self.node_encoder = nn.Sequential(
             nn.Linear(node_dim, hidden_dim),
@@ -77,6 +96,16 @@ class MoveScorer(nn.Module):
         move_endpoints: "torch.Tensor",  # (M, 4) — indices into node_features
         move_types: "torch.Tensor",  # (M, 2) — one-hot
     ) -> "torch.Tensor":
+        """Forward pass to score candidate moves.
+
+        Args:
+            node_features (torch.Tensor): Tensor of node features (N, node_dim).
+            move_endpoints (torch.Tensor): Indices of nodes involved in moves (M, 4).
+            move_types (torch.Tensor): One-hot encoding of move types (M, 2).
+
+        Returns:
+            torch.Tensor: Predicted improvement deltas for each move (M,).
+        """
         node_embeds = self.node_encoder(node_features)  # (N, hidden)
         endpoint_embeds = node_embeds[move_endpoints]  # (M, 4, hidden)
         flat = endpoint_embeds.reshape(move_endpoints.shape[0], -1)  # (M, 4*hidden)
@@ -90,8 +119,7 @@ class MoveScorer(nn.Module):
 )
 @RouteImproverRegistry.register("learned")
 class LearnedRouteImprover(IRouteImprovement):
-    """
-    Learned route improver using a pre-trained move scorer.
+    """Learned route improver using a pre-trained move scorer.
 
     Loads a GNN at init time that predicts 2-opt / Or-opt move improvement
     deltas. At inference, enumerates candidate moves in a distance-bounded
@@ -101,19 +129,33 @@ class LearnedRouteImprover(IRouteImprovement):
       - The model file is missing
       - The model predicts no improving moves
 
-    The fallback is important: a badly-trained or missing model must not
-    produce tours worse than a deterministic heuristic baseline.
+    Attributes:
+        DEFAULT_WEIGHTS_PATH (Path): Default path to model weights.
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = LearnedRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm)
     """
 
     DEFAULT_WEIGHTS_PATH = Path("assets") / "model_weights" / "learned_route_improver.pt"
 
     def __init__(self, **kwargs: Any) -> None:
+        """Initialise the learned improver.
+
+        Args:
+            **kwargs (Any): Configuration arguments.
+        """
         super().__init__(**kwargs)
         self._model: Optional[MoveScorer] = None
         self._model_loaded: bool = False
 
     def _lazy_load_model(self, weights_path: Path) -> None:
-        """Load the model once on first use."""
+        """Load the model once on first use.
+
+        Args:
+            weights_path (Path): Path to the model weights file.
+        """
         if self._model_loaded:
             return
         self._model_loaded = True
@@ -137,6 +179,15 @@ class LearnedRouteImprover(IRouteImprovement):
             self._model = None
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply learned improvements to the tour.
+
+        Args:
+            tour (List[int]): Initial tour sequence.
+            **kwargs (Any): Context, including 'distance_matrix', 'wastes', 'capacity', etc.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Improved tour and metadata.
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "MoveScorer"}
@@ -215,16 +266,20 @@ class LearnedRouteImprover(IRouteImprovement):
         min_improvement: float,
         neighborhood_size: int,
     ) -> List[List[int]]:
-        """
-        Iteratively apply the highest-scoring improving move.
+        """Iteratively apply the highest-scoring improving move.
 
-        At each iteration:
-        1. Enumerate candidate 2-opt moves (pairs of edges within each route
-           whose endpoints are within the top-k nearest neighbors).
-        2. Score all candidates with the model in a single batched forward pass.
-        3. Apply the highest-scored move if predicted delta > min_improvement.
-        4. Verify the actual delta matches the prediction's sign; if not,
-           terminate (model is making spurious predictions on this instance).
+        Args:
+            routes (List[List[int]]): Current routes.
+            dm (np.ndarray): Distance matrix.
+            wastes (dict): Node waste demands.
+            capacity (float): Vehicle capacity.
+            mandatory_nodes (set): Set of mandatory node IDs.
+            max_iterations (int): Maximum number of moves to apply.
+            min_improvement (float): Threshold for applying a move.
+            neighborhood_size (int): Nearest-neighbor search bound.
+
+        Returns:
+            List[List[int]]: Refined routes.
         """
         assert self._model is not None
         current = [list(r) for r in routes]
@@ -271,14 +326,15 @@ class LearnedRouteImprover(IRouteImprovement):
         return current
 
     def _enumerate_moves(self, routes: List[List[int]], dm: np.ndarray, k: int) -> List[Tuple[str, int, int, int, int]]:
-        """
-        Return list of (move_type, a, b, c, d) candidate moves.
+        """Return list of (move_type, a, b, c, d) candidate moves.
 
-        For 2-opt: (a, b) and (c, d) are non-adjacent edges in the same route.
-        For Or-opt: a single-node relocation from position (a, b) to (c, d).
+        Args:
+            routes (List[List[int]]): Current routes.
+            dm (np.ndarray): Distance matrix.
+            k (int): Neighborhood size.
 
-        Limited to the top-k nearest-neighbor pairs per node to keep the
-        scoring batch tractable.
+        Returns:
+            List[Tuple[str, int, int, int, int]]: List of candidate moves.
         """
         moves = []
         for _r_idx, route in enumerate(routes):
@@ -311,12 +367,16 @@ class LearnedRouteImprover(IRouteImprovement):
         wastes: dict,
         mandatory_nodes: set,
     ) -> "torch.Tensor":
-        """
-        Build per-node feature tensor (N+1, 5):
-          - x, y: placeholders (MDS can be added later)
-          - waste: bin waste
-          - is_mandatory: 0/1
-          - is_in_route: 0/1
+        """Build per-node feature tensor (N, 5).
+
+        Args:
+            routes (List[List[int]]): Current routes.
+            dm (np.ndarray): Distance matrix.
+            wastes (dict): Node waste demands.
+            mandatory_nodes (set): Set of mandatory node IDs.
+
+        Returns:
+            torch.Tensor: Feature tensor for all nodes.
         """
         n = dm.shape[0]
         features = np.zeros((n, 5), dtype=np.float32)
@@ -332,7 +392,15 @@ class LearnedRouteImprover(IRouteImprovement):
         routes: List[List[int]],
         move: Tuple[str, int, int, int, int],
     ) -> List[List[int]]:
-        """Apply a 2-opt or Or-opt move and return new routes."""
+        """Apply a 2-opt or Or-opt move and return new routes.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+            move (Tuple[str, int, int, int, int]): The move to apply.
+
+        Returns:
+            List[List[int]]: The updated routes after applying the move.
+        """
         move_type, a, b, c, d = move
         new_routes = [list(r) for r in routes]
         if move_type == "2opt":
@@ -363,7 +431,20 @@ class LearnedRouteImprover(IRouteImprovement):
         revenue_kg: float,
         **kwargs: Any,
     ) -> List[int]:
-        """Fall back to classical steepest 2-opt when the model is unavailable."""
+        """Fall back to classical steepest 2-opt when the model is unavailable.
+
+        Args:
+            tour (List[int]): Current tour sequence.
+            dm (np.ndarray): Distance matrix.
+            wastes (dict): Node waste demands.
+            capacity (float): Vehicle capacity.
+            cost_per_km (float): Distance cost.
+            revenue_kg (float): Waste revenue.
+            **kwargs (Any): Additional context.
+
+        Returns:
+            List[int]: Improved tour using classical heuristic.
+        """
         try:
             routes = split_tour(tour)
             if not routes:

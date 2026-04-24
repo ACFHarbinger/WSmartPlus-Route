@@ -1,5 +1,4 @@
-"""
-Branch-and-Price Route Improver.
+"""Branch-and-Price Route Improver.
 
 Primary path: delegates to the in-house BranchAndPriceSolver with full
 feature set (exact RCSPP pricing with ng-routes, edge/Ryan-Foster branching,
@@ -14,6 +13,14 @@ Fallback chain when the in-house solver is unavailable or fails:
 Wall-clock budget is enforced at the route improver level via bp_time_limit.
 Branch-and-price can take seconds to minutes per call; do not put this
 inside an inner simulation loop.
+
+Attributes:
+    BranchAndPriceRouteImprover: Main class for B&P route improvement.
+    ProfitableVRP: Type-safe wrapper for VRPy.
+
+Example:
+    >>> improver = BranchAndPriceRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 import logging
@@ -100,15 +107,37 @@ def _time_limit(seconds: float):
 )
 @RouteImproverRegistry.register("branch_and_price")
 class BranchAndPriceRouteImprover(IRouteImprovement):
-    """
-    Branch-and-price route improver.
+    """Branch-and-price route improver.
 
     Primary path delegates to the in-house BranchAndPriceSolver (exact
     pricing, ng-routes, configurable branching). Falls back to vrpy and
     then to a pool-restricted set-partitioning when primary fails.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = BranchAndPriceRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, bp_time_limit=60.0)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply branch-and-price refinement to the tour.
+
+        Args:
+            tour (List[int]): Initial tour represented as bin IDs (depot 0s as separators).
+            **kwargs: Context containing:
+                distance_matrix: Distance matrix (np.ndarray or torch.Tensor).
+                wastes: Dict mapping bin IDs to waste amounts.
+                capacity: Vehicle capacity.
+                cost_per_km: Unit distance cost.
+                revenue_kg: Unit waste revenue.
+                bp_time_limit: Time limit for the B&P solve.
+                mandatory_nodes: List of required visitor IDs.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics_summary).
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "BranchAndPriceRouteImprover"}
@@ -220,7 +249,21 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Optional[List[List[int]]]:
-        """Delegate to the in-house BranchAndPriceSolver."""
+        """Delegate to the in-house BranchAndPriceSolver.
+
+        Args:
+            input_routes (List[List[int]]): Initial segmented routes.
+            dm (np.ndarray): Distance matrix.
+            wastes (Dict[int, float]): Bin waste amounts.
+            capacity (float): Vehicle capacity.
+            cost_per_km (float): Distance cost coefficient.
+            revenue_kg (float): Revenue coefficient.
+            mandatory_nodes (List[int]): List of nodes that must be visited.
+            **kwargs: Algorithmic parameters prefixed with 'bp_'.
+
+        Returns:
+            Optional[List[List[int]]]: Re-optimized routes if improved, else None.
+        """
         n_nodes = dm.shape[0] - 1
 
         # Build BPParams from kwargs with bp_* prefixes, falling back to
@@ -366,7 +409,21 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Optional[List[List[int]]]:
-        """Delegate to vrpy (secondary fallback path)."""
+        """Delegate to vrpy (secondary fallback path).
+
+        Args:
+            input_routes (List[List[int]]): Initial segmented routes.
+            dm (np.ndarray): Distance matrix.
+            wastes (Dict[int, float]): Bin waste amounts.
+            capacity (float): Vehicle capacity.
+            cost_per_km (float): Distance cost coefficient.
+            revenue_kg (float): Revenue coefficient.
+            mandatory_nodes (List[int]): Required nodes.
+            **kwargs: Forwarded context.
+
+        Returns:
+            Optional[List[List[int]]]: Improved routes or None.
+        """
         time_limit = kwargs.get("bp_time_limit", self.config.get("bp_time_limit", 120.0))
         cspy = kwargs.get("bp_use_cspy", self.config.get("bp_use_cspy", True))
 

@@ -1,8 +1,14 @@
-"""
-NDS-BRKGA Joint Policy.
+"""NDS-BRKGA Joint Policy.
 
 Orchestrates the full NDS-BRKGA algorithm, resolving the joint mandatory-bin
 selection and route construction problem in a single population-based search.
+
+Attributes:
+    NDSBRKGAPolicy: The evolutionary policy class.
+
+Example:
+    >>> policy = NDSBRKGAPolicy()
+    >>> selection, routes, profit, cost = policy.solve_joint(context)
 """
 
 import time
@@ -46,11 +52,14 @@ from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_
 @JointPolicyRegistry.register("nds_brkga")
 @RouteConstructorRegistry.register("nds_brkga")
 class NDSBRKGAPolicy(BaseJointPolicy):
-    """
-    Non-Dominated Sorting Biased Random-Key Genetic Algorithm Policy.
+    """Non-Dominated Sorting Biased Random-Key Genetic Algorithm Policy.
 
     Jointly optimises mandatory-bin selection and route construction in a
-    single population-based evolutionary loop.
+    single population-based evolutionary loop, maintaining a Pareto front
+    over profit, overflow risk, and distance.
+
+    Attributes:
+        config (Optional[Union[NDSBRKGAConfig, Dict[str, Any]]]): Configuration source.
     """
 
     def __init__(self, config: Optional[Union[NDSBRKGAConfig, Dict[str, Any]]] = None):
@@ -74,9 +83,23 @@ class NDSBRKGAPolicy(BaseJointPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Internal bridge for test compatibility.
-        Constructs context and calls solve_joint.
+        """Internal bridge for test compatibility.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Local distance matrix.
+            sub_wastes (Dict[int, float]): Waste demands per node.
+            capacity (float): Vehicle capacity.
+            revenue (float): Revenue per kg.
+            cost_unit (float): Cost per km.
+            values (Dict[str, Any]): Problem parameters.
+            mandatory_nodes (List[int]): Required node IDs.
+            **kwargs (Any): Additional simulation context.
+
+        Returns:
+            Tuple[List[List[int]], float, float]:
+                - routes: Constructed routes.
+                - profit: Calculated net profit.
+                - cost: Total routing cost.
         """
         # Convert sub_wastes (dict) to current_fill (list)
         # nodes IDs are 1-based in sub_wastes keys
@@ -107,8 +130,17 @@ class NDSBRKGAPolicy(BaseJointPolicy):
         self,
         context: JointSelectionConstructionContext,
     ) -> Tuple[List[int], List[List[int]], float, float]:
-        """
-        Run the NDS-BRKGA optimisation loop using inputs from the JointContext.
+        """Run the NDS-BRKGA optimisation loop using inputs from the JointContext.
+
+        Args:
+            context (JointSelectionConstructionContext): The search and problem context.
+
+        Returns:
+            Tuple[List[int], List[List[int]], float, float]:
+                - selected_bins: List of unique bin IDs selected.
+                - local_routes: Constructed routes (local node indices).
+                - total_profit: Net profit (Revenue - Distance Cost).
+                - total_cost: Total routing cost.
         """
         params = NDSBRKGAParams.from_config(self._config) if self._config else NDSBRKGAParams()
         n_bins = len(context.current_fill)

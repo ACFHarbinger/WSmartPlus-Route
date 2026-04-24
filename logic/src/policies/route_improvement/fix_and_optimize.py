@@ -1,10 +1,16 @@
-"""
-Fix-and-Optimize Route Improver.
+"""Fix-and-Optimize Route Improver.
 
 Delegates to operators.intensification.fix_and_optimize (or its profit
 variant when revenue/cost are configured). Selects the worst-quality
 routes, solves them exactly via a Gurobi sub-MIP, and recombines with
 the unchanged fixed routes.
+
+Attributes:
+    FixAndOptimizeRouteImprover: Main class for sub-MIP intensification.
+
+Example:
+    >>> improver = FixAndOptimizeRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, fo_n_free=3)
 """
 
 import logging
@@ -54,16 +60,40 @@ except ImportError:
 )
 @RouteImproverRegistry.register("fix_and_optimize")
 class FixAndOptimizeRouteImprover(IRouteImprovement):
-    """
-    Fix-and-Optimize sub-MIP route improver.
+    """Fix-and-Optimize sub-MIP route improver.
 
     Ranks routes by quality (distance-per-load for CVRP, profit for VRPP),
     designates the `fo_free_fraction` worst routes as "free", and solves
     their customers as a small Gurobi sub-MIP. The optimal recombination
     replaces the free routes; all other routes pass through unchanged.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = FixAndOptimizeRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, fo_free_fraction=0.5)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply sub-MIP reoptimization to the tour.
+
+        Args:
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix: Distance lookup.
+                fo_n_free: Absolute number of routes to free (overrides fraction).
+                fo_free_fraction: Fraction of routes to free (default 0.30).
+                fo_time_limit: Seconds for Gurobi solve (default 30.0).
+                wastes: Bin mass dictionary.
+                capacity: Vehicle capacity.
+                revenue_kg: Waste profit coefficient.
+                cost_per_km: Distance cost coefficient.
+                mandatory_nodes: List of required visitor IDs.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "FixAndOptimizeRouteImprover"}

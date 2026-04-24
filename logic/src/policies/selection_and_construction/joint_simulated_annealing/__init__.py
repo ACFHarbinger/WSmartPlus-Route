@@ -1,5 +1,11 @@
-"""
-Joint Simulated Annealing Package.
+"""Joint Simulated Annealing Package.
+
+Implements a joint selection and construction policy using a Simulated
+Annealing metaheuristic to find high-profit routes.
+
+Attributes:
+    JointSAParams (Type[JointSAParams]): Hyperparameters for the annealing process.
+    JointSAPolicy (Type[JointSAPolicy]): The joint simulated annealing policy.
 """
 
 from .params import JointSAParams

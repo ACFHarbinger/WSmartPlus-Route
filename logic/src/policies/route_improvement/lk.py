@@ -1,5 +1,8 @@
 """
-LK (Lin-Kernighan 1973) Route Improver.
+Lin-Kernighan (LK) Route Improver.
+
+Attributes:
+    LKRouteImprover: Main class for Lin-Kernighan improvement.
 """
 
 from typing import Any, List, Tuple
@@ -21,17 +24,6 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.LOCAL_SEARCH,
 )
 @RouteImproverRegistry.register("lk")
-class LinKernighanRouteImprover(IRouteImprovement):
-    """
-    Refines tours using the original Lin-Kernighan (1973) heuristic.
-
-    Handles VRPP subset routes by extracting a dense sub-matrix containing
-    only the visited nodes, running LK on this sub-problem, and mapping the
-    results back to the original node IDs.
-
-    Compared to the full LKH-1 wrapper (``lkh``), this improver skips the
-    subgradient penalty-vector phase, making it faster at the cost of slightly
-    weaker candidate lists.  It is best suited for small-to-medium trips (≤ 200
     nodes per trip) where the subgradient overhead would dominate.
     """
 

@@ -1,5 +1,14 @@
-"""
-Cross-Exchange Route Improver.
+"""Cross-Exchange Route Improver.
+
+This module implements the cross-exchange local search operator, which swaps
+segments of variable length between two different routes to reduce total cost.
+
+Attributes:
+    CrossExchangeRouteImprover: Route improvement class using cross-exchange.
+
+Example:
+    >>> improver = CrossExchangeRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -19,21 +28,35 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("cross_exchange")
 class CrossExchangeRouteImprover(IRouteImprovement):
-    """
-    Cross-exchange route improver that swaps segments between different routes.
+    """Cross-exchange route improver that swaps segments between different routes.
+
     Wraps LocalSearchManager.cross_exchange_op.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = CrossExchangeRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply cross-exchange improvement to the tour.
+        """Apply cross-exchange improvement to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'cross_exchange_max_segment_len', 'iterations', etc.
+            tour (List[int]): Initial tour (List of bin IDs including depot 0s).
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - cross_exchange_max_segment_len (int): Maximum segment length to swap.
+                - iterations (int): Maximum number of iterations.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - R (float): Revenue per kg.
+                - C (float): Cost per km.
+                - seed (int): Random seed.
 
         Returns:
-            List[int]: Refined tour.
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

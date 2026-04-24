@@ -5,6 +5,14 @@ Thin wrapper around operators.intensification.set_partitioning_polish*.
 Expects a pre-built route pool from kwargs["route_pool"] or
 self.config["route_pool"]. For automatic pool construction see
 SetPartitioningRouteImprover.
+
+Attributes:
+    SetPartitioningPolishRouteImprover: Main class for set-partitioning based polishing.
+
+Example:
+    >>> from logic.src.policies.route_improvement.set_partitioning_polish import SetPartitioningPolishRouteImprover
+    >>> improver = SetPartitioningPolishRouteImprover(config=cfg)
+    >>> tour, metrics = improver.process([0, 1, 2, 3, 0], route_pool=my_pool)
 """
 
 import logging
@@ -53,13 +61,37 @@ except ImportError:
 )
 @RouteImproverRegistry.register("set_partitioning_polish")
 class SetPartitioningPolishRouteImprover(IRouteImprovement):
-    """
-    Bare wrapper around set_partitioning_polish*. Requires an externally-
-    provided route_pool. Real callers should use SetPartitioningRouteImprover
-    unless they have a specific reason to hand-curate the pool.
+    """Bare wrapper around set_partitioning_polish operator.
+
+    Requires an externally-provided route_pool. This is primarily used
+    for final intensification of a large set of candidate routes.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = SetPartitioningPolishRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, sp_time_limit=30.0)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply Set Partitioning polishing to the tour.
+
+        Args:
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix: Distance lookup.
+                route_pool: List of candidate routes to select from.
+                sp_time_limit: Seconds for Gurobi solve (default 60.0).
+                wastes: Bin mass dictionary.
+                capacity: Vehicle capacity.
+                revenue_kg: Waste profit coefficient.
+                cost_per_km: Distance cost coefficient.
+                mandatory_nodes: List of required visitor IDs.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "SetPartitioningPolishRouteImprover"}

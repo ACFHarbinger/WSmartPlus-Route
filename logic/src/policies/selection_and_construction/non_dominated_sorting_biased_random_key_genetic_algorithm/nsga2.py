@@ -1,5 +1,4 @@
-"""
-NSGA-II Non-Dominated Sorting and Crowding Distance Module.
+"""NSGA-II Non-Dominated Sorting and Crowding Distance Module.
 
 Implements the fast non-dominated sorting algorithm and crowding-distance
 assignment from Deb et al. (2002) for extracting an elite subset from the
@@ -19,6 +18,15 @@ Algorithm
 3.  **Elite Extraction**:  Fill the elite pool front-by-front.  When the
     next complete front would overflow the budget, rank its members by
     crowding distance (larger = more isolated = more diverse = preferred).
+
+Attributes:
+    fast_non_dominated_sort: Pareto layer extractor.
+    crowding_distance: Diversity metric calculator.
+    select_elite_nsga2: Main selection interface.
+
+Example:
+    >>> fronts = fast_non_dominated_sort(objectives)
+    >>> dists = crowding_distance(fronts[0], objectives)
 
 References:
     Deb, K., Pratap, A., Agarwal, S., & Meyarivan, T. A. M. T. (2002).

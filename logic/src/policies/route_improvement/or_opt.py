@@ -1,5 +1,14 @@
-"""
-Or-opt Route Improver.
+"""Or-opt Route Improver.
+
+This module implements the Or-opt local search operator, which relocates chains
+of consecutive nodes to different positions within or between routes.
+
+Attributes:
+    OrOptRouteImprover: Route improvement class using Or-opt.
+
+Example:
+    >>> improver = OrOptRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -19,21 +28,35 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("or_opt")
 class OrOptRouteImprover(IRouteImprovement):
-    """
-    Or-opt route improver that relocates chains of nodes within or between routes.
+    """Or-opt route improver that relocates chains of nodes.
+
     Wraps LocalSearchManager.or_opt.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = OrOptRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, chain_len=2)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply Or-opt improvement to the tour.
+        """Apply Or-opt improvement to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'chain_len', 'iterations', etc.
+            tour (List[int]): Initial tour sequence.
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - chain_len (int): Maximum length of the node chain to relocate.
+                - iterations (int): Maximum number of iterations.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - R (float): Revenue per kg.
+                - C (float): Cost per km.
+                - seed (int): Random seed.
 
         Returns:
-            List[int]: Refined tour.
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

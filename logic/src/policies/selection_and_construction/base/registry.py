@@ -1,67 +1,52 @@
-"""
-Joint Policy Registry Module.
+"""Registry for joint selection and construction policies."""
 
-Provides a string-keyed registry for
-:class:`~logic.src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy`
-subclasses, enabling plugin-style extension of joint selection-and-construction
-solvers.
-
-Example::
-
-    >>> from logic.src.policies.selection_and_construction.base.joint_registry import (
-    ...     JointPolicyRegistry,
-    ... )
-    >>> @JointPolicyRegistry.register("my_joint")
-    ... class MyJointPolicy(BaseJointPolicy): ...
-    >>> cls = JointPolicyRegistry.get("my_joint")
-"""
-
-from typing import Dict, List, Optional, Type
+from typing import Any, Dict, Optional, Type
 
 
 class JointPolicyRegistry:
-    """Registry for joint selection-and-construction policy classes.
+    """Registry for joint selection and construction policies.
+
+    Maintains a mapping of policy names to their respective classes, enabling
+    dynamic instantiation through the factory.
 
     Attributes:
-        _registry: Internal mapping from lower-case name to policy class.
+        _registry (Dict[str, Type]): Internal mapping of policy names to class types.
     """
 
     _registry: Dict[str, Type] = {}
 
     @classmethod
     def register(cls, name: str):
-        """Class decorator that registers *policy_cls* under *name*.
+        """Register a joint selection and construction policy class.
 
         Args:
-            name: Unique string identifier for the policy.
+            name (str): Unique name identifier for the policy.
 
         Returns:
-            The class decorator.
+            Callable: A decorator that registers the subclass.
         """
-
-        def decorator(policy_cls: Type) -> Type:
-            cls._registry[name.lower()] = policy_cls
-            return policy_cls
-
+        def decorator(subclass: Type[Any]):
+            cls._registry[name.lower()] = subclass
+            return subclass
         return decorator
 
     @classmethod
     def get(cls, name: str) -> Optional[Type]:
-        """Retrieve a policy class by name.
+        """Retrieve a registered policy class by name.
 
         Args:
-            name: The string key used during registration.
+            name (str): Unique name identifier for the policy.
 
         Returns:
-            The policy class, or ``None`` if not found.
+            Optional[Type]: The policy class if found, else None.
         """
         return cls._registry.get(name.lower())
 
     @classmethod
-    def list_policies(cls) -> List[str]:
-        """Return the names of all registered joint policies.
+    def list_policies(cls) -> list[str]:
+        """List all registered policy names.
 
         Returns:
-            List of registered name strings.
+            list[str]: Sorted list of registered policy names.
         """
-        return list(cls._registry.keys())
+        return sorted(cls._registry.keys())

@@ -1,9 +1,16 @@
-"""
-NDS-BRKGA Hyperparameter Configuration.
+"""NDS-BRKGA Hyperparameter Configuration.
 
 This module defines :class:`NDSBRKGAParams`, the configuration dataclass
-for the Non-Dominated Sorting Biased Random-Key Genetic Algorithm.  All
+for the Non-Dominated Sorting Biased Random-Key Genetic Algorithm. All
 fields have sensible defaults for the WCVRP/VRPP problem family.
+
+Attributes:
+    NDSBRKGAParams: Data class for evolutionary hyper-parameters.
+
+Example:
+    >>> params = NDSBRKGAParams(pop_size=100, max_generations=500)
+    >>> print(params.n_elite)
+    15
 
 References:
     Gonçalves, J. F., & Resende, M. G. (2011).
@@ -87,11 +94,10 @@ class NDSBRKGAParams:
 
     @classmethod
     def from_config(cls, config: object) -> "NDSBRKGAParams":
-        """
-        Construct from a configuration object (dataclass or dict-like).
+        """Construct from a configuration object (dataclass or dict-like).
 
         Args:
-            config: Any object with attribute or dict-key access.
+            config (object): Any object with attribute or dict-key access.
 
         Returns:
             NDSBRKGAParams: Populated parameter instance.

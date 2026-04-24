@@ -1,13 +1,21 @@
-"""
-NDS-BRKGA sub-package.
+"""NDS-BRKGA sub-package.
 
 Exposes the public API of the Non-Dominated Sorting Biased Random-Key
-Genetic Algorithm core:
+Genetic Algorithm (NDS-BRKGA) core components.
 
-    NDSBRKGAPolicy   — main policy (joint selection and construction)
-    NDSBRKGAParams   — hyperparameter configuration
-    Chromosome       — BRKGA chromosome with adaptive threshold decode
-    Population       — population management (seeding, breeding, elite extraction)
+Attributes:
+    NDSBRKGAPolicy (Type[NDSBRKGAPolicy]): Main policy for joint selection and construction.
+    NDSBRKGAParams (Type[NDSBRKGAParams]): Hyperparameter configuration dataclass.
+    Chromosome (Type[Chromosome]): Representation of a solution candidate.
+    Population (Type[Population]): Manager for solution candidates and evolution.
+    biased_crossover (Callable): Biased uniform crossover operator.
+    fast_non_dominated_sort (Callable): NSGA-II sorting algorithm.
+    crowding_distance (Callable): Crowd distance assignment for diversity.
+    select_elite_nsga2 (Callable): Pareto-based elite selection.
+    compute_overflow_risk (Callable): Risk calculation utility.
+    evaluate_chromosome (Callable): Single candidate objective evaluator.
+    evaluate_population (Callable): Batch population evaluator.
+    compute_adaptive_thresholds (Callable): Dynamic selection threshold calculator.
 """
 
 from .chromosome import Chromosome, compute_adaptive_thresholds

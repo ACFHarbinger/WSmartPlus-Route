@@ -1,8 +1,15 @@
-"""
-Joint Simulated Annealing Policy.
+"""Joint Simulated Annealing Policy.
 
-A meta-heuristic policy for the Traveling Thief Problem / Thief Orienteering Problem
-style combined selection and routing.
+A meta-heuristic policy for the combined selection and routing problem,
+employing a simulated annealing trajectory search over both node selection
+(bitstrings) and node sequencing (permutations).
+
+Attributes:
+    JointSAPolicy: The policy class implementing JSA logic.
+
+Example:
+    >>> policy = JointSAPolicy()
+    >>> selection, routes, profit, cost = policy.solve_joint(context)
 """
 
 import random
@@ -34,15 +41,18 @@ from .params import JointSAParams
 @JointPolicyRegistry.register("jsa")
 @RouteConstructorRegistry.register("jsa")
 class JointSAPolicy(BaseJointPolicy):
-    """
-    Simulated Annealing policy for joint mandatory-bin selection and route construction.
+    """Simulated Annealing policy for joint selection and construction.
 
     State space:
         - Selection: Bitstring (mask) of bins to visit.
         - Routing: Permutation of selected bins (tours).
 
     Objective:
-        Maximise Net Profit (Revenue - Distance Cost) - Overflow Penalties.
+        Maximise Net Profit (Revenue - Distance Cost) - Overflow Penalties for
+        unserved nodes at risk.
+
+    Attributes:
+        config (Optional[Union[JointSAConfig, Dict[str, Any]]]): Configuration source.
     """
 
     def __init__(self, config: Optional[Union[JointSAConfig, Dict[str, Any]]] = None):
@@ -59,8 +69,17 @@ class JointSAPolicy(BaseJointPolicy):
         self,
         context: JointSelectionConstructionContext,
     ) -> Tuple[List[int], List[List[int]], float, float]:
-        """
-        Execute SA loop to find near-optimal selection and routing.
+        """Execute SA loop to find near-optimal selection and routing.
+
+        Args:
+            context (JointSelectionConstructionContext): The problem data and environment.
+
+        Returns:
+            Tuple[List[int], List[List[int]], float, float]:
+                - selected_bins: Best bin mask IDs.
+                - routes: Final routes (local node indices).
+                - profit: Best found net profit.
+                - cost: Routing cost of the best solution.
         """
         params = JointSAParams.from_config(self._config) if self._config else JointSAParams()
 
@@ -119,13 +138,28 @@ class JointSAPolicy(BaseJointPolicy):
         return best_selection, best_routes, current_profit, current_cost
 
     def _initial_selection(self, context: JointSelectionConstructionContext) -> List[int]:
-        """Simple initial selection: bins > 80% full."""
+        """Generate high-fill seed selection.
+
+        Args:
+            context (JointSelectionConstructionContext): Problem state.
+
+        Returns:
+            List[int]: IDs of bins with >80% fill level.
+        """
         return [bid for i, bid in enumerate(context.bin_ids) if context.current_fill[i] > 80.0]
 
     def _construct_greedy_routes(
         self, selected_bins: List[int], context: JointSelectionConstructionContext
     ) -> List[List[int]]:
-        """Greedy insertion routing for a fixed selection."""
+        """Compute greedy insertion routes for a fixed selection.
+
+        Args:
+            selected_bins (List[int]): Subset of bins to serve.
+            context (JointSelectionConstructionContext): Environmental data.
+
+        Returns:
+            List[List[int]]: Routes as local node indices.
+        """
         if not selected_bins:
             return []
 
@@ -175,7 +209,20 @@ class JointSAPolicy(BaseJointPolicy):
         context: JointSelectionConstructionContext,
         params: JointSAParams,
     ) -> Tuple[float, float, float]:
-        """Calculate score (Profit - Penalty)."""
+        """Calculate state score (Profit minus Overflow Penalties).
+
+        Args:
+            selected_bins (List[int]): Current selection IDs.
+            routes (List[List[int]]): Current routes (local indices).
+            context (JointSelectionConstructionContext): Problem state.
+            params (JointSAParams): Configuration weights.
+
+        Returns:
+            Tuple[float, float, float]:
+                - score: Total objective value (higher is better).
+                - profit: Net financial profit.
+                - cost: Routing distance/cost.
+        """
         if not routes:
             return -self._total_overflow_penalty(selected_bins, context, params), 0.0, 0.0
 
@@ -206,7 +253,16 @@ class JointSAPolicy(BaseJointPolicy):
     def _total_overflow_penalty(
         self, selected_bins: List[int], context: JointSelectionConstructionContext, params: JointSAParams
     ) -> float:
-        """Penalty for bins NOT selected that are at risk."""
+        """Estimate penalty for unserved at-risk bins.
+
+        Args:
+            selected_bins (List[int]): Served bin IDs.
+            context (JointSelectionConstructionContext): Environmental data.
+            params (JointSAParams): Penalty coefficients.
+
+        Returns:
+            float: Total aggregated penalty.
+        """
         selected_set = set(selected_bins)
         penalty = 0.0
 
@@ -225,7 +281,17 @@ class JointSAPolicy(BaseJointPolicy):
         context: JointSelectionConstructionContext,
         params: JointSAParams,
     ) -> Tuple[List[int], List[List[int]]]:
-        """Move: Flip selection OR swap routing."""
+        """Apply a stochastic move to generate a neighboring solution.
+
+        Args:
+            current_selection (List[int]): Current selection mask.
+            current_routes (List[List[int]]): Current routing plan.
+            context (JointSelectionConstructionContext): Environmental state.
+            params (JointSAParams): Movement probabilities.
+
+        Returns:
+            Tuple[List[int], List[List[int]]]: The neighboring selection and routing.
+        """
         new_selection = list(current_selection)
         new_routes = [list(r) for r in current_routes]
 

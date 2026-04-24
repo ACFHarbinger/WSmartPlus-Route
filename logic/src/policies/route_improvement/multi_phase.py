@@ -1,5 +1,13 @@
 """
 Multi-Phase Route Improver.
+
+Attributes:
+    MultiPhaseRouteImprover: Main class for sequential multi-phase improvement.
+
+Example:
+    >>> from logic.src.policies.route_improvement.multi_phase import MultiPhaseRouteImprover
+    >>> improver = MultiPhaseRouteImprover(config=cfg)
+    >>> tour, metrics = improver.process([0, 1, 2, 0], phases=["fast_tsp", "lk"])
 """
 
 from typing import Any, List, Tuple
@@ -17,24 +25,32 @@ from .base import RouteImproverRegistry
 )
 @RouteImproverRegistry.register("multi_phase")
 class MultiPhaseRouteImprover(IRouteImprovement):
-    """
-    Composition route improver that runs multiple separate strategies in sequence.
-    Example: Augmentation phase followed by Improvement and Polish phases.
+    """Composition route improver running multiple strategies in sequence.
+
+    Facilitates a pipeline of improvement moves, such as an augmentation phase
+    followed by an intensification phase and a final polishing phase.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = MultiPhaseRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, phases=["cheapest_insertion", "lkh"])
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Run multi-phase refinement on the tour.
+        """Run multi-phase refinement on the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'phases' (List[str]).
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                phases (List[str]): List of improver names to run in order.
 
         Returns:
-            List[int]: Refined tour after all phases.
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, multi_phase_metrics).
 
-        Note:
-            Requires at least 2 phases.
+        Raises:
+            ValueError: If fewer than 2 phases are provided or a phase name is unknown.
         """
         phase_names = (
             kwargs.get("phases", [])

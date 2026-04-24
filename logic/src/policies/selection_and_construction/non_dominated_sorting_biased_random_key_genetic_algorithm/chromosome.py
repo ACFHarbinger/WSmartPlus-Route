@@ -36,6 +36,15 @@ sequence of selected bins into feasible vehicle routes.  The packing respects
 ``capacity`` in kg (using the fill percentages converted to mass via
 ``bin_density × bin_volume / 100``).
 
+Attributes:
+    Chromosome: Data class for BRKGA chromosomes.
+
+Example:
+    >>> keys = np.random.uniform(0, 1, size=20)
+    >>> chrom = Chromosome(keys, n_bins=10)
+    >>> print(chrom.n_bins)
+    10
+
 References:
     Gonçalves, J. F., & Resende, M. G. (2011).
         Biased random-key genetic algorithms for combinatorial optimization.
@@ -52,8 +61,7 @@ def compute_adaptive_thresholds(
     threshold_min: float = 0.10,
     threshold_max: float = 0.90,
 ) -> np.ndarray:
-    """
-    Compute per-bin adaptive selection thresholds from overflow risk scores.
+    """Compute per-bin adaptive selection thresholds from overflow risk scores.
 
     The threshold is inversely proportional to the normalised overflow risk:
     a high-risk bin gets a low threshold (easy to select); a zero-risk bin
@@ -63,7 +71,7 @@ def compute_adaptive_thresholds(
     to ``threshold_max`` (no bin is preferentially selected).
 
     Args:
-        overflow_risk: Per-bin overflow risk scores.  Shape ``(N,)``.
+        overflow_risk: Per-bin overflow risk scores. Shape ``(N,)``.
             Values must be non-negative; scale is arbitrary (normalised internally).
         threshold_min: Threshold for the bin with maximum overflow risk.
         threshold_max: Threshold for bins with zero overflow risk.
@@ -84,21 +92,18 @@ def compute_adaptive_thresholds(
 
 
 class Chromosome:
-    """
-    BRKGA chromosome encoding joint bin-selection and route-construction.
+    """BRKGA chromosome encoding joint bin-selection and route-construction.
 
     Each chromosome stores ``2 * N`` continuous random keys in ``[0, 1]``.
 
     Attributes:
-        keys: Float array of shape ``(2 * N,)``.  First half = selection
-            keys; second half = routing keys.
-        n_bins: Number of candidate bins ``N``.
+        keys (np.ndarray): Float array of shape ``(2 * N,)``.
+        n_bins (int): Number of candidate bins ``N``.
     """
 
     __slots__ = ("keys", "n_bins")
 
     def __init__(self, keys: np.ndarray, n_bins: int) -> None:
-        """
         Create a Chromosome from a pre-built key vector.
 
         Args:

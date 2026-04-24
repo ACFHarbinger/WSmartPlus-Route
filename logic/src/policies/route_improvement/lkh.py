@@ -1,5 +1,7 @@
-"""
-LKH (Lin-Kernighan-Helsgaun) Route Improver.
+"""LKH-3 Route Improver (Keldahl & Helsgaun).
+
+Attributes:
+    LKHRouteImprover: Main class for LKH-3 based improvement.
 """
 
 from typing import Any, List, Tuple
@@ -7,9 +9,9 @@ from typing import Any, List, Tuple
 import numpy as np
 
 from logic.src.enums import GlobalRegistry, PolicyTag
-from logic.src.interfaces import IRouteImprovement
+from logic.src.interfaces.route_improvement import IRouteImprovement
 from logic.src.interfaces.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun import solve_lkh
+from logic.src.policies.helpers.operators.intensification_fixing.lkh import lkh_solve
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
@@ -20,17 +22,17 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.HEURISTIC,
 )
 @RouteImproverRegistry.register("lkh")
-class LinKernighanHelsgaunRouteImprover(IRouteImprovement):
-    """
-    Refines tours using the Lin-Kernighan-Helsgaun heuristic for TSP.
+class LKHRouteImprover(IRouteImprovement):
+    """LKH-3 route improver.
 
-    Handles VRPP subset routes by extracting a dense sub-matrix containing
-    only the visited nodes, running LKH on this sub-problem, and mapping
-    the results back to the original node IDs.
+    Utilizes the sophisticated Lin-Kernighan-Helsgaun (LKH) solver
+    (v3.0.x) for high-quality TSP reoptimization.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
         Apply LKH refinement to a tour using sub-matrix extraction.
 
         For VRPP instances where only a subset of nodes are visited, this

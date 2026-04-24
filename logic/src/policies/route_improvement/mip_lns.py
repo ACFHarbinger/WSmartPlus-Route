@@ -29,15 +29,37 @@ logger = logging.getLogger(__name__)
 )
 @RouteImproverRegistry.register("mip_lns")
 class MIPLNSRouteImprover(IRouteImprovement):
-    """
-    Exact Repair Large Neighborhood Search.
+    """Exact Repair Large Neighborhood Search.
 
     1. Destroys Q nodes randomly or spatially.
     2. Instead of greedy repair, delegates to the exact solver (Gurobi)
        by isolating the destroyed components and solving the Restricted Sub-MIP.
+
+    Attributes:
+        MIPLNSRouteImprover: Main class for MIP-based Large Neighborhood Search.
+
+    Example:
+        >>> from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
+        >>> improver = MIPLNSRouteImprover(config=cfg)
+        >>> tour, metrics = improver.process([0, 1, 2, 3, 0], iterations=5)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply MIP-based Large Neighborhood Search to the tour.
+
+        Args:
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix: Distance lookup.
+                iterations: Number of LNS cycles (default 5).
+                ruin_fraction: Portion of nodes to remove (default 0.2).
+                seed: Random seed.
+                wastes: Bin mass dictionary.
+                capacity: Vehicle capacity.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+        """
         dm = to_numpy(kwargs.get("distance_matrix", kwargs.get("distancesC")))
         if dm is None or not tour:
             return tour, {"algorithm": "MIPLNSRouteImprover"}
