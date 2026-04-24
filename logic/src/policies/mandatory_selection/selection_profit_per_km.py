@@ -33,24 +33,24 @@ from .base.selection_registry import MandatorySelectionRegistry
 )
 @MandatorySelectionRegistry.register("profit_per_km")
 class ProfitPerKmSelection(IMandatorySelectionStrategy):
-    """
-    Economic selection strategy based on spatial ROI (Return on Investment).
+    """Economic selection strategy based on spatial ROI (Return on Investment).
 
-    Computes a score for each bin defined as:
-    Score_i = (Expected Revenue of Bin i) / (2 * Distance from Depot to Bin i)
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Selects bins whose profit-per-kilometer strictly exceeds a minimum threshold.
+        """Selects bins whose profit-per-kilometer strictly exceeds a minimum threshold.
 
         Args:
-            context: Selection context containing distance_matrix, fill levels,
-                     bin capacity parameters, revenue multipliers, and the
-                     profitability threshold.
+            context (SelectionContext): The selection context providing current_fill, 
+                distance_matrix, and revenue parameters.
 
         Returns:
-            List[int]: List of bin IDs (1-based index) exceeding the profit ratio.
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is not provided.
         """
         if context.distance_matrix is None:
             raise ValueError("ProfitPerKmSelection requires a distance_matrix.")

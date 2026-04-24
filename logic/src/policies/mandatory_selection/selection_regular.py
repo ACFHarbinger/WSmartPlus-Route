@@ -31,22 +31,20 @@ from logic.src.policies.mandatory_selection.base.selection_registry import (
 )
 @MandatorySelectionRegistry.register("regular")
 class RegularSelection(IMandatorySelectionStrategy):
-    """
-    Periodic collection strategy.
+    """Periodic collection strategy.
 
-    Logic: Collect all bins if today is a scheduled collection day.
-    Scheduled if (current_day - 1 % frequency) == 0.
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select all bins if it is a scheduled collection day.
+        """Select all bins if it is a scheduled collection day.
 
         Args:
-            context: SelectionContext with day and threshold (freq).
+            context (SelectionContext): The selection context providing current_day and threshold (frequency).
 
         Returns:
-            List[int]: List of all bin IDs if collection day, else empty.
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
         """
         current_day = getattr(context, "current_day", 1)
         # We want to run on day 1, and then on day X+1, 2X+1, etc.

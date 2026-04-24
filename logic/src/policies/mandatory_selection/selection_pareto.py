@@ -36,29 +36,26 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("pareto_front")
 class ParetoFrontSelection(IMandatorySelectionStrategy):
-    """
-    Combinatorial selection strategy utilizing non-dominated sorting.
+    """Combinatorial selection strategy utilizing non-dominated sorting.
 
-    Evaluates the set of all bins and selects the subset of non-dominated bins
-    in the 2D objective space (Days to Overflow $\\times$ Distance to Depot).
-    A bin $v_i$ dominates $v_j$ if it is strictly more urgent AND closer to the depot.
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Selects the non-dominated set of bins based on urgency and routing cost.
+        """Selects the non-dominated set of bins based on urgency and routing cost.
 
-        A pre-filtering step is applied using `context.threshold` to discard bins
-        that have an abundance of remaining time (e.g., > 7 days). This prevents
-        degenerate Pareto solutions where an empty bin is selected simply because
-        it happens to be physically adjacent to the depot.
+        Evaluates bins on a bi-objective Pareto front of urgency (days to overflow)
+        and routing efficiency (distance to depot).
 
         Args:
-            context: Selection context containing current fill levels,
-                     accumulation rates, distance_matrix, and an urgency threshold.
+            context (SelectionContext): The selection context.
 
         Returns:
-            List[int]: List of non-dominated bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If distance_matrix or accumulation_rates are missing.
         """
         if context.distance_matrix is None:
             raise ValueError("ParetoFrontSelection requires a distance_matrix in the context.")

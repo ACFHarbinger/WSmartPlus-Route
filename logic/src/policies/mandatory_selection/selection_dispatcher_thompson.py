@@ -1,5 +1,4 @@
-"""
-Thompson Dispatcher Strategy Module.
+"""Thompson Dispatcher Strategy Module.
 
 Implements a contextual multi-armed bandit dispatcher that uses Thompson
 Sampling to select the best "mandatory" strategy among a set of candidates
@@ -8,12 +7,11 @@ candidate, which can be persisted across calls. High-performing strategies
 (those resulting in lower operational cost/higher reward) are sampled
 more frequently over time.
 
-Note:
-    This dispatcher uses a class-level shared state for tracking posteriors.
-    In multi-tenant environments, instance-specific state should be used instead.
+Attributes:
+    logger (logging.Logger): Logger for the module.
 
 Example:
-    >>> from logic.src.policies.helpers.mandatory.selection_dispatcher_thompson import ThompsonDispatcher
+    >>> from logic.src.policies.mandatory_selection.selection_dispatcher_thompson import ThompsonDispatcher
     >>> strategy = ThompsonDispatcher()
     >>> bins = strategy.select_bins(context)
 """
@@ -44,9 +42,11 @@ logger = logging.getLogger(__name__)
 )
 @MandatorySelectionRegistry.register("dispatcher_thompson")
 class ThompsonDispatcher(IMandatorySelectionStrategy):
-    """
-    Contextual Thompson Sampling dispatcher for selection strategies.
-    Hardened for thread-safety and principled exploration.
+    """Contextual Thompson Sampling dispatcher for selection strategies.
+
+    Attributes:
+        _lock (threading.Lock): Thread lock for state access.
+        _shared_state (Dict[str, Tuple[float, float]]): Non-persistent class-level state for Beta distributions.
     """
 
     # Thread lock for state access
@@ -65,16 +65,18 @@ class ThompsonDispatcher(IMandatorySelectionStrategy):
         success_prob: Optional[float] = None,
         state_path: Optional[str] = None,
     ) -> None:
-        """
-        Update the posterior based on an observed reward.
+        """Update the posterior based on an observed reward.
 
         Args:
-            strategy_name: Name of the strategy that was used.
-            reward: Real-valued reward (e.g., negative cost).
-            baseline: Optional baseline to binarize reward (success if reward > baseline).
-            success_prob: Optional direct probability of success [0, 1]. If provided,
-                          reward/baseline are ignored.
-            state_path: Optional path to persist the updated state.
+            strategy_name (str): Name of the strategy that was used.
+            reward (float): Real-valued reward (e.g., negative cost).
+            baseline (Optional[float]): Optional baseline to binarize reward (success if reward > baseline).
+            success_prob (Optional[float]): Optional direct probability of success [0, 1]. If provided,
+                                            reward/baseline are ignored.
+            state_path (Optional[str]): Optional path to persist the updated state.
+
+        Returns:
+            None
         """
         with cls._lock:
             # Load state
@@ -100,7 +102,14 @@ class ThompsonDispatcher(IMandatorySelectionStrategy):
 
     @classmethod
     def _load_state_locked(cls, path: Optional[str]) -> Dict[str, Tuple[float, float]]:
-        """Internal load within lock."""
+        """Internal load within lock.
+
+        Args:
+            path (Optional[str]): Path to the state file.
+
+        Returns:
+            Dict[str, Tuple[float, float]]: The loaded state mapping.
+        """
         if path and os.path.exists(path):
             try:
                 with open(path, "rb") as f:
@@ -112,7 +121,12 @@ class ThompsonDispatcher(IMandatorySelectionStrategy):
 
     @classmethod
     def _save_state_locked(cls, state: Dict[str, Tuple[float, float]], path: Optional[str]) -> None:
-        """Internal save within lock."""
+        """Internal save within lock.
+
+        Args:
+            state (Dict[str, Tuple[float, float]]): The state mapping to save.
+            path (Optional[str]): Path to the state file.
+        """
         cls._shared_state = state
         if path:
             dirname = os.path.dirname(path)
@@ -125,14 +139,13 @@ class ThompsonDispatcher(IMandatorySelectionStrategy):
                 logger.error(f"ThompsonDispatcher: Failed to save state to {path}: {e}")
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Sample a strategy via Thompson Sampling and dispatch the call.
+        """Sample a strategy via Thompson Sampling and dispatch the call.
 
         Args:
-            context: SelectionContext with dispatcher configuration.
+            context (SelectionContext): The selection context.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
         """
         from logic.src.policies.mandatory_selection.base.selection_factory import MandatorySelectionFactory
 

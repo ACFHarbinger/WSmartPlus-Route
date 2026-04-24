@@ -1,30 +1,49 @@
-"""
-Selection Strategy Implementations for WSmart-Route.
+"""Selection Strategy Implementations for WSmart-Route.
 
 This package contains concrete implementations of the `MandatorySelectionStrategy`
 interface. Strategies determine which bins must be collected on a given day
 based on different criteria (fill levels, revenue, schedule, etc.).
 
-Includes both:
-- Single-instance selectors (for simulation): SelectionContext-based
-- Vectorized selectors (for training): Batched PyTorch tensor operations
-
 Attributes:
-    CombinedSelector (class): Combines multiple selection strategies.
-    LastMinuteSelector (class): Selects bins that are about to overflow.
-    LookaheadSelector (class): Selects bins based on future fill predictions.
-    ManagerSelector (class): Selects bins based on a manager agent's policy.
-    RegularSelector (class): Selects bins based on fixed schedule frequency.
-    RevenueSelector (class): Selects bins based on revenue potential.
-    ServiceLevelSelector (class): Selects bins to maintain a service level.
-    VectorizedSelector (class): Abstract base for vectorized selection.
-    create_selector_from_config (function): Factory function for config-based creation.
-    get_vectorized_selector (function): Factory function for vectorized selectors.
+    MandatorySelectionFactory: Factory for creating strategy instances.
+    MandatorySelectionRegistry: Registry for mapping names to strategy classes.
+    SelectionContext: Context object containing state for selection decisions.
+    CombinedSelection: Strategy that combines multiple selection criteria.
+    LastMinuteSelection: Simple threshold-based reactive strategy.
+    RevenueThresholdSelection: Strategy based on estimated revenue.
+    LookaheadSelection: Predictive strategy using future fill simulations.
+    WhittleIndexSelection: RMAB-based priority ranking strategy.
+    MIPKnapsackSelection: Exact multiple-knapsack optimization strategy.
+    FPTASKnapsackSelection: FPTAS-based multiple-knapsack strategy.
+    BernoulliRandomSelection: Stochastic selection with eligibility thresholds.
+    CVaRSelection: Tail-risk based selection.
+    DeadlineDrivenSelection: Temporal deadline-based selection.
+    PortfolioDispatcher: Orchestrator for multiple concurrent strategies.
+    ThompsonDispatcher: MAB-based adaptive strategy selection.
+    FilterAndFanSelection: Local search based selection refinement.
+    FractionalKnapsackSelection: Greedy net-profit density selection.
+    KMeansGeographicSectorSelection: Cyclic zone-day selection.
+    LagrangianSelection: Reduced-cost based selection.
+    LearnedSelection: ML-imitation selection strategy.
+    MultiDayOverflowSelection: Stochastic multi-period overflow probability.
+    ParetoFrontSelection: Bi-objective urgency/cost selection.
+    ProfitPerKmSelection: ROI-based selection proxy.
+    RegularSelection: Fixed-frequency periodic selection.
+    RolloutSelection: One-step rollout simulation strategy.
+    SavingsSelection: Spatial-savings based selection.
+    ServiceLevelSelection: Statistical confidence-bound selection.
+    SetCoverSelection: Hub-based spatial coverage selection.
+    SpatialSynergySelection: Neighbourhood-based opportunistic selection.
+    StaggeredRegularSelection: Phase-staggered periodic selection.
+    StochasticRegretSelection: Expected overflow regret selection.
+    SubmodularGreedySelection: Facility-location coverage selection.
+    SupermodularGreedySelection: Synergetic cluster selection.
+    WassersteinRobustSelection: Distributionally robust selection.
 
 Example:
-    >>> from logic.src.policies.mandatory import create_selector_from_config
-    >>> selector = create_selector_from_config(config)
-    >>> selected_nodes = selector.select(context)
+    >>> from logic.src.policies.mandatory_selection import MandatorySelectionFactory
+    >>> strategy = MandatorySelectionFactory.create_strategy("last_minute")
+    >>> bins, ctx = strategy.select_bins(selection_context)
 """
 
 from logic.src.interfaces import IMandatorySelectionStrategy

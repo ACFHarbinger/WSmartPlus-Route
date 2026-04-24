@@ -29,19 +29,23 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("savings")
 class SavingsSelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on Clarke-Wright spatial savings.
+    """Selection strategy based on Clarke-Wright spatial savings.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins that offer positive routing savings with neighbors.
+        """Select bins that offer positive routing savings with neighbors.
 
         Args:
-            context: SelectionContext with distance_matrix and fill levels.
+            context (SelectionContext): The selection context providing current_fill and distance_matrix.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is missing.
         """
         if context.distance_matrix is None:
             raise ValueError("SavingsSelection requires a distance_matrix.")

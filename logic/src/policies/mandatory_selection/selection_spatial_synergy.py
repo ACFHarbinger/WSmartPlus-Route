@@ -31,25 +31,23 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("spatial_synergy")
 class SpatialSynergySelection(IMandatorySelectionStrategy):
-    """
-    Spatial-density based collection strategy.
+    """Spatial-density based collection strategy.
 
-    Selects bins that are critically full, plus any moderately full bins
-    within a strict distance radius of those critical bins. Operates statelessly
-    by extracting parameters dynamically from the SelectionContext.
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select critical bins and their valid spatial synergies.
+        """Select critical bins and their valid spatial synergies.
 
         Args:
-            context: SelectionContext containing fill levels, distance_matrix,
-                     and optional spatial parameters (critical_threshold,
-                     synergy_threshold, radius).
+            context (SelectionContext): The selection context providing current_fill and distance_matrix.
 
         Returns:
-            List[int]: List of bin IDs (1-based index) strictly required for collection.
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is missing.
         """
         if context.distance_matrix is None:
             raise ValueError("SpatialSynergySelection requires a distance_matrix in the context.")

@@ -31,19 +31,23 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("set_cover")
 class SetCoverSelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on greedy Set Cover.
+    """Selection strategy based on greedy Set Cover.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select hub bins to cover all critical bins within service_radius.
+        """Select hub bins to cover all critical bins within service_radius.
 
         Args:
-            context: SelectionContext with critical_threshold and service_radius.
+            context (SelectionContext): The selection context providing current_fill and distance_matrix.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is missing.
         """
         if context.distance_matrix is None:
             raise ValueError("SetCoverSelection requires a distance_matrix.")

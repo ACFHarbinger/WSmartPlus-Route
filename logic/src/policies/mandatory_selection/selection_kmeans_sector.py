@@ -93,57 +93,31 @@ def _fit_kmeans(coordinates: np.ndarray, n_sectors: int) -> np.ndarray:
 )
 @MandatorySelectionRegistry.register("kmeans_sector")
 class KMeansGeographicSectorSelection(IMandatorySelectionStrategy):
-    """
-    Cyclic geographic-sector collection strategy.
+    """Cyclic geographic-sector collection strategy.
 
-    Bins are pre-partitioned into G sectors via K-means on their (x, y) or
-    (lat, lon) coordinates. On operational day t the active sector is:
+    Bins are pre-partitioned into G sectors via K-means on their coordinates.
+    On operational day t exactly one sector is mandated.
 
-        sector_index = (t - 1) % G
-
-    All bins in the active sector whose fill level meets ``min_fill`` are
-    mandated. Bins in the remaining G-1 sectors are never selected by this
-    strategy on that day, regardless of their fill state.
-
-    Design rationale
-    ----------------
-    Real-world municipal waste operators divide service areas into geographic
-    zones assigned to specific weekdays. This strategy formalises that practice
-    as a clean combinatorial baseline: it respects spatial locality (K-means
-    minimises within-cluster variance) while remaining entirely deterministic
-    and parameter-light. It exposes the routing cost of ignoring fill-level
-    dynamics relative to reactive and predictive strategies.
-
-    SelectionContext fields consumed
-    --------------------------------
-    threshold    (int)            : Number of sectors G. Defaults to 5.
-    coordinates  (ndarray[n, 2]) : Bin spatial coordinates. Required.
-    current_day  (int)            : Current operational day t. Defaults to 1.
-    current_fill (ndarray[n])    : Per-bin fill ratios in [0, 1]. Optional.
-
-    Instance attributes
-    -------------------
-    min_fill (float): Minimum fill ratio for a bin to be eligible.
-                      Defaults to 0.0 (all sector bins are eligible).
+    Attributes:
+        min_fill (float): Minimum fill ratio for a bin to be eligible.
+                          Defaults to 0.0.
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Return bin IDs belonging to today's active geographic sector.
+        """Return bin IDs belonging to today's active geographic sector.
 
         On days where coordinates are unavailable the method returns an empty
         selection rather than raising, preserving graceful degradation in
         partially-initialised environments.
 
         Args:
-            context: SelectionContext providing coordinates, current_day,
-                     threshold (number of sectors), and optionally current_fill.
+            context (SelectionContext): SelectionContext providing coordinates, current_day,
+                threshold (number of sectors), and optionally current_fill.
 
         Returns:
-            A 2-tuple of:
-            - List[int]: 1-based bin IDs in the active sector meeting min_fill.
-            - SearchContext: Populated with strategy name, active sector index,
-              total sector count, and number of bins selected.
+            Tuple[List[int], SearchContext]: A 2-tuple containing:
+                - List of 1-based bin IDs in the active sector meeting min_fill.
+                - SearchContext populated with strategy metrics.
         """
         current_day: int = getattr(context, "current_day", 1)
         n_sectors: int = max(1, int(getattr(context, "threshold", 5)))

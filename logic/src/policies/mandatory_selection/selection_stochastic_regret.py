@@ -25,22 +25,29 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("stochastic_regret")
 class StochasticRegretSelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on Expected Overflow Regret (EOR).
+    """Selection strategy based on Expected Overflow Regret (EOR).
 
-    Selects bins whose expected overflow volume for the next day
-    exceeds a defined threshold.
+    Attributes:
+        None
+
+    Example:
+        >>> from logic.src.policies.mandatory_selection.selection_stochastic_regret import StochasticRegretSelection
+        >>> strategy = StochasticRegretSelection()
+        >>> bins, ctx = strategy.select_bins(context)
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins based on the mathematical expectation of their overflow.
+        """Select bins based on the mathematical expectation of their overflow.
 
         Args:
-            context: SelectionContext containing current fill, mu, sigma, and threshold.
+            context (SelectionContext): The selection context providing current_fill, 
+                accumulation_rates, and std_deviations.
 
         Returns:
-            List[int]: List of bin IDs (1-based index) strictly required for collection.
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If stochastic parameters are missing in context.
         """
         if context.accumulation_rates is None or context.std_deviations is None:
             raise ValueError("StochasticRegretSelection requires both accumulation_rates and std_deviations.")

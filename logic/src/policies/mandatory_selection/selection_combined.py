@@ -31,8 +31,11 @@ from .base.selection_registry import MandatorySelectionRegistry
 )
 @MandatorySelectionRegistry.register("combined")
 class CombinedSelection(IMandatorySelectionStrategy):
-    """
-    Combines multiple selection strategies with logical OR or AND.
+    """Combines multiple selection strategies with logical OR or AND.
+
+    Attributes:
+        strategy_configs (List[Dict[str, Any]]): List of strategy configurations.
+        logic (str): Logical operator ('or', 'and').
     """
 
     def __init__(
@@ -55,14 +58,16 @@ class CombinedSelection(IMandatorySelectionStrategy):
             raise ValueError(f"Unknown logic: {self.logic}. Must be 'or' or 'and'.")
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins based on combined strategies.
+        """Select bins based on combined strategies.
+
+        Aggregates results from multiple underlying strategies using the specified
+        logical operator.
 
         Args:
-            context: SelectionContext.
+            context (SelectionContext): The selection context.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
         """
         if not self.strategy_configs:
             return [], SearchContext.initialize(selection_metrics={"strategy": "CombinedSelection"})
@@ -104,8 +109,14 @@ class CombinedSelection(IMandatorySelectionStrategy):
         return sorted(list(result_set)), master_ctx
 
     def _update_context(self, context: SelectionContext, params: Dict[str, Any]) -> SelectionContext:
-        """
-        Create a shallow copy of context with updated parameters.
+        """Create a shallow copy of context with updated parameters.
+
+        Args:
+            context (SelectionContext): The original selection context.
+            params (Dict[str, Any]): Parameters to update in the context.
+
+        Returns:
+            SelectionContext: The updated selection context.
         """
         # Map params to context fields
         updates = {}

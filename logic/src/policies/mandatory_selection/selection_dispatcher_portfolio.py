@@ -1,13 +1,15 @@
-"""
-Portfolio Dispatcher Strategy Module.
+"""Portfolio Dispatcher Strategy Module.
 
 Implements an ensemble strategy that aggregates the decisions of multiple
 candidate "mandatory" strategies. It supports robust consensus by returning either
 the intersection (requires all strategies to agree) or the union (requires
 only one strategy to select a bin) of the candidate results.
 
+Attributes:
+    None
+
 Example:
-    >>> from logic.src.policies.helpers.mandatory.selection_dispatcher_portfolio import PortfolioDispatcher
+    >>> from logic.src.policies.mandatory_selection.selection_dispatcher_portfolio import PortfolioDispatcher
     >>> strategy = PortfolioDispatcher()
     >>> bins = strategy.select_bins(context)
 """
@@ -28,8 +30,10 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("dispatcher_portfolio")
 class PortfolioDispatcher(IMandatorySelectionStrategy):
-    """
-    Portfolio dispatcher for ensemble selection.
+    """Portfolio dispatcher for ensemble selection.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
@@ -37,10 +41,10 @@ class PortfolioDispatcher(IMandatorySelectionStrategy):
         Run multiple strategies and aggregate via union or intersection.
 
         Args:
-            context: SelectionContext with portfolio configuration.
+            context (SelectionContext): SelectionContext with portfolio configuration.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
         """
         from logic.src.policies.mandatory_selection.base.selection_factory import MandatorySelectionFactory
 

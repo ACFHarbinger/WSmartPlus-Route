@@ -69,7 +69,12 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("fractional_knapsack")
 class FractionalKnapsackSelection(IMandatorySelectionStrategy):
-    """Greedy net-profit density selection under per-vehicle mass capacity."""
+    """
+    Greedy net-profit density selection under per-vehicle mass capacity.
+
+    Attributes:
+        _EPS (float): Small constant for numerical stability.
+    """
 
     _EPS = 1e-9
 
@@ -85,6 +90,15 @@ class FractionalKnapsackSelection(IMandatorySelectionStrategy):
 
         Indices are 0-based bin indices; the distance_matrix places the
         depot at index 0 so bin ``i`` corresponds to matrix index ``i+1``.
+
+        Args:
+            candidates (np.ndarray): 0-based global bin indices.
+            packed (List[int]): Indices of bins already packed.
+            dm (np.ndarray): Full distance matrix.
+            dist_depot (np.ndarray): Distance from depot to each bin.
+
+        Returns:
+            np.ndarray: Marginal insertion distance for each candidate.
         """
         if not packed:
             return 2.0 * dist_depot[candidates]
@@ -107,7 +121,20 @@ class FractionalKnapsackSelection(IMandatorySelectionStrategy):
         cost_per_km: float,
         capacity: float,
     ) -> List[int]:
-        """Greedily fill a single vehicle, mutating ``eligible`` in place."""
+        """Greedily fill a single vehicle, mutating ``eligible`` in place.
+
+        Args:
+            eligible (Set[int]): Set of eligible bin indices.
+            revenue (np.ndarray): Per-bin revenue.
+            mass (np.ndarray): Per-bin mass.
+            dm (np.ndarray): Distance matrix.
+            dist_depot (np.ndarray): Distance from depot to each bin.
+            cost_per_km (float): Cost per kilometer.
+            capacity (float): Vehicle capacity.
+
+        Returns:
+            List[int]: Indices of packed bins.
+        """
         packed: List[int] = []
         remaining = capacity
 
@@ -141,12 +168,20 @@ class FractionalKnapsackSelection(IMandatorySelectionStrategy):
         return packed
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Return the selected bin IDs (1-based) under the multi-vehicle plan.
+        """Return the selected bin IDs (1-based) under the multi-vehicle plan.
 
         Reads ``vehicle_capacity``, ``n_vehicles``, and (optionally)
         ``cost_per_km`` from the context. A non-positive ``n_vehicles``
         means the number of knapsacks is unbounded.
+
+        Args:
+            context (SelectionContext): The selection context.
+
+        Returns:
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is not provided.
         """
         if context.distance_matrix is None:
             raise ValueError("FractionalKnapsackSelection requires a distance_matrix.")

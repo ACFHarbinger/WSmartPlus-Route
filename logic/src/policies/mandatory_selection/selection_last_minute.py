@@ -32,21 +32,22 @@ from .base.selection_registry import MandatorySelectionRegistry
 )
 @MandatorySelectionRegistry.register("last_minute")
 class LastMinuteSelection(IMandatorySelectionStrategy):
-    """
-    Simple threshold-based reactive strategy.
+    """Simple threshold-based reactive strategy.
 
     Logic: Collect if current_fill > threshold.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins that exceed the fill threshold.
+        """Select bins that exceed the fill threshold.
 
         Args:
-            context: SelectionContext with fill levels and threshold.
+            context (SelectionContext): SelectionContext with fill levels and threshold.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
         """
         fill_ratios = context.current_fill / context.max_fill
         mandatory_mask = resolve_trigger_threshold(context, fill_ratios)

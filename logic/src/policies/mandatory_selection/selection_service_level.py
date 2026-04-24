@@ -31,20 +31,21 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("service_level")
 class ServiceLevelSelection(IMandatorySelectionStrategy):
-    """
-    Statistical overflow prediction strategy using linear confidence bounds.
+    """Statistical overflow prediction strategy using linear confidence bounds.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins that are statistically likely to overflow within the horizon.
+        """Select bins that are statistically likely to overflow within the horizon.
 
         Args:
-            context: Selection context containing fill levels, accumulation_rates,
-                     std_deviations, confidence threshold, and horizon_days.
+            context (SelectionContext): The selection context providing current_fill, 
+                accumulation_rates, and std_deviations.
 
         Returns:
-            List[int]: List of bin IDs (1-based) predicted to overflow.
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
         """
         if context.accumulation_rates is None or context.std_deviations is None:
             return [], SearchContext.initialize(selection_metrics={"strategy": "ServiceLevelSelection"})

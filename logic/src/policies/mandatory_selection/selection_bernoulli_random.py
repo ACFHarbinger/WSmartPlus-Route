@@ -44,40 +44,15 @@ from logic.src.policies.mandatory_selection.base.selection_registry import (
 )
 @MandatorySelectionRegistry.register("bernoulli_random")
 class BernoulliRandomSelection(IMandatorySelectionStrategy):
-    """
-    Independent Bernoulli trial selection strategy.
+    """Independent Bernoulli trial selection strategy.
 
     Each eligible bin i is independently mandated with probability p:
+    X_i ~ Bernoulli(p). The ``threshold`` parameter is interpreted as the 
+    selection probability p and is clipped to [0, 1].
 
-        X_i ~ Bernoulli(p)
-
-    The ``threshold`` parameter is interpreted as the selection probability p
-    and is clipped to [0, 1]. This strategy is the canonical stochastic null
-    baseline: any deterministic strategy that does not significantly outperform
-    it under identical conditions has a validity concern.
-
-    Unlike Top-K random selection (which fixes |S| = K), the Bernoulli
-    formulation decouples the selection decision at each bin, making the
-    realised set size itself a random variable. This is the correct model when
-    each bin's urgency is assessed independently without knowledge of how many
-    others will be collected that day.
-
-    SelectionContext fields consumed
-    --------------------------------
-    threshold    (float) : Selection probability p ∈ [0, 1]. Defaults to 0.5.
-    current_day  (int)   : Used to derive a per-day RNG seed when no explicit
-                           seed is provided, ensuring day-level reproducibility
-                           while varying across days within a simulation episode.
-    current_fill (ndarray[n]) : Per-bin fill ratios; used for min_fill filter.
-    bin_ids      (ndarray[n]) : 0-based bin IDs used when fill is absent.
-    seed         (int)   : Optional fixed RNG seed. When None (default), a
-                           seed is derived from current_day to produce different
-                           but deterministic draws each day.
-
-    Instance attributes
-    -------------------
-    min_fill (float): Minimum fill ratio for a bin to be eligible for the
-                      Bernoulli trial. Defaults to 0.0.
+    Attributes:
+        min_fill (float): Minimum fill ratio for a bin to be eligible for the
+                          Bernoulli trial. Defaults to 0.0.
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
@@ -88,16 +63,14 @@ class BernoulliRandomSelection(IMandatorySelectionStrategy):
         eligible for the trial, not just rejected by it), so the effective
         population for the Binomial distribution is the eligible subset.
 
+        This mechanism ensures that bins with insufficient capacity or 
+        fill levels are strictly excluded from the stochastic process.
+
         Args:
-            context: SelectionContext providing threshold (as p), current_fill
-                     or bin_ids, and optionally seed.
+            context (SelectionContext): The selection context.
 
         Returns:
-            A 2-tuple of:
-            - List[int]: 1-based bin IDs drawn as X_i = 1.
-            - SearchContext: Populated with strategy name, p, number of
-              eligible bins trialled, number selected, and the realised
-              selection rate for diagnostics.
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
         """
         p: float = float(getattr(context, "threshold", 0.5))
         p = max(0.0, min(1.0, p))  # Clip to valid Bernoulli parameter range.

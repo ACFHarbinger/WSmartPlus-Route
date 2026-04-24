@@ -5,6 +5,14 @@ Computes the Conditional Value-at-Risk (CVaR) at level alpha for the anticipated
 overflow volume in the next period. Under a Gaussian assumption for accumulation,
 this risk measure provides a robust estimate of "tail" overflow risk, focusing
 on extreme outcomes rather than just the mean.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.mandatory_selection.selection_cvar import CVaRSelection
+    >>> strategy = CVaRSelection()
+    >>> bins, ctx = strategy.select_bins(context)
 """
 
 from typing import List, Tuple
@@ -26,8 +34,10 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("cvar")
 class CVaRSelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on Tail risk (CVaR of overflow).
+    """Selection strategy based on Tail risk (CVaR of overflow).
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
@@ -35,10 +45,10 @@ class CVaRSelection(IMandatorySelectionStrategy):
         Select bins where tail overflow risk exceeds the threshold.
 
         Args:
-            context: SelectionContext with Gaussian parameters.
+            context (SelectionContext): The selection context.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:
