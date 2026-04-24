@@ -32,19 +32,23 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("lagrangian")
 class LagrangianSelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on Lagrangian reduced costs.
+    """Selection strategy based on Lagrangian reduced costs.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins based on positive Lagrangian reduced cost.
+        """Select bins based on positive Lagrangian reduced cost.
 
         Args:
-            context: SelectionContext with bin properties and economic parameters.
+            context (SelectionContext): SelectionContext with bin properties and economic parameters.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is not provided.
         """
         if context.distance_matrix is None:
             raise ValueError("LagrangianSelection requires a distance_matrix.")

@@ -31,13 +31,28 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("supermodular_greedy")
 class SupermodularGreedySelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on Supermodular Greedy maximization (Synergy).
+    """Selection strategy based on Supermodular Greedy maximization (Synergy).
+
+    Attributes:
+        None
+
+    Example:
+        >>> from logic.src.policies.mandatory_selection.selection_supermodular_greedy import SupermodularGreedySelection
+        >>> strategy = SupermodularGreedySelection()
+        >>> bins, ctx = strategy.select_bins(context)
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Maximizes synergetic profit using greedy selection with re-evaluation.
+        """Maximizes synergetic profit using greedy selection with re-evaluation.
+
+        Args:
+            context (SelectionContext): The selection context providing current_fill and distance_matrix.
+
+        Returns:
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is missing.
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:

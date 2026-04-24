@@ -5,7 +5,8 @@ This module implements the Factory pattern for creating `MandatorySelectionStrat
 instances. It allows creating strategies by name or from a configuration object.
 
 Attributes:
-    None
+    MandatorySelectionFactory: Factory for strategy creation.
+    CONFIG_MAPPING: Mapping from strategy names to config attributes.
 
 Example:
     >>> from logic.src.policies.mandatory.base.selection_factory import MandatorySelectionFactory
@@ -53,20 +54,31 @@ CONFIG_MAPPING = {
     "bernoulli_random": "bernoulli_random",
     "kmeans_sector": "kmeans_sector",
     "staggered_regular": "staggered_regular",
+    "set_cover": "set_cover",
+    "fptas_knapsack": "fptas_knapsack",
 }
 
 
 class MandatorySelectionFactory:
-    """Factory for creating Mandatory selection strategies."""
+    """Factory for creating Mandatory selection strategies.
+
+    Attributes:
+        None
+
+    Example:
+        >>> strategy = MandatorySelectionFactory.create_strategy("regular", threshold=80)
+    """
 
     @staticmethod
     def create_strategy(name: str, **kwargs) -> IMandatorySelectionStrategy:
-        """
-        Create a selection strategy by name.
+        """Create a selection strategy by name.
 
         Args:
-            name: Name of the strategy.
+            name (str): Name of the strategy.
             **kwargs: Arguments to pass to the strategy constructor.
+
+        Returns:
+            IMandatorySelectionStrategy: The instantiated selection strategy.
         """
         # Lazy imports to avoid circular dependencies and keep strategies separated
         from logic.src.policies.mandatory_selection.selection_bernoulli_random import BernoulliRandomSelection
@@ -76,6 +88,7 @@ class MandatorySelectionFactory:
         from logic.src.policies.mandatory_selection.selection_dispatcher_portfolio import PortfolioDispatcher
         from logic.src.policies.mandatory_selection.selection_dispatcher_thompson import ThompsonDispatcher
         from logic.src.policies.mandatory_selection.selection_filter_and_fan import FilterAndFanSelection
+        from logic.src.policies.mandatory_selection.selection_fptas_knapsack import FPTASKnapsackSelection
         from logic.src.policies.mandatory_selection.selection_fractional_knapsack import FractionalKnapsackSelection
         from logic.src.policies.mandatory_selection.selection_kmeans_sector import KMeansGeographicSectorSelection
         from logic.src.policies.mandatory_selection.selection_lagrangian import LagrangianSelection
@@ -133,6 +146,8 @@ class MandatorySelectionFactory:
             "bernoulli_random": BernoulliRandomSelection,
             "kmeans_sector": KMeansGeographicSectorSelection,
             "staggered_regular": StaggeredRegularSelection,
+            "set_cover": SetCoverSelection,
+            "fptas_knapsack": FPTASKnapsackSelection,
         }
 
         # Check explicit registry first
@@ -162,7 +177,10 @@ class MandatorySelectionFactory:
         Create a selection strategy from a MandatorySelectionConfig object.
 
         Args:
-            config: MandatorySelectionConfig instance.
+            config (Any): MandatorySelectionConfig instance.
+
+        Returns:
+            IMandatorySelectionStrategy: The instantiated selection strategy.
         """
         if config.strategy is None:
             raise ValueError("No strategy specified in MandatorySelectionConfig")

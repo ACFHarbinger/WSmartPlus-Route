@@ -107,12 +107,10 @@ def _compute_overflow_risk(
     - ``overflow_penalty_frac * bin_mass_i`` = occurrence penalty in kg.
 
     Args:
-        current_fill: Current fill levels as percentages for each bin.
-        bin_mass: Full capacity in kg for each bin.
-        scenario_tree: Optional ``ScenarioTree`` (prediction module).  When
-            ``None`` the current fill is used as the single deterministic scenario.
-        overflow_penalty_frac: Penalty expressed as fraction of bin capacity added
-            per overflow probability unit.
+        current_fill (np.ndarray): Current fill levels as percentages.
+        bin_mass (np.ndarray): Full capacity in kg for each bin.
+        scenario_tree (Optional[Any]): Optional ``ScenarioTree``.
+        overflow_penalty_frac (float): Penalty fraction of bin capacity.
 
     Returns:
         np.ndarray: Per-bin overflow risk score (shape ``(n_bins,)``).
@@ -183,31 +181,28 @@ def _compute_overflow_risk(
 )
 @MandatorySelectionRegistry.register("mip_knapsack")
 class MIPKnapsackSelection(IMandatorySelectionStrategy):
-    """Exact 0/1 multiple-knapsack selection minimising expected overflow loss.
+    """MIP Multiple-Knapsack Selection Strategy.
 
-    Args:
-        overflow_penalty_frac: Additional penalty per overflow event expressed
-            as a fraction of the bin's full waste capacity.  Default ``1.0``
-            (one full bin-load of waste).
+    Exact 0/1 multiple-knapsack formulation of mandatory bin selection solved with
+    ``scipy.optimize.milp``. The objective is minimisation of expected overflow
+    loss across a lookahead horizon supplied as a ``ScenarioTree``.
+
+    Attributes:
+        overflow_penalty_frac (float): Additional penalty per overflow event.
     """
 
     def __init__(self, overflow_penalty_frac: float = 1.0) -> None:
         self.overflow_penalty_frac = overflow_penalty_frac
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """Solve the overflow-minimising 0/1 multiple-knapsack MIP.
-
-        Reads ``vehicle_capacity``, ``n_vehicles``, ``bin_volume``,
-        ``bin_density``, ``max_fill``, and (optionally) ``scenario_tree``
-        from the context.
+        """
+        Solve the overflow-minimising 0/1 multiple-knapsack MIP.
 
         Args:
-            context: ``SelectionContext`` with bin-level inputs.
+            context (SelectionContext): The selection context.
 
         Returns:
-            Tuple[List[int], SearchContext]:
-                - 1-based bin IDs selected for collection.
-                - ``SearchContext`` carrying ``SelectionMetrics``.
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
 
         Raises:
             ValueError: If ``distance_matrix`` is not supplied.

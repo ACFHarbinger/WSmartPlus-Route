@@ -45,63 +45,24 @@ from logic.src.policies.mandatory_selection.base.selection_registry import (
 )
 @MandatorySelectionRegistry.register("staggered_regular")
 class StaggeredRegularSelection(IMandatorySelectionStrategy):
-    """
-    Phase-staggered periodic collection strategy.
+    """Phase-staggered periodic collection strategy.
 
-    Each bin i (0-indexed position in the bin list) is assigned a fixed phase
-    offset:
+    Each bin i is assigned a fixed phase offset.
 
-        φ_i = i % X
-
-    where X is the collection period (``threshold``). Bin i is mandated on
-    day t if:
-
-        (t - 1) % X == φ_i
-
-    Design rationale
-    ----------------
-    The base ``RegularSelection`` mandates all bins simultaneously every X
-    days, creating vehicle-fleet demand spikes that are incompatible with
-    fixed-capacity routing. Staggered Regular resolves this by converting the
-    global period into per-bin individual schedules with uniformly distributed
-    offsets, ensuring the daily mandatory set has expected cardinality n/X.
-    This models how real operators stagger collection across days of the week
-    (e.g., zone A on Monday, zone B on Tuesday) without any spatial awareness.
-
-    Compared to K-Means Sector Selection, Staggered Regular assigns phases
-    purely by bin index order (no coordinate data required), making it
-    lighter-weight but spatially blind.
-
-    SelectionContext fields consumed
-    --------------------------------
-    threshold    (int)         : Collection period X ≥ 1. Defaults to 1.
-    current_day  (int)         : Current operational day t. Defaults to 1.
-    current_fill (ndarray[n]) : Per-bin fill ratios in [0, 1]. Optional.
-    bin_ids      (ndarray[n]) : 0-based bin IDs used when fill is absent.
-
-    Instance attributes
-    -------------------
-    min_fill (float): Minimum fill ratio for a bin to be eligible.
-                      Defaults to 0.0.
+    Attributes:
+        min_fill (float): Minimum fill ratio for a bin to be eligible.
+                          Defaults to 0.0.
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Return bin IDs whose phase offset matches today's slot in the period.
-
-        The active day-slot is ``(current_day - 1) % X``. A bin at 0-indexed
-        position i is selected when ``i % X == day_slot`` and its fill level
-        meets ``min_fill``.
+        """Return bin IDs whose phase offset matches today's slot in the period.
 
         Args:
-            context: SelectionContext providing current_day, threshold, and
-                     optionally current_fill or bin_ids.
+            context (SelectionContext): The selection context providing current_day, 
+                current_fill, and threshold (frequency).
 
         Returns:
-            A 2-tuple of:
-            - List[int]: 1-based bin IDs due for collection today.
-            - SearchContext: Populated with strategy name, the active day-slot
-              within the period, period length, and number of bins selected.
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
         """
         current_day: int = getattr(context, "current_day", 1)
         threshold: int = max(1, int(getattr(context, "threshold", 1)))

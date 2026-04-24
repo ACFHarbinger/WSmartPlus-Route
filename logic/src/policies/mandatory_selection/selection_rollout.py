@@ -36,17 +36,25 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 class RolloutSelection(IMandatorySelectionStrategy):
     """
     Lookahead-based selection strategy using one-step rollout.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins by comparing simulated future rewards.
+        """Select bins by comparing simulated future rewards.
+
+        Evaluates the expected future reward of "collecting today" versus
+        "deferring to tomorrow" using a one-step rollout algorithm.
 
         Args:
-            context: SelectionContext with simulation parameters.
+            context (SelectionContext): The selection context.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``accumulation_rates`` are missing.
         """
         # Lazy import to avoid circular dependencies
         from logic.src.policies.mandatory_selection.base.selection_factory import MandatorySelectionFactory
@@ -136,8 +144,7 @@ class RolloutSelection(IMandatorySelectionStrategy):
         max_fill: float,
         target_sigma: float,
     ) -> float:
-        """
-        Evaluate expected reward for a single bin.
+        """Evaluate expected reward for a single bin.
 
         Note:
             This is an approximation using an isolated single-bin simulation.
@@ -146,6 +153,22 @@ class RolloutSelection(IMandatorySelectionStrategy):
 
             This evaluation assumes cost_per_km > 0 to resolve ties between
             "collect today" and "defer indefinitely" (both zeros if costs=0).
+
+        Args:
+            idx (int): Bin index.
+            collect_today (bool): Whether to collect today.
+            context (SelectionContext): The selection context.
+            base_policy (IMandatorySelectionStrategy): The base policy to use.
+            horizon (int): Rollout horizon.
+            n_scenarios (int): Number of scenarios.
+            bin_cap (float): Bin capacity in kg.
+            revenue_kg (float): Revenue per kg.
+            round_trip_cost (np.ndarray): Round trip cost for each bin.
+            max_fill (float): Maximum fill percentage.
+            target_sigma (float): Standard deviation of accumulation.
+
+        Returns:
+            float: Expected reward.
         """
         mu = context.accumulation_rates[idx] if context.accumulation_rates is not None else 0.0
         sigma = target_sigma

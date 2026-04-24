@@ -1,18 +1,17 @@
-"""
-Mandatory Base Package.
+"""Mandatory Base Package.
 
 This package defines the core infrastructure for the "Mandatory" selection
 policy, including the context object, factory pattern for strategy creation,
 and the registry for available strategies.
 
 Attributes:
-    MandatorySelectionFactory (class): Factory for creating strategies.
-    MandatorySelectionRegistry (class): Registry for strategy classes.
-    SelectionContext (class): Data container for selection context.
+    MandatorySelectionFactory: Factory for creating strategy instances.
+    MandatorySelectionRegistry: Registry for mapping names to strategy classes.
+    SelectionContext: Data container for selection context and state.
 
 Example:
-    >>> from logic.src.policies.mandatory.base import SelectionContext
-    >>> ctx = SelectionContext(bin_ids=..., current_fill=...)
+    >>> from logic.src.policies.mandatory_selection.base import SelectionContext
+    >>> ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.array([50, 95]))
 """
 
 from .selection_context import SelectionContext

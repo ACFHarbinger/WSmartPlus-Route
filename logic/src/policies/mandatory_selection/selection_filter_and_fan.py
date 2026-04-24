@@ -14,6 +14,14 @@ bin selection. The algorithm operates in two phases:
 References:
     Glover, F. (1998). A template for scatter search and path relinking.
     Lecture Notes in Computer Science, 1415, 1-51.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.mandatory_selection.selection_filter_and_fan import FilterAndFanSelection
+    >>> strategy = FilterAndFanSelection()
+    >>> bins = strategy.select_bins(context)
 """
 
 from typing import List, Set, Tuple
@@ -33,8 +41,7 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("filter_and_fan")
 class FilterAndFanSelection(IMandatorySelectionStrategy):
-    """
-    Bin selection strategy based on the Filter-and-Fan metaheuristic.
+    """Bin selection strategy based on the Filter-and-Fan metaheuristic.
 
     Filter phase: rank bins by a composite urgency-profit score and keep the
     top-k (controlled by ``context.ff_filter_width``) as the seed solution.
@@ -44,22 +51,18 @@ class FilterAndFanSelection(IMandatorySelectionStrategy):
     objective makes each move evaluation O(1), so the full fan phase runs in
     O(n * ff_fan_depth) time.
 
-    Parameters (read from SelectionContext):
-        ff_filter_width: Number of top-scoring bins kept after the filter phase.
-                         Defaults to max(5, n_bins // 3).
-        ff_fan_depth:    Maximum number of add/remove sweep passes in the fan
-                         phase. Defaults to 3.
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins using the Filter-and-Fan procedure.
+        """Select bins using the Filter-and-Fan procedure.
 
         Args:
-            context: SelectionContext with fill levels, revenue, and cost data.
+            context (SelectionContext): SelectionContext with fill levels, revenue, and cost data.
 
         Returns:
-            Tuple of selected bin IDs (1-based) and a SearchContext with metrics.
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:

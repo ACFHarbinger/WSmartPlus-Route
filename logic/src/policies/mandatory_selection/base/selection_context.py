@@ -5,7 +5,7 @@ This module defines the `SelectionContext` data class, which serves as a
 container for all relevant data needed by selection strategies to make decisions.
 
 Attributes:
-    None
+    SelectionContext: Context container for selection strategy inputs.
 
 Example:
     >>> from logic.src.policies.mandatory.base.selection_context import SelectionContext
@@ -21,8 +21,29 @@ from numpy.typing import NDArray
 
 @dataclass
 class SelectionContext:
-    """
-    Context container for all potential inputs required by selection strategies.
+    """Context container for all potential inputs required by selection strategies.
+
+    Attributes:
+        bin_ids (NDArray[np.int32]): Array of unique bin identifiers.
+        current_fill (NDArray[np.float64]): Current waste fill levels of the bins.
+        accumulation_rates (Optional[NDArray[np.float64]]): Daily waste accumulation rates.
+        std_deviations (Optional[NDArray[np.float64]]): Standard deviations of accumulation.
+        current_day (int): The current simulation day.
+        threshold (float): Selection threshold (e.g., fill level percentage).
+        next_collection_day (Optional[int]): Predicted next collection day.
+        distance_matrix (Optional[NDArray[Any]]): Matrix of distances between nodes.
+        paths_between_states (Optional[List[List[List[int]]]]): Precomputed paths.
+        vehicle_capacity (float): Total mass capacity of the collection vehicle.
+        revenue_kg (float): Revenue generated per kg of waste collected.
+        bin_density (float): Average density of waste in the bins.
+        bin_volume (float): Total volume of each bin.
+        max_fill (float): Maximum possible fill level (typically 100).
+        overflow_penalty_frac (float): Fraction of revenue lost on overflow.
+        coordinates (Optional[NDArray[np.float64]]): GPS coordinates of bins.
+        seed (Optional[int]): Random seed for stochastic strategies.
+
+    Example:
+        >>> ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.array([80, 20]))
     """
 
     bin_ids: NDArray[np.int32]

@@ -133,11 +133,11 @@ def _compute_overflow_risk(
     deterministic current-fill proxy when no tree is provided.
 
     Args:
-        current_fill: Current fill levels as percentages (shape ``(n_bins,)``).
-        bin_mass: Full waste capacity in kg for each bin.
-        scenario_tree: Optional ``ScenarioTree`` from the prediction module.
+        current_fill (np.ndarray): Current fill levels as percentages (shape ``(n_bins,)``).
+        bin_mass (np.ndarray): Full waste capacity in kg for each bin.
+        scenario_tree (Optional[Any]): Optional ``ScenarioTree`` from the prediction module.
             Must expose ``get_scenarios_at_day(day)`` and ``horizon``.
-        overflow_penalty_frac: Occurrence penalty as a fraction of full bin
+        overflow_penalty_frac (float): Occurrence penalty as a fraction of full bin
             capacity added per unit of overflow probability.
 
     Returns:
@@ -213,13 +213,13 @@ def _fptas_01_knapsack(
     induction on the DP layers.
 
     Args:
-        values: Non-negative per-item values (shape ``(n,)``).
-        weights: Non-negative per-item weights (shape ``(n,)``).
-        capacity: Knapsack weight capacity (scalar).
-        epsilon: Approximation parameter ε ∈ (0, 1).
+        values (np.ndarray): Non-negative per-item values (shape ``(n,)``).
+        weights (np.ndarray): Non-negative per-item weights (shape ``(n,)``).
+        capacity (float): Knapsack weight capacity (scalar).
+        epsilon (float): Approximation parameter ε ∈ (0, 1).
 
     Returns:
-        Boolean mask of length ``n`` — True for each selected item.
+        np.ndarray: Boolean mask of length ``n`` — True for each selected item.
     """
     n_all = len(values)
     result_mask = np.zeros(n_all, dtype=bool)
@@ -360,17 +360,10 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
     Comparing the greedy solution against the single best-value bin gives the
     standard :math:`1/2`-approximation lower bound on the joint objective.
 
-    Args:
-        epsilon: FPTAS approximation parameter ε ∈ (0, 1).  The solution for
-            each knapsack achieves ≥ (1-ε) of optimal.  Smaller values give
-            better approximations at higher DP cost.  Default ``0.1``.
-        alpha: Overflow-risk weight ∈ [0, 1].  ``alpha=1`` collapses to pure
-            overflow minimisation (MIP knapsack objective); ``alpha=0``
-            collapses to pure profit maximisation (fractional knapsack
-            objective).  Default ``0.5``.
-        overflow_penalty_frac: Occurrence penalty per overflow event as a
-            fraction of full bin capacity in kg.  Passed directly to the
-            overflow-risk helper.  Default ``1.0``.
+    Attributes:
+        epsilon (float): FPTAS approximation parameter ε ∈ (0, 1).
+        alpha (float): Overflow-risk weight ∈ [0, 1].
+        overflow_penalty_frac (float): Occurrence penalty per overflow event.
     """
 
     def __init__(
@@ -392,7 +385,8 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
     # ------------------------------------------------------------------
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """Solve the bi-objective 0/1 multiple-knapsack via sequential FPTAS.
+        """
+        Solve the bi-objective 0/1 multiple-knapsack via sequential FPTAS.
 
         For each vehicle *k* in turn, applies the FPTAS to the pool of
         remaining eligible bins and collects the chosen set.  Returns the
@@ -400,17 +394,10 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
         dominates (1/2-approximation fallback).
 
         Args:
-            context: ``SelectionContext`` supplying bin-level attributes:
-                ``bin_volume``, ``bin_density``, ``current_fill``,
-                ``max_fill``, ``vehicle_capacity``, ``n_vehicles``,
-                ``revenue_kg``, ``cost_per_km``, ``distance_matrix``,
-                and optionally ``scenario_tree`` and
-                ``overflow_penalty_frac``.
+            context (SelectionContext): The selection context.
 
         Returns:
-            Tuple[List[int], SearchContext]:
-                - 1-based bin IDs selected for collection (sorted).
-                - ``SearchContext`` carrying ``SelectionMetrics``.
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
 
         Raises:
             ValueError: If ``distance_matrix`` is not provided.
