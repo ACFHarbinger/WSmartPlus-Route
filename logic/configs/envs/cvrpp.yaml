@@ -1,0 +1,40 @@
+# @package _global_
+# =============================================================================
+# Capacitated Vehicle Routing Problem with Profits (CVRPP) Configuration
+# =============================================================================
+# Waste-collecting routing WITH vehicle capacity constraints.
+#
+# Combines:
+#   - VRPP: Waste/profit collection objective
+#   - CVRP: Capacity constraints
+#
+# Realistic variant where vehicle has limited capacity and must return
+# to depot to empty before continuing collection.
+#
+# Benchmark: Standard OR problem for testing capacity-aware algorithms.
+# =============================================================================
+
+env:
+  name: "cvrpp" # Environment identifier
+
+  graph:
+    num_loc: 50 # Number of customer nodes. Standard sizes: 20, 50, 100, 200.
+
+  # =============================================================================
+  # Capacity Constraint
+  # =============================================================================
+  capacity:
+    100.0 # Normalized vehicle capacity.
+    # Waste values typically sum to > capacity, forcing selective collection.
+    # Range: 0.5-2.0. Higher = less constrained routing.
+
+  # =============================================================================
+  # Objective Function Weights
+  # =============================================================================
+  # Objective: maximize (waste_weight × Σ wastes) - (cost_weight × total_distance)
+  # Subject to: vehicle capacity constraints
+
+  reward:
+    cost_weight: 1.0 # Weight for travel distance. Higher = prioritize shorter routes.
+    waste_weight: 1.0 # Weight for waste collection. Higher = prioritize collecting more waste.
+    overflow_penalty: 1.0 # Penalty factor for overflows. Higher = penalize overflows more.

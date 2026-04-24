@@ -144,7 +144,7 @@ class LearnedRouteImprover(IRouteImprovement):
         """Initialise the learned improver.
 
         Args:
-            **kwargs (Any): Configuration arguments.
+            kwargs (Any): Configuration arguments.
         """
         super().__init__(**kwargs)
         self._model: Optional[MoveScorer] = None
@@ -183,7 +183,7 @@ class LearnedRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs (Any): Context, including 'distance_matrix', 'wastes', 'capacity', etc.
+            kwargs (Any): Context, including 'distance_matrix', 'wastes', 'capacity', etc.
 
         Returns:
             Tuple[List[int], ImprovementMetrics]: Improved tour and metadata.
@@ -440,7 +440,7 @@ class LearnedRouteImprover(IRouteImprovement):
             capacity (float): Vehicle capacity.
             cost_per_km (float): Distance cost.
             revenue_kg (float): Waste revenue.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             List[int]: Improved tour using classical heuristic.

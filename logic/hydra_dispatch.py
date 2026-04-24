@@ -55,7 +55,7 @@ def _pretty_print_hydra_config(cfg: Any, filter_keys: Any = None) -> None:
     print("=" * 80 + "\n")
 
 
-@hydra.main(version_base=None, config_path=os.path.join(CONFIGS_DIR, "assets", "configs"), config_name="config")
+@hydra.main(version_base=None, config_path=CONFIGS_DIR, config_name="config")
 def hydra_entry_point(cfg: Config) -> float:
     """
     Unified Hydra entry point for all configuration-driven commands.

@@ -1,0 +1,5 @@
+method: gd
+params:
+  initial_level: 100.0
+  decay_rate: 0.01
+  maximization: true

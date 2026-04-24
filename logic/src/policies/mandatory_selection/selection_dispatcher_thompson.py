@@ -25,10 +25,9 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.enums import GlobalRegistry, PolicyTag
-from logic.src.interfaces.context.search_context import SearchContext
+from logic.src.interfaces.context import SearchContext, SelectionContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
-from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
-from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.mandatory_selection.base import MandatorySelectionRegistry
 
 # Configure simple logging
 logger = logging.getLogger(__name__)

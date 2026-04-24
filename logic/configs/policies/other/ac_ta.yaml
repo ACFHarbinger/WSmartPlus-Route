@@ -1,0 +1,5 @@
+method: ta
+params:
+  initial_threshold: 100.0
+  decay_rate: 0.95
+  maximization: true

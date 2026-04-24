@@ -6,6 +6,10 @@ reoptimization per route using Dynamic Programming.
 
 Attributes:
     DPRouteReoptRouteImprover: Main class for DP-based route reoptimization.
+Example:
+    >>> from logic.src.policies.route_improvement.dp_route_reopt import DPRouteReoptRouteImprover
+    >>> improver = DPRouteReoptRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -48,15 +52,15 @@ class DPRouteReoptRouteImprover(IRouteImprovement):
         Args:
             tour (List[int]): Initial tour sequence.
             **kwargs: Context containing:
-                distance_matrix: Distance lookup (np.ndarray).
-                dp_max_nodes: Maximum nodes per route for DP (default 20).
-                wastes: Bin mass dictionary.
-                capacity: Vehicle capacity.
-                revenue_kg: Waste profit coefficient.
-                cost_per_km: Distance cost coefficient.
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                dp_max_nodes (int): Maximum nodes per route for DP (default 20).
+                wastes (Dict[int, float]): Bin mass dictionary.
+                capacity (float): Maximum vehicle capacity.
+                revenue_kg (float): Waste profit coefficient.
+                cost_per_km (float): Distance cost coefficient.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

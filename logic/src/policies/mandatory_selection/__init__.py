@@ -60,7 +60,10 @@ from logic.src.models.policies.selection import (
     get_vectorized_selector,
 )
 
-from .base import MandatorySelectionFactory, MandatorySelectionRegistry, SelectionContext
+from logic.src.interfaces.context import SelectionContext
+
+from .base import MandatorySelectionFactory, MandatorySelectionRegistry
+
 from .selection_bernoulli_random import BernoulliRandomSelection
 from .selection_combined import CombinedSelection
 from .selection_cvar import CVaRSelection

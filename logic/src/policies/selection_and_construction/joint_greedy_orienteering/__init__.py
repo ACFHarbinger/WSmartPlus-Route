@@ -6,6 +6,10 @@ based on greedy orienteering heuristics.
 Attributes:
     JointGreedyParams (Type[JointGreedyParams]): Configuration for the greedy policy.
     JointGreedyPolicy (Type[JointGreedyPolicy]): The joint greedy policy implementation.
+
+Example:
+    >>> from logic.src.policies.selection_and_construction.joint_greedy_orienteering import JointGreedyPolicy
+    >>> policy = JointGreedyPolicy()
 """
 
 from .params import JointGreedyParams

@@ -46,7 +46,7 @@ class ProfitableDetourRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
-            **kwargs (Any): Search context, including:
+            kwargs (Any): Search context, including:
                 - distance_matrix (np.ndarray): The distance matrix.
                 - detour_epsilon (float): Maximum proportion of detour distance relative to original edge.
                 - cost_per_km (float): Distance cost.

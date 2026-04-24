@@ -1,0 +1,24 @@
+# Policy Configuration
+# =============================================================================
+# GA (Genetic Algorithm) Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Population-based evolutionary algorithm with tournament selection,
+#   OX crossover, random relocate mutation, and elitism.
+# =============================================================================
+
+ga:
+  custom:
+    - pop_size: 60
+    - max_generations: 3500
+    - crossover_rate: 0.85
+    - mutation_rate: 0.15
+    - tournament_size: 4
+    - n_removal: 3
+    - time_limit: 60.0
+    # VRPP Settings
+    - profit_aware_operators: false
+    - vrpp: true
+
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: []

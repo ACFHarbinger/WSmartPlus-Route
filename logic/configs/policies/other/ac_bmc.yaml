@@ -1,0 +1,5 @@
+method: bmc
+params:
+  initial_temp: 100.0
+  alpha: 0.95
+  seed: 42

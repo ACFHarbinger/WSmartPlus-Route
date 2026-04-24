@@ -116,7 +116,7 @@ class NeuralSelectorRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): The initial tour sequence.
-            **kwargs (Any): Search context, including 'distance_matrix'.
+            kwargs (Any): Search context, including 'distance_matrix'.
 
         Returns:
             Tuple[List[int], ImprovementMetrics]: Improved tour and metadata.

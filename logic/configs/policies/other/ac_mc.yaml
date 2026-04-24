@@ -1,0 +1,4 @@
+method: mc
+params:
+  p: 0.1
+  seed: 42

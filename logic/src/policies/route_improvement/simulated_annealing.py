@@ -55,14 +55,14 @@ class SimulatedAnnealingRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
-            **kwargs (Any): Search context, including:
-                - distance_matrix (np.ndarray): The distance matrix.
-                - sa_iterations (int): Total number of iterations to perform.
-                - sa_t_init (float): Initial temperature.
-                - sa_cooling (float): Cooling rate (alpha).
-                - wastes (Dict[int, float]): Bin waste demands.
-                - capacity (float): Vehicle capacity.
-                - seed (int): Random seed.
+            **kwargs: Search context, including:
+                distance_matrix (np.ndarray | torch.Tensor): The distance matrix lookup.
+                sa_iterations (int): Total number of iterations to perform (default 5000).
+                sa_t_init (float): Initial temperature (default 10.0).
+                sa_cooling (float): Cooling rate (alpha, default 0.999).
+                seed (int): Random seed.
+                wastes (Dict[int, float]): Bin waste demands.
+                capacity (float): Maximum vehicle capacity.
 
         Returns:
             Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
@@ -158,7 +158,18 @@ class SimulatedAnnealingRouteImprover(IRouteImprovement):
         wastes: Dict[int, float],
         capacity: float,
     ) -> Tuple[Any, float]:
-        """Pick and apply a random move (intra-route or inter-route)."""
+        """Pick and apply a random move (intra-route or inter-route).
+
+        Args:
+            routes (List[List[int]]): Current set of routes.
+            dm (np.ndarray): Distance matrix for cost delta calculation.
+            rng (np.random.Generator): Random number generator.
+            wastes (Dict[int, float]): Bin demands for capacity checking.
+            capacity (float): Maximum vehicle capacity.
+
+        Returns:
+            Tuple[Optional[List[List[int]]], float]: (new_routes, cost_delta) or (None, 0.0) if rejected.
+        """
         move_type = rng.choice(["swap", "relocate", "two_opt"])
 
         # Select one or two random routes

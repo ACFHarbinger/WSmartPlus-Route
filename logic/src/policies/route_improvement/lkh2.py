@@ -28,10 +28,19 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.HEURISTIC,
 )
 @RouteImproverRegistry.register("lkh2")
+class LKH2RouteImprover(IRouteImprovement):
+    """LKH-2 route improver.
 
     Handles VRPP subset routes by extracting a dense sub-matrix containing only
     the visited nodes, running LKH-2 on this sub-problem, and mapping the results
     back to the original node IDs.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = LKH2RouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, max_iterations=200)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:

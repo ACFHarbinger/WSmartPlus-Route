@@ -1,0 +1,54 @@
+name: lagrangian_matheuristic
+config:
+  _target_: logic.src.configs.policies.calm.CALMConfig
+  time_limit: 600.0
+  seed: 42
+  verbose: False
+  stockout_penalty: 500.0
+  
+  lookahead:
+    horizon: 7
+    scenario_method: "stochastic"
+    scenario_distribution: "gamma"
+    n_scenarios: 8
+    capacity_cap: 100.0
+    
+  lagrangian:
+    max_outer_iterations: 12
+    stagnation_patience: 3
+    dual_bound_tolerance: 0.001
+    asynchronous_updates: True
+    polyak_mu_default: 0.15
+    polyak_mu_floor: 0.01
+    polyak_mu_ceil: 0.6
+    lambda_min: -100.0
+    lambda_max: 100.0
+    gamma_init: 1.0
+    gamma_decay: 0.85
+    
+  dual_bound:
+    strategy: "ema"
+    ema_alpha: 0.3
+    ema_quality_threshold: 1.05
+    bundle_size: 50
+    bundle_proximal_weight: 1.0
+    bundle_descent_threshold: 0.1
+    bundle_weight_increase: 2.0
+    bundle_weight_decrease: 0.5
+    
+  bandit:
+    enabled: True
+    alpha: 1.0
+    ridge_lambda: 1.0
+    feature_dim: 8
+    reward_scale: 1.0
+    reward_clip: 10.0
+    
+  regret:
+    enabled: True
+    soft_bias_coefficient: 0.5
+    escalation_patience: 2
+    hard_fix_top_fraction: 0.10
+    hard_fix_max_periods: 2
+    
+  tpks: {}

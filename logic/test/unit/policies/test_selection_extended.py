@@ -1,7 +1,7 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+from logic.src.interfaces.context.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
 from logic.src.policies.mandatory_selection.selection_revenue import RevenueThresholdSelection
 from logic.src.policies.mandatory_selection.selection_service_level import ServiceLevelSelection

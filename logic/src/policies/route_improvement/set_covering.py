@@ -92,7 +92,7 @@ class SetCoverRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
-            **kwargs (Any): Search context, including:
+            kwargs (Any): Search context, including:
                 - distance_matrix (np.ndarray): The distance matrix.
                 - sp_n_perturbations (int): Number of LNS perturbations for pool.
                 - sp_include_dp (bool): Whether to include DP-optimized variants.

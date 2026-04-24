@@ -3,6 +3,14 @@
 Provides :class:`BaseJointPolicy`, an abstract base class for solvers that
 perform mandatory-bin selection **and** route construction in a single
 integrated optimisation loop.
+
+Attributes:
+    BaseJointPolicy: The abstract base class defined in this module.
+
+Example:
+    >>> class MyJointPolicy(BaseJointPolicy):
+    ...     def solve_joint(self, context):
+    ...         return [], [], 0.0, 0.0
 """
 
 from abc import abstractmethod
@@ -61,7 +69,9 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         return None
 
     def _get_config_key(self) -> str:
-        """Hydra key (defaulting to class name lower).
+        """Return the Hydra configuration key.
+
+        Default implementation uses the lowercase class name without 'policy'.
 
         Returns:
             str: The configuration key string.
@@ -101,7 +111,7 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         """Simulation-engine entry point. Extracts context and calls solve_joint.
 
         Args:
-            **kwargs (Any): Simulation context and parameters.
+            kwargs (Any): Simulation context and parameters.
 
         Returns:
             Tuple[List[int], float, float, Optional[SearchContext], Optional[Any]]:
@@ -110,6 +120,9 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
                 - profit: Total expected profit.
                 - out_ctx: Updated search context.
                 - multi_day_ctx: Multi-day state context.
+
+        Raises:
+            ValueError: If 'bins' or 'distance_matrix' are not provided in kwargs.
         """
         # 1. Extract inputs from kwargs (sim context)
         bins = kwargs.get("bins")

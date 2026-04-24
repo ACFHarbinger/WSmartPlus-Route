@@ -8,12 +8,13 @@ Attributes:
     AdaptiveEnsembleRouteImprover: The route improvement class.
 
 Example:
-    route_improver = AdaptiveEnsembleRouteImprover()
-    best_tour, metrics = route_improver.process(tour, **kwargs)
+    >>> from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
+    >>> improver = AdaptiveEnsembleRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
-import random
 from typing import Any, List, Tuple
+import random
 
 from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import ImprovementMetrics
@@ -48,12 +49,12 @@ class AdaptiveEnsembleRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): The initial tour to improve.
-            **kwargs (Any): Additional search context, including:
-                - distance_matrix (np.ndarray): The distance matrix.
-                - phases (List[str]): Algorithms to include in the ensemble.
-                - iterations (int): Total number of selection iterations.
-                - reaction_factor (float): EMA update factor for algorithm weights.
-                - seed (int): Random seed.
+            **kwargs: Additional search context, including:
+                distance_matrix (np.ndarray | torch.Tensor): The distance matrix lookup.
+                phases (List[str]): Algorithms to include in the ensemble.
+                iterations (int): Total number of selection iterations (default 50).
+                reaction_factor (float): EMA update factor for algorithm weights (default 0.1).
+                seed (int): Random seed.
 
         Returns:
             Tuple[List[int], ImprovementMetrics]: Improved tour and performance metadata.
