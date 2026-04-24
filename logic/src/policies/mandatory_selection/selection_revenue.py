@@ -33,19 +33,20 @@ from .base.selection_registry import MandatorySelectionRegistry
 )
 @MandatorySelectionRegistry.register("revenue")
 class RevenueThresholdSelection(IMandatorySelectionStrategy):
-    """
-    Revenue-based selection strategy.
+    """Revenue-based selection strategy.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins where expected revenue exceeds the threshold.
+        """Select bins where expected revenue exceeds the threshold.
 
         Args:
-            context: SelectionContext with bin properties, revenue parameters, and threshold.
+            context (SelectionContext): SelectionContext with revenue parameters and threshold.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
         """
         bin_cap = context.bin_volume * context.bin_density
         fill_ratios = context.current_fill / context.max_fill

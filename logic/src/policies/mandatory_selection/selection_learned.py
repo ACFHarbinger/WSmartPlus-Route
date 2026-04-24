@@ -32,8 +32,13 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("learned")
 class LearnedSelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on a pre-trained imitation model.
+    """Selection strategy based on a pre-trained imitation model.
+
+    Attributes:
+        model_path (Optional[str]): Path to the model file.
+        _learned_threshold (float): Prediction probability threshold.
+        _model (Any): The loaded model.
+        _model_type (Optional[str]): Type of model ('sklearn' or 'torch').
     """
 
     def __init__(self, model_path: Optional[str] = None, threshold: float = 0.5):
@@ -43,7 +48,14 @@ class LearnedSelection(IMandatorySelectionStrategy):
         self._model_type: Optional[str] = None
 
     def _load_model(self, path: str) -> None:
-        """Lazy load the model from the specified path."""
+        """Lazy load the model from the specified path.
+
+        Args:
+            path (str): Path to the model file.
+
+        Returns:
+            None
+        """
         if not os.path.exists(path):
             raise RuntimeError(f"LearnedSelection: Model file not found at {path}")
 
@@ -59,14 +71,20 @@ class LearnedSelection(IMandatorySelectionStrategy):
             raise RuntimeError(f"LearnedSelection: Unsupported model extension {ext}")
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Extract features and predict selection using the learned model.
+        """Extract features and predict selection using the learned model.
+
+        Extracts features for each bin (fill ratio, accumulation rate, distance,
+        revenue, etc.) and uses the pre-trained model to predict selection
+        probability.
 
         Args:
-            context: SelectionContext with all bin properties.
+            context (SelectionContext): SelectionContext with all bin properties.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            RuntimeError: If no model path is provided or model cannot be loaded.
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:

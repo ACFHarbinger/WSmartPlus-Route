@@ -33,19 +33,28 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("submodular_greedy")
 class SubmodularGreedySelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on Submodular Facility Location Coverage.
+    """Selection strategy based on Submodular Facility Location Coverage.
+
+    Attributes:
+        None
+
+    Example:
+        >>> from logic.src.policies.mandatory_selection.selection_submodular_greedy import SubmodularGreedySelection
+        >>> strategy = SubmodularGreedySelection()
+        >>> bins, ctx = strategy.select_bins(context)
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Greedily maximize the coverage objective using lazy evaluations.
+        """Greedily maximize the coverage objective using lazy evaluations.
 
         Args:
-            context: SelectionContext with revenue and cost parameters.
+            context (SelectionContext): The selection context providing current_fill and distance_matrix.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``distance_matrix`` is missing.
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:

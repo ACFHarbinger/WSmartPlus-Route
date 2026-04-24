@@ -1,12 +1,14 @@
-"""
-Deadline-Driven Selection Strategy Module.
+"""Deadline-Driven Selection Strategy Module.
 
 This strategy computes the exact floor of days remaining until guaranteed
 overflow based on the expected accumulation rate. It obligates collection
 for any bin whose deadline is less than or equal to a defined lookahead horizon.
 
+Attributes:
+    None
+
 Example:
-    >>> from logic.src.policies.helpers.mandatory.selection_deadline import DeadlineDrivenSelection
+    >>> from logic.src.policies.mandatory_selection.selection_deadline import DeadlineDrivenSelection
     >>> strategy = DeadlineDrivenSelection()
     >>> bins = strategy.select_bins(context)
 """
@@ -29,20 +31,21 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("deadline")
 class DeadlineDrivenSelection(IMandatorySelectionStrategy):
-    """
-    Temporal selection strategy based on exact day-to-overflow calculation.
+    """Temporal selection strategy based on exact day-to-overflow calculation.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Selects bins that will reach maximum capacity within the lookahead horizon.
+        """Selects bins that will reach maximum capacity within the lookahead horizon.
 
         Args:
-            context: Selection context containing current fill levels,
-                     accumulation rates, and horizon thresholds.
+            context (SelectionContext): Selection context containing current fill levels,
+                                        accumulation rates, and horizon thresholds.
 
         Returns:
-            List[int]: List of bin IDs (1-based index) strictly required for collection.
+            Tuple[List[int], SearchContext]: Selected bin IDs and search context.
         """
         if context.accumulation_rates is None:
             raise ValueError("DeadlineDrivenSelection requires accumulation_rates.")

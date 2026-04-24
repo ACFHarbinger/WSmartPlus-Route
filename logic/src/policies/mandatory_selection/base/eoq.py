@@ -13,6 +13,13 @@ where D is demand rate (kg/day), S is ordering cost per visit, and h is
 holding cost per kg per day. We convert Q* to a fill-level ratio
     tau_i = min(1, Q* / bin_mass_capacity_i)
 which is then returned in the same units as current_fill (typically percent).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.mandatory_selection.base.eoq import compute_eoq_thresholds
+    >>> thresholds = compute_eoq_thresholds(context)
 """
 
 from __future__ import annotations
@@ -25,14 +32,19 @@ from logic.src.policies.mandatory_selection.base.selection_context import (
 
 
 def compute_eoq_thresholds(context: SelectionContext) -> np.ndarray:
-    """
-    Return per-bin EOQ-derived fill-level triggers in absolute fill units.
+    """Return per-bin EOQ-derived fill-level triggers in absolute fill units.
 
     The returned triggers are scaled by context.max_fill to match the units
     of context.current_fill (typically percent 0-100).
 
     Falls back to a uniform threshold of ``context.threshold``
     when required parameters are missing or non-positive.
+
+    Args:
+        context (SelectionContext): The selection context containing bin data.
+
+    Returns:
+        np.ndarray: Array of per-bin EOQ thresholds.
     """
     n = len(context.current_fill)
 
@@ -68,11 +80,17 @@ def compute_eoq_thresholds(context: SelectionContext) -> np.ndarray:
 
 
 def resolve_trigger_threshold(context: SelectionContext, fill_ratios: np.ndarray) -> np.ndarray:
-    """
-    Return a boolean mask of bins whose fill meets the effective trigger.
+    """Return a boolean mask of bins whose fill meets the effective trigger.
 
     If ``context.use_eoq_threshold`` is True, the per-bin EOQ threshold is
     used; otherwise a uniform ``context.threshold`` is applied.
+
+    Args:
+        context (SelectionContext): The selection context.
+        fill_ratios (np.ndarray): Normalized fill ratios (unused here but often passed).
+
+    Returns:
+        np.ndarray: Boolean mask where True indicates a bin meets the trigger.
     """
     # Important: context.current_fill is absolute (percent), fill_ratios is normalized.
     # We choose to compare in absolute units to match compute_eoq_thresholds output.

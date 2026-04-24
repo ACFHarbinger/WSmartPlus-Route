@@ -32,21 +32,27 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("multi_day_prob")
 class MultiDayOverflowSelection(IMandatorySelectionStrategy):
-    """
-    Stochastic selection strategy based on cumulative probability over time.
+    """Stochastic selection strategy based on cumulative probability over time.
+
+    Attributes:
+        None
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Selects bins if their probability of overflowing within K days
-        exceeds a defined risk threshold.
+        """Selects bins based on overflow probability within K days.
+
+        Computes the tail probability of a bin overflowing over a stochastic 
+        horizon of K days. Assumes daily waste generation is i.i.d Gaussian.
 
         Args:
-            context: Selection context containing stochastic parameters
-                     and optionally `horizon_days`.
+            context (SelectionContext): The selection context.
 
         Returns:
-            List[int]: List of bin IDs (1-based index) exceeding risk thresholds.
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If stochastic parameters (accumulation_rates or std_deviations)
+                are missing in the context.
         """
         if context.accumulation_rates is None or context.std_deviations is None:
             raise ValueError("Missing stochastic parameters in context.")

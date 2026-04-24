@@ -29,19 +29,29 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("whittle")
 class WhittleIndexSelection(IMandatorySelectionStrategy):
-    """
-    Selection strategy based on Whittle Index priority.
+    """Selection strategy based on Whittle Index priority.
+
+    Attributes:
+        None
+
+    Example:
+        >>> from logic.src.policies.mandatory_selection.selection_whittle import WhittleIndexSelection
+        >>> strategy = WhittleIndexSelection()
+        >>> bins, ctx = strategy.select_bins(context)
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Rank bins by Whittle index and select top candidates.
+        """Rank bins by Whittle index and select top candidates.
 
         Args:
-            context: SelectionContext with MDP parameters.
+            context (SelectionContext): The selection context providing current_fill, 
+                accumulation_rates, and whittle parameters.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            ValueError: If ``accumulation_rates`` are missing.
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:

@@ -34,19 +34,30 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("wasserstein_robust")
 class WassersteinRobustSelection(IMandatorySelectionStrategy):
-    """
-    Distributionally robust selection strategy based on Wasserstein ambiguity balls.
+    """Distributionally robust selection strategy based on Wasserstein ambiguity balls.
+
+    Attributes:
+        None
+
+    Example:
+        >>> from logic.src.policies.mandatory_selection.selection_wasserstein import WassersteinRobustSelection
+        >>> strategy = WassersteinRobustSelection()
+        >>> bins, ctx = strategy.select_bins(context)
     """
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins based on the worst-case expected overflow volume.
+        """Select bins based on the worst-case expected overflow volume.
 
         Args:
-            context: SelectionContext with Wasserstein radius and Gaussian params.
+            context (SelectionContext): The selection context providing current_fill, 
+                accumulation_rates, and wasserstein parameters.
 
         Returns:
-            List[int]: List of bin IDs (1-based index).
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
+
+        Raises:
+            NotImplementedError: If wasserstein_p is not 1.
+            ValueError: If accumulation_rates are missing.
         """
         if context.wasserstein_p != 1:
             raise NotImplementedError("WassersteinRobustSelection currently only supports p=1.")

@@ -33,15 +33,21 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 )
 @MandatorySelectionRegistry.register("lookahead")
 class LookaheadSelection(IMandatorySelectionStrategy):
-    """
-    Predictive selection strategy looking ahead to synchronize collections.
+    """Predictive selection strategy looking ahead to synchronize collections.
 
-    Selects bins that will overflow before the next required visit to currently full bins.
+    Attributes:
+        None
     """
 
     def _should_bin_be_collected(self, current_fill_level: float, accumulation_rate: float) -> bool:
-        """
-        Check if bin overflows today.
+        """Check if bin overflows today.
+
+        Args:
+            current_fill_level (float): Current fill level.
+            accumulation_rate (float): Accumulation rate.
+
+        Returns:
+            bool: True if bin overflows today.
         """
         return current_fill_level + accumulation_rate >= MAX_CAPACITY_PERCENT
 
@@ -57,8 +63,13 @@ class LookaheadSelection(IMandatorySelectionStrategy):
         return current_fill_levels
 
     def _initialize_lists_bins(self, n_bins: int) -> List[int]:
-        """
-        Initialize list for next collection days.
+        """Initialize list for next collection days.
+
+        Args:
+            n_bins (int): Number of bins.
+
+        Returns:
+            List[int]: List of zeros.
         """
         return [0] * n_bins
 
@@ -134,8 +145,16 @@ class LookaheadSelection(IMandatorySelectionStrategy):
         return mandatory_bins
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
-        """
-        Select bins based on lookahead logic.
+        """Select bins based on lookahead logic.
+
+        Identifies bins that require immediate collection and predicts future 
+        overflows to bundle collections optimally.
+
+        Args:
+            context (SelectionContext): The selection context.
+
+        Returns:
+            Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.
         """
         if context.accumulation_rates is None:
             return [], SearchContext.initialize(selection_metrics={"strategy": "LookaheadSelection"})
