@@ -258,6 +258,14 @@ class Population:
         objectives: np.ndarray,
         front_ranks: np.ndarray,
     ) -> None:
+        """
+        Initialize a population.
+
+        Args:
+            chromosomes: List of chromosomes.
+            objectives: Objective matrix.
+            front_ranks: Pareto front ranks.
+        """
         self.chromosomes = chromosomes
         self.objectives = objectives
         self.front_ranks = front_ranks

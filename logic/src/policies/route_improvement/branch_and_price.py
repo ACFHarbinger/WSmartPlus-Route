@@ -74,14 +74,28 @@ except ImportError:
 if _HAS_VRPY:
 
     class ProfitableVRP(VehicleRoutingProblem):
-        """Type-safe wrapper for VRPy to satisfy Pyright/Pyrefly static analysis."""
+        """Type-safe wrapper for VRPy to satisfy Pyright/Pyrefly static analysis.
+
+        Attributes:
+            prize_collection (bool): Flag indicating if the VRP is prize-collecting.
+        """
 
         prize_collection: bool
 
 
 @contextmanager
 def _time_limit(seconds: float):
-    """Wall-clock timeout context manager (POSIX only)."""
+    """Wall-clock timeout context manager (POSIX only).
+
+    Args:
+        seconds (float): Timeout duration in seconds.
+
+    Yields:
+        None: Context manager control.
+
+    Raises:
+        TimeoutError: If the execution time exceeds the specified limit.
+    """
 
     def _handler(signum, frame):
         raise TimeoutError(f"branch_and_price exceeded {seconds}s time limit")
@@ -127,13 +141,15 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         Args:
             tour (List[int]): Initial tour represented as bin IDs (depot 0s as separators).
             **kwargs: Context containing:
-                distance_matrix: Distance matrix (np.ndarray or torch.Tensor).
-                wastes: Dict mapping bin IDs to waste amounts.
-                capacity: Vehicle capacity.
-                cost_per_km: Unit distance cost.
-                revenue_kg: Unit waste revenue.
-                bp_time_limit: Time limit for the B&P solve.
-                mandatory_nodes: List of required visitor IDs.
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                wastes (Dict[int, float]): Mapping of bin IDs to waste amounts.
+                capacity (float): Maximum vehicle capacity.
+                cost_per_km (float): Unit distance cost.
+                revenue_kg (float): Unit waste revenue.
+                bp_time_limit (float): Time limit for the B&P solve.
+                mandatory_nodes (List[int]): List of required visitor IDs.
+                bp_max_iterations (int): Maximum pricing iterations.
+                bp_use_exact_pricing (bool): Whether to use the exact pricer.
 
         Returns:
             Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics_summary).
@@ -419,10 +435,10 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
             cost_per_km (float): Distance cost coefficient.
             revenue_kg (float): Revenue coefficient.
             mandatory_nodes (List[int]): Required nodes.
-            **kwargs: Forwarded context.
+            **kwargs: Forwarded context, including 'bp_time_limit' and 'bp_use_cspy'.
 
         Returns:
-            Optional[List[List[int]]]: Improved routes or None.
+            Optional[List[List[int]]]: Improved routes or None if optimization failed.
         """
         time_limit = kwargs.get("bp_time_limit", self.config.get("bp_time_limit", 120.0))
         cspy = kwargs.get("bp_use_cspy", self.config.get("bp_use_cspy", True))
@@ -508,7 +524,15 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         return refined
 
     def _fallback_set_partitioning(self, tour: List[int], **kwargs: Any) -> List[int]:
-        """Tertiary fallback to pool-restricted set-partitioning."""
+        """Tertiary fallback to pool-restricted set-partitioning.
+
+        Args:
+            tour (List[int]): Current tour to be refined.
+            **kwargs: Forwarded context for SetPartitioningRouteImprover.
+
+        Returns:
+            List[int]: Refined tour or original tour if fallback fails.
+        """
         try:
             from .set_partitioning import SetPartitioningRouteImprover
 

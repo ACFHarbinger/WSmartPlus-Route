@@ -49,7 +49,7 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): The initial tour sequence.
-            **kwargs (Any): Search context, including:
+            kwargs (Any): Search context, including:
                 - distance_matrix (np.ndarray): The distance matrix.
                 - ls_operator (str): Name of the operator to use (e.g., '2opt', '3opt', 'swap').
                 - iterations (int): Maximum number of iterations.

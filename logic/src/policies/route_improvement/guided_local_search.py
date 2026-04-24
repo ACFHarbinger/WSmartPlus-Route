@@ -47,16 +47,20 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
         Args:
             tour (List[int]): Initial tour sequence.
             **kwargs: Context containing:
-                distance_matrix: Distance lookup.
-                gls_iterations: Number of GLS meta-iterations (default 20).
-                gls_inner_iterations: Local search move limit per iteration (default 50).
-                gls_lambda_factor: Penalty scaling weight (default 0.1).
-                gls_base_operator: Operator to use (default "or_opt").
-                wastes: Bin mass dictionary.
-                capacity: Vehicle capacity.
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                gls_iterations (int): Number of GLS meta-iterations (default 20).
+                gls_inner_iterations (int): Local search move limit per iteration (default 50).
+                gls_lambda_factor (float): Penalty scaling weight (default 0.1).
+                gls_penalty_decay (float): Penalty decay factor (default 1.0).
+                gls_base_operator (str): Operator to use (default "or_opt").
+                seed (int): Random seed.
+                wastes (Dict[int, float]): Bin mass dictionary.
+                capacity (float): Maximum vehicle capacity.
+                R (float): Revenue coefficient.
+                C (float): Cost coefficient.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
@@ -140,7 +144,15 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
             return tour, {"algorithm": "GuidedLocalSearchRouteImprover"}
 
     def _get_operator_method(self, manager: Any, name: str):
-        """Map operator name to LocalSearchManager method."""
+        """Map operator name to LocalSearchManager method.
+
+        Args:
+            manager (LocalSearchManager): The local search manager instance.
+            name (str): Name of the operator to retrieve.
+
+        Returns:
+            Callable: The operator method from the manager.
+        """
         name = name.lower()
         if name in ["or_opt", "relocate_chain"]:
             return manager.or_opt
@@ -157,7 +169,13 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
         return manager.or_opt
 
     def _update_penalties(self, routes: List[List[int]], dm: np.ndarray, penalty: np.ndarray):
-        """Identify maximum utility edge and increment penalty."""
+        """Identify maximum utility edge and increment penalty.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+            dm (np.ndarray): Distance matrix.
+            penalty (np.ndarray): Penalty matrix to update.
+        """
         max_utility = -1.0
         max_edge = None
 

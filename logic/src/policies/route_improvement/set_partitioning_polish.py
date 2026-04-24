@@ -80,17 +80,17 @@ class SetPartitioningPolishRouteImprover(IRouteImprovement):
         Args:
             tour (List[int]): Initial tour sequence.
             **kwargs: Context containing:
-                distance_matrix: Distance lookup.
-                route_pool: List of candidate routes to select from.
-                sp_time_limit: Seconds for Gurobi solve (default 60.0).
-                wastes: Bin mass dictionary.
-                capacity: Vehicle capacity.
-                revenue_kg: Waste profit coefficient.
-                cost_per_km: Distance cost coefficient.
-                mandatory_nodes: List of required visitor IDs.
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                route_pool (List[List[int]]): List of candidate routes to select from.
+                sp_time_limit (float): Seconds for Gurobi solve (default 60.0).
+                wastes (Dict[int, float]): Bin mass dictionary.
+                capacity (float): Maximum vehicle capacity.
+                revenue_kg (float): Waste profit coefficient.
+                cost_per_km (float): Distance cost coefficient.
+                mandatory_nodes (List[int]): List of required visitor IDs.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

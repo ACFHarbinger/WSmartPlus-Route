@@ -63,13 +63,28 @@ class NDSBRKGAPolicy(BaseJointPolicy):
     """
 
     def __init__(self, config: Optional[Union[NDSBRKGAConfig, Dict[str, Any]]] = None):
+        """Initialize NDSBRKGAPolicy.
+
+        Args:
+            config (Optional[Union[NDSBRKGAConfig, Dict[str, Any]]]): Configuration source.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the dataclass type for config parsing.
+
+        Returns:
+            Optional[Type]: The NDSBRKGAConfig type.
+        """
         return NDSBRKGAConfig
 
     def _get_config_key(self) -> str:
+        """Return the Hydra configuration key.
+
+        Returns:
+            str: The configuration key string 'nds_brkga'.
+        """
         return "nds_brkga"
 
     def _run_solver(
@@ -93,7 +108,7 @@ class NDSBRKGAPolicy(BaseJointPolicy):
             cost_unit (float): Cost per km.
             values (Dict[str, Any]): Problem parameters.
             mandatory_nodes (List[int]): Required node IDs.
-            **kwargs (Any): Additional simulation context.
+            kwargs (Any): Additional simulation context.
 
         Returns:
             Tuple[List[List[int]], float, float]:

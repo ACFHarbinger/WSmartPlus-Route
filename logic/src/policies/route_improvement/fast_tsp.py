@@ -5,6 +5,10 @@ reoptimization in inner loops.
 
 Attributes:
     FastTSPRouteImprover: Main class for fast TSP solving.
+Example:
+    >>> from logic.src.policies.route_improvement.fast_tsp import FastTSPRouteImprover
+    >>> improver = FastTSPRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -35,6 +39,10 @@ class FastTSPRouteImprover(IRouteImprovement):
 
     Attributes:
         config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = FastTSPRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, time_limit=5.0)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
@@ -43,13 +51,14 @@ class FastTSPRouteImprover(IRouteImprovement):
         Args:
             tour (List[int]): Initial tour sequence.
             **kwargs: Context containing:
-                distance_matrix: Distance lookup (np.ndarray).
-                fast_tsp_iterations: Heuristic iteration count (default 100).
-                wastes: Bin mass dictionary.
-                capacity: Vehicle capacity.
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                time_limit (float): Maximum time for TSP solve per segment (default 2.0).
+                seed (int): Random seed for the solver.
+                wastes (Dict[int, float]): Bin mass dictionary.
+                capacity (float): Vehicle capacity.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         dm = to_numpy(distance_matrix)

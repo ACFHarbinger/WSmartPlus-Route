@@ -49,13 +49,29 @@ class JointGreedyPolicy(BaseJointPolicy):
     """
 
     def __init__(self, config: Optional[Union[JointGreedyConfig, Dict[str, Any]]] = None):
+        """
+        Initialize the JGO policy.
+
+        Args:
+            config (Optional[Union[JointGreedyConfig, Dict[str, Any]]]): Configuration source.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the dataclass type for config parsing.
+
+        Returns:
+            Optional[Type]: The JointGreedyConfig type.
+        """
         return JointGreedyConfig
 
     def _get_config_key(self) -> str:
+        """Return the Hydra configuration key.
+
+        Returns:
+            str: The configuration key string 'jgo'.
+        """
         return "jgo"
 
     def solve_joint(

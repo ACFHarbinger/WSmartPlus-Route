@@ -43,15 +43,14 @@ def biased_crossover(
     Args:
         elite: The elite parent chromosome (rank-1 or crowd-distance-preferred).
         non_elite: The non-elite parent chromosome (drawn from the non-elite pool).
-        bias_elite: Probability of inheriting each gene from *elite*.
-            Should be in ``(0.5, 1.0)`` to provide meaningful bias.
-        rng: NumPy random Generator for reproducibility.
+        bias_elite: Probability ``[0, 1]`` of inheriting an allele from the elite parent.
+        rng: Random number generator instance.
 
     Returns:
-        A new :class:`~.chromosome.Chromosome` with ``n_bins`` from *elite*.
+        Chromosome: A new offspring chromosome.
 
     Raises:
-        ValueError: If the two parents have different ``n_bins``.
+        ValueError: If the parents have different sizes (`n_bins`).
     """
     if elite.n_bins != non_elite.n_bins:
         raise ValueError(f"Parent n_bins mismatch: {elite.n_bins} vs {non_elite.n_bins}")

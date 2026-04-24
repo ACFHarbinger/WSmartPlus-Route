@@ -33,7 +33,7 @@ class LKHRouteImprover(IRouteImprovement):
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        Apply LKH refinement to a tour using sub-matrix extraction.
+        """Apply LKH refinement to a tour using sub-matrix extraction.
 
         For VRPP instances where only a subset of nodes are visited, this
         method creates a dense sub-problem by extracting only the relevant

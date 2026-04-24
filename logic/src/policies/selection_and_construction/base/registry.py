@@ -1,4 +1,15 @@
-"""Registry for joint selection and construction policies."""
+"""Registry for joint selection and construction policies.
+
+Maintains a mapping of policy names to their respective classes, enabling
+dynamic instantiation through the factory.
+
+Attributes:
+    JointPolicyRegistry: The registry class defined in this module.
+
+Example:
+    >>> from logic.src.policies.selection_and_construction.base.registry import JointPolicyRegistry
+    >>> policy_cls = JointPolicyRegistry.get("jgo")
+"""
 
 from typing import Any, Dict, Optional, Type
 
