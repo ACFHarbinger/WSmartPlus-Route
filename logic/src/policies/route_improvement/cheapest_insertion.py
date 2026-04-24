@@ -5,6 +5,10 @@ heuristics to augment existing tours with unselected profitable bins.
 
 Attributes:
     CheapestInsertionRouteImprover: Main class for cheapest insertion improvement.
+Example:
+    >>> from logic.src.policies.route_improvement.cheapest_insertion import CheapestInsertionRouteImprover
+    >>> improver = CheapestInsertionRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -44,16 +48,21 @@ class CheapestInsertionRouteImprover(IRouteImprovement):
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply cheapest insertion augmentation to the tour.
+        """Apply cheapest insertion augmentation to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'wastes', 'capacity',
-                     'cost_per_km', 'revenue_kg', 'n_bins', 'mandatory_nodes', etc.
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                wastes (Dict[int, float]): Bin waste mass mapping.
+                capacity (float): Maximum vehicle capacity.
+                cost_per_km (float): Distance cost coefficient.
+                revenue_kg (float): Waste revenue coefficient.
+                n_bins (int): Total number of bins available.
+                mandatory_nodes (List[int]): Required nodes.
 
         Returns:
-            List[int]: Refined and potentially expanded tour.
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

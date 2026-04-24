@@ -24,7 +24,7 @@ import sys
 import traceback
 
 from logic.benchmark.benchmark_suite import run_benchmarks
-from logic.src.file_system import (
+from .file_system import (
     delete_file_system_entries,
     perform_cryptographic_operations,
     update_file_system_entries,

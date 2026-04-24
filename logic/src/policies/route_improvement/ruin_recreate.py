@@ -59,7 +59,7 @@ class RuinRecreateRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
-            **kwargs (Any): Search context, including:
+            kwargs (Any): Search context, including:
                 - distance_matrix (np.ndarray): The distance matrix.
                 - lns_iterations (int): Number of ruin-recreate cycles.
                 - ruin_fraction (float): Fraction of nodes to remove each iteration.

@@ -24,7 +24,19 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.LOCAL_SEARCH,
 )
 @RouteImproverRegistry.register("lk")
-    nodes per trip) where the subgradient overhead would dominate.
+class LKRouteImprover(IRouteImprovement):
+    """Lin-Kernighan route improver.
+
+    Iterative improvement heuristic for the TSP. Highly effective for medium-sized
+    problems (up to ~1000 nodes). This improver applies LK to each sub-trip
+    independently.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = LKRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, max_iterations=50)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:

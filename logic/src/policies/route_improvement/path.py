@@ -2,6 +2,10 @@
 
 Attributes:
     PathRouteImprover: Main class for simple path-based improvement.
+Example:
+    >>> from logic.src.policies.route_improvement.path import PathRouteImprover
+    >>> improver = PathRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, bins=my_bins, total_fill=my_fill)
 """
 
 from typing import Any, List, Tuple
@@ -38,12 +42,16 @@ class PathRouteImprover(IRouteImprovement):
         """Refine the tour by picking up convenient bins along the path.
 
         Args:
-            tour: The current tour (list of bin IDs).
-            **kwargs: Context containing 'bins' or 'total_fill', 'paths_between_states',
-                      and 'vehicle_capacity'.
+            tour (List[int]): The current tour (list of bin IDs).
+            **kwargs: Context containing:
+                bins (Any): Bin objects or metadata.
+                total_fill (np.ndarray): Array of bin fill levels.
+                paths_between_states (Dict[int, Dict[int, List[int]]]): Shortest paths between nodes.
+                vehicle_capacity (float): Maximum vehicle capacity.
+                max_capacity (float): Alias for vehicle_capacity.
 
         Returns:
-            List[int]: The expanded tour including opportunistic pickups.
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         bins = kwargs.get("bins")
         paths = kwargs.get("paths_between_states")

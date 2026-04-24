@@ -16,6 +16,10 @@ Attributes:
     evaluate_chromosome (Callable): Single candidate objective evaluator.
     evaluate_population (Callable): Batch population evaluator.
     compute_adaptive_thresholds (Callable): Dynamic selection threshold calculator.
+
+Example:
+    >>> from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm import NDSBRKGAPolicy
+    >>> policy = NDSBRKGAPolicy()
 """
 
 from .chromosome import Chromosome, compute_adaptive_thresholds

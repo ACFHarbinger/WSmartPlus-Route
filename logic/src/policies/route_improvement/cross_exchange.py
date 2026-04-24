@@ -45,7 +45,7 @@ class CrossExchangeRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour (List of bin IDs including depot 0s).
-            **kwargs (Any): Search context, including:
+            kwargs (Any): Search context, including:
                 - distance_matrix (np.ndarray): The distance matrix.
                 - cross_exchange_max_segment_len (int): Maximum segment length to swap.
                 - iterations (int): Maximum number of iterations.

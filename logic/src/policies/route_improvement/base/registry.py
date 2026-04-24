@@ -39,7 +39,14 @@ class RouteImproverRegistry:
         """
 
         def wrapper(processor_cls: Type[IRouteImprovement]):
-            """Wrapper for registering the processor class."""
+            """Wrapper for registering the processor class.
+
+            Args:
+                processor_cls (Type[IRouteImprovement]): The route improver class to register.
+
+            Returns:
+                Type[IRouteImprovement]: The registered class.
+            """
             cls._strategies[name.lower()] = processor_cls
             return processor_cls
 

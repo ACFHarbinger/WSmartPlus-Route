@@ -9,19 +9,19 @@ as the specific implementations for Greedy Orienteering, Simulated Annealing,
 and NDS-BRKGA.
 
 Attributes:
-    BaseJointPolicy (Type[BaseJointPolicy]): Base class for joint policies.
-    JointPolicyFactory (Type[JointPolicyFactory]): Factory for creating joint policies.
-    JointPolicyRegistry (Type[JointPolicyRegistry]): Registry of available joint policies.
-    JointGreedyParams (Type[JointGreedyParams]): Parameters for JGO.
-    JointGreedyPolicy (Type[JointGreedyPolicy]): JGO policy implementation.
-    JointSAParams (Type[JointSAParams]): Parameters for JSA.
-    JointSAPolicy (Type[JointSAPolicy]): JSA policy implementation.
-    NDSBRKGAParams (Type[NDSBRKGAParams]): Parameters for NDS-BRKGA.
-    NDSBRKGAPolicy (Type[NDSBRKGAPolicy]): NDS-BRKGA policy implementation.
+    BaseJointPolicy: Base class for joint policies.
+    JointPolicyFactory: Factory for creating joint policies.
+    JointPolicyRegistry: Registry of available joint policies.
+    JointGreedyParams: Parameters for JGO.
+    JointGreedyPolicy: JGO policy implementation.
+    JointSAParams: Parameters for JSA.
+    JointSAPolicy: JSA policy implementation.
+    NDSBRKGAParams: Parameters for NDS-BRKGA.
+    NDSBRKGAPolicy: NDS-BRKGA policy implementation.
 
 Example:
     >>> from logic.src.policies.selection_and_construction import JointPolicyFactory
-    >>> policy = JointPolicyFactory.get_policy("nds_brkga", env=env, config=cfg)
+    >>> policy = JointPolicyFactory.create("nds_brkga", config=cfg)
 """
 
 from .base.base_joint_policy import BaseJointPolicy

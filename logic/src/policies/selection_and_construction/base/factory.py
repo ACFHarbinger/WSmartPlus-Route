@@ -1,4 +1,14 @@
-"""Factory for joint selection and construction policies."""
+"""Factory for joint selection and construction policies.
+
+Provides a centralized mechanism to instantiate registered policies by name.
+
+Attributes:
+    JointPolicyFactory: Factory class for instantiating policies.
+
+Example:
+    >>> from logic.src.policies.selection_and_construction.base.factory import JointPolicyFactory
+    >>> policy = JointPolicyFactory.create("jgo")
+"""
 
 from typing import Any, Optional
 
@@ -10,6 +20,9 @@ class JointPolicyFactory:
     """Factory for creating joint selection and construction policies.
 
     Provides a centralized mechanism to instantiate registered policies by name.
+
+    Attributes:
+        None
     """
 
     @staticmethod

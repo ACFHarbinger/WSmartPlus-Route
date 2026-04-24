@@ -196,8 +196,8 @@ check-type-coverage sort="coverage" limit="40":
 # Scans from repo root so logic/gui layers are correctly distinguished.
 
 # Use depth=N to collapse to top-N package levels; set html= to change output path.
-module-graph html="module_graph.html" depth="3":
-    uv run python logic/src/utils/validation/visualize_module_graph.py . \
+module-graph html="module_graph.html" depth="10":
+    uv run python logic/src/utils/validation/visualize_module_graph.py ./logic/src \
         --exclude .venv venv node_modules \
         --html {{ html }} --depth {{ depth }}
 

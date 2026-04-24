@@ -65,7 +65,7 @@ except ValueError:
 ROOT_DIR: Path = root_dir
 
 # Hydra configurations directory
-CONFIGS_DIR: str = "../../assets/configs"
+CONFIGS_DIR: str = "configs"
 
 # GUI application icon (PNG format, white logo on transparent background)
 # Used in: PySide6 QMainWindow.setWindowIcon(), system tray, taskbar

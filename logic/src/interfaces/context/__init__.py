@@ -6,13 +6,14 @@ Attributes:
     MultiDayContext: Multi-day routing context
     ProblemContext: Problem definition context
     SolutionContext: Solution context
-    SearchContext: Search context
-    AcceptanceMetrics: Acceptance metrics
-    ConstructionMetrics: Construction metrics
-    ImprovementMetrics: Improvement metrics
-    SelectionMetrics: Selection metrics
-    SearchPhase: Search phase
-    merge_context: Merge contexts
+    SearchContext: Search context.
+    AcceptanceMetrics: Acceptance metrics.
+    ConstructionMetrics: Construction metrics.
+    ImprovementMetrics: Improvement metrics.
+    SelectionMetrics: Selection metrics.
+    SearchPhase: Search phase.
+    SelectionContext: Data container for selection context and state.
+    merge_context: Merge contexts.
 
 Example:
     >>> from logic.src.interfaces.context import (
@@ -22,6 +23,7 @@ Example:
         SearchContext,
         SearchPhase,
         SelectionMetrics,
+        SelectionContext,
         merge_context,
         MultiDayContext,
         ProblemContext,
@@ -43,6 +45,7 @@ from .search_context import (
     merge_context,
 )
 from .solution_context import SolutionContext
+from .selection_context import SelectionContext
 
 __all__ = [
     "SearchContext",
@@ -56,4 +59,5 @@ __all__ = [
     "ProblemContext",
     "SolutionContext",
     "JointSelectionConstructionContext",
+    "SelectionContext",
 ]

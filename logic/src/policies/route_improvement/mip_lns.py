@@ -36,7 +36,7 @@ class MIPLNSRouteImprover(IRouteImprovement):
        by isolating the destroyed components and solving the Restricted Sub-MIP.
 
     Attributes:
-        MIPLNSRouteImprover: Main class for MIP-based Large Neighborhood Search.
+        config (Dict[str, Any]): Internal configuration state.
 
     Example:
         >>> from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
@@ -50,15 +50,15 @@ class MIPLNSRouteImprover(IRouteImprovement):
         Args:
             tour (List[int]): Initial tour sequence.
             **kwargs: Context containing:
-                distance_matrix: Distance lookup.
-                iterations: Number of LNS cycles (default 5).
-                ruin_fraction: Portion of nodes to remove (default 0.2).
-                seed: Random seed.
-                wastes: Bin mass dictionary.
-                capacity: Vehicle capacity.
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                iterations (int): Number of LNS cycles (default 5).
+                ruin_fraction (float): Portion of nodes to remove (default 0.2).
+                seed (int): Random seed.
+                wastes (Dict[int, float]): Bin mass dictionary.
+                capacity (float): Maximum vehicle capacity.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         dm = to_numpy(kwargs.get("distance_matrix", kwargs.get("distancesC")))
         if dm is None or not tour:

@@ -104,7 +104,7 @@ class Chromosome:
     __slots__ = ("keys", "n_bins")
 
     def __init__(self, keys: np.ndarray, n_bins: int) -> None:
-        Create a Chromosome from a pre-built key vector.
+        """Create a Chromosome from a pre-built key vector.
 
         Args:
             keys: Float array of length ``2 * n_bins``, all in ``[0, 1]``.

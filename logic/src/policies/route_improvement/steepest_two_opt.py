@@ -51,7 +51,7 @@ class SteepestTwoOptRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): The initial tour sequence.
-            **kwargs (Any): Search context, including:
+            kwargs (Any): Search context, including:
                 - distance_matrix (np.ndarray): The distance matrix.
                 - wastes (Dict[int, float]): Bin waste demands.
                 - capacity (float): Vehicle capacity.

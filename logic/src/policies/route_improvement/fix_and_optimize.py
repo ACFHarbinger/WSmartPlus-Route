@@ -81,18 +81,19 @@ class FixAndOptimizeRouteImprover(IRouteImprovement):
         Args:
             tour (List[int]): Initial tour sequence.
             **kwargs: Context containing:
-                distance_matrix: Distance lookup.
-                fo_n_free: Absolute number of routes to free (overrides fraction).
-                fo_free_fraction: Fraction of routes to free (default 0.30).
-                fo_time_limit: Seconds for Gurobi solve (default 30.0).
-                wastes: Bin mass dictionary.
-                capacity: Vehicle capacity.
-                revenue_kg: Waste profit coefficient.
-                cost_per_km: Distance cost coefficient.
-                mandatory_nodes: List of required visitor IDs.
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                fo_n_free (int): Absolute number of routes to free (overrides fraction).
+                fo_free_fraction (float): Fraction of routes to free (default 0.30).
+                fo_time_limit (float): Seconds for Gurobi solve (default 30.0).
+                seed (int): Random seed.
+                wastes (Dict[int, float]): Bin mass dictionary.
+                capacity (float): Maximum vehicle capacity.
+                revenue_kg (float): Waste profit coefficient.
+                cost_per_km (float): Distance cost coefficient.
+                mandatory_nodes (List[int]): List of required visitor IDs.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

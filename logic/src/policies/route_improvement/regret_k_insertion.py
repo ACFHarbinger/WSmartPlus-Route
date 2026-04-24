@@ -2,6 +2,11 @@
 
 Attributes:
     RegretKInsertionRouteImprover: Main class for regret-based insertion.
+
+Example:
+    >>> from logic.src.policies.route_improvement.regret_k_insertion import RegretKInsertionRouteImprover
+    >>> improver = RegretKInsertionRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, distance_matrix=dm, k=3)
 """
 
 from typing import Any, List, Tuple
@@ -36,16 +41,30 @@ class RegretKInsertionRouteImprover(IRouteImprovement):
 
     Attributes:
         config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = RegretKInsertionRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, regret_k=3)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """Apply Regret-K insertion to reconcile omitted bins.
 
         Args:
-                     'regret_k', 'regret_noise', 'cost_per_km', 'revenue_kg', etc.
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+                regret_k (int): Regret depth (default 2).
+                regret_noise (float): Random noise factor for insertion (default 0.0).
+                cost_per_km (float): Distance cost coefficient.
+                revenue_kg (float): Waste revenue coefficient.
+                wastes (Dict[int, float]): Bin waste mass mapping.
+                capacity (float): Maximum vehicle capacity.
+                n_bins (int): Total number of bins available.
+                mandatory_nodes (List[int]): Required nodes.
 
         Returns:
-            List[int]: Refined and potentially expanded tour.
+            Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
