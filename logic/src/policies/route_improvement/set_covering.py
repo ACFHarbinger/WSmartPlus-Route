@@ -1,14 +1,16 @@
-"""
-Set-Cover Route Improver (Pool-Restricted Exact).
+"""Set-Cover Route Improver (Pool-Restricted Exact).
 
-Builds a route pool from the input tour plus perturbations and solves the
-set-cover IP exactly via Gurobi. Unlike Set Partitioning, Set Cover allows 
-nodes to be visited in multiple selected routes if it yields a mathematically 
-superior packing of the pool. 
+This module builds a route pool from the input tour plus perturbations and
+solves the set-cover IP exactly via Gurobi. Unlike Set Partitioning, Set Cover
+allows nodes to be visited in multiple selected routes if it yields a superior
+packing. A post-processing step removes overlaps to restore a valid partition.
 
-A post-processing step evaluates any overlapping nodes and selectively drops 
-them from the routes where their removal yields the maximum routing cost 
-savings, naturally restoring a valid, duplicate-free Set Partition.
+Attributes:
+    SetCoverRouteImprover: Route improvement class using Set Covering.
+
+Example:
+    >>> improver = SetCoverRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 import logging
@@ -55,7 +57,14 @@ except ImportError:
 
 
 def _canonical(route: List[int]) -> Tuple[int, ...]:
-    """Canonical form for symmetric-distance deduplication."""
+    """Canonical form for symmetric-distance deduplication.
+
+    Args:
+        route (List[int]): The route to canonicalize.
+
+    Returns:
+        Tuple[int, ...]: The canonical representation of the route.
+    """
     fwd = tuple(route)
     rev = tuple(reversed(route))
     return min(fwd, rev)
@@ -68,8 +77,37 @@ def _canonical(route: List[int]) -> Tuple[int, ...]:
 )
 @RouteImproverRegistry.register("set_cover")
 class SetCoverRouteImprover(IRouteImprovement):
-    
+    """Set-Cover route improver.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = SetCoverRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm)
+    """
+
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply Set Cover intensification to the tour.
+
+        Args:
+            tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - sp_n_perturbations (int): Number of LNS perturbations for pool.
+                - sp_include_dp (bool): Whether to include DP-optimized variants.
+                - dp_max_nodes (int): Max nodes for DP re-optimization.
+                - ruin_fraction (float): LNS ruin fraction.
+                - sp_time_limit (float): Gurobi time limit.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - seed (int): Random seed.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "SetCoverRouteImprover"}
@@ -177,7 +215,7 @@ class SetCoverRouteImprover(IRouteImprovement):
                 cost_per_km=cost_per_km,
                 revenue_kg=revenue_kg,
                 target_nodes=target_nodes,
-                time_limit=time_limit
+                time_limit=time_limit,
             )
 
             if not selected_routes:
@@ -206,9 +244,22 @@ class SetCoverRouteImprover(IRouteImprovement):
         cost_per_km: float,
         revenue_kg: float,
         target_nodes: Set[int],
-        time_limit: float
+        time_limit: float,
     ) -> List[List[int]]:
-        """Builds and solves the Set Cover formulation using Gurobi."""
+        """Builds and solves the Set Cover formulation using Gurobi.
+
+        Args:
+            pool (List[List[int]]): Candidate routes.
+            dm (np.ndarray): Distance matrix.
+            wastes (dict): Bin waste demands.
+            cost_per_km (float): Distance cost.
+            revenue_kg (float): Waste revenue.
+            target_nodes (Set[int]): Nodes that must be covered.
+            time_limit (float): Gurobi time limit.
+
+        Returns:
+            List[List[int]]: Selected subset of routes.
+        """
         model = gp.Model("SetCover")
         model.setParam("TimeLimit", time_limit)
         model.setParam("OutputFlag", 0)
@@ -219,7 +270,7 @@ class SetCoverRouteImprover(IRouteImprovement):
             # Default to pure distance minimization if C and R are both zero
             cost = dist * cost_per_km if cost_per_km > 0 else dist
             profit = sum(wastes.get(n, 0.0) for n in set(route) if n != 0) * revenue_kg
-            
+
             # Objective: Minimize (Cost - Profit)
             x[idx] = model.addVar(vtype=gp.GRB.BINARY, obj=(cost - profit), name=f"x_{idx}")
 
@@ -233,13 +284,21 @@ class SetCoverRouteImprover(IRouteImprovement):
 
         if model.Status in (gp.GRB.OPTIMAL, gp.GRB.TIME_LIMIT) and model.SolCount > 0:
             return [list(pool[idx]) for idx in x if x[idx].X > 0.5]
-        
+
         return []
 
     def _deduplicate_nodes(self, routes: List[List[int]], dm: np.ndarray) -> List[List[int]]:
-        """
+        """Removes duplicate nodes from overlapping routes.
+
         Identifies nodes visited more than once and drops them from the route
         where their removal yields the greatest distance reduction.
+
+        Args:
+            routes (List[List[int]]): Selected routes with overlaps.
+            dm (np.ndarray): Distance matrix.
+
+        Returns:
+            List[List[int]]: Routes with overlaps resolved.
         """
         # Count occurrences of all non-depot nodes
         counts = defaultdict(int)
@@ -250,7 +309,7 @@ class SetCoverRouteImprover(IRouteImprovement):
 
         for node, count in counts.items():
             while count > 1:
-                best_savings = -float('inf')
+                best_savings = -float("inf")
                 best_route_idx = -1
                 best_node_idx = -1
 
@@ -262,7 +321,7 @@ class SetCoverRouteImprover(IRouteImprovement):
                             next_n = r[j + 1]
                             # Triangle inequality savings: D(prev, node) + D(node, next) - D(prev, next)
                             savings = dm[prev_n, node] + dm[node, next_n] - dm[prev_n, next_n]
-                            
+
                             if savings > best_savings:
                                 best_savings = savings
                                 best_route_idx = i

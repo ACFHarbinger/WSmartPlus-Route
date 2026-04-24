@@ -28,7 +28,7 @@ from hydra.core.config_store import ConfigStore
 from omegaconf import OmegaConf
 
 from logic.src.configs import Config
-from logic.src.constants import ROOT_DIR
+from logic.src.constants import CONFIGS_DIR
 
 cs = ConfigStore.instance()
 cs.store(name="config", node=Config)
@@ -55,7 +55,7 @@ def _pretty_print_hydra_config(cfg: Any, filter_keys: Any = None) -> None:
     print("=" * 80 + "\n")
 
 
-@hydra.main(version_base=None, config_path=os.path.join(ROOT_DIR, "assets", "configs"), config_name="config")
+@hydra.main(version_base=None, config_path=os.path.join(CONFIGS_DIR, "assets", "configs"), config_name="config")
 def hydra_entry_point(cfg: Config) -> float:
     """
     Unified Hydra entry point for all configuration-driven commands.

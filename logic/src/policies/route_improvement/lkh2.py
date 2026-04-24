@@ -2,6 +2,12 @@
 LKH-2 (Lin-Kernighan-Helsgaun 2009) Route Improver.
 """
 
+"""LKH-2 Route Improver (Keldahl & Helsgaun).
+
+Attributes:
+    LKH2RouteImprover: Main class for LKH-2 based improvement.
+"""
+
 from typing import Any, List, Tuple
 
 import numpy as np
@@ -22,15 +28,6 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.HEURISTIC,
 )
 @RouteImproverRegistry.register("lkh2")
-class LinKernighanHelsgaunTwoRouteImprover(IRouteImprovement):
-    """
-    Refines tours using the LKH-2 population-based meta-heuristic (Helsgaun 2009).
-
-    LKH-2 extends LKH-1 with a fixed-size population of locally-optimal tours,
-    Iterative Partial Transcription (IPT) crossover for diversification, and a
-    shared subgradient penalty vector.  This makes it significantly stronger than
-    LKH-1 on large or hard instances at the cost of additional wall-clock time due
-    to population maintenance and crossover operations.
 
     Handles VRPP subset routes by extracting a dense sub-matrix containing only
     the visited nodes, running LKH-2 on this sub-problem, and mapping the results

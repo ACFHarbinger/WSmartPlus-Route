@@ -1,9 +1,11 @@
-"""
-Held-Karp DP Route Reoptimization Route Improver.
+"""Held-Karp DP Route Reoptimization Route Improver.
 
 Delegates to operators.intensification.dp_route_reopt (or its profit
 variant when revenue/cost are configured) to perform exact TSP
 reoptimization per route using Dynamic Programming.
+
+Attributes:
+    DPRouteReoptRouteImprover: Main class for DP-based route reoptimization.
 """
 
 from typing import Any, List, Tuple
@@ -26,13 +28,36 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("dp_route_reopt")
 class DPRouteReoptRouteImprover(IRouteImprovement):
-    """
-    Held-Karp exact TSP route improver. Reoptimizes each route
-    independently using DP. Routes longer than `dp_max_nodes`
-    are returned unchanged.
+    """Held-Karp exact TSP route improver.
+
+    Reoptimizes each route independently using DP. Routes longer than
+    `dp_max_nodes` are returned unchanged due to the exponential
+    complexity of the Held-Karp algorithm.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = DPRouteReoptRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, dp_max_nodes=15)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply Held-Karp reoptimization to each route in the tour.
+
+        Args:
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix: Distance lookup (np.ndarray).
+                dp_max_nodes: Maximum nodes per route for DP (default 20).
+                wastes: Bin mass dictionary.
+                capacity: Vehicle capacity.
+                revenue_kg: Waste profit coefficient.
+                cost_per_km: Distance cost coefficient.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "DPRouteReoptRouteImprover"}

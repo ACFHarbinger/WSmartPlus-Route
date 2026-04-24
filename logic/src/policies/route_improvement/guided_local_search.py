@@ -1,5 +1,12 @@
-"""
-Guided Local Search Route Improver.
+"""Guided Local Search Route Improver.
+
+Attributes:
+    GuidedLocalSearchRouteImprover: Main class for GLS improvement.
+
+Example:
+    >>> from logic.src.policies.route_improvement.guided_local_search import GuidedLocalSearchRouteImprover
+    >>> improver = GuidedLocalSearchRouteImprover(config=cfg)
+    >>> tour, metrics = improver.process([0, 1, 2, 0], gls_iterations=10)
 """
 
 from typing import Any, List, Tuple
@@ -21,23 +28,35 @@ from .common.helpers import assemble_tour, split_tour, to_numpy, tour_distance
 )
 @RouteImproverRegistry.register("guided_local_search")
 class GuidedLocalSearchRouteImprover(IRouteImprovement):
-    """
-    Guided Local Search (GLS) route improver.
+    """Guided Local Search (GLS) route improver.
+
     Augments the distance matrix with penalties on frequently used edges
-    to escape local optima.
+    to escape local optima and encourage exploration of the search space.
+
+    Attributes:
+        config (dict): Internal configuration state.
+
+    Example:
+        >>> improver = GuidedLocalSearchRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, gls_lambda_factor=0.2)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply Guided Local Search to the tour.
+        """Apply Guided Local Search to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'gls_iterations',
-                     'gls_inner_iterations', 'gls_lambda_factor', 'gls_base_operator', etc.
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix: Distance lookup.
+                gls_iterations: Number of GLS meta-iterations (default 20).
+                gls_inner_iterations: Local search move limit per iteration (default 50).
+                gls_lambda_factor: Penalty scaling weight (default 0.1).
+                gls_base_operator: Operator to use (default "or_opt").
+                wastes: Bin mass dictionary.
+                capacity: Vehicle capacity.
 
         Returns:
-            List[int]: Refined tour.
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

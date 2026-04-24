@@ -1,8 +1,14 @@
-"""
-Neural Operator Selector Route Improver.
+"""Neural Operator Selector Route Improver.
 
 Utilizes a PyTorch Neural Network (Policy) to orchestrate local search operators,
 mapping the current search state to a probability distribution over available moves.
+
+Attributes:
+    logger (logging.Logger): Module-level logger.
+
+Example:
+    >>> improver = NeuralSelectorRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 import logging
@@ -23,15 +29,33 @@ logger = logging.getLogger(__name__)
 
 
 class OperatorSelectionPolicy(nn.Module):
-    """Lightweight MLP for state-to-operator mapping."""
+    """Lightweight MLP for state-to-operator mapping.
+
+    Attributes:
+        net (nn.Sequential): The neural network layers.
+    """
 
     def __init__(self, state_dim: int, n_operators: int):
+        """Initialise the operator selection policy.
+
+        Args:
+            state_dim (int): Dimension of the input state vector.
+            n_operators (int): Number of available operators (output dimension).
+        """
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(state_dim, 32), nn.ReLU(), nn.Linear(32, 16), nn.ReLU(), nn.Linear(16, n_operators)
         )
 
     def forward(self, state: torch.Tensor) -> torch.Tensor:
+        """Forward pass to compute operator probabilities.
+
+        Args:
+            state (torch.Tensor): The input state vector.
+
+        Returns:
+            torch.Tensor: Probability distribution over operators.
+        """
         logits = self.net(state)
         return F.softmax(logits, dim=-1)
 
@@ -42,12 +66,26 @@ class OperatorSelectionPolicy(nn.Module):
 )
 @RouteImproverRegistry.register("neural_selector")
 class NeuralSelectorRouteImprover(IRouteImprovement):
-    """
-    Machine-learning-augmented operator orchestrator.
+    """Machine-learning-augmented operator orchestrator.
+
     Extracts a localized state vector and predicts the optimal algorithm sequence.
+
+    Attributes:
+        operators (List[str]): Names of available improvement operators.
+        policy_net (OperatorSelectionPolicy): Neural model for operator selection.
+        config (Dict[str, Any]): Configuration settings.
+
+    Example:
+        >>> improver = NeuralSelectorRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm)
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialise the neural selector.
+
+        Args:
+            config (Optional[Dict[str, Any]]): Configuration dictionary.
+        """
         super().__init__(config=config or {})
         self.operators = ["steepest_two_opt", "cross_exchange", "or_opt", "ruin_recreate"]
         # In a real environment, load weights from self.config["model_weights_path"]
@@ -57,12 +95,32 @@ class NeuralSelectorRouteImprover(IRouteImprovement):
     def _extract_state(
         self, current_cost: float, best_cost: float, iteration: int, max_iter: int, stagnation: int
     ) -> torch.Tensor:
-        """Constructs a dimensionless state vector."""
+        """Constructs a dimensionless state vector.
+
+        Args:
+            current_cost (float): Cost of the current tour.
+            best_cost (float): Best cost found so far.
+            iteration (int): Current iteration number.
+            max_iter (int): Maximum number of iterations.
+            stagnation (int): Number of iterations without improvement.
+
+        Returns:
+            torch.Tensor: Dimensionsless state vector [gap, progress, stagnation, bias].
+        """
         gap = (current_cost - best_cost) / (best_cost + 1e-6)
         progress = iteration / max_iter
         return torch.tensor([gap, progress, float(stagnation), 1.0], dtype=torch.float32)
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply neural operator selection to improve the tour.
+
+        Args:
+            tour (List[int]): The initial tour sequence.
+            **kwargs (Any): Search context, including 'distance_matrix'.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Improved tour and metadata.
+        """
         dm = to_numpy(kwargs.get("distance_matrix", kwargs.get("distancesC")))
         if dm is None or not tour:
             return tour, {"algorithm": "NeuralSelectorRouteImprover"}

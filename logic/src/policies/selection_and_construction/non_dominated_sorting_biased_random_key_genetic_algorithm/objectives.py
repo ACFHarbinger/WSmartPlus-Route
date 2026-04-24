@@ -13,20 +13,14 @@ The NDS-BRKGA minimises a **three-dimensional objective vector**:
 2. ``f2 = overflow_cost`` (→ minimise unselected bins' expected overflow loss)
 3. ``f3 = total_distance`` (→ minimise total travel distance)
 
-The first two objectives are in direct tension: selecting more bins increases
-revenue (reducing ``f1``) but also reduces overflow cost (reducing ``f2``).
-The NSGA-II Pareto-front extraction resolves this by finding the non-dominated
-set, giving the solver a diverse portfolio of trade-off solutions.
+Attributes:
+    compute_overflow_risk: Per-bin risk calculator.
+    evaluate_chromosome: Single chromosome scorer.
+    evaluate_population: Batch population scorer.
 
-Overflow Risk Computation
--------------------------
-Per-bin overflow risk (used for both ``f2`` and adaptive threshold generation)
-is computed identically to :func:`~logic.src.policies.mandatory_selection.selection_mip_knapsack._compute_overflow_risk`:
-
-  ``score_i = E[overflow_kg_i] + P_i × penalty_frac × bin_mass_i``
-
-where the expectation is taken over the ``ScenarioTree`` when available, and
-over the current fill level as a deterministic proxy otherwise.
+Example:
+    >>> risk = compute_overflow_risk(current_fill, bin_mass, scenario_tree, 0.1)
+    >>> neg_profit, overflow, dist = evaluate_chromosome(chrom, thresholds, ...)
 """
 
 from typing import Any, Dict, List, Optional, Tuple

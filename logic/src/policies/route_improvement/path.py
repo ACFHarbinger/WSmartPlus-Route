@@ -1,14 +1,22 @@
-"""
-Path Refinement Route Improver.
+"""Path Route Improver.
+
+Attributes:
+    PathRouteImprover: Main class for simple path-based improvement.
 """
 
 from typing import Any, List, Tuple
 
 from logic.src.enums import GlobalRegistry, PolicyTag
-from logic.src.interfaces import IRouteImprovement
 from logic.src.interfaces.context.search_context import ImprovementMetrics
+from logic.src.interfaces.route_improvement import IRouteImprovement
 
 from .base import RouteImproverRegistry
+from .common.helpers import (
+    assemble_tour,
+    resolve_mandatory_nodes,
+    split_tour,
+    to_numpy,
+)
 
 
 @GlobalRegistry.register(
@@ -17,14 +25,17 @@ from .base import RouteImproverRegistry
 )
 @RouteImproverRegistry.register("path")
 class PathRouteImprover(IRouteImprovement):
-    """
+    """Simple path route improver.
+
     Refines the tour by including nodes that lie on the shortest paths between consecutive
     stops in the tour, provided they fit within the vehicle capacity.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Refine the tour by picking up convenient bins along the path.
+        """Refine the tour by picking up convenient bins along the path.
 
         Args:
             tour: The current tour (list of bin IDs).

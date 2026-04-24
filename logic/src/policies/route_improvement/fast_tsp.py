@@ -1,5 +1,10 @@
-"""
-Fast TSP Refinement Route Improver.
+"""Fast TSP Solver for route reoptimization.
+
+Provides a lightweight TSP implementation suitable for recurring
+reoptimization in inner loops.
+
+Attributes:
+    FastTSPRouteImprover: Main class for fast TSP solving.
 """
 
 from typing import Any, List, Tuple
@@ -7,9 +12,11 @@ from typing import Any, List, Tuple
 import numpy as np
 
 from logic.src.enums import GlobalRegistry, PolicyTag
-from logic.src.interfaces import IRouteImprovement
 from logic.src.interfaces.context.search_context import ImprovementMetrics
-from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route
+from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import (
+    find_route,
+)
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
@@ -21,21 +28,28 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("fast_tsp")
 class FastTSPRouteImprover(IRouteImprovement):
-    """
-    Refines all sub-tours using the fast_tsp library.
-    Splits long tours by depot (0), re-optimizes each segment, and reconstructs.
+    """Fast TSP route improver.
+
+    Refines all sub-tours by splitting the tour by depot (0),
+    re-optimizing each segment, and reconstructing the final tour.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Refine the tour by splitting it into trips and optimizing each with fast_tsp.
+        """Apply fast TSP reoptimization to each route in the tour.
 
         Args:
-            tour: The initial tour to refine (list of node IDs).
-            **kwargs: Keyword arguments containing 'distance_matrix'.
+            tour (List[int]): Initial tour sequence.
+            **kwargs: Context containing:
+                distance_matrix: Distance lookup (np.ndarray).
+                fast_tsp_iterations: Heuristic iteration count (default 100).
+                wastes: Bin mass dictionary.
+                capacity: Vehicle capacity.
 
         Returns:
-            List[int]: The optimized tour with reduced total distance.
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics).
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         dm = to_numpy(distance_matrix)

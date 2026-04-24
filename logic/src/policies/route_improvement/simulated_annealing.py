@@ -1,8 +1,16 @@
-"""
-Simulated Annealing Route Improver.
+"""Simulated Annealing Route Improver.
 
-Delegates move acceptance to the pluggable ``BoltzmannAcceptance`` criterion,
-threading per-step ``AcceptanceMetrics`` into the returned ``ImprovementMetrics``.
+This module provides a Simulated Annealing (SA) metaheuristic for route
+improvement. It explores the search space by applying random local moves and
+accepting them based on the Boltzmann-Metropolis criterion, allowing for
+exploration of non-improving moves to escape local optima.
+
+Attributes:
+    SimulatedAnnealingRouteImprover: Metaheuristic route improvement class.
+
+Example:
+    >>> improver = SimulatedAnnealingRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm, sa_iterations=1000)
 """
 
 from typing import Any, Dict, List, Tuple
@@ -28,26 +36,36 @@ from .common.helpers import assemble_tour, route_distance, route_load, split_tou
 )
 @RouteImproverRegistry.register("simulated_annealing")
 class SimulatedAnnealingRouteImprover(IRouteImprovement):
-    """
-    Simulated Annealing route improver.
+    """Simulated Annealing route improver.
 
     Applies random local moves (swaps, relocations, reversals) and delegates
-    move acceptance to a ``BoltzmannAcceptance`` criterion, which returns
-    ``AcceptanceMetrics`` on each step.  These are collected in an
-    ``acceptance_trace`` and surfaced via the ``ImprovementMetrics`` return.
+    move acceptance to a ``BoltzmannAcceptance`` criterion. These are collected
+    in an ``acceptance_trace`` and surfaced via the ``ImprovementMetrics``.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = SimulatedAnnealingRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, initial_temp=100.0)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply Simulated Annealing to the tour.
+        """Apply Simulated Annealing to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'sa_iterations',
-                     'sa_t_init', 'sa_t_min', 'sa_cooling', etc.
+            tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - sa_iterations (int): Total number of iterations to perform.
+                - sa_t_init (float): Initial temperature.
+                - sa_cooling (float): Cooling rate (alpha).
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - seed (int): Random seed.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics)
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

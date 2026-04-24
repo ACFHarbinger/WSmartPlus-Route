@@ -1,5 +1,15 @@
-"""
-Profitable Detour Route Improver.
+"""Profitable Detour Route Improver.
+
+This module implements a detour-based improvement heuristic that identifies
+unselected bins that can be profitably inserted into existing routes without
+exceeding a specified detour budget or vehicle capacity.
+
+Attributes:
+    ProfitableDetourRouteImprover: Route improvement class using profitable detours.
+
+Example:
+    >>> improver = ProfitableDetourRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm, detour_epsilon=0.1)
 """
 
 from typing import Any, List, Tuple
@@ -19,22 +29,34 @@ from .common.helpers import assemble_tour, route_load, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("profitable_detour")
 class ProfitableDetourRouteImprover(IRouteImprovement):
-    """
-    Profitable detour route improver.
+    """Profitable detour route improver.
+
     Inserts bins that lie within a certain detour budget from existing tour edges.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = ProfitableDetourRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:  # noqa: C901
-        """
-        Apply Profitable Detour augmentation to the tour.
+        """Apply Profitable Detour augmentation to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'detour_epsilon',
-                     'cost_per_km', 'revenue_kg', etc.
+            tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - detour_epsilon (float): Maximum proportion of detour distance relative to original edge.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - n_bins (int): Total number of bins available.
 
         Returns:
-            List[int]: Refined and potentially expanded tour.
+            Tuple[List[int], ImprovementMetrics]: Refined and potentially expanded tour.
 
         Complexity:
             O(Routes * Edges * |unselected|^2) in the worst case where many bins
