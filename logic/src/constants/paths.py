@@ -54,11 +54,9 @@ else:
 
 parts: tuple[str, ...] = path.parts  # Split path into components
 try:
-    # Primary project name (standard repository)
-    root_dir = Path(*parts[: parts.index("WSmart-Route") + 1])
+    root_dir = Path(*parts[: parts.index("logic")]).parent.absolute()
 except ValueError:
-    # Legacy project name (backward compatibility)
-    root_dir = Path(*parts[: parts.index("WSmartPlus-Route") + 1])
+    root_dir = Path(*parts[:-3]).absolute()
 
 # Project root directory (absolute path)
 # Example: /home/user/Repositories/WSmart-Route

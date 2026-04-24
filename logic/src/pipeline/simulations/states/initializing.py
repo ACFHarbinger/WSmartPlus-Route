@@ -242,7 +242,7 @@ class InitializingState(SimState):
                 worker_model=ctx.model_env,
             )
             self.configs = configs
-        elif "vrpp" in model_name:
+        elif "swc" in model_name:
             ctx.model_env = setup_env(
                 ctx.pol_name,
                 sim.server_run,

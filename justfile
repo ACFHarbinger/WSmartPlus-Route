@@ -42,6 +42,10 @@ sync:
 install:
     uv pip install -r requirements.txt || uv pip install -e .
 
+# Generate executable
+package:
+    uv run pyinstaller simulator.spec
+
 # --- Primary Execution Commands (Hydra-based) ---
 # Train a model with Hydra configs
 
