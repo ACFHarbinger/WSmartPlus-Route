@@ -495,6 +495,8 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.base.registry">
 <span id="src-policies-acceptance-criteria-base-registry"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.base.registry" title="src.policies.acceptance_criteria.base.registry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.base.registry</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.base.registry" title="Link to this heading">#</a></h1>
+<p>Registry for move acceptance criteria.</p>
+<p>Maintains a mapping of criterion identifiers to their respective classes.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,6 +518,9 @@ document.write(`
 <dd><p>Central registry for move acceptance criteria.</p>
 <p>Allows for the modular decoupling of search strategies (e.g., SA, Late Acceptance)
 from the solvers that use them.</p>
+<p>Attributes:
+_registry (Dict[str, Type[IAcceptanceCriterion]]): Internal mapping of
+identifiers to class types.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.base.registry.AcceptanceCriterionRegistry._registry">
 <span class="sig-name descname"><span class="pre">_registry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.acceptance_criteria.base.registry.AcceptanceCriterionRegistry._registry" title="Link to this definition">#</a></dt>
@@ -527,7 +532,7 @@ from the solvers that use them.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.base.registry.AcceptanceCriterionRegistry.register" title="Link to this definition">#</a></dt>
 <dd><p>Decorator to register an acceptance criterion class.</p>
 <p>Args:
-name: Unique identifier for the criterion (e.g., ‘boltzmann’, ‘demon’).</p>
+name (str): Unique identifier for the criterion (e.g., ‘boltzmann’, ‘demon’).</p>
 <p>Returns:
 Callable: The decorator function.</p>
 </dd></dl>
@@ -537,7 +542,7 @@ Callable: The decorator function.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.base.registry.AcceptanceCriterionRegistry.get" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve a criterion class by name.</p>
 <p>Args:
-name: The name of the criterion to retrieve.</p>
+name (str): The name of the criterion to retrieve.</p>
 <p>Returns:
 Optional[Type[IAcceptanceCriterion]]: The class if found, else None.</p>
 </dd></dl>

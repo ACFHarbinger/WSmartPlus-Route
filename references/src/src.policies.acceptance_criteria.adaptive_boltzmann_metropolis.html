@@ -496,6 +496,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.adaptive_boltzmann_metropolis">
 <span id="src-policies-acceptance-criteria-adaptive-boltzmann-metropolis"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.adaptive_boltzmann_metropolis" title="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.adaptive_boltzmann_metropolis</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.adaptive_boltzmann_metropolis" title="Link to this heading">#</a></h1>
+<p>Adaptive Boltzmann Metropolis Criterion.</p>
+<p>Provides a self-tuning cooling schedule based on the observed variance of
+objective value deltas during the search process.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,18 +525,34 @@ to dynamically adjust the cooling schedule and initial temperature.</p>
 <p>Formula for T_0:
 T_0 = -sigma_delta_f / ln(p_0)
 where p_0 is the desired probability of accepting a 1-sigma regressing move.</p>
-<p class="rubric">Initialization</p>
-<p>Args:
+<p>Attributes:
 p0 (float): Initial target probability for accepting a 1-sigma move.
 window_size (int): Size of the moving window for statistical tracking.
 alpha (float): Cooling rate factor (geometric cooling).
 min_temp (float): Lower bound for temperature.
-seed (Optional[int]): Random seed.
-maximization (bool): Whether the problem is maximization.</p>
+maximization (bool): Whether the problem is maximization.
+rng (random.Random): Random number generator.
+deltas (deque): Moving window of observed objective deltas.
+temp (float): Current temperature.
+sigma (float): Observed standard deviation of deltas.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the ABM criterion.</p>
+<p>Args:
+p0 (float): Initial target probability for accepting a 1-sigma move.
+Defaults to 0.5.
+window_size (int): Size of the moving window for statistical tracking.
+Defaults to 100.
+alpha (float): Cooling rate factor (geometric cooling). Defaults to 0.95.
+min_temp (float): Lower bound for temperature. Defaults to 1e-6.
+seed (Optional[int]): Random seed. Defaults to None.
+maximization (bool): Whether the problem is maximization. Defaults to True.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the criterion state with the starting objective.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis._update_stats">
@@ -543,17 +562,35 @@ maximization (bool): Whether the problem is maximization.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine whether to accept a transition based on Boltzmann probability.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context (not used).</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if move is accepted.
+- metrics (AcceptanceMetrics): Performance and state metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update the statistical window and apply the cooling schedule.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the previous solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context (not used).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current internal state for tracking.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary containing temperature and sigma.</p>
+</dd></dl>
 
 </dd></dl>
 

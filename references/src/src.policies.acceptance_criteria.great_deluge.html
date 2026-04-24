@@ -496,6 +496,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.great_deluge">
 <span id="src-policies-acceptance-criteria-great-deluge"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.great_deluge" title="src.policies.acceptance_criteria.great_deluge"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.great_deluge</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.great_deluge" title="Link to this heading">#</a></h1>
 <p>Great Deluge (GD) Acceptance Criterion.</p>
+<p>Deterministic acceptance algorithm based on a rising ‘water level’ threshold.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,7 +520,13 @@ document.write(`
 <p>Accepts a candidate if its objective is greater than or equal to a monotonically
 rising “water level”. The water level rises linearly from the initial objective
 to a target objective over a predefined number of iterations.</p>
+<p>Attributes:
+target_multiplier (float): Expected relative improvement target.
+max_iterations (int): Total budget of iterations to reach the target.
+water_level (float): Current acceptance threshold.
+rain_speed (float): Increment added to the water level at each step.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Great Deluge criterion.</p>
 <p>Args:
 target_fitness_multiplier (float): The expected relative improvement
 (e.g., 1.1 implies a 10% expected improvement over the initial solution).
@@ -527,22 +534,43 @@ max_iterations (int): The total budget of iterations to reach the target.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the criterion state.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine whether to accept based on the current water level.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context (not used).</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if candidate improves the water level.
+- metrics (AcceptanceMetrics): State metadata including water level.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Increment the water level by the rain speed.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the previous solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context (not used).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.great_deluge.GreatDelugeAcceptance.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current water level and rain speed.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

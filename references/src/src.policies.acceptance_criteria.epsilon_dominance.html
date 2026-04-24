@@ -497,6 +497,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.epsilon_dominance">
 <span id="src-policies-acceptance-criteria-epsilon-dominance"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.epsilon_dominance" title="src.policies.acceptance_criteria.epsilon_dominance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.epsilon_dominance</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.epsilon_dominance" title="Link to this heading">#</a></h1>
+<p>Epsilon-Dominance Acceptance Criterion.</p>
+<p>Discretizes objective space into grid boxes to provide a finite archive of
+non-dominated solutions.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,46 +525,79 @@ by discretizing the objective space into epsilon-boxes (hyper-rectangles).</p>
 <p>A candidate solution f_cand is accepted if its epsilon-box is not dominated
 by any existing epsilon-box in the archive. If accepted, it replaces
 dominated solutions in the archive.</p>
+<p>Attributes:
+epsilon (Union[float, Sequence[float]]): Discretization step size for each
+objective.
+maximization (bool): Whether to maximize the objectives.
+archive (List[Tuple[Tuple[int, …], Tuple[float, …]]]): List of
+(epsilon_box, objective_vector) pairs representing the Pareto front.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Epsilon-Dominance criterion.</p>
 <p>Args:
 epsilon (Union[float, Sequence[float]]): The discretization step size
 for each objective. Can be a scalar for all objectives or a sequence.
-maximization (bool): Whether to maximize the objectives.</p>
+maximization (bool): Whether to maximize the objectives. Defaults to True.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.setup" title="Link to this definition">#</a></dt>
-<dd><p>Initial setup. Note: initial_objective index 0 is used if it’s a scalar,
-but typically we expect a sequence for multi-objective.</p>
+<dd><p>Initialize the criterion state.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion._get_epsilon_box">
 <span class="sig-name descname"><span class="pre">_get_epsilon_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion._get_epsilon_box" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the epsilon-box coordinates for an objective vector.</p>
+<p>Args:
+objs (Sequence[float]): Vector of objective values.</p>
+<p>Returns:
+Tuple[int, …]: Grid coordinates of the epsilon-box.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion._dominates">
 <span class="sig-name descname"><span class="pre">_dominates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion._dominates" title="Link to this definition">#</a></dt>
-<dd><p>Returns True if box_a dominates box_b.</p>
+<dd><p>Determine if box_a dominates box_b.</p>
+<p>Args:
+box_a (Tuple[int, …]): Grid coordinates of the first box.
+box_b (Tuple[int, …]): Grid coordinates of the second box.</p>
+<p>Returns:
+bool: True if box_a dominates box_b.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.accept" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-current_obj: Expects Sequence[float]
-candidate_obj: Expects Sequence[float]</p>
+<dd><p>Determine whether to accept based on epsilon-dominance.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of current (not used, relies on archive).
+candidate_obj (ObjectiveValue): Objective vector of the candidate.
+**kwargs (Any): Additional context.</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if candidate is not dominated.
+- metrics (AcceptanceMetrics): Archive size and parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update the archive if the candidate was accepted.</p>
+<p>Args:
+current_obj (ObjectiveValue): Previous solution’s objective.
+candidate_obj (ObjectiveValue): Candidate solution’s objective.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current archive size and parameters.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

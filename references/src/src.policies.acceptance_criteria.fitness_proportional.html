@@ -496,6 +496,8 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.fitness_proportional">
 <span id="src-policies-acceptance-criteria-fitness-proportional"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.fitness_proportional" title="src.policies.acceptance_criteria.fitness_proportional"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.fitness_proportional</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.fitness_proportional" title="Link to this heading">#</a></h1>
 <p>Fitness Proportional Selection (FPS) Acceptance Criterion.</p>
+<p>Stochastic acceptance logic where the probability of acceptance is proportional
+to the candidate’s fitness.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,9 +505,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance" title="src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FitnessProportionalAcceptance</span></code></a></p></td>
-<td><p>Accepts candidates probabilistically in proportion to their fitness relative
-to the current solution (similar to Roulette-Wheel selection adapted for
-binary choice).</p></td>
+<td><p>Fitness Proportional Selection (FPS) Acceptance Criterion.</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,31 +517,58 @@ binary choice).</p></td>
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.acceptance_criteria.fitness_proportional.</span></span><span class="sig-name descname"><span class="pre">FitnessProportionalAcceptance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span></code></p>
+<p>Fitness Proportional Selection (FPS) Acceptance Criterion.</p>
 <p>Accepts candidates probabilistically in proportion to their fitness relative
 to the current solution (similar to Roulette-Wheel selection adapted for
 binary choice).</p>
 <p>Probability of accepting the candidate:
 P(accept) = max(0, cand_obj) / (max(0, cur_obj) + max(0, cand_obj))</p>
+<p>Attributes:
+rng (random.Random): Random number generator.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Fitness Proportional criterion.</p>
+<p>Args:
+seed (Optional[int]): Random seed. Defaults to None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the criterion state.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine acceptance based on relative fitness.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context.</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if candidate is selected via roulette wheel.
+- metrics (AcceptanceMetrics): Performance metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>No-op update step.</p>
+<p>Args:
+current_obj (ObjectiveValue): Previous solution’s objective.
+candidate_obj (ObjectiveValue): Candidate solution’s objective.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.fitness_proportional.FitnessProportionalAcceptance.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return an empty state dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Empty dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

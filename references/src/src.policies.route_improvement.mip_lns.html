@@ -498,6 +498,14 @@ document.write(`
 <p>A matheuristic that disrupts the current routing architecture using a spatial
 ruin operator, but utilizes an exact Gurobi MILP formulation to re-insert the
 fragmented nodes optimally, bridging the speed of LNS with exact bounding.</p>
+<p>Attributes:
+MIPLNSRouteImprover: A matheuristic that disrupts the current routing architecture using a spatial
+ruin operator, but utilizes an exact Gurobi MILP formulation to re-insert the
+fragmented nodes optimally, bridging the speed of LNS with exact bounding.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
+&gt;&gt;&gt; improver = MIPLNSRouteImprover(config=cfg)
+&gt;&gt;&gt; tour, metrics = improver.process([0, 1, 2, 3, 0], iterations=5)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -557,7 +565,7 @@ passed, its value is used as the config dict directly.</p>
 <dd><p>Apply MIP-based Large Neighborhood Search to the tour.</p>
 <p>Args:
 tour (List[int]): Initial tour sequence.
-**kwargs: Context containing:
+kwargs: Context containing:
 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
 iterations (int): Number of LNS cycles (default 5).
 ruin_fraction (float): Portion of nodes to remove (default 0.2).

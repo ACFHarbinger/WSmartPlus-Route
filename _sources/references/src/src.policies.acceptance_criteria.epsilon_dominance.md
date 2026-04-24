@@ -72,10 +72,16 @@ Bases: {py:obj}`logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion`
 ````{py:method} step(current_obj: logic.src.interfaces.acceptance_criterion.ObjectiveValue, candidate_obj: logic.src.interfaces.acceptance_criterion.ObjectiveValue, accepted: bool, **kwargs: typing.Any) -> None
 :canonical: src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.step
 
+```{autodoc2-docstring} src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.step
+```
+
 ````
 
 ````{py:method} get_state() -> typing.Dict[str, typing.Any]
 :canonical: src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.get_state
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.epsilon_dominance.EpsilonDominanceCriterion.get_state
+```
 
 ````
 

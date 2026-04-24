@@ -596,7 +596,7 @@ passed, its value is used as the config dict directly.</p>
 <dd><p>Apply branch-and-price refinement to the tour.</p>
 <p>Args:
 tour (List[int]): Initial tour represented as bin IDs (depot 0s as separators).
-**kwargs: Context containing:
+kwargs: Context containing:
 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
 wastes (Dict[int, float]): Mapping of bin IDs to waste amounts.
 capacity (float): Maximum vehicle capacity.
@@ -622,7 +622,7 @@ capacity (float): Vehicle capacity.
 cost_per_km (float): Distance cost coefficient.
 revenue_kg (float): Revenue coefficient.
 mandatory_nodes (List[int]): List of nodes that must be visited.
-**kwargs: Algorithmic parameters prefixed with ‘bp_’.</p>
+kwargs: Algorithmic parameters prefixed with ‘bp_’.</p>
 <p>Returns:
 Optional[List[List[int]]]: Re-optimized routes if improved, else None.</p>
 </dd></dl>
@@ -639,7 +639,7 @@ capacity (float): Vehicle capacity.
 cost_per_km (float): Distance cost coefficient.
 revenue_kg (float): Revenue coefficient.
 mandatory_nodes (List[int]): Required nodes.
-**kwargs: Forwarded context, including ‘bp_time_limit’ and ‘bp_use_cspy’.</p>
+kwargs: Forwarded context, including ‘bp_time_limit’ and ‘bp_use_cspy’.</p>
 <p>Returns:
 Optional[List[List[int]]]: Improved routes or None if optimization failed.</p>
 </dd></dl>
@@ -650,7 +650,7 @@ Optional[List[List[int]]]: Improved routes or None if optimization failed.</p>
 <dd><p>Tertiary fallback to pool-restricted set-partitioning.</p>
 <p>Args:
 tour (List[int]): Current tour to be refined.
-**kwargs: Forwarded context for SetPartitioningRouteImprover.</p>
+kwargs: Forwarded context for SetPartitioningRouteImprover.</p>
 <p>Returns:
 List[int]: Refined tour or original tour if fallback fails.</p>
 </dd></dl>

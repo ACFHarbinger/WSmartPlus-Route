@@ -496,6 +496,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.old_bachelor_acceptance">
 <span id="src-policies-acceptance-criteria-old-bachelor-acceptance"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.old_bachelor_acceptance" title="src.policies.acceptance_criteria.old_bachelor_acceptance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.old_bachelor_acceptance</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.old_bachelor_acceptance" title="Link to this heading">#</a></h1>
 <p>Old Bachelor Acceptance (OBA) Criterion.</p>
+<p>Dynamic threshold strategy that adjusts standards based on acceptance success.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,29 +520,57 @@ document.write(`
 <p>Tightens standards upon acceptance (contraction) and relaxes standards
 upon rejection streaks (dilation) to autonomously balance exploitation
 and exploration without a rigid decay schedule.</p>
+<p>Attributes:
+contraction (float): Threshold reduction magnitude upon acceptance.
+dilation (float): Base threshold relaxation magnitude upon rejection.
+threshold (float): Current absolute tolerance for deterioration.
+age (int): Number of consecutive rejections.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Old Bachelor criterion.</p>
 <p>Args:
 contraction (float): Amount to reduce the threshold upon an accepted move.
-dilation (float): Base amount to increase the threshold upon a rejected move.</p>
+dilation (float): Base amount to increase the threshold upon a
+rejected move.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the threshold and age.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine acceptance based on the dynamic threshold.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context.</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if delta &gt;= -threshold.
+- metrics (AcceptanceMetrics): Performance metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update the threshold and age based on acceptance result.</p>
+<p>Args:
+current_obj (ObjectiveValue): Previous solution’s objective.
+candidate_obj (ObjectiveValue): Candidate solution’s objective.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current threshold and age.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

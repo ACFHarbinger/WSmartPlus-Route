@@ -496,6 +496,8 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.ensemble_move_acceptance">
 <span id="src-policies-acceptance-criteria-ensemble-move-acceptance"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.ensemble_move_acceptance" title="src.policies.acceptance_criteria.ensemble_move_acceptance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.ensemble_move_acceptance</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.ensemble_move_acceptance" title="Link to this heading">#</a></h1>
 <p>Ensemble Move Acceptance (EMA) Criterion.</p>
+<p>Aggregates multiple move acceptance criteria into a single decision using
+various logical rules (AND, OR, Voting).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,29 +520,59 @@ document.write(`
 <p>Meta-decision architecture combining multiple criteria.</p>
 <p>Evaluates a candidate solution through a portfolio of heterogeneous criteria
 and aggregates the decision via logical ensemble rules (e.g., G-AND, G-OR, G-VOT).</p>
+<p>Attributes:
+criteria (List[IAcceptanceCriterion]): Portfolio of sub-criteria.
+rule (str): Aggregation logic (‘G-AND’, ‘G-OR’, ‘G-VOT’).</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Ensemble criterion.</p>
 <p>Args:
 criteria (List[IAcceptanceCriterion]): The instantiated sub-criteria.
-rule (str): The aggregation logic (‘G-AND’, ‘G-OR’, ‘G-VOT’).</p>
+rule (str): The aggregation logic (‘G-AND’, ‘G-OR’, ‘G-VOT’).
+Defaults to ‘G-VOT’.</p>
+<p>Raises:
+ValueError: If the criteria list is empty.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize all sub-criteria in the ensemble.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Aggregate acceptance decisions from all sub-criteria.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context.</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): Combined decision based on the ensemble rule.
+- metrics (AcceptanceMetrics): Performance metadata.</p>
+<p>Raises:
+ValueError: If an unknown ensemble rule is specified.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Advance the internal states of all sub-criteria.</p>
+<p>Args:
+current_obj (ObjectiveValue): Previous solution’s objective.
+candidate_obj (ObjectiveValue): Candidate solution’s objective.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.ensemble_move_acceptance.EnsembleAcceptance.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the aggregated states of all underlying criteria.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary mapping criterion index to its state.</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -496,6 +496,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing">
 <span id="src-policies-acceptance-criteria-generalized-tsallis-simulated-annealing"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing" title="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing" title="Link to this heading">#</a></h1>
+<p>Generalized (Tsallis) Simulated Annealing Acceptance Criterion.</p>
+<p>Uses non-extensive entropy formulation for heavy-tailed acceptance
+probabilities to escape deep local minima.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +506,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA" title="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeneralizedTsallisSA</span></code></a></p></td>
-<td><p>Generalized (Tsallis) Simulated Annealing Acceptance Criterion (Tsallis &amp; Stariolo, 1996).</p></td>
+<td><p>Generalized (Tsallis) Simulated Annealing Acceptance Criterion.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,46 +518,84 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.</span></span><span class="sig-name descname"><span class="pre">GeneralizedTsallisSA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span></code></p>
-<p>Generalized (Tsallis) Simulated Annealing Acceptance Criterion (Tsallis &amp; Stariolo, 1996).</p>
+<p>Generalized (Tsallis) Simulated Annealing Acceptance Criterion.</p>
 <p>Uses a non-extensive entropy formulation to generate heavy-tailed acceptance
 probabilities, allowing for larger jumps out of deep local minima compared to
-standard Boltzmann-Gibbs SA.</p>
+standard Boltzmann-Gibbs SA. Reference: Tsallis &amp; Stariolo (1996).</p>
 <p>Mathematical Formulation:
 P(A) = [1 - (1-q) * (delta_f / T)]^(1 / (1-q))
 where q is the non-extensivity parameter (q=1 converges to standard SA).</p>
-<p class="rubric">Initialization</p>
-<p>Args:
-q (float): Non-extensivity parameter. Must be in (1, 3).
-p0 (float): Target probability for accepting a 1-sigma worsening move at T0.
-window_size (int): Moving window size for sigma calculation.
+<p>Attributes:
+q (float): Non-extensivity parameter in (1, 3).
+p0 (float): Target probability for 1-sigma worsening move at T0.
+window_size (int): Window for sigma calculation.
 alpha (float): Cooling rate factor.
 min_temp (float): Minimum allowable temperature.
-seed (Optional[int]): Random seed.
-maximization (bool): Whether the problem is maximization.</p>
+maximization (bool): Whether the problem is maximization.
+rng (random.Random): Random number generator.
+deltas (deque): Moving window of observed deltas.
+temp (float): Current temperature.
+sigma (float): Standard deviation of observed deltas.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the Generalized Tsallis SA criterion.</p>
+<p>Args:
+q (float): Non-extensivity parameter. Must be in (1, 3). Defaults to 1.5.
+p0 (float): Target probability for accepting a 1-sigma worsening move at
+T0. Defaults to 0.5.
+window_size (int): Moving window size for sigma calculation.
+Defaults to 100.
+alpha (float): Cooling rate factor. Defaults to 0.95.
+min_temp (float): Minimum allowable temperature. Defaults to 1e-6.
+seed (Optional[int]): Random seed. Defaults to None.
+maximization (bool): Whether the problem is maximization. Defaults to False.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the criterion state.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA._update_stats">
 <span class="sig-name descname"><span class="pre">_update_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA._update_stats" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update sigma estimation and determine T0 if necessary.</p>
+<p>Args:
+delta (float): Difference in objective values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine acceptance based on heavy-tailed Tsallis probability.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context.</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if candidate is accepted.
+- metrics (AcceptanceMetrics): Performance metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update stats and apply the cooling schedule.</p>
+<p>Args:
+current_obj (ObjectiveValue): Previous solution’s objective.
+candidate_obj (ObjectiveValue): Candidate solution’s objective.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing.GeneralizedTsallisSA.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current temperature, q, and sigma estimation.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -495,6 +495,10 @@ document.write(`
 <p>Lin-Kernighan (LK) Route Improver.</p>
 <p>Attributes:
 LKRouteImprover: Main class for Lin-Kernighan improvement.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.lk import LKRouteImprover
+&gt;&gt;&gt; improver = LKRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, max_iterations=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -540,9 +544,12 @@ hallucinated nodes during tour merging.</p>
 <p>Args:
 tour:      The initial tour to refine (list of node IDs from the
 full problem).
-**kwargs:  Must contain <code class="docutils literal notranslate"><span class="pre">distance_matrix</span></code>.  Optionally accepts
-<code class="docutils literal notranslate"><span class="pre">max_iterations</span></code>, <code class="docutils literal notranslate"><span class="pre">max_depth</span></code>, <code class="docutils literal notranslate"><span class="pre">n_candidates</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
+kwargs:    Context containing:
+- distance_matrix: Distance matrix.
+- max_iterations: Maximum iterations.
+- max_depth: Maximum depth.
+- n_candidates: Number of candidates.
+- seed: Random seed.</p>
 <p>Returns:
 Tuple[List[int], ImprovementMetrics]: The refined tour with
 original node IDs and a metrics dict.</p>

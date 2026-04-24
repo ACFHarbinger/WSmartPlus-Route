@@ -495,6 +495,8 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.pareto_dominance">
 <span id="src-policies-acceptance-criteria-pareto-dominance"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.pareto_dominance" title="src.policies.acceptance_criteria.pareto_dominance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.pareto_dominance</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.pareto_dominance" title="Link to this heading">#</a></h1>
+<p>Pareto Dominance Acceptance Criterion.</p>
+<p>Standard multi-objective acceptance logic based on strict Pareto superiority.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,8 +504,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance" title="src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParetoDominanceAcceptance</span></code></a></p></td>
-<td><p>Accepts a candidate only if it strictly dominates the current solution across
-all objectives (Pareto superiority).</p></td>
+<td><p>Pareto-Dominance Acceptance Criterion.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,29 +516,56 @@ all objectives (Pareto superiority).</p></td>
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.acceptance_criteria.pareto_dominance.</span></span><span class="sig-name descname"><span class="pre">ParetoDominanceAcceptance</span></span><a class="headerlink" href="#src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span></code></p>
+<p>Pareto-Dominance Acceptance Criterion.</p>
 <p>Accepts a candidate only if it strictly dominates the current solution across
 all objectives (Pareto superiority).</p>
 <p>This expects the <code class="docutils literal notranslate"><span class="pre">current_obj</span></code> and <code class="docutils literal notranslate"><span class="pre">candidate_obj</span></code> parameters to actually be
-iterables of floats (e.g., tuple or list of objective values) rather than scalar floats.</p>
+iterables of floats (e.g., tuple or list of objective values) rather than
+scalar floats.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the criterion state.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine whether the candidate strictly dominates the current solution.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective vector of the current solution.
+candidate_obj (ObjectiveValue): Objective vector of the candidate.
+**kwargs (Any): Additional context.</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if candidate strictly dominates current.
+- metrics (AcceptanceMetrics): Performance metadata.</p>
+<p>Raises:
+ValueError: If objective dimensions do not match.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>No-op update step.</p>
+<p>Args:
+current_obj (ObjectiveValue): Previous solution’s objective.
+candidate_obj (ObjectiveValue): Candidate solution’s objective.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.pareto_dominance.ParetoDominanceAcceptance.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return an empty state dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Empty dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

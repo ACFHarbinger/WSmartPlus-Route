@@ -495,6 +495,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.demon_algorithm">
 <span id="src-policies-acceptance-criteria-demon-algorithm"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.demon_algorithm" title="src.policies.acceptance_criteria.demon_algorithm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.demon_algorithm</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.demon_algorithm" title="Link to this heading">#</a></h1>
+<p>Demon Algorithm Acceptance Criterion.</p>
+<p>Deterministic criterion that uses a ‘demon’ credit budget to autorize worsening
+moves.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +505,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm" title="src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DemonAlgorithm</span></code></a></p></td>
-<td><p>Demon Algorithm Acceptance Criterion (Wood, 2000).</p></td>
+<td><p>Demon Algorithm Acceptance Criterion.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,38 +517,67 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.acceptance_criteria.demon_algorithm.</span></span><span class="sig-name descname"><span class="pre">DemonAlgorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">warm_up_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span></code></p>
-<p>Demon Algorithm Acceptance Criterion (Wood, 2000).</p>
+<p>Demon Algorithm Acceptance Criterion.</p>
 <p>A deterministic alternative to Simulated Annealing that uses a “demon” credit budget.
 Improving moves populate the credit, and worsening moves are accepted only if
-authorized by the current credit balance.</p>
+authorized by the current credit balance. Reference: Wood (2000).</p>
 <p>Mathematical Formulation (Minimization):</p>
 <ul class="simple">
 <li><p>Improving Move (delta_f &lt; 0): Always accepted; D = abs(delta_f).</p></li>
 <li><p>Worsening Move (delta_f &gt; 0): Accepted if delta_f &lt;= D. If accepted, D = D - delta_f.</p></li>
 </ul>
+<p>Attributes:
+warm_up_steps (int): Number of initial moves for estimation.
+maximization (bool): Whether the problem is maximization.
+demon_credit (float): Current authorized credit for worsening moves.
+history (List[float]): Magnitudes of deltas observed during warm-up.
+_warmed_up (bool): Flag indicating if warm-up is complete.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Demon Algorithm.</p>
 <p>Args:
-warm_up_steps (int): Number of initial moves used to estimate initial demon credit.
-maximization (bool): Whether the problem is maximization.</p>
+warm_up_steps (int): Number of initial moves used to estimate initial
+demon credit. Defaults to 5.
+maximization (bool): Whether the problem is maximization. Defaults to False.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the criterion state.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine whether to accept based on current demon credit.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context.</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if candidate is autorized by credit.
+- metrics (AcceptanceMetrics): Performance metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update the demon credit based on the transition result.</p>
+<p>Args:
+current_obj (ObjectiveValue): Previous solution’s objective.
+candidate_obj (ObjectiveValue): Candidate solution’s objective.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.demon_algorithm.DemonAlgorithm.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current demon credit and warm-up status.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

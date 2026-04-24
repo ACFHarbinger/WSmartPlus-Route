@@ -495,6 +495,9 @@ document.write(`
 <p>LKH-3 Route Improver (Keldahl &amp; Helsgaun).</p>
 <p>Attributes:
 LKHRouteImprover: Main class for LKH-3 based improvement.</p>
+<p>Example:
+&gt;&gt;&gt; improver = LKHRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, max_iterations=200)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -535,7 +538,11 @@ out-of-bounds errors and eliminates performance bottlenecks from
 hallucinated nodes during tour merging.</p>
 <p>Args:
 tour: The initial tour to refine (list of node IDs from the full problem).
-**kwargs: Must contain ‘distance_matrix’. Optionally ‘max_iterations’ and ‘seed’.</p>
+kwargs: Context containing:
+- distance_matrix: Distance matrix.
+- max_iterations: Maximum iterations.
+- max_k: Maximum k for LKH.
+- seed: Random seed.</p>
 <p>Returns:
 List[int]: The refined tour with original node IDs.</p>
 </dd></dl>

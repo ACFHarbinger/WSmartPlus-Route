@@ -494,6 +494,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.base.factory">
 <span id="src-policies-acceptance-criteria-base-factory"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.base.factory" title="src.policies.acceptance_criteria.base.factory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.base.factory</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.base.factory" title="Link to this heading">#</a></h1>
+<p>Factory for move acceptance criteria.</p>
+<p>Provides a centralized mechanism to instantiate registered criteria by name.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.acceptance_criteria.base import AcceptanceCriterionFactory</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +519,8 @@ document.write(`
 <dd><p>Factory for creating move acceptance criteria.</p>
 <p>Integrates with the configuration system to provide solver-specific
 move acceptance logic.</p>
+<p>Attributes:
+_registered (bool): Flag indicating if modules have been loaded.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.base.factory.AcceptanceCriterionFactory._registered">
 <span class="sig-name descname"><span class="pre">_registered</span></span><a class="headerlink" href="#src.policies.acceptance_criteria.base.factory.AcceptanceCriterionFactory._registered" title="Link to this definition">#</a></dt>
@@ -532,11 +538,14 @@ move acceptance logic.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.base.factory.AcceptanceCriterionFactory.create" title="Link to this definition">#</a></dt>
 <dd><p>Instantiate an acceptance criterion.</p>
 <p>Args:
-name: Identifier for the criterion (e.g., ‘bmc’).
-config: Configuration parameters. Can be a dict or a dataclass instance.
-**kwargs: Fallback parameters if config is not comprehensive.</p>
+name (str): Identifier for the criterion (e.g., ‘bmc’).
+config (Optional[Union[Dict[str, Any], Any]]): Configuration parameters.
+Can be a dict or a dataclass instance. Defaults to None.
+**kwargs (Any): Fallback parameters if config is not comprehensive.</p>
 <p>Returns:
-Instantiated acceptance criterion.</p>
+IAcceptanceCriterion: The instantiated acceptance criterion.</p>
+<p>Raises:
+ValueError: If no criterion is registered under the given name.</p>
 </dd></dl>
 
 </dd></dl>

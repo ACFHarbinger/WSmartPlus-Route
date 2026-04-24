@@ -496,6 +496,8 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.acceptance_criteria.late_acceptance_hill_climbing">
 <span id="src-policies-acceptance-criteria-late-acceptance-hill-climbing"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.late_acceptance_hill_climbing" title="src.policies.acceptance_criteria.late_acceptance_hill_climbing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.late_acceptance_hill_climbing</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.late_acceptance_hill_climbing" title="Link to this heading">#</a></h1>
 <p>Late Acceptance Hill Climbing (LAHC) Criterion.</p>
+<p>Memory-based thresholding utilizing a finite circular array to escape local
+optima.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,30 +519,56 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span></code></p>
 <p>Memory-based thresholding utilizing a finite circular array.</p>
 <p>A candidate is accepted if its objective is strictly improving against the
-current solution OR if it is better than the cost encountered exactly L steps ago.
-Reference: Burke &amp; Bykov (2017).</p>
+current solution OR if it is better than the cost encountered exactly L
+steps ago. Reference: Burke &amp; Bykov (2017).</p>
+<p>Attributes:
+L (int): The length of the historical memory queue.
+history (List[float]): Circular array storing historical objective values.
+pointer (int): Current index in the circular array.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the LAHC criterion.</p>
 <p>Args:
 queue_size (int): The length of the historical memory queue (L).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.setup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the historical memory with the starting objective.</p>
+<p>Args:
+initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine whether to accept based on current and historical costs.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+**kwargs (Any): Additional context (not used).</p>
+<p>Returns:
+Tuple[bool, AcceptanceMetrics]: A tuple containing:
+- accepted (bool): True if candidate improves current OR historical.
+- metrics (AcceptanceMetrics): State metadata including historical bound.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update the history queue with the cost of the accepted solution.</p>
+<p>Args:
+current_obj (ObjectiveValue): Objective of the previous solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+accepted (bool): Whether the candidate was accepted.
+**kwargs (Any): Additional context (not used).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.get_state">
 <span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.late_acceptance_hill_climbing.LateAcceptance.get_state" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current pointer and historical bound.</p>
+<p>Returns:
+Dict[str, Any]: State dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 
