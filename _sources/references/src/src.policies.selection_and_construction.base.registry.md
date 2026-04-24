@@ -58,7 +58,7 @@
 
 ````
 
-````{py:method} list_policies() -> typing.List[str]
+````{py:method} list_policies() -> list[str]
 :canonical: src.policies.selection_and_construction.base.registry.JointPolicyRegistry.list_policies
 :classmethod:
 

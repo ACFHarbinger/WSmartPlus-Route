@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.html" />
+    <link rel="next" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.html" />
     <link rel="prev" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -494,7 +495,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-ml-branching"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching" title="Link to this heading">#</a></h1>
-<p>ML for Node Selection and Variable Fixing.</p>
+<p>ML-Guided Node Selection and Variable Fixing.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +503,8 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MLBranchingStrategy</span></code></a></p></td>
-<td><p>Imitation learning surrogate for strong branching, falling back to reliability branching.</p></td>
+<td><p>Imitation-learning surrogate for strong branching, falling back to
+reliability branching when no trained model is available.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,32 +514,142 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.</span></span><span class="sig-name descname"><span class="pre">MLBranchingStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reliability_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy" title="Link to this definition">#</a></dt>
-<dd><p>Imitation learning surrogate for strong branching, falling back to reliability branching.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.</span></span><span class="sig-name descname"><span class="pre">MLBranchingStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reliability_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pseudocost_ema_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Imitation-learning surrogate for strong branching, falling back to
+reliability branching when no trained model is available.</p>
+<p class="rubric" id="id1">Role in the Pipeline</p>
+<p>Plugs into the BPC Branch-and-Bound tree as the variable-selection oracle.
+At each fractional LP relaxation, the oracle selects the variable to branch
+on.  Two modes are supported:</p>
+<p><strong>GNN surrogate (when</strong> <code class="docutils literal notranslate"><span class="pre">model</span></code> <strong>is set)</strong>
+A graph neural network trained via imitation learning on strong-
+branching decisions encodes the B&amp;B state as a bipartite graph and
+predicts a ranking score for each fractional variable.  Inference is
+O(|variables|) per node, compared to O(|variables| · LP_solves) for
+exact strong branching.</p>
+<p><strong>Reliability branching (fallback)</strong>
+Selects the variable with the highest pseudo-cost score:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Score(xᵢ) = min(Ψ↓ᵢ, Ψ↑ᵢ) + c · max(Ψ↓ᵢ, Ψ↑ᵢ)
+
+Variables not yet evaluated (no pseudo-cost history) receive score
++∞ to prioritise exploration of unexplored candidates first.
+</pre></div>
+</div>
+<p class="rubric" id="id2">Pseudo-cost Update</p>
+<p>After each exact evaluation (strong branching or child LP solve):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Ψ_new = α · Ψ_old + (1 − α) · Δ_observed
+</pre></div>
+</div>
+<p>where Δ is the observed objective degradation per unit of fractionality,
+and α is the EMA coefficient (<code class="docutils literal notranslate"><span class="pre">pseudocost_ema_alpha</span></code>).</p>
+<p class="rubric" id="id3">GNN Feature Representation</p>
+<p><code class="docutils literal notranslate"><span class="pre">compute_gnn_features</span></code> constructs a bipartite graph representation of
+the current fractional LP state:</p>
+<p>Node features (one per fractional variable):
+[current_fill, mean_fill_rate, variance_of_scenario_prizes,
+expected_days_to_overflow]</p>
+<p>Edge features (one per fractional arc in the LP):
+[λ_ij, |reduced_cost_ij|]</p>
+<p>This representation is compatible with standard B&amp;B GNN architectures
+(e.g. Gasse et al. 2019, Nair et al. 2020).</p>
+<p class="rubric" id="id4">Attributes</p>
+<p>model : Any or None
+Trained GNN branching model.  <code class="docutils literal notranslate"><span class="pre">None</span></code> activates the reliability
+branching fallback for the entire solve.
+reliability_c : float
+Blending coefficient c in the reliability branching score.
+pseudocost_ema_alpha : float
+EMA coefficient α for pseudo-cost running average updates.
+historical_pseudocosts : Dict[int, Tuple[float, float]]
+Running pseudo-cost estimates {var_id: (Ψ↓, Ψ↑)}.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+model: Trained GNN branching surrogate.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>, reliability
+branching is used exclusively.
+reliability_c: Blending coefficient c in Score(xᵢ) =
+min(Ψ↓, Ψ↑) + c · max(Ψ↓, Ψ↑).  c = 1 weights both
+directions equally; c &gt; 1 penalises high asymmetry.
+pseudocost_ema_alpha: EMA coefficient α ∈ (0, 1] for pseudo-cost
+updates.  α = 1 ignores history (always takes the new
+observation); α → 0 freezes estimates.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.compute_gnn_features">
 <span class="sig-name descname"><span class="pre">compute_gnn_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractional_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_fills</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_fill_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_variances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_to_overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.compute_gnn_features" title="Link to this definition">#</a></dt>
-<dd><p>Represent the B&amp;B fractional LP as a graph.</p>
+<dd><p>Construct the bipartite graph feature representation of the current
+fractional LP state for GNN inference.</p>
+<p>Node features per fractional variable i:
+[current_fill_i, mean_fill_rate_i,
+variance_of_scenario_prizes_i, days_to_overflow_i]</p>
+<p>Edge features per fractional arc (i, j):
+[λ_ij, |reduced_cost_ij|]</p>
+<p>The resulting graph object should be compatible with the GNN
+architecture used during training (e.g. a PyTorch Geometric
+<code class="docutils literal notranslate"><span class="pre">HeteroData</span></code> object for bipartite constraint–variable graphs).</p>
+<p>Args:
+fractional_vars: Fractional variable objects with <code class="docutils literal notranslate"><span class="pre">.id</span></code>
+attributes identifying their corresponding bin / route.
+current_fills: 1-D array of current fill levels, shape (n_bins,).
+mean_fill_rates: 1-D array of mean daily fill increments E[δᵢ],
+shape (n_bins,).
+scenario_variances: 1-D array of cross-scenario prize variances
+Var_ξ[π_i^ξ], shape (n_bins,).
+days_to_overflow: 1-D array of predicted days to overflow,
+shape (n_bins,).</p>
+<p>Returns:
+Graph-structured feature object suitable for the GNN model’s
+forward pass.  Currently a stub returning <code class="docutils literal notranslate"><span class="pre">None</span></code>; replace with
+the actual graph construction once the GNN architecture is fixed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy._reliability_score">
 <span class="sig-name descname"><span class="pre">_reliability_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy._reliability_score" title="Link to this definition">#</a></dt>
-<dd><p>Score candidate variable x_i based on historical pseudo-costs.
-Score(x_i) = min(Psi_down, Psi_up) + c * max(Psi_down, Psi_up)</p>
+<dd><p>Compute the reliability branching score for a variable.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Score(xᵢ) = min(Ψ↓ᵢ, Ψ↑ᵢ) + c · max(Ψ↓ᵢ, Ψ↑ᵢ)
+</pre></div>
+</div>
+<p>Variables with no pseudo-cost history receive score +∞ to ensure
+they are evaluated (via exact strong branching or child LP solve)
+before variables with established history.</p>
+<p>Args:
+var_id: Variable identifier.</p>
+<p>Returns:
+Reliability branching score.  +∞ for unexplored variables.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.select_branching_variable">
-<span class="sig-name descname"><span class="pre">select_branching_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractional_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.select_branching_variable" title="Link to this definition">#</a></dt>
-<dd><p>Select the best variable to branch on.</p>
+<span class="sig-name descname"><span class="pre">select_branching_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractional_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.select_branching_variable" title="Link to this definition">#</a></dt>
+<dd><p>Select the variable to branch on from the fractional LP solution.</p>
+<p>If a trained GNN <code class="docutils literal notranslate"><span class="pre">model</span></code> is available, it is used to score all
+fractional variables and the highest-scoring one is returned.
+Otherwise, reliability branching is applied.</p>
+<p>Args:
+fractional_vars: Fractional variable objects (0 &lt; λ &lt; 1) from
+the current master LP relaxation.  Each must expose <code class="docutils literal notranslate"><span class="pre">.id</span></code>.
+**kwargs: Optional keyword arguments forwarded to the GNN model’s
+inference routine (e.g. pre-computed graph features).</p>
+<p>Returns:
+The variable object from <code class="docutils literal notranslate"><span class="pre">fractional_vars</span></code> selected for
+branching, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the list is empty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.update_pseudocosts">
-<span class="sig-name descname"><span class="pre">update_pseudocosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_down</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_up</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.update_pseudocosts" title="Link to this definition">#</a></dt>
-<dd><p>Update historical tracking after exact evaluation.</p>
+<span class="sig-name descname"><span class="pre">update_pseudocosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_down</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_up</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.update_pseudocosts" title="Link to this definition">#</a></dt>
+<dd><p>Update the pseudo-cost estimates for a variable after an exact
+evaluation (strong branching or observed child LP objective change).</p>
+<p>Uses an exponential moving average:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Ψ_new = α · Ψ_old + (1 − α) · Δ_observed
+</pre></div>
+</div>
+<p>where α = <code class="docutils literal notranslate"><span class="pre">self.pseudocost_ema_alpha</span></code>.</p>
+<p>Args:
+var_id: Identifier of the variable whose pseudo-costs are updated.
+delta_down: Observed objective degradation per unit of
+fractionality when branching down (fixing xᵢ = 0).
+delta_up: Observed objective degradation per unit of fractionality
+when branching up (fixing xᵢ = 1).</p>
 </dd></dl>
 
 </dd></dl>
@@ -567,11 +679,11 @@ Score(x_i) = min(Psi_down, Psi_up) + c * max(Psi_down, Psi_up)</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.html"
+       href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

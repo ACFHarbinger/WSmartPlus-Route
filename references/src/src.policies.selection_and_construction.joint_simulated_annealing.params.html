@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -501,6 +502,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection_and_construction.joint_simulated_annealing.params">
 <span id="src-policies-selection-and-construction-joint-simulated-annealing-params"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.joint_simulated_annealing.params" title="src.policies.selection_and_construction.joint_simulated_annealing.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.params</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.joint_simulated_annealing.params" title="Link to this heading">#</a></h1>
 <p>Joint Simulated Annealing Parameters.</p>
+<p>This module defines the configuration parameters for the simulated annealing
+meta-heuristic for joint selection and construction.</p>
+<p>Attributes:
+JointSAParams: Data class for JSA configuration.</p>
+<p>Example:
+&gt;&gt;&gt; params = JointSAParams(start_temp=500.0, max_steps=1000)
+&gt;&gt;&gt; print(params.cooling_rate)
+0.995</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,6 +529,16 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.params.</span></span><span class="sig-name descname"><span class="pre">JointSAParams</span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for the Joint Simulated Annealing solver.</p>
+<p>Attributes:
+start_temp (float): Initial temperature for annealing.
+cooling_rate (float): Multiplier for cooling (temp = temp * rate).
+max_steps (int): Total number of iterations.
+restart_limit (int): Number of times to restart or reheat.
+prob_bit_flip (float): Probability of a selection-mask change move.
+prob_route_swap (float): Probability of a tour permutation move.
+overflow_penalty (float): Multiplier for risk penalty of unserved bins.
+seed (int): Random seed for reproducibility.
+time_limit (float): Maximum allowed execution time in seconds.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams.start_temp">
 <span class="sig-name descname"><span class="pre">start_temp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams.start_temp" title="Link to this definition">#</a></dt>
@@ -578,6 +597,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams" title="src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams</span></a></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build params from a config dataclass or dictionary.</p>
+<p>Args:
+config (Any): Configuration source (dict, Hydra config, etc.).</p>
+<p>Returns:
+JointSAParams: The initialized parameters.</p>
 </dd></dl>
 
 </dd></dl>

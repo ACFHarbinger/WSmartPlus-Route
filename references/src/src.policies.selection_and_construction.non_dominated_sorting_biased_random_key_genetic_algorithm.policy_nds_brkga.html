@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -497,6 +498,11 @@ document.write(`
 <p>NDS-BRKGA Joint Policy.</p>
 <p>Orchestrates the full NDS-BRKGA algorithm, resolving the joint mandatory-bin
 selection and route construction problem in a single population-based search.</p>
+<p>Attributes:
+NDSBRKGAPolicy: The evolutionary policy class.</p>
+<p>Example:
+&gt;&gt;&gt; policy = NDSBRKGAPolicy()
+&gt;&gt;&gt; selection, routes, profit, cost = policy.solve_joint(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,30 +524,62 @@ selection and route construction problem in a single population-based search.</p
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy</span></code></p>
 <p>Non-Dominated Sorting Biased Random-Key Genetic Algorithm Policy.</p>
 <p>Jointly optimises mandatory-bin selection and route construction in a
-single population-based evolutionary loop.</p>
+single population-based evolutionary loop, maintaining a Pareto front
+over profit, overflow risk, and distance.</p>
+<p>Attributes:
+config (Optional[Union[NDSBRKGAConfig, Dict[str, Any]]]): Configuration source.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config.</p>
+<p>Initialize NDSBRKGAPolicy.</p>
+<p>Args:
+config (Optional[Union[NDSBRKGAConfig, Dict[str, Any]]]): Configuration source.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the dataclass type for config parsing.</p>
+<p>Returns:
+Optional[Type]: The NDSBRKGAConfig type.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the Hydra configuration key.</p>
+<p>Returns:
+str: The configuration key string ‘nds_brkga’.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy._run_solver" title="Link to this definition">#</a></dt>
-<dd><p>Internal bridge for test compatibility.
-Constructs context and calls solve_joint.</p>
+<dd><p>Internal bridge for test compatibility.</p>
+<p>Args:
+sub_dist_matrix (np.ndarray): Local distance matrix.
+sub_wastes (Dict[int, float]): Waste demands per node.
+capacity (float): Vehicle capacity.
+revenue (float): Revenue per kg.
+cost_unit (float): Cost per km.
+values (Dict[str, Any]): Problem parameters.
+mandatory_nodes (List[int]): Required node IDs.
+kwargs (Any): Additional simulation context.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]:
+- routes: Constructed routes.
+- profit: Calculated net profit.
+- cost: Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy.solve_joint">
 <span class="sig-name descname"><span class="pre">solve_joint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy.solve_joint" title="Link to this definition">#</a></dt>
 <dd><p>Run the NDS-BRKGA optimisation loop using inputs from the JointContext.</p>
+<p>Args:
+context (JointSelectionConstructionContext): The search and problem context.</p>
+<p>Returns:
+Tuple[List[int], List[List[int]], float, float]:
+- selected_bins: List of unique bin IDs selected.
+- local_routes: Constructed routes (local node indices).
+- total_profit: Net profit (Revenue - Distance Cost).
+- total_cost: Total routing cost.</p>
 </dd></dl>
 
 </dd></dl>

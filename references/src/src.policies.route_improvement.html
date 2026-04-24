@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -491,6 +492,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement">
 <span id="src-policies-route-improvement"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement" title="src.policies.route_improvement"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement" title="Link to this heading">#</a></h1>
 <p>Routing route improvement sub-package.</p>
+<p>Attributes:
+IRouteImprovement: Interface for route improvement algorithms.
+RouteImproverRegistry: Registry for route improver classes.
+RouteImproverFactory: Factory for creating route improver instances.
+AdaptiveEnsembleRouteImprover: Orchestrator for multiple improvement strategies.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement import RouteImproverFactory
+&gt;&gt;&gt; factory = RouteImproverFactory()
+&gt;&gt;&gt; improver = factory.create(“adaptive_ensemble”)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -498,6 +508,11 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.base</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.route_improvement.base.factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.base.factory</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.route_improvement.base.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.base.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.common</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_improvement.common.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.common.helpers</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_improvement.common.bandit.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.common.bandit</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -512,6 +527,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.or_opt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.or_opt</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.cheapest_insertion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.cheapest_insertion</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.fix_and_optimize.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.fix_and_optimize</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.set_covering.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.set_covering</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.random_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.random_local_search</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.node_exchange_steepest.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.node_exchange_steepest</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_improvement.cross_exchange.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.cross_exchange</span></code></a></li>

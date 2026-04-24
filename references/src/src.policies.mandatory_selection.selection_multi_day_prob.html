@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -520,16 +521,21 @@ providing a much more mathematically rigorous risk assessment than linear bounds
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_multi_day_prob.</span></span><span class="sig-name descname"><span class="pre">MultiDayOverflowSelection</span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_multi_day_prob.MultiDayOverflowSelection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></code></p>
 <p>Stochastic selection strategy based on cumulative probability over time.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_multi_day_prob.MultiDayOverflowSelection.select_bins">
-<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_multi_day_prob.MultiDayOverflowSelection.select_bins" title="Link to this definition">#</a></dt>
-<dd><p>Selects bins if their probability of overflowing within K days
-exceeds a defined risk threshold.</p>
+<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_multi_day_prob.MultiDayOverflowSelection.select_bins" title="Link to this definition">#</a></dt>
+<dd><p>Selects bins based on overflow probability within K days.</p>
+<p>Computes the tail probability of a bin overflowing over a stochastic
+horizon of K days. Assumes daily waste generation is i.i.d Gaussian.</p>
 <p>Args:
-context: Selection context containing stochastic parameters
-and optionally <code class="docutils literal notranslate"><span class="pre">horizon_days</span></code>.</p>
+context (SelectionContext): The selection context.</p>
 <p>Returns:
-List[int]: List of bin IDs (1-based index) exceeding risk thresholds.</p>
+Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.</p>
+<p>Raises:
+ValueError: If stochastic parameters (accumulation_rates or std_deviations)
+are missing in the context.</p>
 </dd></dl>
 
 </dd></dl>

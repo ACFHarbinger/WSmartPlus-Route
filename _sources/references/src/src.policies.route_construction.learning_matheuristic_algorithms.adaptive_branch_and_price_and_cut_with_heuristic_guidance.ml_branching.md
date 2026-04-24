@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MLBranchingStrategy(model: typing.Any = None, reliability_c: float = 1.0)
+`````{py:class} MLBranchingStrategy(model: typing.Optional[typing.Any] = None, reliability_c: float = 1.0, pseudocost_ema_alpha: float = 0.5)
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} select_branching_variable(fractional_vars: typing.List[typing.Any], **kwargs) -> typing.Any
+````{py:method} select_branching_variable(fractional_vars: typing.List[typing.Any], **kwargs: typing.Any) -> typing.Any
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.select_branching_variable
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.select_branching_variable
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} update_pseudocosts(var_id: int, delta_down: float, delta_up: float)
+````{py:method} update_pseudocosts(var_id: int, delta_down: float, delta_up: float) -> None
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.update_pseudocosts
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy.update_pseudocosts

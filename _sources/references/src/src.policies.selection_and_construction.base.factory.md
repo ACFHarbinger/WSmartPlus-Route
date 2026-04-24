@@ -29,30 +29,11 @@
 ```{autodoc2-docstring} src.policies.selection_and_construction.base.factory.JointPolicyFactory
 ```
 
-````{py:attribute} _registered
-:canonical: src.policies.selection_and_construction.base.factory.JointPolicyFactory._registered
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.selection_and_construction.base.factory.JointPolicyFactory._registered
-```
-
-````
-
-````{py:method} ensure_registered() -> None
-:canonical: src.policies.selection_and_construction.base.factory.JointPolicyFactory.ensure_registered
-:classmethod:
-
-```{autodoc2-docstring} src.policies.selection_and_construction.base.factory.JointPolicyFactory.ensure_registered
-```
-
-````
-
-````{py:method} get_solver(name: str, config: typing.Optional[typing.Union[typing.Dict[str, typing.Any], typing.Any]] = None, **kwargs: typing.Any) -> src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy
-:canonical: src.policies.selection_and_construction.base.factory.JointPolicyFactory.get_solver
+````{py:method} create(name: str, config: typing.Optional[typing.Any] = None) -> src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy
+:canonical: src.policies.selection_and_construction.base.factory.JointPolicyFactory.create
 :staticmethod:
 
-```{autodoc2-docstring} src.policies.selection_and_construction.base.factory.JointPolicyFactory.get_solver
+```{autodoc2-docstring} src.policies.selection_and_construction.base.factory.JointPolicyFactory.create
 ```
 
 ````

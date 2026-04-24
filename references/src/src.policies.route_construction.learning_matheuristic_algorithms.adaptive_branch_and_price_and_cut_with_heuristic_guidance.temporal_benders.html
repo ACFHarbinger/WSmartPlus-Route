@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -473,7 +474,12 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._add_cut"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._add_cut()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.solve"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator.solve()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._solve_gurobi"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._solve_gurobi()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._evaluate_subproblems"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._evaluate_subproblems()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._get_scenario_prizes"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._get_scenario_prizes()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._estimate_theta_upper_bound"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._estimate_theta_upper_bound()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.generate_benders_cut"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator.generate_benders_cut()</span></code></a></li>
 </ul>
 </li>
@@ -502,8 +508,8 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TemporalBendersCoordinator</span></code></a></p></td>
-<td><p>Master coordination layer that links the multi-day horizon via exact Benders
-decomposition, explicitly using the scenario tree structure.</p></td>
+<td><p>Master coordination layer linking the multi-day horizon via exact Benders
+decomposition, structured over the scenario tree.</p></td>
 </tr>
 </tbody>
 </table>
@@ -530,25 +536,203 @@ decomposition, explicitly using the scenario tree structure.</p></td>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.</span></span><span class="sig-name descname"><span class="pre">TemporalBendersCoordinator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prize_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator" title="Link to this definition">#</a></dt>
-<dd><p>Master coordination layer that links the multi-day horizon via exact Benders
-decomposition, explicitly using the scenario tree structure.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.</span></span><span class="sig-name descname"><span class="pre">TemporalBendersCoordinator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prize_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ph_loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alns_pricer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ml_branching</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_branching</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dive_heuristic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_pool_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_visits_per_bin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_upper_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gurobi_master_time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gurobi_sub_time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gurobi_mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gurobi_output_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_relax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator" title="Link to this definition">#</a></dt>
+<dd><p>Master coordination layer linking the multi-day horizon via exact Benders
+decomposition, structured over the scenario tree.</p>
+<p class="rubric" id="id1">Algorithm Outline</p>
+<p>The MPVRPP objective decomposes by planning day d as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>max   Σ_d  Σ_ξ  p_ξ · Q_d(z_{·d}, ξ)        [expected daily profit]
+s.t.  z_{id} ∈ {0,1}                          [bin assignment decisions]
+      θ_d  ≥  Σ_ξ p_ξ · [Q_d(z̄, ξ)
+              + Σ_i μ_{id}^ξ (z_{id} − z̄_{id})]   [aggregated Benders cut]
+</pre></div>
+</div>
+<p>The master MIP (<code class="docutils literal notranslate"><span class="pre">GurobiMasterProblem</span></code>) optimises over z and θ.  Each
+Benders iteration adds one aggregated optimality cut per day, obtained by
+solving one LP subproblem per (day, scenario) pair via <code class="docutils literal notranslate"><span class="pre">GurobiVRPSubproblem</span></code>
+and accumulating the probability-weighted dual contributions.</p>
+<p>The master objective (Benders UB) decreases monotonically with cuts; the
+best achieved primal value (LB) increases monotonically as better z̄
+assignments are evaluated.  The algorithm terminates when (UB−LB)/UB &lt; tol.</p>
+<p class="rubric" id="id2">Four-Phase Execution</p>
+<p>Phase 1  – Root-node PH-CG (day 0): if <code class="docutils literal notranslate"><span class="pre">ph_loop</span></code> is provided, it enforces
+non-anticipativity across per-scenario RMPs before the Benders
+loop starts.  (Stub hook; full integration pending.)</p>
+<p>Phase 2  – Dive-and-Price: if <code class="docutils literal notranslate"><span class="pre">dive_heuristic</span></code> is provided, establishes
+a primal upper bound by greedily fixing the most scenario-
+consistent fractional columns.  (Stub hook; full integration
+pending.)</p>
+<p>Phase 3  – Gurobi Benders loop: full implementation via
+<code class="docutils literal notranslate"><span class="pre">GurobiMasterProblem</span></code> + <code class="docutils literal notranslate"><span class="pre">GurobiVRPSubproblem</span></code>.</p>
+<p>Phase 4  – Fix-and-Optimize polish: if <code class="docutils literal notranslate"><span class="pre">fix_optimizer</span></code> is provided,
+unfixes targeted bin clusters and re-solves via BPC.  (Stub
+hook; full integration pending.)</p>
+<p class="rubric" id="id3">Required kwargs to <code class="docutils literal notranslate"><span class="pre">solve()</span></code></p>
+<p>dist_matrix : np.ndarray, shape (n_bins+1, n_bins+1)
+Full distance matrix with the depot at index 0 and bins at indices
+1..n_bins.  Must be provided; <code class="docutils literal notranslate"><span class="pre">solve()</span></code> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
+if absent.</p>
+<p class="rubric" id="id4">Injected Components</p>
+<p>All heuristic components are optional (<code class="docutils literal notranslate"><span class="pre">None</span></code> = skipped).</p>
+<p>ph_loop : ProgressiveHedgingCGLoop or None
+alns_pricer : ALNSMultiPeriodPricer or None
+ml_branching : MLBranchingStrategy or None
+scenario_branching : ScenarioConsistentBranching or None
+dive_heuristic : DiveAndPricePrimalHeuristic or None
+fix_optimizer : FixAndOptimizeRefiner or None</p>
+<p class="rubric" id="id5">Attributes</p>
+<p>tree, prize_engine, capacity, revenue, cost_unit
+Problem parameters.
+max_iterations, convergence_tol, cut_pool_max
+Benders convergence controls.
+gurobi_* params
+Gurobi solver settings forwarded to <code class="docutils literal notranslate"><span class="pre">GurobiMasterProblem</span></code> and
+<code class="docutils literal notranslate"><span class="pre">GurobiVRPSubproblem</span></code>.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+tree: ScenarioTree covering the full planning horizon.
+prize_engine: ScenarioPrizeEngine for scenario-augmented prizes.
+capacity: Vehicle / bin capacity τ.
+revenue: Revenue per unit collected (revenue_per_kg).
+cost_unit: Routing cost per unit distance (cost_per_km).
+ph_loop: Optional ProgressiveHedgingCGLoop.
+alns_pricer: Optional ALNSMultiPeriodPricer.
+ml_branching: Optional MLBranchingStrategy.
+scenario_branching: Optional ScenarioConsistentBranching.
+dive_heuristic: Optional DiveAndPricePrimalHeuristic.
+fix_optimizer: Optional FixAndOptimizeRefiner.
+max_iterations: Maximum Benders master–subproblem cycles.
+convergence_tol: (UB−LB)/max(1,|UB|) threshold for termination.
+cut_pool_max: Maximum Benders cuts retained in the pool (FIFO).
+max_visits_per_bin: Maximum times each bin may be assigned across
+the horizon (master frequency constraint).
+theta_upper_bound: Initial upper bound on θ[d]; prevents the
+master from being unbounded before the first cuts.
+gurobi_master_time_limit: Gurobi time limit per master solve (s).
+gurobi_sub_time_limit: Gurobi time limit per subproblem solve (s).
+gurobi_mip_gap: Relative MIP gap for Gurobi master and MIP sub.
+gurobi_output_flag: Enable Gurobi console output (debug mode).
+subproblem_relax: If True, solve the LP relaxation (no subtour
+elimination).  If False, solve as MIP + LP dual recovery.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._add_cut">
+<span class="sig-name descname"><span class="pre">_add_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._add_cut" title="Link to this definition">#</a></dt>
+<dd><p>Add a cut to the internal pool (FIFO eviction at capacity).</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.solve" title="Link to this definition">#</a></dt>
-<dd><p>Main entry point for solving the multi-period problem using Benders Decomposition.
-Returns:
-raw_plan: List[day][route_index][node_index]
-total_expected_profit: Expected profit across horizon</p>
+<dd><p>Solve the multi-period stochastic VRPP via Temporal Benders Decomposition.</p>
+<p>Required kwargs:
+dist_matrix (np.ndarray): Distance matrix, shape (n_bins+1, n_bins+1),
+depot at index 0.  If not provided, raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>Optional kwargs:
+Any remaining key-value pairs are forwarded to subproblem solvers.</p>
+<p>Returns:
+raw_plan: <code class="docutils literal notranslate"><span class="pre">[day][route_index][node_index]</span></code> covering all horizon days.
+total_expected_profit: Σ_d Σ_ξ p_ξ · Q_d(z*, ξ) over the best solution.</p>
+<p>Raises:
+ValueError: If <code class="docutils literal notranslate"><span class="pre">dist_matrix</span></code> is absent from kwargs.
+RuntimeError: If Gurobi is not installed (gurobipy import failed).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._solve_gurobi">
+<span class="sig-name descname"><span class="pre">_solve_gurobi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._solve_gurobi" title="Link to this definition">#</a></dt>
+<dd><p>Core Temporal Benders loop backed by Gurobi master and subproblem.</p>
+<p>Args:
+dist_matrix: (n_bins+1 × n_bins+1) distance matrix.
+n_bins: Number of customer bins.
+**kwargs: Forwarded to per-scenario subproblem solvers.</p>
+<p>Returns:
+best_plan, best_profit (see <code class="docutils literal notranslate"><span class="pre">solve()</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._evaluate_subproblems">
+<span class="sig-name descname"><span class="pre">_evaluate_subproblems</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_bar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.GurobiVRPSubproblem" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.GurobiVRPSubproblem"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.GurobiVRPSubproblem</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._evaluate_subproblems" title="Link to this definition">#</a></dt>
+<dd><p>Solve Q_d(z̄, ξ) for every (day, scenario) pair and produce one
+aggregated Benders cut per day.</p>
+<p>For each day d, the aggregated cut sums per-scenario contributions:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>constant_d  = Σ_ξ p_ξ · [Q_d(z̄,ξ) − Σ_i μ_{id}^ξ · z̄_{id}]
+coeff_d[i]  = Σ_ξ p_ξ · μ_{id}^ξ
+</pre></div>
+</div>
+<p>yielding the master constraint:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>θ_d  ≥  constant_d  +  Σ_i  coeff_d[i] · z[i, d]
+</pre></div>
+</div>
+<p>Args:
+z_bar: Master assignment <code class="docutils literal notranslate"><span class="pre">{day:</span> <span class="pre">{bin_id:</span> <span class="pre">0_or_1}}</span></code>.
+dist_matrix: Full distance matrix.
+horizon: Planning horizon T.
+subproblem: Configured <code class="docutils literal notranslate"><span class="pre">GurobiVRPSubproblem</span></code>.</p>
+<p>Returns:
+iter_profit: Σ_d Σ_ξ p_ξ · Q_d(z̄, ξ) — current primal lower bound
+candidate.
+day_plans: <code class="docutils literal notranslate"><span class="pre">[day][route_list]</span></code> with one route per scenario per day.
+iter_cuts: One aggregated cut dict per day (length = horizon).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._get_scenario_prizes">
+<span class="sig-name descname"><span class="pre">_get_scenario_prizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_remaining</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._get_scenario_prizes" title="Link to this definition">#</a></dt>
+<dd><p>Compute per-scenario node prizes, falling back to the aggregate
+scenario-weighted prizes when per-scenario computation fails.</p>
+<p>Args:
+scenario: Scenario node with optional <code class="docutils literal notranslate"><span class="pre">.wastes</span></code> attribute.
+fallback_prizes: Pre-computed aggregate prizes from
+<code class="docutils literal notranslate"><span class="pre">prize_engine.scenario_weighted_prizes</span></code>.
+days_remaining: Days remaining in horizon (for prize computation).</p>
+<p>Returns:
+Prize dict <code class="docutils literal notranslate"><span class="pre">{bin_id:</span> <span class="pre">π_i^ξ}</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._estimate_theta_upper_bound">
+<span class="sig-name descname"><span class="pre">_estimate_theta_upper_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._estimate_theta_upper_bound" title="Link to this definition">#</a></dt>
+<dd><p>Compute a tighter initial upper bound on θ[d] from day-0 prizes.</p>
+<p>Samples the scenario-weighted prizes for day 0 and sets:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>theta_ub = max(self.theta_upper_bound, Σ_i max(π_i, 0))
+</pre></div>
+</div>
+<p>This ensures the bound is never below the true optimum (single vehicle
+cannot collect more revenue than all prizes summed) while being
+tighter than the raw <code class="docutils literal notranslate"><span class="pre">theta_upper_bound</span></code> default for most instances.</p>
+<p>Args:
+horizon: Planning horizon (used when querying prize engine).</p>
+<p>Returns:
+Per-day theta upper bound applied uniformly across all days.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.generate_benders_cut">
-<span class="sig-name descname"><span class="pre">generate_benders_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_bar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.generate_benders_cut" title="Link to this definition">#</a></dt>
-<dd><p>Extract dual variables associated with assignment constraints in the scenario subproblem.
-Generates probability-weighted optimality cut coefficients.</p>
-<p>theta_d &gt;= Q_d(z_bar, xi) + sum_i mu_{id}^{xi} (z_{id} - z_bar_{id})</p>
+<span class="sig-name descname"><span class="pre">generate_benders_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_bar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.generate_benders_cut" title="Link to this definition">#</a></dt>
+<dd><p>Construct a probability-weighted Benders optimality cut for a single
+(day, scenario) pair.</p>
+<p>In the main loop, cuts are aggregated directly inside
+<code class="docutils literal notranslate"><span class="pre">_evaluate_subproblems</span></code>.  This method is provided for unit testing,
+external use, and manual cut inspection.</p>
+<p>Cut form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>θ_d  ≥  constant  +  Σ_i  coeff[i] · z[i, d]
+</pre></div>
+</div>
+<p>where:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>constant  = p_ξ · [Q_d(z̄,ξ) − Σ_i μ_{id}^ξ · z̄_{id}]
+coeff[i]  = p_ξ · μ_{id}^ξ
+</pre></div>
+</div>
+<p>Args:
+day: Planning day index d.
+scenario_id: Scenario identifier.
+z_bar: Day-specific assignment <code class="docutils literal notranslate"><span class="pre">{bin_id:</span> <span class="pre">0_or_1}</span></code>.
+subproblem_profit: Q_d(z̄, ξ).
+subproblem_duals: <code class="docutils literal notranslate"><span class="pre">{bin_id:</span> <span class="pre">μ_{id}^ξ}</span></code>.
+scenario_prob: p_ξ.</p>
+<p>Returns:
+Cut dict with keys <code class="docutils literal notranslate"><span class="pre">&quot;day&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;scenario&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;constant&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;coefficients&quot;</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -608,7 +792,12 @@ Generates probability-weighted optimality cut coefficients.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._add_cut"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._add_cut()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.solve"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator.solve()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._solve_gurobi"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._solve_gurobi()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._evaluate_subproblems"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._evaluate_subproblems()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._get_scenario_prizes"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._get_scenario_prizes()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._estimate_theta_upper_bound"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator._estimate_theta_upper_bound()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.generate_benders_cut"><code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator.generate_benders_cut()</span></code></a></li>
 </ul>
 </li>

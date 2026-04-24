@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} compute_eoq_thresholds(context: logic.src.policies.mandatory_selection.base.selection_context.SelectionContext) -> numpy.ndarray
+````{py:function} compute_eoq_thresholds(context: logic.src.interfaces.context.SelectionContext) -> numpy.ndarray
 :canonical: src.policies.mandatory_selection.base.eoq.compute_eoq_thresholds
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.base.eoq.compute_eoq_thresholds
 ```
 ````
 
-````{py:function} resolve_trigger_threshold(context: logic.src.policies.mandatory_selection.base.selection_context.SelectionContext, fill_ratios: numpy.ndarray) -> numpy.ndarray
+````{py:function} resolve_trigger_threshold(context: logic.src.interfaces.context.SelectionContext, fill_ratios: numpy.ndarray) -> numpy.ndarray
 :canonical: src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold

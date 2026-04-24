@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -495,6 +496,12 @@ document.write(`
 <p>Delegates to operators.intensification.dp_route_reopt (or its profit
 variant when revenue/cost are configured) to perform exact TSP
 reoptimization per route using Dynamic Programming.</p>
+<p>Attributes:
+DPRouteReoptRouteImprover: Main class for DP-based route reoptimization.
+Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.dp_route_reopt import DPRouteReoptRouteImprover
+&gt;&gt;&gt; improver = DPRouteReoptRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,9 +509,7 @@ reoptimization per route using Dynamic Programming.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.dp_route_reopt.DPRouteReoptRouteImprover" title="src.policies.route_improvement.dp_route_reopt.DPRouteReoptRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DPRouteReoptRouteImprover</span></code></a></p></td>
-<td><p>Held-Karp exact TSP route improver. Reoptimizes each route
-independently using DP. Routes longer than <code class="docutils literal notranslate"><span class="pre">dp_max_nodes</span></code>
-are returned unchanged.</p></td>
+<td><p>Held-Karp exact TSP route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,9 +521,15 @@ are returned unchanged.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_improvement.dp_route_reopt.DPRouteReoptRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.dp_route_reopt.</span></span><span class="sig-name descname"><span class="pre">DPRouteReoptRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.dp_route_reopt.DPRouteReoptRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Held-Karp exact TSP route improver. Reoptimizes each route
-independently using DP. Routes longer than <code class="docutils literal notranslate"><span class="pre">dp_max_nodes</span></code>
-are returned unchanged.</p>
+<p>Held-Karp exact TSP route improver.</p>
+<p>Reoptimizes each route independently using DP. Routes longer than
+<code class="docutils literal notranslate"><span class="pre">dp_max_nodes</span></code> are returned unchanged due to the exponential
+complexity of the Held-Karp algorithm.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
+<p>Example:
+&gt;&gt;&gt; improver = DPRouteReoptRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, dp_max_nodes=15)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -527,7 +538,19 @@ passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.dp_route_reopt.DPRouteReoptRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.dp_route_reopt.DPRouteReoptRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Held-Karp reoptimization to each route in the tour.</p>
+<p>Args:
+tour (List[int]): Initial tour sequence.
+**kwargs: Context containing:
+distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+dp_max_nodes (int): Maximum nodes per route for DP (default 20).
+wastes (Dict[int, float]): Bin mass dictionary.
+capacity (float): Maximum vehicle capacity.
+revenue_kg (float): Waste profit coefficient.
+cost_per_km (float): Distance cost coefficient.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.</p>
+</dd></dl>
 
 </dd></dl>
 

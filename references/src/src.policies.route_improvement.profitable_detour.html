@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -492,6 +493,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.profitable_detour">
 <span id="src-policies-route-improvement-profitable-detour"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.profitable_detour" title="src.policies.route_improvement.profitable_detour"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.profitable_detour</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.profitable_detour" title="Link to this heading">#</a></h1>
 <p>Profitable Detour Route Improver.</p>
+<p>This module implements a detour-based improvement heuristic that identifies
+unselected bins that can be profitably inserted into existing routes without
+exceeding a specified detour budget or vehicle capacity.</p>
+<p>Attributes:
+ProfitableDetourRouteImprover: Route improvement class using profitable detours.</p>
+<p>Example:
+&gt;&gt;&gt; improver = ProfitableDetourRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm, detour_epsilon=0.1)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.profitable_detour.ProfitableDetourRouteImprover" title="src.policies.route_improvement.profitable_detour.ProfitableDetourRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProfitableDetourRouteImprover</span></code></a></p></td>
-<td><p>Profitable detour route improver.
-Inserts bins that lie within a certain detour budget from existing tour edges.</p></td>
+<td><p>Profitable detour route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,8 +520,13 @@ Inserts bins that lie within a certain detour budget from existing tour edges.</
 <dt class="sig sig-object py" id="src.policies.route_improvement.profitable_detour.ProfitableDetourRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.profitable_detour.</span></span><span class="sig-name descname"><span class="pre">ProfitableDetourRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.profitable_detour.ProfitableDetourRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Profitable detour route improver.
-Inserts bins that lie within a certain detour budget from existing tour edges.</p>
+<p>Profitable detour route improver.</p>
+<p>Inserts bins that lie within a certain detour budget from existing tour edges.</p>
+<p>Attributes:
+config (Dict[str, Any]): Configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; improver = ProfitableDetourRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -524,11 +537,17 @@ passed, its value is used as the config dict directly.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.profitable_detour.ProfitableDetourRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply Profitable Detour augmentation to the tour.</p>
 <p>Args:
-tour: Initial tour (List of bin IDs including depot 0s).
-**kwargs: Context containing ‘distance_matrix’, ‘detour_epsilon’,
-‘cost_per_km’, ‘revenue_kg’, etc.</p>
+tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+kwargs (Any): Search context, including:
+- distance_matrix (np.ndarray): The distance matrix.
+- detour_epsilon (float): Maximum proportion of detour distance relative to original edge.
+- cost_per_km (float): Distance cost.
+- revenue_kg (float): Waste revenue.
+- wastes (Dict[int, float]): Bin waste demands.
+- capacity (float): Vehicle capacity.
+- n_bins (int): Total number of bins available.</p>
 <p>Returns:
-List[int]: Refined and potentially expanded tour.</p>
+Tuple[List[int], ImprovementMetrics]: Refined and potentially expanded tour.</p>
 <p>Complexity:
 O(Routes * Edges * |unselected|^2) in the worst case where many bins
 can be inserted between a single edge pair.</p>

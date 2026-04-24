@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -494,26 +495,45 @@ document.write(`
 <p>This package contains concrete implementations of the <code class="docutils literal notranslate"><span class="pre">MandatorySelectionStrategy</span></code>
 interface. Strategies determine which bins must be collected on a given day
 based on different criteria (fill levels, revenue, schedule, etc.).</p>
-<p>Includes both:</p>
-<ul class="simple">
-<li><p>Single-instance selectors (for simulation): SelectionContext-based</p></li>
-<li><p>Vectorized selectors (for training): Batched PyTorch tensor operations</p></li>
-</ul>
 <p>Attributes:
-CombinedSelector (class): Combines multiple selection strategies.
-LastMinuteSelector (class): Selects bins that are about to overflow.
-LookaheadSelector (class): Selects bins based on future fill predictions.
-ManagerSelector (class): Selects bins based on a manager agent’s policy.
-RegularSelector (class): Selects bins based on fixed schedule frequency.
-RevenueSelector (class): Selects bins based on revenue potential.
-ServiceLevelSelector (class): Selects bins to maintain a service level.
-VectorizedSelector (class): Abstract base for vectorized selection.
-create_selector_from_config (function): Factory function for config-based creation.
-get_vectorized_selector (function): Factory function for vectorized selectors.</p>
+MandatorySelectionFactory: Factory for creating strategy instances.
+MandatorySelectionRegistry: Registry for mapping names to strategy classes.
+SelectionContext: Context object containing state for selection decisions.
+CombinedSelection: Strategy that combines multiple selection criteria.
+LastMinuteSelection: Simple threshold-based reactive strategy.
+RevenueThresholdSelection: Strategy based on estimated revenue.
+LookaheadSelection: Predictive strategy using future fill simulations.
+WhittleIndexSelection: RMAB-based priority ranking strategy.
+MIPKnapsackSelection: Exact multiple-knapsack optimization strategy.
+FPTASKnapsackSelection: FPTAS-based multiple-knapsack strategy.
+BernoulliRandomSelection: Stochastic selection with eligibility thresholds.
+CVaRSelection: Tail-risk based selection.
+DeadlineDrivenSelection: Temporal deadline-based selection.
+PortfolioDispatcher: Orchestrator for multiple concurrent strategies.
+ThompsonDispatcher: MAB-based adaptive strategy selection.
+FilterAndFanSelection: Local search based selection refinement.
+FractionalKnapsackSelection: Greedy net-profit density selection.
+KMeansGeographicSectorSelection: Cyclic zone-day selection.
+LagrangianSelection: Reduced-cost based selection.
+LearnedSelection: ML-imitation selection strategy.
+MultiDayOverflowSelection: Stochastic multi-period overflow probability.
+ParetoFrontSelection: Bi-objective urgency/cost selection.
+ProfitPerKmSelection: ROI-based selection proxy.
+RegularSelection: Fixed-frequency periodic selection.
+RolloutSelection: One-step rollout simulation strategy.
+SavingsSelection: Spatial-savings based selection.
+ServiceLevelSelection: Statistical confidence-bound selection.
+SetCoverSelection: Hub-based spatial coverage selection.
+SpatialSynergySelection: Neighbourhood-based opportunistic selection.
+StaggeredRegularSelection: Phase-staggered periodic selection.
+StochasticRegretSelection: Expected overflow regret selection.
+SubmodularGreedySelection: Facility-location coverage selection.
+SupermodularGreedySelection: Synergetic cluster selection.
+WassersteinRobustSelection: Distributionally robust selection.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.mandatory import create_selector_from_config
-&gt;&gt;&gt; selector = create_selector_from_config(config)
-&gt;&gt;&gt; selected_nodes = selector.select(context)</p>
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection import MandatorySelectionFactory
+&gt;&gt;&gt; strategy = MandatorySelectionFactory.create_strategy(“last_minute”)
+&gt;&gt;&gt; bins, ctx = strategy.select_bins(selection_context)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -522,7 +542,6 @@ get_vectorized_selector (function): Factory function for vectorized selectors.</
 <li class="toctree-l2"><a class="reference internal" href="src.policies.mandatory_selection.base.selection_factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.selection_factory</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.mandatory_selection.base.eoq.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.eoq</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.mandatory_selection.base.selection_registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.selection_registry</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.mandatory_selection.base.selection_context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.selection_context</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -562,6 +581,7 @@ get_vectorized_selector (function): Factory function for vectorized selectors.</
 <li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.selection_set_cover.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_set_cover</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.selection_lagrangian.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_lagrangian</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.selection_bernoulli_random.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_bernoulli_random</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.selection_fptas_knapsack.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack</span></code></a></li>
 </ul>
 </div>
 </section>

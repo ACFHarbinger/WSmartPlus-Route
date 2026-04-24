@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.mandatory_selection.selection_bernoulli_random';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.route_construction" href="src.policies.route_construction.html" />
+    <link rel="next" title="src.policies.mandatory_selection.selection_fptas_knapsack" href="src.policies.mandatory_selection.selection_fptas_knapsack.html" />
     <link rel="prev" title="src.policies.mandatory_selection.selection_lagrangian" href="src.policies.mandatory_selection.selection_lagrangian.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -530,48 +531,25 @@ None</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_bernoulli_random.</span></span><span class="sig-name descname"><span class="pre">BernoulliRandomSelection</span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_bernoulli_random.BernoulliRandomSelection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></code></p>
 <p>Independent Bernoulli trial selection strategy.</p>
-<p>Each eligible bin i is independently mandated with probability p:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>X_i ~ Bernoulli(p)
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">threshold</span></code> parameter is interpreted as the selection probability p
-and is clipped to [0, 1]. This strategy is the canonical stochastic null
-baseline: any deterministic strategy that does not significantly outperform
-it under identical conditions has a validity concern.</p>
-<p>Unlike Top-K random selection (which fixes |S| = K), the Bernoulli
-formulation decouples the selection decision at each bin, making the
-realised set size itself a random variable. This is the correct model when
-each bin’s urgency is assessed independently without knowledge of how many
-others will be collected that day.</p>
-<p class="rubric" id="id1">SelectionContext fields consumed</p>
-<p>threshold    (float) : Selection probability p ∈ [0, 1]. Defaults to 0.5.
-current_day  (int)   : Used to derive a per-day RNG seed when no explicit
-seed is provided, ensuring day-level reproducibility
-while varying across days within a simulation episode.
-current_fill (ndarray[n]) : Per-bin fill ratios; used for min_fill filter.
-bin_ids      (ndarray[n]) : 0-based bin IDs used when fill is absent.
-seed         (int)   : Optional fixed RNG seed. When None (default), a
-seed is derived from current_day to produce different
-but deterministic draws each day.</p>
-<p class="rubric" id="id2">Instance attributes</p>
-<p>min_fill (float): Minimum fill ratio for a bin to be eligible for the
+<p>Each eligible bin i is independently mandated with probability p:
+X_i ~ Bernoulli(p). The <code class="docutils literal notranslate"><span class="pre">threshold</span></code> parameter is interpreted as the
+selection probability p and is clipped to [0, 1].</p>
+<p>Attributes:
+min_fill (float): Minimum fill ratio for a bin to be eligible for the
 Bernoulli trial. Defaults to 0.0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_bernoulli_random.BernoulliRandomSelection.select_bins">
-<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_bernoulli_random.BernoulliRandomSelection.select_bins" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_bernoulli_random.BernoulliRandomSelection.select_bins" title="Link to this definition">#</a></dt>
 <dd><p>Sample each eligible bin independently via Bernoulli(p).</p>
 <p>Bins below <code class="docutils literal notranslate"><span class="pre">min_fill</span></code> are excluded before sampling (they are not
 eligible for the trial, not just rejected by it), so the effective
 population for the Binomial distribution is the eligible subset.</p>
+<p>This mechanism ensures that bins with insufficient capacity or
+fill levels are strictly excluded from the stochastic process.</p>
 <p>Args:
-context: SelectionContext providing threshold (as p), current_fill
-or bin_ids, and optionally seed.</p>
+context (SelectionContext): The selection context.</p>
 <p>Returns:
-A 2-tuple of:
-- List[int]: 1-based bin IDs drawn as X_i = 1.
-- SearchContext: Populated with strategy name, p, number of
-eligible bins trialled, number selected, and the realised
-selection rate for diagnostics.</p>
+Tuple[List[int], SearchContext]: Selected bin IDs and search context.</p>
 </dd></dl>
 
 </dd></dl>
@@ -601,11 +579,11 @@ selection rate for diagnostics.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.route_construction.html"
+       href="src.policies.mandatory_selection.selection_fptas_knapsack.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.mandatory_selection.base.selection_registry';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.mandatory_selection.base.selection_context" href="src.policies.mandatory_selection.base.selection_context.html" />
+    <link rel="next" title="src.policies.mandatory_selection.selection_savings" href="src.policies.mandatory_selection.selection_savings.html" />
     <link rel="prev" title="src.policies.mandatory_selection.base.eoq" href="src.policies.mandatory_selection.base.eoq.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -499,7 +500,7 @@ document.write(`
 It allows dynamic registration and retrieval of strategies, facilitating
 plugin-style extensions.</p>
 <p>Attributes:
-None</p>
+MandatorySelectionRegistry: Registry for strategy classes.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.mandatory.base.selection_registry import MandatorySelectionRegistry
 &gt;&gt;&gt; &#64;MandatorySelectionRegistry.register(“my_strategy”)
@@ -523,6 +524,12 @@ None</p>
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.selection_registry.</span></span><span class="sig-name descname"><span class="pre">MandatorySelectionRegistry</span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry" title="Link to this definition">#</a></dt>
 <dd><p>Registry for Mandatory selection strategies.</p>
+<p>Attributes:
+_strategies (Dict[str, Type[IMandatorySelectionStrategy]]): Internal mapping of names to strategy classes.</p>
+<p>Example:
+&gt;&gt;&gt; &#64;MandatorySelectionRegistry.register(“my_strategy”)
+&gt;&gt;&gt; class MyStrategy(IMandatorySelectionStrategy):
+…     pass</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry._strategies">
 <span class="sig-name descname"><span class="pre">_strategies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry._strategies" title="Link to this definition">#</a></dt>
@@ -533,18 +540,28 @@ None</p>
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry.register">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry.register" title="Link to this definition">#</a></dt>
 <dd><p>Decorator to register a strategy.</p>
+<p>Args:
+name (str): Unique name to register the strategy under.</p>
+<p>Returns:
+Callable: A decorator that registers the class.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry.get_strategy_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_strategy_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry.get_strategy_class" title="Link to this definition">#</a></dt>
 <dd><p>Get a strategy class by name.</p>
+<p>Args:
+name (str): Name of the strategy to retrieve.</p>
+<p>Returns:
+Optional[Type[IMandatorySelectionStrategy]]: The strategy class if found, else None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry.list_strategies">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list_strategies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry.list_strategies" title="Link to this definition">#</a></dt>
 <dd><p>List all registered strategy names.</p>
+<p>Returns:
+List[str]: List of registered strategy names.</p>
 </dd></dl>
 
 </dd></dl>
@@ -574,11 +591,11 @@ None</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.mandatory_selection.base.selection_context.html"
+       href="src.policies.mandatory_selection.selection_savings.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.selection_context</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_savings</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

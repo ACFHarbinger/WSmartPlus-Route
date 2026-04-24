@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -519,18 +520,28 @@ RouteImproverFactory (class): The factory class.</p>
 <dt class="sig sig-object py" id="src.policies.route_improvement.base.factory.RouteImproverFactory">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.base.factory.</span></span><span class="sig-name descname"><span class="pre">RouteImproverFactory</span></span><a class="headerlink" href="#src.policies.route_improvement.base.factory.RouteImproverFactory" title="Link to this definition">#</a></dt>
 <dd><p>Factory for creating route improvement strategy instances.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.base.factory.RouteImproverFactory.create">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></span></span><a class="headerlink" href="#src.policies.route_improvement.base.factory.RouteImproverFactory.create" title="Link to this definition">#</a></dt>
 <dd><p>Create a route improver instance by name.</p>
+<p>Args:
+name (str): Unique identifier of the route improver.</p>
+<p>Returns:
+IRouteImprovement: An instance of the requested route improver.</p>
+<p>Raises:
+ValueError: If the requested improver name is unknown.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.base.factory.RouteImproverFactory.create_from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.base.factory.RouteImproverFactory.create_from_config" title="Link to this definition">#</a></dt>
-<dd><p>Create a list of route improver instances from a RouteImprovingConfig object.</p>
+<dd><p>Create a list of route improver instances from a configuration object.</p>
 <p>Args:
-config: RouteImprovingConfig instance.</p>
+config (Any): Configuration object containing method names and parameters.</p>
+<p>Returns:
+List[IRouteImprovement]: List of instantiated route improver operators.</p>
 </dd></dl>
 
 </dd></dl>

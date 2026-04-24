@@ -14,6 +14,7 @@
 :maxdepth: 3
 
 src.policies.route_improvement.base
+src.policies.route_improvement.common
 ```
 
 ## Submodules
@@ -27,6 +28,7 @@ src.policies.route_improvement.branch_and_price
 src.policies.route_improvement.or_opt
 src.policies.route_improvement.cheapest_insertion
 src.policies.route_improvement.fix_and_optimize
+src.policies.route_improvement.set_covering
 src.policies.route_improvement.random_local_search
 src.policies.route_improvement.node_exchange_steepest
 src.policies.route_improvement.cross_exchange

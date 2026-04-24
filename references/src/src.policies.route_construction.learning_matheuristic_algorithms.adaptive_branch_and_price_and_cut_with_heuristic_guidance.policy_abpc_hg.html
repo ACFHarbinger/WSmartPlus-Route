@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -473,6 +474,14 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_prize_engine"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_prize_engine()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ph_loop"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_ph_loop()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_alns_pricer"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_alns_pricer()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_dive_heuristic"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_dive_heuristic()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_fix_optimizer"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_fix_optimizer()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ml_branching"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_ml_branching()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_scenario_branching"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_scenario_branching()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_coordinator"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_coordinator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._run_multi_period_solver"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._run_multi_period_solver()</span></code></a></li>
 </ul>
 </li>
@@ -513,8 +522,81 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.</span></span><span class="sig-name descname"><span class="pre">ABPCHGPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.abpc_hg.ABPCHGConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
 <p>Adaptive Branch-and-Price-and-Cut with Heuristic Guidance (ABPC-HG).</p>
-<p>This policy wraps the exact BPC components but injects advanced matheuristic
-and scenario-based logic to solve Stochastic Multi-Period VRPs.</p>
+<p class="rubric" id="id1">Overview</p>
+<p>ABPC-HG is a hybrid exact–matheuristic policy for Stochastic Multi-Period
+Vehicle Routing Problems with Profits (SMPVRPP).  It wraps a rigorous
+Temporal Benders Decomposition over the full planning horizon with a suite
+of scenario-aware heuristic components that inject structure from the
+ScenarioTree at every level of the exact BPC hierarchy.</p>
+<p>The policy assumes the ProblemContext carries a populated ScenarioTree and
+raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if it is absent.</p>
+<p class="rubric" id="id2">Pipeline</p>
+<p>Execution proceeds in four phases:</p>
+<p><strong>Phase 1 — Scenario Prize Augmentation</strong>
+<code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code> computes Bellman-style node prizes π_i
+encoding both immediate fill revenue and the discounted opportunity
+cost of deferral, conditioned on the scenario-tree fill distribution
+and the Gamma-based overflow predictor:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    π_i = w_{i,d} · R
+        + γ · E_ξ[V_future(i, not visited)]
+        − γ · E_ξ[V_future(i, visited)]
+</pre></div>
+</div>
+<p><strong>Phase 2 — Root-Node CG with Non-Anticipativity (Progressive Hedging)</strong>
+<code class="docutils literal notranslate"><span class="pre">ProgressiveHedgingCGLoop</span></code> maintains one Restricted Master Problem
+per scenario ξ and coordinates them toward a common solution by
+penalising deviations from the consensus variable x̄ via an
+augmented-Lagrangian proximal term:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    c&#39;_{k,ξ}  +=  −ρ_eff · (x_k − x̄_k)²
+
+where ρ_eff = ρ₀ · (1 + Var_ξ[π_i^ξ]) is set dynamically per variable.
+</pre></div>
+</div>
+<p><strong>Phase 3 — Temporal Benders Loop</strong>
+<code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator</span></code> iteratively tightens a master-problem
+lower bound through probability-weighted optimality cuts
+θ_d ≥ p_ξ · [Q_d(z̄,ξ) + Σ_i μ_{id}^ξ (z_{id} − z̄_{id})].</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Within each Benders iteration:
+
+*Heuristic pricing* (``ALNSMultiPeriodPricer``): scenario-overflow-
+driven destroy + scenario-aware insertion repair operators generate
+candidate columns, falling back to exact ESPPRC when no improving
+column is found.
+
+*Primal bound* (``DiveAndPricePrimalHeuristic``): greedily fixes the
+most scenario-consistent fractional root columns
+(score = λ_k · consensus_k) with soft big-M recovery on infeasibility.
+
+*Branching* (``MLBranchingStrategy`` + ``ScenarioConsistentBranching``):
+GNN-based imitation-learning surrogate for strong branching, falling
+back to reliability-branching pseudo-costs; the scenario-consistent
+rule maximises |consensus(g_i) − 0.5| across fractional variables.
+</pre></div>
+</div>
+<p><strong>Phase 4 — Fix-and-Optimize Polish</strong>
+<code class="docutils literal notranslate"><span class="pre">FixAndOptimizeRefiner</span></code> iteratively unfixes targeted bin clusters
+(selected by overflow urgency or cross-scenario fill variance, guarded
+by a Jaccard-similarity tabu list) and hands each corridor to the
+exact BPC engine for re-optimisation.</p>
+<p class="rubric" id="id3">Configuration</p>
+<p>All tunable parameters are collected in <code class="docutils literal notranslate"><span class="pre">ABPCHGParams</span></code>.  The full list
+with documentation and calibration guidance is available there.  A minimal
+config need only specify <code class="docutils literal notranslate"><span class="pre">gamma</span></code>; all other fields fall back to defaults.</p>
+<p class="rubric" id="id4">External Injection</p>
+<p>An exact RCSPP solver (<code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code>) may be passed through
+<code class="docutils literal notranslate"><span class="pre">ProblemContext.extra[&quot;exact_pricer&quot;]</span></code> to serve as the ALNS fallback
+oracle.  If absent, ALNS-only pricing is used without an exact fallback.</p>
+<p>A trained GNN branching model may be injected post-construction via:
+<code class="docutils literal notranslate"><span class="pre">policy.ml_branching_model</span> <span class="pre">=</span> <span class="pre">&lt;your</span> <span class="pre">model&gt;</span></code>
+and will be picked up on the next <code class="docutils literal notranslate"><span class="pre">_run_multi_period_solver</span></code> call.</p>
+<p class="rubric" id="id5">Attributes</p>
+<p>params : ABPCHGParams
+Fully resolved configuration instance built from the supplied config.
+gamma : float
+Convenience alias for <code class="docutils literal notranslate"><span class="pre">params.gamma</span></code>.
+ml_branching_model : Any or None
+Optional trained GNN model injected externally; <code class="docutils literal notranslate"><span class="pre">None</span></code> causes
+<code class="docutils literal notranslate"><span class="pre">MLBranchingStrategy</span></code> to fall back to reliability branching.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize policy with optional config dataclass or raw dict.</p>
 <p>Args:
@@ -533,17 +615,139 @@ typed dataclass automatically.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_prize_engine">
+<span class="sig-name descname"><span class="pre">_build_prize_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_prize_engine" title="Link to this definition">#</a></dt>
+<dd><p>Instantiate a <code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code> with policy-level parameters.</p>
+<p>Args:
+tree: ScenarioTree for the current horizon.
+capacity: Bin / vehicle capacity τ, used as the overflow cap.</p>
+<p>Returns:
+Configured <code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ph_loop">
+<span class="sig-name descname"><span class="pre">_build_ph_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_scenarios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ph_loop" title="Link to this definition">#</a></dt>
+<dd><p>Instantiate the Progressive Hedging root-node CG loop.</p>
+<p>Args:
+num_scenarios: Total number of scenarios in the tree (denominator
+of the x̄ average update).</p>
+<p>Returns:
+Configured <code class="docutils literal notranslate"><span class="pre">ProgressiveHedgingCGLoop</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_alns_pricer">
+<span class="sig-name descname"><span class="pre">_build_alns_pricer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exact_pricer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_alns_pricer" title="Link to this definition">#</a></dt>
+<dd><p>Instantiate the ALNS heuristic pricing oracle with an exact fallback.</p>
+<p>Args:
+exact_pricer: Exact <code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code> used when ALNS cannot produce
+a column with reduced cost &gt; <code class="docutils literal notranslate"><span class="pre">alns_rc_tolerance</span></code>.</p>
+<p>Returns:
+Configured <code class="docutils literal notranslate"><span class="pre">ALNSMultiPeriodPricer</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_dive_heuristic">
+<span class="sig-name descname"><span class="pre">_build_dive_heuristic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_dive_heuristic" title="Link to this definition">#</a></dt>
+<dd><p>Instantiate the Dive-and-Price primal heuristic.</p>
+<p>Returns:
+Configured <code class="docutils literal notranslate"><span class="pre">DiveAndPricePrimalHeuristic</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_fix_optimizer">
+<span class="sig-name descname"><span class="pre">_build_fix_optimizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_fix_optimizer" title="Link to this definition">#</a></dt>
+<dd><p>Instantiate the Fix-and-Optimize corridor refiner.</p>
+<p>Returns:
+Configured <code class="docutils literal notranslate"><span class="pre">FixAndOptimizeRefiner</span></code> instance with tabu list
+capacity and corridor width from <code class="docutils literal notranslate"><span class="pre">params</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ml_branching">
+<span class="sig-name descname"><span class="pre">_build_ml_branching</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ml_branching" title="Link to this definition">#</a></dt>
+<dd><p>Instantiate the ML / reliability branching strategy.</p>
+<p>Uses <code class="docutils literal notranslate"><span class="pre">self.ml_branching_model</span></code> if set (external injection);
+otherwise constructs a model-free instance that falls back to
+reliability branching throughout.</p>
+<p>Returns:
+Configured <code class="docutils literal notranslate"><span class="pre">MLBranchingStrategy</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_scenario_branching">
+<span class="sig-name descname"><span class="pre">_build_scenario_branching</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_scenario_branching" title="Link to this definition">#</a></dt>
+<dd><p>Instantiate the scenario-consistent branching rule.</p>
+<p>Returns:
+Configured <code class="docutils literal notranslate"><span class="pre">ScenarioConsistentBranching</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_coordinator">
+<span class="sig-name descname"><span class="pre">_build_coordinator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prize_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_scenarios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_pricer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_coordinator" title="Link to this definition">#</a></dt>
+<dd><p>Assemble and wire all pipeline components into a <code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator</span></code>.</p>
+<p>This is the single point where all <code class="docutils literal notranslate"><span class="pre">_build_*</span></code> factory methods are
+called and their outputs composed.  The resulting coordinator is a
+fully wired, self-contained solver ready to call <code class="docutils literal notranslate"><span class="pre">.solve()</span></code>.</p>
+<p>Args:
+tree: Scenario tree for the planning horizon.
+prize_engine: Pre-built <code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code> instance.
+capacity: Vehicle / bin capacity τ.
+revenue: Revenue per unit of waste collected.
+cost_unit: Routing cost per unit distance.
+num_scenarios: Leaf scenario count; denominator of the PH x̄ average.
+exact_pricer: Optional exact ESPPRC solver for ALNS fallback.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the ALNS pricer is not constructed and pricing
+falls back entirely to the coordinator’s subproblem stub.</p>
+<p>Returns:
+Fully wired <code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._run_multi_period_solver" title="Link to this definition">#</a></dt>
-<dd><p>Execute the ABPC-HG pipeline for the multi-day horizon.</p>
+<dd><p>Execute the full ABPC-HG pipeline over the multi-day planning horizon.</p>
+<p>Resolves all problem-level parameters from <code class="docutils literal notranslate"><span class="pre">ProblemContext</span></code>,
+constructs the component graph via the <code class="docutils literal notranslate"><span class="pre">_build_*</span></code> factory methods,
+and delegates execution to <code class="docutils literal notranslate"><span class="pre">TemporalBendersCoordinator.solve()</span></code>.</p>
 <p>Args:
-problem: Current ProblemContext containing state data.
-multi_day_ctx: Optional context for spanning multiple days.</p>
+problem: ProblemContext carrying the current state, including:
+- <code class="docutils literal notranslate"><span class="pre">scenario_tree</span></code>: populated <code class="docutils literal notranslate"><span class="pre">ScenarioTree</span></code> (required).
+- <code class="docutils literal notranslate"><span class="pre">capacity</span></code>: bin / vehicle capacity τ.
+- <code class="docutils literal notranslate"><span class="pre">revenue_per_kg</span></code>: revenue coefficient R.
+- <code class="docutils literal notranslate"><span class="pre">cost_per_km</span></code>: routing cost coefficient.
+- <code class="docutils literal notranslate"><span class="pre">extra</span></code>: optional dict of keyword arguments forwarded to
+sub-solvers; may include <code class="docutils literal notranslate"><span class="pre">&quot;exact_pricer&quot;</span></code> (<code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code>)
+to activate exact ESPPRC fallback in ALNS pricing.
+multi_day_ctx: Optional <code class="docutils literal notranslate"><span class="pre">MultiDayContext</span></code> for cross-day state
+propagation (e.g. rolling-horizon warm starts, column pool
+carryover).  May be <code class="docutils literal notranslate"><span class="pre">None</span></code> at day 0 or in single-day runs.</p>
 <p>Returns:
-Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
-- today_solution: Standardized solution context for Day 0.
-- full_plan: Collection plan spanning the entire horizon.
-- stats: Execution statistics and Benders iteration metadata.</p>
+today_solution : SolutionContext
+Standardised solution for day 0 built from <code class="docutils literal notranslate"><span class="pre">raw_plan[0][0]</span></code>.
+full_plan : List[List[List[int]]]
+Full collection plan <code class="docutils literal notranslate"><span class="pre">[day][route_index][node_index]</span></code>
+spanning the entire horizon.
+stats : Dict[str, Any]
+Execution metadata with keys:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    ``&quot;policy&quot;``
+        Policy identifier ``&quot;abpc_hg&quot;``.
+    ``&quot;expected_profit&quot;``
+        Total probability-weighted profit Σ_d Σ_ξ p_ξ · Q_d(z*,ξ).
+    ``&quot;benders_iterations&quot;``
+        Number of Benders iterations executed (upper bound;
+        may be fewer if convergence was achieved early).
+    ``&quot;params&quot;``
+        The ``ABPCHGParams`` instance used for this solve,
+        enabling reproducibility and experiment logging.
+</pre></div>
+</div>
+<p>Raises:
+ValueError: If <code class="docutils literal notranslate"><span class="pre">problem.scenario_tree</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.  The entire
+ABPC-HG pipeline is conditioned on scenario-tree availability;
+single-scenario / deterministic problems should use a
+degenerate one-scenario tree rather than passing <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -603,6 +807,14 @@ Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._get_config_key()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_prize_engine"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_prize_engine()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ph_loop"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_ph_loop()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_alns_pricer"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_alns_pricer()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_dive_heuristic"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_dive_heuristic()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_fix_optimizer"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_fix_optimizer()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ml_branching"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_ml_branching()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_scenario_branching"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_scenario_branching()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_coordinator"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._build_coordinator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._run_multi_period_solver"><code class="docutils literal notranslate"><span class="pre">ABPCHGPolicy._run_multi_period_solver()</span></code></a></li>
 </ul>
 </li>

@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -489,10 +490,26 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection_and_construction">
 <span id="src-policies-selection-and-construction"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction" title="src.policies.selection_and_construction"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction" title="Link to this heading">#</a></h1>
-<p>Selection-and-Construction Policies Package.</p>
+<p>Selection and Construction Policies Package.</p>
 <p>This package contains algorithms that perform <strong>joint</strong> mandatory-bin selection
-and route construction in a single integrated optimisation loop, rather than
+and route construction in a single integrated optimization loop, rather than
 executing the two phases sequentially.</p>
+<p>The package exposes the main factory and registry for joint policies, as well
+as the specific implementations for Greedy Orienteering, Simulated Annealing,
+and NDS-BRKGA.</p>
+<p>Attributes:
+BaseJointPolicy: Base class for joint policies.
+JointPolicyFactory: Factory for creating joint policies.
+JointPolicyRegistry: Registry of available joint policies.
+JointGreedyParams: Parameters for JGO.
+JointGreedyPolicy: JGO policy implementation.
+JointSAParams: Parameters for JSA.
+JointSAPolicy: JSA policy implementation.
+NDSBRKGAParams: Parameters for NDS-BRKGA.
+NDSBRKGAPolicy: NDS-BRKGA policy implementation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.selection_and_construction import JointPolicyFactory
+&gt;&gt;&gt; policy = JointPolicyFactory.create(“nds_brkga”, config=cfg)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

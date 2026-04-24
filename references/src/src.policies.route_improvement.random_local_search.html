@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.route_improvement.node_exchange_steepest" href="src.policies.route_improvement.node_exchange_steepest.html" />
-    <link rel="prev" title="src.policies.route_improvement.fix_and_optimize" href="src.policies.route_improvement.fix_and_optimize.html" />
+    <link rel="prev" title="src.policies.route_improvement.set_covering" href="src.policies.route_improvement.set_covering.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -492,6 +493,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.random_local_search">
 <span id="src-policies-route-improvement-random-local-search"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.random_local_search" title="src.policies.route_improvement.random_local_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.random_local_search</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.random_local_search" title="Link to this heading">#</a></h1>
 <p>Random Local Search Route Improver.</p>
+<p>This module provides a stochastic local search strategy that applies multiple
+different local search operators chosen randomly based on pre-defined or
+configured probabilities.</p>
+<p>Attributes:
+RandomLocalSearchRouteImprover: Stochastic local search improver class.</p>
+<p>Example:
+&gt;&gt;&gt; improver = RandomLocalSearchRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm, iterations=100)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.random_local_search.RandomLocalSearchRouteImprover" title="src.policies.route_improvement.random_local_search.RandomLocalSearchRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomLocalSearchRouteImprover</span></code></a></p></td>
-<td><p>Performs stochastic local search refinement by applying random operators from
-the metaheuristic sub-package. Compatible with multi-route tours.</p></td>
+<td><p>Performs stochastic local search refinement.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,8 +520,14 @@ the metaheuristic sub-package. Compatible with multi-route tours.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_improvement.random_local_search.RandomLocalSearchRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.random_local_search.</span></span><span class="sig-name descname"><span class="pre">RandomLocalSearchRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.random_local_search.RandomLocalSearchRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IRouteImprovement</span></code></p>
-<p>Performs stochastic local search refinement by applying random operators from
-the metaheuristic sub-package. Compatible with multi-route tours.</p>
+<p>Performs stochastic local search refinement.</p>
+<p>Applies random operators from the metaheuristic sub-package. Compatible
+with multi-route tours.</p>
+<p>Attributes:
+config (Dict[str, Any]): Configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; improver = RandomLocalSearchRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm, max_iter=100)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -524,10 +538,18 @@ passed, its value is used as the config dict directly.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.random_local_search.RandomLocalSearchRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply random local search operators stochastically.</p>
 <p>Args:
-tour: The initial tour to refine (includes depot 0s).
-**kwargs: Context containing ‘distance_matrix’, ‘iterations’, ‘params’, ‘seed’.</p>
+tour (List[int]): The initial tour sequence to refine (includes depot 0s).
+kwargs (Any): Search context, including:
+- distance_matrix (np.ndarray): The distance matrix.
+- iterations (int): Total number of random moves to attempt.
+- params (Dict[str, float]): Probabilities for different operators.
+- seed (int): Random seed.
+- wastes (Dict[int, float]): Bin waste demands.
+- capacity (float): Vehicle capacity.
+- R (float): Revenue per kg.
+- C (float): Cost per km.</p>
 <p>Returns:
-List[int]: The refined tour.</p>
+Tuple[List[int], ImprovementMetrics]: The refined tour and performance metrics.</p>
 </dd></dl>
 
 </dd></dl>
@@ -548,12 +570,12 @@ List[int]: The refined tour.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.route_improvement.fix_and_optimize.html"
+       href="src.policies.route_improvement.set_covering.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.fix_and_optimize</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.set_covering</span></code></p>
       </div>
     </a>
     <a class="right-next"

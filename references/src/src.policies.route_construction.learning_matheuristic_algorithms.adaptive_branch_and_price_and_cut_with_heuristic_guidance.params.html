@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -473,6 +474,32 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gamma"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.seed"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.overflow_penalty</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_base_rho"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ph_base_rho</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ph_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ph_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_max_routes"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_max_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_rc_tolerance"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_rc_tolerance</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_remove_fraction"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_remove_fraction</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.dive_penalty_M"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.dive_penalty_M</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_tabu_length"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_tabu_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_unfix"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_max_unfix</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_strategy"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_reliability_c"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ml_reliability_c</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_pseudocost_ema_alpha"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ml_pseudocost_ema_alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.sc_consensus_threshold"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.sc_consensus_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.benders_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.benders_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_cut_pool_max"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.benders_cut_pool_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.max_visits_per_bin"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.max_visits_per_bin</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.theta_upper_bound"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.theta_upper_bound</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_master_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_master_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_sub_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_sub_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_mip_gap"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_mip_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_output_flag"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_output_flag</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.subproblem_relax"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.subproblem_relax</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.from_config"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.from_config()</span></code></a></li>
 </ul>
 </li>
@@ -501,7 +528,8 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ABPCHGParams</span></code></a></p></td>
-<td><p>Configuration parameters for Adaptive Branch-and-Price-and-Cut with Heuristic Guidance.</p></td>
+<td><p>Comprehensive configuration for Adaptive Branch-and-Price-and-Cut with
+Heuristic Guidance (ABPC-HG).</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,27 +540,339 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.</span></span><span class="sig-name descname"><span class="pre">ABPCHGParams</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams" title="Link to this definition">#</a></dt>
-<dd><p>Configuration parameters for Adaptive Branch-and-Price-and-Cut with Heuristic Guidance.</p>
+<dd><p>Comprehensive configuration for Adaptive Branch-and-Price-and-Cut with
+Heuristic Guidance (ABPC-HG).</p>
+<p>Parameters are grouped by the pipeline component that consumes them.
+All defaults are calibrated for practical performance on medium-scale
+stochastic MPVRPP instances (50–200 bins, 5–10 day horizons).</p>
+<p class="rubric" id="id1">Component Map</p>
+<p>┌─────────────────────────────────┬───────────────────────────────────┐
+│ Component                       │ Parameter prefix / group          │
+├─────────────────────────────────┼───────────────────────────────────┤
+│ ScenarioPrizeEngine             │ gamma, overflow_penalty           │
+│ ProgressiveHedgingCGLoop        │ ph_*                              │
+│ ALNSMultiPeriodPricer           │ alns_*                            │
+│ DiveAndPricePrimalHeuristic     │ dive_*                            │
+│ FixAndOptimizeRefiner           │ fo_*                              │
+│ MLBranchingStrategy             │ ml_*                              │
+│ ScenarioConsistentBranching     │ sc_*                              │
+│ TemporalBendersCoordinator      │ benders_*                         │
+└─────────────────────────────────┴───────────────────────────────────┘</p>
+<p class="rubric" id="id2">Notes on sign conventions</p>
+<p>This codebase follows the VRPP maximisation convention throughout:
+a column with <em>positive</em> reduced cost is improving.  Where a comment
+references the minimisation dual, the sign is flipped accordingly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gamma">
 <span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gamma" title="Link to this definition">#</a></dt>
 <dd><p>0.95</p>
+<p>Inter-day discount factor γ ∈ (0, 1] applied to future value estimates
+in ScenarioPrizeEngine and the Bellman recursion.  Values closer to 1.0
+weight distant-day revenue almost equally to today’s; lower values
+concentrate collection effort on the near horizon.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.seed" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+<p>Global RNG seed propagated to all stochastic components (ALNS destroy
+operator, scenario sampling).  <code class="docutils literal notranslate"><span class="pre">None</span></code> yields non-deterministic runs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.overflow_penalty">
+<span class="sig-name descname"><span class="pre">overflow_penalty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.overflow_penalty" title="Link to this definition">#</a></dt>
+<dd><p>2.0</p>
+<p>Revenue multiplier applied when a bin is projected to overflow before
+the next feasible visit (i.e. days_to_overflow ≤ 1).  The effective
+penalty is: −overflow_penalty × τ × revenue.  Raising this sharpens
+the urgency signal embedded in node prizes, driving earlier service of
+high-fill bins at the cost of potentially suboptimal routing.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_base_rho">
+<span class="sig-name descname"><span class="pre">ph_base_rho</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_base_rho" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+<p>Base augmented-Lagrangian penalty coefficient ρ₀ for the PH proximal
+term added to each per-scenario reduced cost:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c&#39;_{k,ξ} += −ρ_eff · (x_k − x̄_k)²
+</pre></div>
+</div>
+<p>The effective ρ per variable is scaled dynamically by the cross-scenario
+prize variance: ρ_eff = ρ₀ · (1 + Var_ξ[π_i^ξ]).  Higher values enforce
+stronger non-anticipativity at the cost of slower convergence in the
+per-scenario RMPs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_max_iterations">
+<span class="sig-name descname"><span class="pre">ph_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>100</p>
+<p>Maximum number of PH consensus iterations before declaring convergence
+of the root-node multi-scenario CG.  Each iteration involves one solve
+per scenario RMP followed by an x̄ update.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_convergence_tol">
+<span class="sig-name descname"><span class="pre">ph_convergence_tol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_convergence_tol" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+<p>Convergence tolerance for the PH loop.  Iteration stops when the
+normalised consensus residual satisfies:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>max_ξ  ‖x^ξ − x̄‖ / max(1, ‖x̄‖)  &lt;  tol
+</pre></div>
+</div>
+<p>Tighter tolerances improve the quality of the non-anticipative LP bound
+but increase root-node solve time.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_iterations">
+<span class="sig-name descname"><span class="pre">alns_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+<p>Number of destroy-and-repair cycles executed per initial route seed
+in each ALNS pricing call.  More iterations improve column quality at
+the cost of pricing time; the exact ESPPRC fallback compensates when
+ALNS is insufficient.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_max_routes">
+<span class="sig-name descname"><span class="pre">alns_max_routes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_max_routes" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+<p>Maximum number of improving columns returned per ALNS pricing call.
+Once this many routes with reduced cost &gt; <code class="docutils literal notranslate"><span class="pre">alns_rc_tolerance</span></code> are
+found, further ALNS iterations for the current seed are skipped.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_rc_tolerance">
+<span class="sig-name descname"><span class="pre">alns_rc_tolerance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_rc_tolerance" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+<p>Reduced-cost threshold (VRPP maximisation: rc &gt; tol is improving).
+Columns with rc ≤ tol are discarded to avoid near-degenerate pivots.
+Corresponds to the standard −1e-4 threshold in the minimisation dual.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_remove_fraction">
+<span class="sig-name descname"><span class="pre">alns_remove_fraction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_remove_fraction" title="Link to this definition">#</a></dt>
+<dd><p>0.25</p>
+<p>Fraction of non-depot nodes removed per destroy step:
+num_remove = max(1, ⌊|route| × fraction⌋).  Larger fractions yield
+more diversified exploration; smaller fractions focus on local refinement.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.dive_penalty_M">
+<span class="sig-name descname"><span class="pre">dive_penalty_M</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.dive_penalty_M" title="Link to this definition">#</a></dt>
+<dd><p>10000.0</p>
+<p>Big-M soft penalty applied to a column that induces infeasibility
+during the diving procedure.  The penalised column is retained in the
+RMP but its objective coefficient is reduced by M, effectively
+discouraging its selection while preserving feasibility without
+backtracking.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_tabu_length">
+<span class="sig-name descname"><span class="pre">fo_tabu_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_tabu_length" title="Link to this definition">#</a></dt>
+<dd><p>10</p>
+<p>Number of recently unfixed clusters retained in the tabu list.
+A candidate cluster is rejected if its Jaccard similarity with any
+tabu entry exceeds 0.8, preventing short-cycle revisits during the
+Fix-and-Optimize refinement phase.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_unfix">
+<span class="sig-name descname"><span class="pre">fo_max_unfix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_unfix" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+<p>Maximum number of bins simultaneously released in each corridor.
+Controls the size of the sub-MIP handed to the exact BPC engine: larger
+values yield better improvement per iteration at the cost of solve time.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_strategy">
+<span class="sig-name descname"><span class="pre">fo_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">overflow_urgency</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">scenario_divergence</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_strategy" title="Link to this definition">#</a></dt>
+<dd><p>‘overflow_urgency’</p>
+<p>Cluster selection strategy for Fix-and-Optimize:</p>
+<p><code class="docutils literal notranslate"><span class="pre">overflow_urgency</span></code>
+Ranks bins by ascending days-to-overflow.  Prioritises bins most
+at risk of unserved overflow, improving solution feasibility under
+capacity constraints.</p>
+<p><code class="docutils literal notranslate"><span class="pre">scenario_divergence</span></code>
+Ranks bins by descending cross-scenario fill variance.  Focuses
+refinement on bins with the highest uncertainty, improving expected
+profit robustness across the scenario tree.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_iterations">
+<span class="sig-name descname"><span class="pre">fo_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>20</p>
+<p>Maximum number of Fix-and-Optimize corridor passes over the incumbent
+solution per full horizon solve.  The loop exits early if the tabu list
+exhausts all distinct clusters of size <code class="docutils literal notranslate"><span class="pre">fo_max_unfix</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_reliability_c">
+<span class="sig-name descname"><span class="pre">ml_reliability_c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_reliability_c" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+<p>Blending coefficient c in the reliability branching score function:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Score(xᵢ) = min(Ψ↓ᵢ, Ψ↑ᵢ) + c · max(Ψ↓ᵢ, Ψ↑ᵢ)
+</pre></div>
+</div>
+<p>where Ψ↓ᵢ, Ψ↑ᵢ are historical pseudo-costs for branching down/up on
+variable i.  c = 1 gives equal weight to both directions (product score
+variant); c &gt; 1 penalises high asymmetry.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_pseudocost_ema_alpha">
+<span class="sig-name descname"><span class="pre">ml_pseudocost_ema_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_pseudocost_ema_alpha" title="Link to this definition">#</a></dt>
+<dd><p>0.5</p>
+<p>Exponential moving-average coefficient α for pseudo-cost updates after
+each exact strong-branching evaluation:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Ψ_new = α · Ψ_old + (1 − α) · Δ_observed
+</pre></div>
+</div>
+<p>α = 0.5 gives equal weight to history and new observations.  Lower α
+makes pseudo-costs more adaptive to recent LP changes; higher α
+stabilises estimates in the presence of noisy LP solutions.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.sc_consensus_threshold">
+<span class="sig-name descname"><span class="pre">sc_consensus_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.sc_consensus_threshold" title="Link to this definition">#</a></dt>
+<dd><p>0.95</p>
+<p>Base consensus threshold above which a fractional variable is
+considered ‘strongly agreed upon’ across deterministic scenario solutions.
+Used as a reference for horizon-adaptive threshold decay: early in the
+horizon (many days remaining) the effective threshold is close to this
+value; later it relaxes, accepting weaker consensus as the problem
+becomes more deterministic.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_max_iterations">
+<span class="sig-name descname"><span class="pre">benders_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+<p>Maximum number of Benders master–subproblem iteration cycles before
+terminating and returning the best primal solution found.  Each iteration
+solves the master MIP, then one subproblem per (day, scenario) pair, and
+adds probability-weighted optimality cuts.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_convergence_tol">
+<span class="sig-name descname"><span class="pre">benders_convergence_tol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_convergence_tol" title="Link to this definition">#</a></dt>
+<dd><p>0.001</p>
+<p>Primal–dual gap tolerance for early Benders termination:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(UB − LB) / max(1, |UB|) &lt; tol
+</pre></div>
+</div>
+<p>Tighter tolerances approach the true optimal but require more iterations;
+looser tolerances trade off solution quality for speed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_cut_pool_max">
+<span class="sig-name descname"><span class="pre">benders_cut_pool_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_cut_pool_max" title="Link to this definition">#</a></dt>
+<dd><p>500</p>
+<p>Maximum number of Benders optimality cuts retained in the master
+problem cut pool.  When the pool exceeds this limit, the oldest cuts
+are purged (FIFO).  Larger pools improve the master LP bound but
+increase per-iteration master solve time.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.max_visits_per_bin">
+<span class="sig-name descname"><span class="pre">max_visits_per_bin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.max_visits_per_bin" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+<p>Maximum number of times a single bin may be assigned across the entire
+planning horizon: Σ_d z[i,d] ≤ max_visits_per_bin.  The default of 1
+corresponds to the standard once-per-horizon MPVRPP variant.  Increase
+for problems where high-fill bins may need service multiple times.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.theta_upper_bound">
+<span class="sig-name descname"><span class="pre">theta_upper_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.theta_upper_bound" title="Link to this definition">#</a></dt>
+<dd><p>1000000.0</p>
+<p>Initial upper bound imposed on each surrogate variable θ[d] in the
+master MIP.  Prevents the master from being unbounded before the first
+Benders cuts are added.  A safe choice is the sum of all node prizes for
+the highest-prize day; the default of 1e6 is suitable for most
+waste-collection instances with revenue in the range [0, 1e4].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_master_time_limit">
+<span class="sig-name descname"><span class="pre">gurobi_master_time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_master_time_limit" title="Link to this definition">#</a></dt>
+<dd><p>60.0</p>
+<p>Maximum Gurobi solve time (seconds) per master MIP call.  The master is
+re-solved once per Benders iteration; tighter limits trade solution quality
+for speed.  If the time limit is hit with a feasible solution, the best
+incumbent is used.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_sub_time_limit">
+<span class="sig-name descname"><span class="pre">gurobi_sub_time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_sub_time_limit" title="Link to this definition">#</a></dt>
+<dd><p>30.0</p>
+<p>Maximum Gurobi solve time (seconds) per subproblem LP (or MIP) call.
+Subproblems are solved once per (day, scenario) pair per Benders iteration,
+so the total time scales as T × |Ξ| × benders_max_iterations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_mip_gap">
+<span class="sig-name descname"><span class="pre">gurobi_mip_gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_mip_gap" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+<p>Relative MIP optimality gap for Gurobi master and subproblem (when MIP
+mode is used).  Tighter values improve Benders bound quality at the cost
+of longer solve times.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_output_flag">
+<span class="sig-name descname"><span class="pre">gurobi_output_flag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_output_flag" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+<p>Enable Gurobi console output for master and subproblem models.  Set to
+<code class="docutils literal notranslate"><span class="pre">True</span></code> for debugging; suppressed by default to keep logs clean.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.subproblem_relax">
+<span class="sig-name descname"><span class="pre">subproblem_relax</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.subproblem_relax" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+<p>Subproblem solving mode:</p>
+<p><code class="docutils literal notranslate"><span class="pre">True</span></code> (default): Solve the LP relaxation (no subtour elimination).
+Faster; gives valid but potentially loose Benders cuts.</p>
+<p><code class="docutils literal notranslate"><span class="pre">False</span></code>: Solve a MIP with MTZ subtour elimination, then fix the integer
+solution and re-solve as an LP for exact dual recovery.  Slower but
+produces tighter cuts, accelerating Benders convergence at the cost
+of higher per-iteration time.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.abpc_hg.ABPCHGConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.from_config" title="Link to this definition">#</a></dt>
-<dd><p>Create ABPCHGParams from an ABPCHGConfig dataclass.</p>
+<dd><p>Construct an <code class="docutils literal notranslate"><span class="pre">ABPCHGParams</span></code> instance from an <code class="docutils literal notranslate"><span class="pre">ABPCHGConfig</span></code> dataclass.</p>
+<p>Uses <code class="docutils literal notranslate"><span class="pre">getattr</span></code> with dataclass defaults for every field so that
+partially specified configs remain valid — fields absent from the
+config object silently fall back to the defaults defined above.</p>
 <p>Args:
-config: ABPCHGConfig dataclass with solver parameters.</p>
+config: <code class="docutils literal notranslate"><span class="pre">ABPCHGConfig</span></code> dataclass populated from YAML, CLI flags,
+or the experiment registry.  Only fields that exist on the
+config object are read; missing fields use class defaults.</p>
 <p>Returns:
-ABPCHGParams instance with values from config.</p>
+Fully resolved <code class="docutils literal notranslate"><span class="pre">ABPCHGParams</span></code> instance.</p>
 </dd></dl>
 
 </dd></dl>
@@ -592,6 +932,32 @@ ABPCHGParams instance with values from config.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gamma"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.seed"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.overflow_penalty</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_base_rho"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ph_base_rho</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ph_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ph_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ph_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_max_routes"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_max_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_rc_tolerance"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_rc_tolerance</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.alns_remove_fraction"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.alns_remove_fraction</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.dive_penalty_M"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.dive_penalty_M</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_tabu_length"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_tabu_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_unfix"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_max_unfix</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_strategy"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.fo_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.fo_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_reliability_c"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ml_reliability_c</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.ml_pseudocost_ema_alpha"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.ml_pseudocost_ema_alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.sc_consensus_threshold"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.sc_consensus_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.benders_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.benders_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.benders_cut_pool_max"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.benders_cut_pool_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.max_visits_per_bin"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.max_visits_per_bin</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.theta_upper_bound"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.theta_upper_bound</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_master_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_master_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_sub_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_sub_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_mip_gap"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_mip_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.gurobi_output_flag"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.gurobi_output_flag</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.subproblem_relax"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.subproblem_relax</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params.ABPCHGParams.from_config"><code class="docutils literal notranslate"><span class="pre">ABPCHGParams.from_config()</span></code></a></li>
 </ul>
 </li>

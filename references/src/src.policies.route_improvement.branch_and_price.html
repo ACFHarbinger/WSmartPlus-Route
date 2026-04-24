@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -510,6 +511,12 @@ RCC separation).</p>
 <p>Wall-clock budget is enforced at the route improver level via bp_time_limit.
 Branch-and-price can take seconds to minutes per call; do not put this
 inside an inner simulation loop.</p>
+<p>Attributes:
+BranchAndPriceRouteImprover: Main class for B&amp;P route improvement.
+ProfitableVRP: Type-safe wrapper for VRPy.</p>
+<p>Example:
+&gt;&gt;&gt; improver = BranchAndPriceRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -557,6 +564,12 @@ inside an inner simulation loop.</p>
 <dt class="sig sig-object py" id="src.policies.route_improvement.branch_and_price._time_limit">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.branch_and_price.</span></span><span class="sig-name descname"><span class="pre">_time_limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.branch_and_price._time_limit" title="Link to this definition">#</a></dt>
 <dd><p>Wall-clock timeout context manager (POSIX only).</p>
+<p>Args:
+seconds (float): Timeout duration in seconds.</p>
+<p>Yields:
+None: Context manager control.</p>
+<p>Raises:
+TimeoutError: If the execution time exceeds the specified limit.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -567,6 +580,11 @@ inside an inner simulation loop.</p>
 <p>Primary path delegates to the in-house BranchAndPriceSolver (exact
 pricing, ng-routes, configurable branching). Falls back to vrpy and
 then to a pool-restricted set-partitioning when primary fails.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
+<p>Example:
+&gt;&gt;&gt; improver = BranchAndPriceRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, bp_time_limit=60.0)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -575,24 +593,66 @@ passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply branch-and-price refinement to the tour.</p>
+<p>Args:
+tour (List[int]): Initial tour represented as bin IDs (depot 0s as separators).
+**kwargs: Context containing:
+distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+wastes (Dict[int, float]): Mapping of bin IDs to waste amounts.
+capacity (float): Maximum vehicle capacity.
+cost_per_km (float): Unit distance cost.
+revenue_kg (float): Unit waste revenue.
+bp_time_limit (float): Time limit for the B&amp;P solve.
+mandatory_nodes (List[int]): List of required visitor IDs.
+bp_max_iterations (int): Maximum pricing iterations.
+bp_use_exact_pricing (bool): Whether to use the exact pricer.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics_summary).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover._solve_inhouse">
 <span class="sig-name descname"><span class="pre">_solve_inhouse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover._solve_inhouse" title="Link to this definition">#</a></dt>
 <dd><p>Delegate to the in-house BranchAndPriceSolver.</p>
+<p>Args:
+input_routes (List[List[int]]): Initial segmented routes.
+dm (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Bin waste amounts.
+capacity (float): Vehicle capacity.
+cost_per_km (float): Distance cost coefficient.
+revenue_kg (float): Revenue coefficient.
+mandatory_nodes (List[int]): List of nodes that must be visited.
+**kwargs: Algorithmic parameters prefixed with ‘bp_’.</p>
+<p>Returns:
+Optional[List[List[int]]]: Re-optimized routes if improved, else None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover._solve_vrpy">
 <span class="sig-name descname"><span class="pre">_solve_vrpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover._solve_vrpy" title="Link to this definition">#</a></dt>
 <dd><p>Delegate to vrpy (secondary fallback path).</p>
+<p>Args:
+input_routes (List[List[int]]): Initial segmented routes.
+dm (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Bin waste amounts.
+capacity (float): Vehicle capacity.
+cost_per_km (float): Distance cost coefficient.
+revenue_kg (float): Revenue coefficient.
+mandatory_nodes (List[int]): Required nodes.
+**kwargs: Forwarded context, including ‘bp_time_limit’ and ‘bp_use_cspy’.</p>
+<p>Returns:
+Optional[List[List[int]]]: Improved routes or None if optimization failed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover._fallback_set_partitioning">
 <span class="sig-name descname"><span class="pre">_fallback_set_partitioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover._fallback_set_partitioning" title="Link to this definition">#</a></dt>
 <dd><p>Tertiary fallback to pool-restricted set-partitioning.</p>
+<p>Args:
+tour (List[int]): Current tour to be refined.
+**kwargs: Forwarded context for SetPartitioningRouteImprover.</p>
+<p>Returns:
+List[int]: Refined tour or original tour if fallback fails.</p>
 </dd></dl>
 
 </dd></dl>

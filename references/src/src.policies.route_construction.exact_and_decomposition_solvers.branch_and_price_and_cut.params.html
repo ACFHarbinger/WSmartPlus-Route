@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -499,9 +500,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCParams.cg_at_root_only</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_timeout"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_timeout</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_max_labels</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_initialization</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_heuristic_pricing</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_primal_heuristic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_pre_pruning"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_pre_pruning</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_lambda_init"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_lambda_init</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_max_subgradient_iters"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_max_subgradient_iters</span></code></a></li>
@@ -740,24 +738,6 @@ not an exact max-flow separation on the full support graph.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization">
-<span class="sig-name descname"><span class="pre">use_swc_tcf_initialization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing">
-<span class="sig-name descname"><span class="pre">use_swc_tcf_heuristic_pricing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic">
-<span class="sig-name descname"><span class="pre">use_swc_tcf_primal_heuristic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_pre_pruning">
 <span class="sig-name descname"><span class="pre">lr_pre_pruning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_pre_pruning" title="Link to this definition">#</a></dt>
 <dd><p>False</p>
@@ -908,9 +888,6 @@ with Hydra/YAML scientific notation which might be loaded as strings.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCParams.cg_at_root_only</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_timeout"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_timeout</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_max_labels</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_initialization</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_heuristic_pricing</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_primal_heuristic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_pre_pruning"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_pre_pruning</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_lambda_init"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_lambda_init</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_max_subgradient_iters"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_max_subgradient_iters</span></code></a></li>

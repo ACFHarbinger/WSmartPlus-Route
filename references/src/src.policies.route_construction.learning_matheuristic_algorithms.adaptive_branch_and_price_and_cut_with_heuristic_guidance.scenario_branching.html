@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.html" />
-    <link rel="prev" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.html" />
+    <link rel="prev" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -500,8 +501,9 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScenarioConsistentBranching</span></code></a></p></td>
-<td><p>Dynamic branching rule that leverages deterministic solutions of individual
-scenarios within the ScenarioTree.</p></td>
+<td><p>Dynamic branching rule that leverages the optimal solutions of individual
+scenario subproblems to select variables with the strongest cross-scenario
+consensus.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,20 +514,100 @@ scenarios within the ScenarioTree.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.</span></span><span class="sig-name descname"><span class="pre">ScenarioConsistentBranching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching" title="Link to this definition">#</a></dt>
-<dd><p>Dynamic branching rule that leverages deterministic solutions of individual
-scenarios within the ScenarioTree.</p>
+<dd><p>Dynamic branching rule that leverages the optimal solutions of individual
+scenario subproblems to select variables with the strongest cross-scenario
+consensus.</p>
+<p class="rubric" id="id1">Motivation</p>
+<p>In stochastic programming B&amp;B, a natural branching heuristic is to branch
+on the fractional variable that most scenarios “agree on” when each is
+solved deterministically.  A variable with consensus near 1 is almost
+always set to 1 across scenarios; near 0 it is almost never selected.
+Either extreme implies a high-confidence branch.  A consensus near 0.5
+signals genuine ambiguity and is branched on last.</p>
+<p class="rubric" id="id2">Branching Score</p>
+<p>For variable g_i:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>consensus(g_i) = |{ξ : g_i^ξ = 1}| / |Ξ|
+
+score(g_i) = |consensus(g_i) − 0.5|
+</pre></div>
+</div>
+<p>The variable maximising this score is selected; it corresponds to the
+variable with the least ambiguity across the scenario tree.</p>
+<p class="rubric" id="id3">Horizon Adaptivity</p>
+<p>The commented-out threshold logic in <code class="docutils literal notranslate"><span class="pre">select_branching_variable</span></code> sketches
+an adaptive variant where the minimum acceptable consensus is decayed as
+the horizon shortens:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>threshold(d) = base_threshold · (days_remaining / initial_horizon)
+</pre></div>
+</div>
+<p>This allows looser consensus requirements near the end of the horizon,
+where the stochastic structure collapses and all scenarios converge.
+The current implementation uses the pure score-maximisation variant,
+which is equivalent to setting threshold = 0.</p>
+<p class="rubric" id="id4">Attributes</p>
+<p>base_threshold : float
+Reference consensus threshold used as the anchor for horizon-adaptive
+decay.  Currently serves as a documentation reference; the active
+branching rule is threshold-free.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+base_threshold: Reference threshold for horizon-adaptive decay.
+A variable with |consensus − 0.5| ≥ (base_threshold − 0.5)
+is considered strongly agreed upon.  Used in the adaptive
+variant; the current implementation is threshold-free.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching.calculate_consensus">
 <span class="sig-name descname"><span class="pre">calculate_consensus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic_scenario_solutions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching.calculate_consensus" title="Link to this definition">#</a></dt>
-<dd><p>consensus(g_i) = Count scenarios where g_i = 1 / Total scenarios</p>
+<dd><p>Compute the fraction of scenarios in which variable <code class="docutils literal notranslate"><span class="pre">var_id</span></code> is set to 1.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>consensus(g_i) = |{ξ : g_i^ξ = 1}| / |Ξ|
+</pre></div>
+</div>
+<p>A value of 1.0 means all scenarios include this variable (strong
+positive consensus); 0.0 means none do (strong negative consensus);
+0.5 is returned as the uninformative default when no solutions are
+available.</p>
+<p>Args:
+var_id: Identifier of the binary variable (e.g. route or bin
+assignment) whose consensus is to be measured.
+scenario_tree: ScenarioTree providing the scenario structure.
+Currently unused but available for probability-weighted
+extensions (replace uniform count with Σ_ξ p_ξ · g_i^ξ).
+deterministic_scenario_solutions: Mapping {scenario_id: {var_id:
+binary_value}} of per-scenario optimal solutions obtained by
+solving each scenario independently (with its deterministic
+prize realization).</p>
+<p>Returns:
+Consensus value in [0, 1].  Returns 0.5 if
+<code class="docutils literal notranslate"><span class="pre">deterministic_scenario_solutions</span></code> is empty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching.select_branching_variable">
 <span class="sig-name descname"><span class="pre">select_branching_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractional_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic_solutions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_remaining</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching.ScenarioConsistentBranching.select_branching_variable" title="Link to this definition">#</a></dt>
-<dd><p>Branch on the variable that maximizes |consensus(g_i) - 0.5|.
-Horizon adaptivity: demand higher consensus early in the horizon.</p>
+<dd><p>Select the fractional variable to branch on by maximising consensus score.</p>
+<p>Iterates over all fractional variables in the current master LP and
+returns the one for which |consensus(g_i) − 0.5| is largest, i.e. the
+variable whose value is most agreed upon (in either direction) by the
+individual-scenario optimal solutions.</p>
+<p>Ties are broken implicitly in favour of the variable encountered first
+in <code class="docutils literal notranslate"><span class="pre">fractional_vars</span></code>.</p>
+<p>Args:
+fractional_vars: List of variable objects with a <code class="docutils literal notranslate"><span class="pre">.id</span></code> attribute,
+representing variables that are fractional (0 &lt; λ &lt; 1) in the
+current master LP relaxation.
+scenario_tree: ScenarioTree; passed through to <code class="docutils literal notranslate"><span class="pre">calculate_consensus</span></code>
+for potential probability-weighted extensions.
+deterministic_solutions: Per-scenario optimal solutions
+{scenario_id: {var_id: 0 or 1}} used to compute consensus.
+days_remaining: Number of planning days remaining in the horizon.
+Available for horizon-adaptive threshold tuning (currently
+unused in the active threshold-free variant).
+initial_horizon: Full planning horizon length T.  Used as the
+normalising denominator in horizon-adaptive threshold decay
+(currently unused).</p>
+<p>Returns:
+The variable object from <code class="docutils literal notranslate"><span class="pre">fractional_vars</span></code> with the highest
+|consensus − 0.5| score, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the list is empty.</p>
 </dd></dl>
 
 </dd></dl>
@@ -546,12 +628,12 @@ Horizon adaptivity: demand higher consensus early in the horizon.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.html"
+       href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem</span></code></p>
       </div>
     </a>
     <a class="right-next"

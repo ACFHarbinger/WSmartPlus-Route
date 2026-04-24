@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -496,17 +497,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.set_partitioning">
 <span id="src-policies-route-improvement-set-partitioning"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.set_partitioning" title="src.policies.route_improvement.set_partitioning"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.set_partitioning</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.set_partitioning" title="Link to this heading">#</a></h1>
 <p>Set-Partitioning Route Improver (Pool-Restricted Exact).</p>
-<p>Builds a route pool from the input tour plus perturbations and solves the
-set-partitioning IP exactly via Gurobi. The result is optimal <em>within the
-pool</em> — not over all feasible routes. For the column-generation variant
-that lifts this restriction see BranchAndPriceRouteImprover.</p>
-<p>Pool sources (toggleable via config):
-1. Input tour’s routes (always).
-2. Routes from <code class="docutils literal notranslate"><span class="pre">sp_n_perturbations</span></code> independent ruin-and-recreate calls.
-3. Held-Karp DP-optimised sequencings of the input routes.
-4. Singleton routes for any uncovered mandatory bins.</p>
-<p>Routes are deduplicated by canonical form (min of tuple and reversed tuple)
-so that symmetric duplicates do not inflate the IP.</p>
+<p>This module builds a route pool from the input tour plus perturbations and
+solves the set-partitioning IP exactly via Gurobi. The result is optimal
+within the provided pool. Unlike Set Covering, each node must appear exactly
+once in the selected routes.</p>
+<p>Attributes:
+SetPartitioningRouteImprover: Route improvement class using Set Partitioning.</p>
+<p>Example:
+&gt;&gt;&gt; improver = SetPartitioningRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,7 +513,7 @@ so that symmetric duplicates do not inflate the IP.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.set_partitioning.SetPartitioningRouteImprover" title="src.policies.route_improvement.set_partitioning.SetPartitioningRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SetPartitioningRouteImprover</span></code></a></p></td>
-<td><p>Pool-restricted exact set-partitioning route improver.</p></td>
+<td><p>Set-Partitioning route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -554,20 +553,25 @@ so that symmetric duplicates do not inflate the IP.</p>
 <dt class="sig sig-object py" id="src.policies.route_improvement.set_partitioning._canonical">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.set_partitioning.</span></span><span class="sig-name descname"><span class="pre">_canonical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.set_partitioning._canonical" title="Link to this definition">#</a></dt>
 <dd><p>Canonical form for symmetric-distance deduplication.</p>
+<p>Args:
+route (List[int]): The route sequence to canonicalize.</p>
+<p>Returns:
+Tuple[int, …]: The canonical representation of the route.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_improvement.set_partitioning.SetPartitioningRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.set_partitioning.</span></span><span class="sig-name descname"><span class="pre">SetPartitioningRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.set_partitioning.SetPartitioningRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Pool-restricted exact set-partitioning route improver.</p>
+<p>Set-Partitioning route improver.</p>
 <p>Constructs a route pool by combining the input tour with multiple
 ruin-and-recreate perturbations and per-route DP optimisations, then
-delegates to operators.intensification.set_partitioning_polish to solve
-the IP exactly with Gurobi.</p>
-<p>The optimality guarantee is <strong>conditional on the pool</strong>: the returned
-tour is optimal among all combinations of the pool’s routes, but a
-better tour may exist using routes never generated.</p>
+solves the IP exactly with Gurobi.</p>
+<p>Attributes:
+config (Dict[str, Any]): Configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; improver = SetPartitioningRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -576,7 +580,24 @@ passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.set_partitioning.SetPartitioningRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.set_partitioning.SetPartitioningRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Set Partitioning intensification to the tour.</p>
+<p>Args:
+tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+kwargs (Any): Search context, including:
+- distance_matrix (np.ndarray): The distance matrix.
+- sp_n_perturbations (int): Number of LNS perturbations for pool.
+- sp_include_dp (bool): Whether to include DP-optimized variants.
+- dp_max_nodes (int): Max nodes for DP re-optimization.
+- ruin_fraction (float): LNS ruin fraction.
+- sp_time_limit (float): Gurobi time limit.
+- wastes (Dict[int, float]): Bin waste demands.
+- capacity (float): Vehicle capacity.
+- cost_per_km (float): Distance cost.
+- revenue_kg (float): Waste revenue.
+- seed (int): Random seed.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.</p>
+</dd></dl>
 
 </dd></dl>
 

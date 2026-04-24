@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -568,6 +569,8 @@ cost of collecting it.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_fractional_knapsack.</span></span><span class="sig-name descname"><span class="pre">FractionalKnapsackSelection</span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></code></p>
 <p>Greedy net-profit density selection under per-vehicle mass capacity.</p>
+<p>Attributes:
+_EPS (float): Small constant for numerical stability.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection._EPS">
 <span class="sig-name descname"><span class="pre">_EPS</span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection._EPS" title="Link to this definition">#</a></dt>
@@ -580,21 +583,44 @@ cost of collecting it.</p>
 <dd><p>Vectorized marginal insertion distance for each candidate bin.</p>
 <p>Indices are 0-based bin indices; the distance_matrix places the
 depot at index 0 so bin <code class="docutils literal notranslate"><span class="pre">i</span></code> corresponds to matrix index <code class="docutils literal notranslate"><span class="pre">i+1</span></code>.</p>
+<p>Args:
+candidates (np.ndarray): 0-based global bin indices.
+packed (List[int]): Indices of bins already packed.
+dm (np.ndarray): Full distance matrix.
+dist_depot (np.ndarray): Distance from depot to each bin.</p>
+<p>Returns:
+np.ndarray: Marginal insertion distance for each candidate.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection._pack_one_knapsack">
 <span class="sig-name descname"><span class="pre">_pack_one_knapsack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eligible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection._pack_one_knapsack" title="Link to this definition">#</a></dt>
 <dd><p>Greedily fill a single vehicle, mutating <code class="docutils literal notranslate"><span class="pre">eligible</span></code> in place.</p>
+<p>Args:
+eligible (Set[int]): Set of eligible bin indices.
+revenue (np.ndarray): Per-bin revenue.
+mass (np.ndarray): Per-bin mass.
+dm (np.ndarray): Distance matrix.
+dist_depot (np.ndarray): Distance from depot to each bin.
+cost_per_km (float): Cost per kilometer.
+capacity (float): Vehicle capacity.</p>
+<p>Returns:
+List[int]: Indices of packed bins.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection.select_bins">
-<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection.select_bins" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fractional_knapsack.FractionalKnapsackSelection.select_bins" title="Link to this definition">#</a></dt>
 <dd><p>Return the selected bin IDs (1-based) under the multi-vehicle plan.</p>
 <p>Reads <code class="docutils literal notranslate"><span class="pre">vehicle_capacity</span></code>, <code class="docutils literal notranslate"><span class="pre">n_vehicles</span></code>, and (optionally)
 <code class="docutils literal notranslate"><span class="pre">cost_per_km</span></code> from the context. A non-positive <code class="docutils literal notranslate"><span class="pre">n_vehicles</span></code>
 means the number of knapsacks is unbounded.</p>
+<p>Args:
+context (SelectionContext): The selection context.</p>
+<p>Returns:
+Tuple[List[int], SearchContext]: Selected bin IDs and search context.</p>
+<p>Raises:
+ValueError: If <code class="docutils literal notranslate"><span class="pre">distance_matrix</span></code> is not provided.</p>
 </dd></dl>
 
 </dd></dl>

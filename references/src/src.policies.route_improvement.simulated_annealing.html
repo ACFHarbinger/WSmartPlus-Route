@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -493,8 +494,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.simulated_annealing">
 <span id="src-policies-route-improvement-simulated-annealing"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.simulated_annealing" title="src.policies.route_improvement.simulated_annealing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.simulated_annealing</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.simulated_annealing" title="Link to this heading">#</a></h1>
 <p>Simulated Annealing Route Improver.</p>
-<p>Delegates move acceptance to the pluggable <code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance</span></code> criterion,
-threading per-step <code class="docutils literal notranslate"><span class="pre">AcceptanceMetrics</span></code> into the returned <code class="docutils literal notranslate"><span class="pre">ImprovementMetrics</span></code>.</p>
+<p>This module provides a Simulated Annealing (SA) metaheuristic for route
+improvement. It explores the search space by applying random local moves and
+accepting them based on the Boltzmann-Metropolis criterion, allowing for
+exploration of non-improving moves to escape local optima.</p>
+<p>Attributes:
+SimulatedAnnealingRouteImprover: Metaheuristic route improvement class.</p>
+<p>Example:
+&gt;&gt;&gt; improver = SimulatedAnnealingRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm, sa_iterations=1000)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,9 +524,13 @@ threading per-step <code class="docutils literal notranslate"><span class="pre">
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
 <p>Simulated Annealing route improver.</p>
 <p>Applies random local moves (swaps, relocations, reversals) and delegates
-move acceptance to a <code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance</span></code> criterion, which returns
-<code class="docutils literal notranslate"><span class="pre">AcceptanceMetrics</span></code> on each step.  These are collected in an
-<code class="docutils literal notranslate"><span class="pre">acceptance_trace</span></code> and surfaced via the <code class="docutils literal notranslate"><span class="pre">ImprovementMetrics</span></code> return.</p>
+move acceptance to a <code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance</span></code> criterion. These are collected
+in an <code class="docutils literal notranslate"><span class="pre">acceptance_trace</span></code> and surfaced via the <code class="docutils literal notranslate"><span class="pre">ImprovementMetrics</span></code>.</p>
+<p>Attributes:
+config (Dict[str, Any]): Configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; improver = SimulatedAnnealingRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm, initial_temp=100.0)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -529,17 +541,31 @@ passed, its value is used as the config dict directly.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.simulated_annealing.SimulatedAnnealingRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply Simulated Annealing to the tour.</p>
 <p>Args:
-tour: Initial tour (List of bin IDs including depot 0s).
-**kwargs: Context containing ‘distance_matrix’, ‘sa_iterations’,
-‘sa_t_init’, ‘sa_t_min’, ‘sa_cooling’, etc.</p>
+tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+**kwargs: Search context, including:
+distance_matrix (np.ndarray | torch.Tensor): The distance matrix lookup.
+sa_iterations (int): Total number of iterations to perform (default 5000).
+sa_t_init (float): Initial temperature (default 10.0).
+sa_cooling (float): Cooling rate (alpha, default 0.999).
+seed (int): Random seed.
+wastes (Dict[int, float]): Bin waste demands.
+capacity (float): Maximum vehicle capacity.</p>
 <p>Returns:
-Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics)</p>
+Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.simulated_annealing.SimulatedAnnealingRouteImprover._random_move">
 <span class="sig-name descname"><span class="pre">_random_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.simulated_annealing.SimulatedAnnealingRouteImprover._random_move" title="Link to this definition">#</a></dt>
 <dd><p>Pick and apply a random move (intra-route or inter-route).</p>
+<p>Args:
+routes (List[List[int]]): Current set of routes.
+dm (np.ndarray): Distance matrix for cost delta calculation.
+rng (np.random.Generator): Random number generator.
+wastes (Dict[int, float]): Bin demands for capacity checking.
+capacity (float): Maximum vehicle capacity.</p>
+<p>Returns:
+Tuple[Optional[List[List[int]]], float]: (new_routes, cost_delta) or (None, 0.0) if rejected.</p>
 </dd></dl>
 
 </dd></dl>

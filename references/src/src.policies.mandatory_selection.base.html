@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -491,15 +492,15 @@ document.write(`
 <span id="src-policies-mandatory-selection-base"></span><h1><a class="reference internal" href="#module-src.policies.mandatory_selection.base" title="src.policies.mandatory_selection.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base</span></code></a><a class="headerlink" href="#module-src.policies.mandatory_selection.base" title="Link to this heading">#</a></h1>
 <p>Mandatory Base Package.</p>
 <p>This package defines the core infrastructure for the “Mandatory” selection
-policy, including the context object, factory pattern for strategy creation,
+policy, including the factory pattern for strategy creation,
 and the registry for available strategies.</p>
 <p>Attributes:
-MandatorySelectionFactory (class): Factory for creating strategies.
-MandatorySelectionRegistry (class): Registry for strategy classes.
-SelectionContext (class): Data container for selection context.</p>
+MandatorySelectionFactory: Factory for creating strategy instances.
+MandatorySelectionRegistry: Registry for mapping names to strategy classes.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.mandatory.base import SelectionContext
-&gt;&gt;&gt; ctx = SelectionContext(bin_ids=…, current_fill=…)</p>
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.base import MandatorySelectionFactory
+&gt;&gt;&gt; factory = MandatorySelectionFactory()
+&gt;&gt;&gt; strategy = factory.get_strategy(“some_strategy”)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -507,7 +508,6 @@ SelectionContext (class): Data container for selection context.</p>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.base.selection_factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.selection_factory</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.base.eoq.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.eoq</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.base.selection_registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.selection_registry</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.mandatory_selection.base.selection_context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.base.selection_context</span></code></a></li>
 </ul>
 </div>
 </section>
@@ -529,7 +529,7 @@ SelectionContext (class): Data container for selection context.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘MandatorySelectionFactory’, ‘MandatorySelectionRegistry’, ‘SelectionContext’]</p>
+<dd><p>[‘MandatorySelectionFactory’, ‘MandatorySelectionRegistry’]</p>
 </dd></dl>
 
 </section>

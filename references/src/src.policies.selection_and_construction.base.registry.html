@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -494,20 +495,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection_and_construction.base.registry">
 <span id="src-policies-selection-and-construction-base-registry"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.base.registry" title="src.policies.selection_and_construction.base.registry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.base.registry</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.base.registry" title="Link to this heading">#</a></h1>
-<p>Joint Policy Registry Module.</p>
-<p>Provides a string-keyed registry for
-:class:<code class="docutils literal notranslate"><span class="pre">~logic.src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy</span></code>
-subclasses, enabling plugin-style extension of joint selection-and-construction
-solvers.</p>
-<p>Example::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; from logic.src.policies.selection_and_construction.base.joint_registry import (
-...     JointPolicyRegistry,
-... )
-&gt;&gt;&gt; @JointPolicyRegistry.register(&quot;my_joint&quot;)
-... class MyJointPolicy(BaseJointPolicy): ...
-&gt;&gt;&gt; cls = JointPolicyRegistry.get(&quot;my_joint&quot;)
-</pre></div>
-</div>
+<p>Registry for joint selection and construction policies.</p>
+<p>Maintains a mapping of policy names to their respective classes, enabling
+dynamic instantiation through the factory.</p>
+<p>Attributes:
+JointPolicyRegistry: The registry class defined in this module.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.selection_and_construction.base.registry import JointPolicyRegistry
+&gt;&gt;&gt; policy_cls = JointPolicyRegistry.get(“jgo”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,7 +510,7 @@ solvers.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.selection_and_construction.base.registry.JointPolicyRegistry" title="src.policies.selection_and_construction.base.registry.JointPolicyRegistry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JointPolicyRegistry</span></code></a></p></td>
-<td><p>Registry for joint selection-and-construction policy classes.</p></td>
+<td><p>Registry for joint selection and construction policies.</p></td>
 </tr>
 </tbody>
 </table>
@@ -526,9 +521,11 @@ solvers.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.registry.JointPolicyRegistry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection_and_construction.base.registry.</span></span><span class="sig-name descname"><span class="pre">JointPolicyRegistry</span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.registry.JointPolicyRegistry" title="Link to this definition">#</a></dt>
-<dd><p>Registry for joint selection-and-construction policy classes.</p>
+<dd><p>Registry for joint selection and construction policies.</p>
+<p>Maintains a mapping of policy names to their respective classes, enabling
+dynamic instantiation through the factory.</p>
 <p>Attributes:
-_registry: Internal mapping from lower-case name to policy class.</p>
+_registry (Dict[str, Type]): Internal mapping of policy names to class types.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.registry.JointPolicyRegistry._registry">
 <span class="sig-name descname"><span class="pre">_registry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.selection_and_construction.base.registry.JointPolicyRegistry._registry" title="Link to this definition">#</a></dt>
@@ -538,29 +535,29 @@ _registry: Internal mapping from lower-case name to policy class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.registry.JointPolicyRegistry.register">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.selection_and_construction.base.registry.JointPolicyRegistry.register" title="Link to this definition">#</a></dt>
-<dd><p>Class decorator that registers <em>policy_cls</em> under <em>name</em>.</p>
+<dd><p>Register a joint selection and construction policy class.</p>
 <p>Args:
-name: Unique string identifier for the policy.</p>
+name (str): Unique name identifier for the policy.</p>
 <p>Returns:
-The class decorator.</p>
+Callable: A decorator that registers the subclass.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.registry.JointPolicyRegistry.get">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.registry.JointPolicyRegistry.get" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve a policy class by name.</p>
+<dd><p>Retrieve a registered policy class by name.</p>
 <p>Args:
-name: The string key used during registration.</p>
+name (str): Unique name identifier for the policy.</p>
 <p>Returns:
-The policy class, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not found.</p>
+Optional[Type]: The policy class if found, else None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.registry.JointPolicyRegistry.list_policies">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list_policies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.registry.JointPolicyRegistry.list_policies" title="Link to this definition">#</a></dt>
-<dd><p>Return the names of all registered joint policies.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list_policies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.registry.JointPolicyRegistry.list_policies" title="Link to this definition">#</a></dt>
+<dd><p>List all registered policy names.</p>
 <p>Returns:
-List of registered name strings.</p>
+list[str]: Sorted list of registered policy names.</p>
 </dd></dl>
 
 </dd></dl>

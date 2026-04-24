@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -470,8 +471,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunTwoRouteImprover</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunTwoRouteImprover.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LKH2RouteImprover"><code class="docutils literal notranslate"><span class="pre">LKH2RouteImprover</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LKH2RouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LKH2RouteImprover.process()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -498,8 +499,8 @@ document.write(`
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover" title="src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinKernighanHelsgaunTwoRouteImprover</span></code></a></p></td>
-<td><p>Refines tours using the LKH-2 population-based meta-heuristic (Helsgaun 2009).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.lkh2.LKH2RouteImprover" title="src.policies.route_improvement.lkh2.LKH2RouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LKH2RouteImprover</span></code></a></p></td>
+<td><p>LKH-2 route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -508,26 +509,26 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.lkh2.</span></span><span class="sig-name descname"><span class="pre">LinKernighanHelsgaunTwoRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.route_improvement.lkh2.LKH2RouteImprover">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.lkh2.</span></span><span class="sig-name descname"><span class="pre">LKH2RouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.lkh2.LKH2RouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IRouteImprovement</span></code></p>
-<p>Refines tours using the LKH-2 population-based meta-heuristic (Helsgaun 2009).</p>
-<p>LKH-2 extends LKH-1 with a fixed-size population of locally-optimal tours,
-Iterative Partial Transcription (IPT) crossover for diversification, and a
-shared subgradient penalty vector.  This makes it significantly stronger than
-LKH-1 on large or hard instances at the cost of additional wall-clock time due
-to population maintenance and crossover operations.</p>
+<p>LKH-2 route improver.</p>
 <p>Handles VRPP subset routes by extracting a dense sub-matrix containing only
 the visited nodes, running LKH-2 on this sub-problem, and mapping the results
 back to the original node IDs.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
+<p>Example:
+&gt;&gt;&gt; improver = LKH2RouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, max_iterations=200)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
 kwargs: Configuration values.  If a single <code class="docutils literal notranslate"><span class="pre">config</span></code> key is
 passed, its value is used as the config dict directly.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover.process" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.route_improvement.lkh2.LKH2RouteImprover.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.lkh2.LKH2RouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply LKH-2 refinement to a tour using sub-matrix extraction.</p>
 <p>For VRPP instances where only a subset of nodes are visited, this method
 creates a dense sub-problem by extracting only the relevant rows and
@@ -599,8 +600,8 @@ node IDs and a metrics dict.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunTwoRouteImprover</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunTwoRouteImprover.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LKH2RouteImprover"><code class="docutils literal notranslate"><span class="pre">LKH2RouteImprover</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh2.LKH2RouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LKH2RouteImprover.process()</span></code></a></li>
 </ul>
 </li>
 </ul>

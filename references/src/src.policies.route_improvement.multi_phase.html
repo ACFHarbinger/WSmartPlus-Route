@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -492,6 +493,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.multi_phase">
 <span id="src-policies-route-improvement-multi-phase"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.multi_phase" title="src.policies.route_improvement.multi_phase"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.multi_phase</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.multi_phase" title="Link to this heading">#</a></h1>
 <p>Multi-Phase Route Improver.</p>
+<p>Attributes:
+MultiPhaseRouteImprover: Main class for sequential multi-phase improvement.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.multi_phase import MultiPhaseRouteImprover
+&gt;&gt;&gt; improver = MultiPhaseRouteImprover(config=cfg)
+&gt;&gt;&gt; tour, metrics = improver.process([0, 1, 2, 0], phases=[“fast_tsp”, “lk”])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +506,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.multi_phase.MultiPhaseRouteImprover" title="src.policies.route_improvement.multi_phase.MultiPhaseRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiPhaseRouteImprover</span></code></a></p></td>
-<td><p>Composition route improver that runs multiple separate strategies in sequence.
-Example: Augmentation phase followed by Improvement and Polish phases.</p></td>
+<td><p>Composition route improver running multiple strategies in sequence.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,8 +518,14 @@ Example: Augmentation phase followed by Improvement and Polish phases.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_improvement.multi_phase.MultiPhaseRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.multi_phase.</span></span><span class="sig-name descname"><span class="pre">MultiPhaseRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.multi_phase.MultiPhaseRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Composition route improver that runs multiple separate strategies in sequence.
-Example: Augmentation phase followed by Improvement and Polish phases.</p>
+<p>Composition route improver running multiple strategies in sequence.</p>
+<p>Facilitates a pipeline of improvement moves, such as an augmentation phase
+followed by an intensification phase and a final polishing phase.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
+<p>Example:
+&gt;&gt;&gt; improver = MultiPhaseRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, phases=[“cheapest_insertion”, “lkh”])</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -524,12 +536,16 @@ passed, its value is used as the config dict directly.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.multi_phase.MultiPhaseRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Run multi-phase refinement on the tour.</p>
 <p>Args:
-tour: Initial tour (List of bin IDs including depot 0s).
-**kwargs: Context containing ‘phases’ (List[str]).</p>
+tour (List[int]): Initial tour sequence.
+**kwargs: Context containing:
+phases (List[str]): List of improver names to run in order.
+distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+wastes (Dict[int, float]): Bin waste mass mapping.
+capacity (float): Maximum vehicle capacity.</p>
 <p>Returns:
-List[int]: Refined tour after all phases.</p>
-<p>Note:
-Requires at least 2 phases.</p>
+Tuple[List[int], ImprovementMetrics]: Refined tour and multi-phase metrics.</p>
+<p>Raises:
+ValueError: If fewer than 2 phases are provided or a phase name is unknown.</p>
 </dd></dl>
 
 </dd></dl>

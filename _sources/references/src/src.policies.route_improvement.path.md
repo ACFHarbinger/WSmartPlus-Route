@@ -26,7 +26,7 @@
 `````{py:class} PathRouteImprover(**kwargs: typing.Any)
 :canonical: src.policies.route_improvement.path.PathRouteImprover
 
-Bases: {py:obj}`logic.src.interfaces.IRouteImprovement`
+Bases: {py:obj}`logic.src.interfaces.route_improvement.IRouteImprovement`
 
 ```{autodoc2-docstring} src.policies.route_improvement.path.PathRouteImprover
 ```

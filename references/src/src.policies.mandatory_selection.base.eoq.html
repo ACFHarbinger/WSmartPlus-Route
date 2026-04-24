@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -501,6 +502,11 @@ where D is demand rate (kg/day), S is ordering cost per visit, and h is
 holding cost per kg per day. We convert Q* to a fill-level ratio
 tau_i = min(1, Q* / bin_mass_capacity_i)
 which is then returned in the same units as current_fill (typically percent).</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.base.eoq import compute_eoq_thresholds
+&gt;&gt;&gt; thresholds = compute_eoq_thresholds(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -521,20 +527,29 @@ which is then returned in the same units as current_fill (typically percent).</p
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.eoq.compute_eoq_thresholds">
-<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.eoq.</span></span><span class="sig-name descname"><span class="pre">compute_eoq_thresholds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.eoq.compute_eoq_thresholds" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.eoq.</span></span><span class="sig-name descname"><span class="pre">compute_eoq_thresholds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.eoq.compute_eoq_thresholds" title="Link to this definition">#</a></dt>
 <dd><p>Return per-bin EOQ-derived fill-level triggers in absolute fill units.</p>
 <p>The returned triggers are scaled by context.max_fill to match the units
 of context.current_fill (typically percent 0-100).</p>
 <p>Falls back to a uniform threshold of <code class="docutils literal notranslate"><span class="pre">context.threshold</span></code>
 when required parameters are missing or non-positive.</p>
+<p>Args:
+context (SelectionContext): The selection context containing bin data.</p>
+<p>Returns:
+np.ndarray: Array of per-bin EOQ thresholds.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold">
-<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.eoq.</span></span><span class="sig-name descname"><span class="pre">resolve_trigger_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_ratios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.eoq.</span></span><span class="sig-name descname"><span class="pre">resolve_trigger_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_ratios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Return a boolean mask of bins whose fill meets the effective trigger.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">context.use_eoq_threshold</span></code> is True, the per-bin EOQ threshold is
 used; otherwise a uniform <code class="docutils literal notranslate"><span class="pre">context.threshold</span></code> is applied.</p>
+<p>Args:
+context (SelectionContext): The selection context.
+fill_ratios (np.ndarray): Normalized fill ratios (unused here but often passed).</p>
+<p>Returns:
+np.ndarray: Boolean mask where True indicates a bin meets the trigger.</p>
 </dd></dl>
 
 </section>

@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -533,6 +534,13 @@ trigger its selection.  A bin with zero risk has <code class="docutils literal n
 sequence of selected bins into feasible vehicle routes.  The packing respects
 <code class="docutils literal notranslate"><span class="pre">capacity</span></code> in kg (using the fill percentages converted to mass via
 <code class="docutils literal notranslate"><span class="pre">bin_density</span> <span class="pre">×</span> <span class="pre">bin_volume</span> <span class="pre">/</span> <span class="pre">100</span></code>).</p>
+<p>Attributes:
+Chromosome: Data class for BRKGA chromosomes.</p>
+<p>Example:
+&gt;&gt;&gt; keys = np.random.uniform(0, 1, size=20)
+&gt;&gt;&gt; chrom = Chromosome(keys, n_bins=10)
+&gt;&gt;&gt; print(chrom.n_bins)
+10</p>
 <p>References:
 Gonçalves, J. F., &amp; Resende, M. G. (2011).
 Biased random-key genetic algorithms for combinatorial optimization.
@@ -576,7 +584,7 @@ gets a high threshold (hard to select).</p>
 <p>If all bins have identical risk (e.g., all zero) the thresholds default
 to <code class="docutils literal notranslate"><span class="pre">threshold_max</span></code> (no bin is preferentially selected).</p>
 <p>Args:
-overflow_risk: Per-bin overflow risk scores.  Shape <code class="docutils literal notranslate"><span class="pre">(N,)</span></code>.
+overflow_risk: Per-bin overflow risk scores. Shape <code class="docutils literal notranslate"><span class="pre">(N,)</span></code>.
 Values must be non-negative; scale is arbitrary (normalised internally).
 threshold_min: Threshold for the bin with maximum overflow risk.
 threshold_max: Threshold for bins with zero overflow risk.</p>
@@ -591,9 +599,8 @@ Shape <code class="docutils literal notranslate"><span class="pre">(N,)</span></
 <dd><p>BRKGA chromosome encoding joint bin-selection and route-construction.</p>
 <p>Each chromosome stores <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">N</span></code> continuous random keys in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
 <p>Attributes:
-keys: Float array of shape <code class="docutils literal notranslate"><span class="pre">(2</span> <span class="pre">*</span> <span class="pre">N,)</span></code>.  First half = selection
-keys; second half = routing keys.
-n_bins: Number of candidate bins <code class="docutils literal notranslate"><span class="pre">N</span></code>.</p>
+keys (np.ndarray): Float array of shape <code class="docutils literal notranslate"><span class="pre">(2</span> <span class="pre">*</span> <span class="pre">N,)</span></code>.
+n_bins (int): Number of candidate bins <code class="docutils literal notranslate"><span class="pre">N</span></code>.</p>
 <p class="rubric">Initialization</p>
 <p>Create a Chromosome from a pre-built key vector.</p>
 <p>Args:

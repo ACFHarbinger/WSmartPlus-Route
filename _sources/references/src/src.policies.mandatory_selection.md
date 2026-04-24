@@ -52,6 +52,7 @@ src.policies.mandatory_selection.selection_multi_day_prob
 src.policies.mandatory_selection.selection_set_cover
 src.policies.mandatory_selection.selection_lagrangian
 src.policies.mandatory_selection.selection_bernoulli_random
+src.policies.mandatory_selection.selection_fptas_knapsack
 ```
 
 ## Package Contents

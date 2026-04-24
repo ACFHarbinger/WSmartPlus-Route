@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -495,6 +496,10 @@ Resende (2011) for Biased Random-Key Genetic Algorithms.</p>
 from either parent.  BRKGA skews this probability to <code class="docutils literal notranslate"><span class="pre">bias_elite</span></code> (default
 0.7) in favour of the elite parent, exploiting the fact that elite chromosomes
 encode high-quality solutions.  The non-elite parent provides diversity.</p>
+<p>Attributes:
+biased_crossover: Operator for generating offspring.</p>
+<p>Example:
+&gt;&gt;&gt; child = biased_crossover(elite_parent, non_elite_parent, bias_elite=0.7, rng=rng)</p>
 <p>References:
 Gonçalves, J. F., &amp; Resende, M. G. (2011).
 Biased random-key genetic algorithms for combinatorial optimization.
@@ -524,13 +529,12 @@ probability <code class="docutils literal notranslate"><span class="pre">1</span
 <p>Args:
 elite: The elite parent chromosome (rank-1 or crowd-distance-preferred).
 non_elite: The non-elite parent chromosome (drawn from the non-elite pool).
-bias_elite: Probability of inheriting each gene from <em>elite</em>.
-Should be in <code class="docutils literal notranslate"><span class="pre">(0.5,</span> <span class="pre">1.0)</span></code> to provide meaningful bias.
-rng: NumPy random Generator for reproducibility.</p>
+bias_elite: Probability <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> of inheriting an allele from the elite parent.
+rng: Random number generator instance.</p>
 <p>Returns:
-A new :class:<code class="docutils literal notranslate"><span class="pre">~.chromosome.Chromosome</span></code> with <code class="docutils literal notranslate"><span class="pre">n_bins</span></code> from <em>elite</em>.</p>
+Chromosome: A new offspring chromosome.</p>
 <p>Raises:
-ValueError: If the two parents have different <code class="docutils literal notranslate"><span class="pre">n_bins</span></code>.</p>
+ValueError: If the parents have different sizes (<code class="docutils literal notranslate"><span class="pre">n_bins</span></code>).</p>
 </dd></dl>
 
 </section>

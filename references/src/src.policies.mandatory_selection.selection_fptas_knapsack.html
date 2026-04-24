@@ -1,0 +1,882 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.policies.mandatory_selection.selection_fptas_knapsack &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.mandatory_selection.selection_fptas_knapsack';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.policies.acceptance_criteria" href="src.policies.acceptance_criteria.html" />
+    <link rel="prev" title="src.policies.mandatory_selection.selection_bernoulli_random" href="src.policies.mandatory_selection.selection_bernoulli_random.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.components.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.pages.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.styles.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.app.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.policy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.enums.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.trainer_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.trainer_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.policy_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.policy_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.model_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.model_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.operator_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.operator_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.environment_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.environment_tags</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.acceptance_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.acceptance_criterion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.distance_metric.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.distance_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_constructor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_constructor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.processor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.policies.mandatory_selection.selection_fptas_knapsack.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.policies.mandatory_selection.selection_fptas_knapsack</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formulation">Formulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fptas-value-scaled-0-1-knapsack-dp">FPTAS — value-scaled 0/1 knapsack DP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-vehicle-decomposition">Multiple-vehicle decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-budget">Memory budget</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._EPS_GUARD"><code class="docutils literal notranslate"><span class="pre">_EPS_GUARD</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._DIST_EPS"><code class="docutils literal notranslate"><span class="pre">_DIST_EPS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._MAX_DP_VALUES"><code class="docutils literal notranslate"><span class="pre">_MAX_DP_VALUES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._compute_overflow_risk"><code class="docutils literal notranslate"><span class="pre">_compute_overflow_risk()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._fptas_01_knapsack"><code class="docutils literal notranslate"><span class="pre">_fptas_01_knapsack()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection"><code class="docutils literal notranslate"><span class="pre">FPTASKnapsackSelection</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection.select_bins"><code class="docutils literal notranslate"><span class="pre">FPTASKnapsackSelection.select_bins()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.mandatory_selection.selection_fptas_knapsack">
+<span id="src-policies-mandatory-selection-selection-fptas-knapsack"></span><h1><a class="reference internal" href="#module-src.policies.mandatory_selection.selection_fptas_knapsack" title="src.policies.mandatory_selection.selection_fptas_knapsack"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack</span></code></a><a class="headerlink" href="#module-src.policies.mandatory_selection.selection_fptas_knapsack" title="Link to this heading">#</a></h1>
+<section id="formulation">
+<h2>Formulation<a class="headerlink" href="#formulation" title="Link to this heading">#</a></h2>
+<p>Each bin <em>i</em> receives a combined dimensionless value:</p>
+<p>.. math::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>v_i = \alpha \cdot
+        \frac{\mathrm{risk}_i}{\mathrm{risk}_{\max}}
+      + (1-\alpha) \cdot
+        \frac{\max(0,\; \mathrm{profit}_i)}{\mathrm{profit}_{\max}}
+</pre></div>
+</div>
+<p>where</p>
+<ul class="simple">
+<li><p>:math:<code class="docutils literal notranslate"><span class="pre">\mathrm{risk}_i</span></code> (kg) is the expected overflow loss (spilled waste
+plus occurrence penalty) incurred if bin <em>i</em> is <strong>not</strong> collected today —
+identical to the score used by <code class="docutils literal notranslate"><span class="pre">MIPKnapsackSelection</span></code>.</p></li>
+<li><p>:math:<code class="docutils literal notranslate"><span class="pre">\mathrm{profit}_i</span></code> (monetary) is the net revenue from collecting
+bin <em>i</em>, approximated as the standalone depot-round-trip profit
+:math:<code class="docutils literal notranslate"><span class="pre">m_i</span> <span class="pre">\cdot</span> <span class="pre">r_{\mathrm{kg}}</span> <span class="pre">-</span> <span class="pre">\lambda</span> <span class="pre">\cdot</span> <span class="pre">2d(0,i)</span></code> — the same
+eligibility metric used by <code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelection</span></code>.</p></li>
+<li><p>:math:<code class="docutils literal notranslate"><span class="pre">\alpha</span> <span class="pre">\in</span> <span class="pre">[0,1]</span></code> is the overflow-weight hyperparameter.</p></li>
+<li><p>Both objectives are normalised to :math:<code class="docutils literal notranslate"><span class="pre">[0,1]</span></code> so :math:<code class="docutils literal notranslate"><span class="pre">\alpha</span></code> is
+dimensionless and stable across problem instances.</p></li>
+</ul>
+</section>
+<section id="fptas-value-scaled-0-1-knapsack-dp">
+<h2>FPTAS — value-scaled 0/1 knapsack DP<a class="headerlink" href="#fptas-value-scaled-0-1-knapsack-dp" title="Link to this heading">#</a></h2>
+<p>Given a single knapsack of capacity <em>Q</em> and <em>m</em> items with (real-valued)
+values :math:<code class="docutils literal notranslate"><span class="pre">v_i</span></code> and (real-valued) weights :math:<code class="docutils literal notranslate"><span class="pre">w_i</span></code>, the FPTAS proceeds:</p>
+<ol class="arabic">
+<li><p>Compute the scaling factor :math:<code class="docutils literal notranslate"><span class="pre">K</span> <span class="pre">=</span> <span class="pre">\varepsilon</span> <span class="pre">\cdot</span> <span class="pre">v_{\max}</span> <span class="pre">/</span> <span class="pre">m</span></code>.</p></li>
+<li><p>Round down each value: :math:<code class="docutils literal notranslate"><span class="pre">p_i'</span> <span class="pre">=</span> <span class="pre">\lfloor</span> <span class="pre">v_i</span> <span class="pre">/</span> <span class="pre">K</span> <span class="pre">\rfloor</span></code> (integer).</p></li>
+<li><p>Solve the exact min-weight DP on scaled values:</p>
+<p>.. math::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>\mathrm{dp}[v] = \min \Bigl\{
+    \sum_{i \in S} w_i :
+    S \subseteq [m],\; \sum_{i \in S} p_i&#39; = v
+\Bigr\}
+</pre></div>
+</div>
+<p>The DP has :math:<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">\cdot</span> <span class="pre">\lfloor</span> <span class="pre">m/\varepsilon</span> <span class="pre">\rfloor</span> <span class="pre">\leq</span> <span class="pre">m^2/\varepsilon</span></code>
+states — polynomial in <em>m</em> and :math:<code class="docutils literal notranslate"><span class="pre">1/\varepsilon</span></code>.</p>
+</li>
+<li><p>Return the subset achieving the largest <em>v</em> with
+:math:<code class="docutils literal notranslate"><span class="pre">\mathrm{dp}[v]</span> <span class="pre">\leq</span> <span class="pre">Q</span></code>.</p></li>
+</ol>
+<p>The returned solution satisfies :math:<code class="docutils literal notranslate"><span class="pre">V(S)</span> <span class="pre">\geq</span> <span class="pre">(1-\varepsilon)\,\mathrm{OPT}</span></code>.</p>
+</section>
+<section id="multiple-vehicle-decomposition">
+<h2>Multiple-vehicle decomposition<a class="headerlink" href="#multiple-vehicle-decomposition" title="Link to this heading">#</a></h2>
+<p>The <em>K</em>-vehicle multiple-knapsack problem is decomposed greedily: for each
+vehicle <em>k</em> in turn the FPTAS is applied to the remaining unscheduled bins
+with that vehicle’s capacity.  Letting :math:<code class="docutils literal notranslate"><span class="pre">\mathrm{OPT}_k</span></code> be the
+optimal value for vehicle <em>k</em> over remaining bins,</p>
+<p>.. math::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>V(S_k) \geq (1-\varepsilon)\,\mathrm{OPT}_k,
+</pre></div>
+</div>
+<p>and therefore :math:<code class="docutils literal notranslate"><span class="pre">V(S)</span> <span class="pre">=</span> <span class="pre">\sum_k</span> <span class="pre">V(S_k)</span> <span class="pre">\geq</span> <span class="pre">(1-\varepsilon)\,\mathrm{OPT}</span></code>
+(since :math:<code class="docutils literal notranslate"><span class="pre">\mathrm{OPT}</span> <span class="pre">\leq</span> <span class="pre">\sum_k</span> <span class="pre">\mathrm{OPT}_k</span></code> by the greedy
+feasibility of the decomposition).</p>
+<p>A 1/2-approximation lower bound on the joint objective is recovered by
+comparing the greedy multi-vehicle solution against the single best-fitting
+bin — mirroring the argument in <code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelection</span></code>.</p>
+</section>
+<section id="memory-budget">
+<h2>Memory budget<a class="headerlink" href="#memory-budget" title="Link to this heading">#</a></h2>
+<p>The forward DP is kept in a 1-D array of size :math:<code class="docutils literal notranslate"><span class="pre">V_{\mathrm{upper}}+1</span></code>
+and updated in-place (using a row snapshot to preserve 0/1 semantics).
+A boolean <em>taken</em> matrix of shape :math:<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">\times</span> <span class="pre">(V_{\mathrm{upper}}+1)</span></code> is
+maintained for backtracking.  :math:<code class="docutils literal notranslate"><span class="pre">V_{\mathrm{upper}}</span></code> is capped at
+<code class="docutils literal notranslate"><span class="pre">_MAX_DP_VALUES</span></code> (default 100 000) by adaptively relaxing :math:<code class="docutils literal notranslate"><span class="pre">\varepsilon</span></code>
+when necessary, keeping peak memory well below 100 MB for typical VRP
+instance sizes (:math:<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">\leq</span> <span class="pre">500</span></code>).</p>
+<p>Example::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_fptas_bi_objective_knapsack import (
+...     FPTASBiObjectiveKnapsackSelection,
+... )
+&gt;&gt;&gt; strategy = FPTASBiObjectiveKnapsackSelection(epsilon=0.05, alpha=0.6)
+&gt;&gt;&gt; bins, ctx = strategy.select_bins(context)
+</pre></div>
+</div>
+</section>
+<p>FPTAS Bi-Objective Multiple-Knapsack Selection Strategy Module.</p>
+<p>Combines the overflow-risk objective of <code class="docutils literal notranslate"><span class="pre">MIPKnapsackSelection</span></code> with the
+net-profit objective of <code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelection</span></code> into a single
+scalarised per-bin value, then solves the resulting 0/1 multiple-knapsack
+problem via a Fully Polynomial Time Approximation Scheme (FPTAS).</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection" title="src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FPTASKnapsackSelection</span></code></a></p></td>
+<td><p>FPTAS bi-objective multiple-knapsack selection strategy.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.mandatory_selection.selection_fptas_knapsack._compute_overflow_risk" title="src.policies.mandatory_selection.selection_fptas_knapsack._compute_overflow_risk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_overflow_risk</span></code></a></p></td>
+<td><p>Per-bin overflow risk score — cost of <strong>not</strong> collecting bin <em>i</em> (kg).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.mandatory_selection.selection_fptas_knapsack._fptas_01_knapsack" title="src.policies.mandatory_selection.selection_fptas_knapsack._fptas_01_knapsack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fptas_01_knapsack</span></code></a></p></td>
+<td><p>FPTAS (1-ε)-approximation for the 0/1 knapsack problem.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.mandatory_selection.selection_fptas_knapsack._EPS_GUARD" title="src.policies.mandatory_selection.selection_fptas_knapsack._EPS_GUARD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_EPS_GUARD</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.mandatory_selection.selection_fptas_knapsack._DIST_EPS" title="src.policies.mandatory_selection.selection_fptas_knapsack._DIST_EPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_DIST_EPS</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.mandatory_selection.selection_fptas_knapsack._MAX_DP_VALUES" title="src.policies.mandatory_selection.selection_fptas_knapsack._MAX_DP_VALUES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MAX_DP_VALUES</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack._EPS_GUARD">
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack.</span></span><span class="sig-name descname"><span class="pre">_EPS_GUARD</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack._EPS_GUARD" title="Link to this definition">#</a></dt>
+<dd><p>1e-09</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack._DIST_EPS">
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack.</span></span><span class="sig-name descname"><span class="pre">_DIST_EPS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack._DIST_EPS" title="Link to this definition">#</a></dt>
+<dd><p>1e-09</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack._MAX_DP_VALUES">
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack.</span></span><span class="sig-name descname"><span class="pre">_MAX_DP_VALUES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack._MAX_DP_VALUES" title="Link to this definition">#</a></dt>
+<dd><p>100000</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack._compute_overflow_risk">
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack.</span></span><span class="sig-name descname"><span class="pre">_compute_overflow_risk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overflow_penalty_frac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack._compute_overflow_risk" title="Link to this definition">#</a></dt>
+<dd><p>Per-bin overflow risk score — cost of <strong>not</strong> collecting bin <em>i</em> (kg).</p>
+<p>Computes the probability-weighted spilled waste plus an occurrence penalty
+across all future-day nodes in <code class="docutils literal notranslate"><span class="pre">scenario_tree</span></code>.  Falls back to a
+deterministic current-fill proxy when no tree is provided.</p>
+<p>Args:
+current_fill (np.ndarray): Current fill levels as percentages (shape <code class="docutils literal notranslate"><span class="pre">(n_bins,)</span></code>).
+bin_mass (np.ndarray): Full waste capacity in kg for each bin.
+scenario_tree (Optional[Any]): Optional <code class="docutils literal notranslate"><span class="pre">ScenarioTree</span></code> from the prediction module.
+Must expose <code class="docutils literal notranslate"><span class="pre">get_scenarios_at_day(day)</span></code> and <code class="docutils literal notranslate"><span class="pre">horizon</span></code>.
+overflow_penalty_frac (float): Occurrence penalty as a fraction of full bin
+capacity added per unit of overflow probability.</p>
+<p>Returns:
+np.ndarray: Per-bin overflow risk in kg (shape <code class="docutils literal notranslate"><span class="pre">(n_bins,)</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack._fptas_01_knapsack">
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack.</span></span><span class="sig-name descname"><span class="pre">_fptas_01_knapsack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack._fptas_01_knapsack" title="Link to this definition">#</a></dt>
+<dd><p>FPTAS (1-ε)-approximation for the 0/1 knapsack problem.</p>
+<p><strong>Algorithm</strong> (value-scaled DP):</p>
+<ol class="arabic simple">
+<li><p>Filter to feasible items (weight ≤ capacity, value &gt; 0).</p></li>
+<li><p>Compute scale factor :math:<code class="docutils literal notranslate"><span class="pre">K</span> <span class="pre">=</span> <span class="pre">\varepsilon</span> <span class="pre">\cdot</span> <span class="pre">v_{\max}</span> <span class="pre">/</span> <span class="pre">m</span></code>.
+If the resulting DP width :math:<code class="docutils literal notranslate"><span class="pre">V_{\mathrm{upper}}</span> <span class="pre">=</span> <span class="pre">m</span> <span class="pre">\cdot</span> <span class="pre">\lfloor</span> <span class="pre">m/\varepsilon</span> <span class="pre">\rfloor</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">_MAX_DP_VALUES</span></code>, raise
+:math:<code class="docutils literal notranslate"><span class="pre">\varepsilon</span></code> (×1.5) until it fits.</p></li>
+<li><p>Solve the min-weight DP on integer-scaled values using a 1-D array
+updated with a per-row snapshot (standard 0/1 trick, vectorised).</p></li>
+<li><p>Track which item improved each DP state in a boolean <code class="docutils literal notranslate"><span class="pre">taken</span></code> matrix
+(shape :math:<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">\times</span> <span class="pre">(V_{\mathrm{upper}}+1)</span></code>) to enable O(m) backtracking.</p></li>
+<li><p>Backtrack from the best feasible value to recover the selected items.</p></li>
+</ol>
+<p><strong>Correctness</strong> of the <code class="docutils literal notranslate"><span class="pre">taken</span></code> backtracking: <code class="docutils literal notranslate"><span class="pre">taken[i,</span> <span class="pre">v]</span> <span class="pre">=</span> <span class="pre">True</span></code> is
+set only when item <em>i</em> strictly improves <code class="docutils literal notranslate"><span class="pre">dp[v]</span></code> at step <em>i</em> (using the
+pre-step snapshot to enforce 0/1 semantics).  Backtracking from
+<code class="docutils literal notranslate"><span class="pre">best_val</span></code> downward, selecting item <em>i</em> when <code class="docutils literal notranslate"><span class="pre">taken[i,</span> <span class="pre">rem]</span></code> is True
+and reducing <code class="docutils literal notranslate"><span class="pre">rem</span></code> by <code class="docutils literal notranslate"><span class="pre">p_scaled[i]</span></code>, recovers a valid subset by
+induction on the DP layers.</p>
+<p>Args:
+values (np.ndarray): Non-negative per-item values (shape <code class="docutils literal notranslate"><span class="pre">(n,)</span></code>).
+weights (np.ndarray): Non-negative per-item weights (shape <code class="docutils literal notranslate"><span class="pre">(n,)</span></code>).
+capacity (float): Knapsack weight capacity (scalar).
+epsilon (float): Approximation parameter ε ∈ (0, 1).</p>
+<p>Returns:
+np.ndarray: Boolean mask of length <code class="docutils literal notranslate"><span class="pre">n</span></code> — True for each selected item.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_fptas_knapsack.</span></span><span class="sig-name descname"><span class="pre">FPTASKnapsackSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overflow_penalty_frac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></code></p>
+<p>FPTAS bi-objective multiple-knapsack selection strategy.</p>
+<p>Scalarises the overflow-risk objective (kg) of <code class="docutils literal notranslate"><span class="pre">MIPKnapsackSelection</span></code>
+and the net-profit objective (monetary) of <code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelection</span></code>
+into a single dimensionless per-bin value via a convex combination, then
+solves the resulting 0/1 multiple-knapsack problem with a sequential FPTAS
+delivering a :math:<code class="docutils literal notranslate"><span class="pre">(1-\varepsilon)</span></code>-approximation per vehicle.</p>
+<p><strong>Combined value per bin:</strong></p>
+<p>.. math::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>v_i = \alpha \cdot \frac{\mathrm{risk}_i}{\mathrm{risk}_{\max}}
+      + (1-\alpha) \cdot
+        \frac{\max(0, \mathrm{profit}_i)}{\mathrm{profit}_{\max}}
+</pre></div>
+</div>
+<p>where :math:<code class="docutils literal notranslate"><span class="pre">\mathrm{risk}_i</span></code> is the expected overflow cost (kg) of
+skipping bin <em>i</em> (scenario-tree or fill-level proxy) and
+:math:<code class="docutils literal notranslate"><span class="pre">\mathrm{profit}_i</span> <span class="pre">=</span> <span class="pre">m_i</span> <span class="pre">r_{\mathrm{kg}}</span> <span class="pre">-</span> <span class="pre">\lambda</span> <span class="pre">\cdot</span> <span class="pre">2d(0,i)</span></code>
+is the depot-round-trip net revenue from collecting it.  Both objectives
+are normalised to :math:<code class="docutils literal notranslate"><span class="pre">[0,1]</span></code> so :math:<code class="docutils literal notranslate"><span class="pre">\alpha</span></code> is dimensionless and
+instance-independent.</p>
+<p><strong>Approximation guarantee:</strong>  For each vehicle <em>k</em> the FPTAS returns a
+packing of value :math:<code class="docutils literal notranslate"><span class="pre">\geq</span> <span class="pre">(1-\varepsilon)\,\mathrm{OPT}_k</span></code> over the
+bins remaining after vehicles :math:<code class="docutils literal notranslate"><span class="pre">1,\ldots,k-1</span></code> have been packed.
+Comparing the greedy solution against the single best-value bin gives the
+standard :math:<code class="docutils literal notranslate"><span class="pre">1/2</span></code>-approximation lower bound on the joint objective.</p>
+<p>Attributes:
+epsilon (float): FPTAS approximation parameter ε ∈ (0, 1).
+alpha (float): Overflow-risk weight ∈ [0, 1].
+overflow_penalty_frac (float): Occurrence penalty per overflow event.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection.select_bins">
+<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection.select_bins" title="Link to this definition">#</a></dt>
+<dd><p>Solve the bi-objective 0/1 multiple-knapsack via sequential FPTAS.</p>
+<p>For each vehicle <em>k</em> in turn, applies the FPTAS to the pool of
+remaining eligible bins and collects the chosen set.  Returns the
+union of all chosen sets unless the best single-bin solution
+dominates (1/2-approximation fallback).</p>
+<p>Args:
+context (SelectionContext): The selection context.</p>
+<p>Returns:
+Tuple[List[int], SearchContext]: Selected bin IDs and search context.</p>
+<p>Raises:
+ValueError: If <code class="docutils literal notranslate"><span class="pre">distance_matrix</span></code> is not provided.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.policies.mandatory_selection.selection_bernoulli_random.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_bernoulli_random</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.policies.acceptance_criteria.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formulation">Formulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fptas-value-scaled-0-1-knapsack-dp">FPTAS — value-scaled 0/1 knapsack DP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-vehicle-decomposition">Multiple-vehicle decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-budget">Memory budget</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._EPS_GUARD"><code class="docutils literal notranslate"><span class="pre">_EPS_GUARD</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._DIST_EPS"><code class="docutils literal notranslate"><span class="pre">_DIST_EPS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._MAX_DP_VALUES"><code class="docutils literal notranslate"><span class="pre">_MAX_DP_VALUES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._compute_overflow_risk"><code class="docutils literal notranslate"><span class="pre">_compute_overflow_risk()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack._fptas_01_knapsack"><code class="docutils literal notranslate"><span class="pre">_fptas_01_knapsack()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection"><code class="docutils literal notranslate"><span class="pre">FPTASKnapsackSelection</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection.select_bins"><code class="docutils literal notranslate"><span class="pre">FPTASKnapsackSelection.select_bins()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -512,6 +513,11 @@ is unavailable or predicts no improvements.</p>
 <p>Training is performed offline by tools/train_learned_route_improver.py. The
 route improver loads the trained model at init time and uses it read-only
 during inference.</p>
+<p>Attributes:
+logger (logging.Logger): Module-level logger.</p>
+<p>Example:
+&gt;&gt;&gt; improver = LearnedRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -557,13 +563,30 @@ during inference.</p>
 - Edge encoder: 2-layer MLP on (distance, in_current_tour)
 - Move head: 2-layer MLP on (aggregated endpoint embeddings, move type one-hot)
 → scalar predicted delta</p>
-<p>Total params: ~50k.</p>
+<p>Attributes:
+node_encoder (nn.Sequential): Encodes node features.
+edge_encoder (nn.Sequential): Encodes edge features.
+move_head (nn.Sequential): Predicts improvement delta from embeddings.</p>
+<p>Example:
+&gt;&gt;&gt; scorer = MoveScorer()
+&gt;&gt;&gt; scores = scorer(node_features, move_endpoints, move_types)</p>
 <p class="rubric">Initialization</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialise the MoveScorer.</p>
+<p>Args:
+node_dim (int): Input dimension for node features.
+edge_dim (int): Input dimension for edge features.
+hidden_dim (int): Hidden layer size.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.MoveScorer.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_endpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.MoveScorer.forward" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Forward pass to score candidate moves.</p>
+<p>Args:
+node_features (torch.Tensor): Tensor of node features (N, node_dim).
+move_endpoints (torch.Tensor): Indices of nodes involved in moves (M, 4).
+move_types (torch.Tensor): One-hot encoding of move types (M, 2).</p>
+<p>Returns:
+torch.Tensor: Predicted improvement deltas for each move (M,).</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -581,13 +604,16 @@ move iteratively. Falls back to classical two_opt_steepest when:</p>
 <li><p>The model file is missing</p></li>
 <li><p>The model predicts no improving moves</p></li>
 </ul>
-<p>The fallback is important: a badly-trained or missing model must not
-produce tours worse than a deterministic heuristic baseline.</p>
+<p>Attributes:
+DEFAULT_WEIGHTS_PATH (Path): Default path to model weights.
+config (Dict[str, Any]): Configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; improver = LearnedRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <p class="rubric">Initialization</p>
-<p>Initialise route improver with configuration.</p>
+<p>Initialise the learned improver.</p>
 <p>Args:
-kwargs: Configuration values.  If a single <code class="docutils literal notranslate"><span class="pre">config</span></code> key is
-passed, its value is used as the config dict directly.</p>
+kwargs (Any): Configuration arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover.DEFAULT_WEIGHTS_PATH">
 <span class="sig-name descname"><span class="pre">DEFAULT_WEIGHTS_PATH</span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover.DEFAULT_WEIGHTS_PATH" title="Link to this definition">#</a></dt>
@@ -598,60 +624,88 @@ passed, its value is used as the config dict directly.</p>
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover._lazy_load_model">
 <span class="sig-name descname"><span class="pre">_lazy_load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover._lazy_load_model" title="Link to this definition">#</a></dt>
 <dd><p>Load the model once on first use.</p>
+<p>Args:
+weights_path (Path): Path to the model weights file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply learned improvements to the tour.</p>
+<p>Args:
+tour (List[int]): Initial tour sequence.
+kwargs (Any): Context, including ‘distance_matrix’, ‘wastes’, ‘capacity’, etc.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: Improved tour and metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover._apply_learned_moves">
 <span class="sig-name descname"><span class="pre">_apply_learned_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_improvement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover._apply_learned_moves" title="Link to this definition">#</a></dt>
 <dd><p>Iteratively apply the highest-scoring improving move.</p>
-<p>At each iteration:</p>
-<ol class="arabic simple">
-<li><p>Enumerate candidate 2-opt moves (pairs of edges within each route
-whose endpoints are within the top-k nearest neighbors).</p></li>
-<li><p>Score all candidates with the model in a single batched forward pass.</p></li>
-<li><p>Apply the highest-scored move if predicted delta &gt; min_improvement.</p></li>
-<li><p>Verify the actual delta matches the prediction’s sign; if not,
-terminate (model is making spurious predictions on this instance).</p></li>
-</ol>
+<p>Args:
+routes (List[List[int]]): Current routes.
+dm (np.ndarray): Distance matrix.
+wastes (dict): Node waste demands.
+capacity (float): Vehicle capacity.
+mandatory_nodes (set): Set of mandatory node IDs.
+max_iterations (int): Maximum number of moves to apply.
+min_improvement (float): Threshold for applying a move.
+neighborhood_size (int): Nearest-neighbor search bound.</p>
+<p>Returns:
+List[List[int]]: Refined routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover._enumerate_moves">
 <span class="sig-name descname"><span class="pre">_enumerate_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover._enumerate_moves" title="Link to this definition">#</a></dt>
 <dd><p>Return list of (move_type, a, b, c, d) candidate moves.</p>
-<p>For 2-opt: (a, b) and (c, d) are non-adjacent edges in the same route.
-For Or-opt: a single-node relocation from position (a, b) to (c, d).</p>
-<p>Limited to the top-k nearest-neighbor pairs per node to keep the
-scoring batch tractable.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.
+dm (np.ndarray): Distance matrix.
+k (int): Neighborhood size.</p>
+<p>Returns:
+List[Tuple[str, int, int, int, int]]: List of candidate moves.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover._build_node_features">
 <span class="sig-name descname"><span class="pre">_build_node_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover._build_node_features" title="Link to this definition">#</a></dt>
-<dd><p>Build per-node feature tensor (N+1, 5):</p>
-<ul class="simple">
-<li><p>x, y: placeholders (MDS can be added later)</p></li>
-<li><p>waste: bin waste</p></li>
-<li><p>is_mandatory: 0/1</p></li>
-<li><p>is_in_route: 0/1</p></li>
-</ul>
+<dd><p>Build per-node feature tensor (N, 5).</p>
+<p>Args:
+routes (List[List[int]]): Current routes.
+dm (np.ndarray): Distance matrix.
+wastes (dict): Node waste demands.
+mandatory_nodes (set): Set of mandatory node IDs.</p>
+<p>Returns:
+torch.Tensor: Feature tensor for all nodes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover._apply_move">
 <span class="sig-name descname"><span class="pre">_apply_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover._apply_move" title="Link to this definition">#</a></dt>
 <dd><p>Apply a 2-opt or Or-opt move and return new routes.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.
+move (Tuple[str, int, int, int, int]): The move to apply.</p>
+<p>Returns:
+List[List[int]]: The updated routes after applying the move.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.learned.LearnedRouteImprover._fallback">
 <span class="sig-name descname"><span class="pre">_fallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.learned.LearnedRouteImprover._fallback" title="Link to this definition">#</a></dt>
 <dd><p>Fall back to classical steepest 2-opt when the model is unavailable.</p>
+<p>Args:
+tour (List[int]): Current tour sequence.
+dm (np.ndarray): Distance matrix.
+wastes (dict): Node waste demands.
+capacity (float): Vehicle capacity.
+cost_per_km (float): Distance cost.
+revenue_kg (float): Waste revenue.
+kwargs (Any): Additional context.</p>
+<p>Returns:
+List[int]: Improved tour using classical heuristic.</p>
 </dd></dl>
 
 </dd></dl>

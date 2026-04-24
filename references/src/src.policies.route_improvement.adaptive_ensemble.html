@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -494,6 +495,12 @@ document.write(`
 <p>Adaptive Ensemble Route Improver.</p>
 <p>A meta-algorithmic orchestrator that dynamically selects and executes high-level
 route improvement strategies (phases) using a performance-weighted Roulette Wheel.</p>
+<p>Attributes:
+AdaptiveEnsembleRouteImprover: The route improvement class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
+&gt;&gt;&gt; improver = AdaptiveEnsembleRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,9 +508,7 @@ route improvement strategies (phases) using a performance-weighted Roulette Whee
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.adaptive_ensemble.AdaptiveEnsembleRouteImprover" title="src.policies.route_improvement.adaptive_ensemble.AdaptiveEnsembleRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AdaptiveEnsembleRouteImprover</span></code></a></p></td>
-<td><p>Dynamically orchestrates multiple route improvement algorithms.
-Maintains a probability distribution over available algorithms and updates
-their selection weights based on real-time objective improvements.</p></td>
+<td><p>Dynamically orchestrates multiple route improvement algorithms.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,9 +520,14 @@ their selection weights based on real-time objective improvements.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_improvement.adaptive_ensemble.AdaptiveEnsembleRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.adaptive_ensemble.</span></span><span class="sig-name descname"><span class="pre">AdaptiveEnsembleRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.adaptive_ensemble.AdaptiveEnsembleRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Dynamically orchestrates multiple route improvement algorithms.
-Maintains a probability distribution over available algorithms and updates
+<p>Dynamically orchestrates multiple route improvement algorithms.</p>
+<p>Maintains a probability distribution over available algorithms and updates
 their selection weights based on real-time objective improvements.</p>
+<p>Attributes:
+config (Dict[str, Any]): Configuration parameters for the orchestrator.</p>
+<p>Example:
+&gt;&gt;&gt; improviser = AdaptiveEnsembleRouteImprover()
+&gt;&gt;&gt; improved_tour, metrics = improviser.process(tour, distance_matrix=dm)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -526,7 +536,18 @@ passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.adaptive_ensemble.AdaptiveEnsembleRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.adaptive_ensemble.AdaptiveEnsembleRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Execute the adaptive ensemble improvement process.</p>
+<p>Args:
+tour (List[int]): The initial tour to improve.
+**kwargs: Additional search context, including:
+distance_matrix (np.ndarray | torch.Tensor): The distance matrix lookup.
+phases (List[str]): Algorithms to include in the ensemble.
+iterations (int): Total number of selection iterations (default 50).
+reaction_factor (float): EMA update factor for algorithm weights (default 0.1).
+seed (int): Random seed.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: Improved tour and performance metadata.</p>
+</dd></dl>
 
 </dd></dl>
 

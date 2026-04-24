@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -492,6 +493,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.cross_exchange">
 <span id="src-policies-route-improvement-cross-exchange"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.cross_exchange" title="src.policies.route_improvement.cross_exchange"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.cross_exchange</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.cross_exchange" title="Link to this heading">#</a></h1>
 <p>Cross-Exchange Route Improver.</p>
+<p>This module implements the cross-exchange local search operator, which swaps
+segments of variable length between two different routes to reduce total cost.</p>
+<p>Attributes:
+CrossExchangeRouteImprover: Route improvement class using cross-exchange.</p>
+<p>Example:
+&gt;&gt;&gt; improver = CrossExchangeRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.cross_exchange.CrossExchangeRouteImprover" title="src.policies.route_improvement.cross_exchange.CrossExchangeRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CrossExchangeRouteImprover</span></code></a></p></td>
-<td><p>Cross-exchange route improver that swaps segments between different routes.
-Wraps LocalSearchManager.cross_exchange_op.</p></td>
+<td><p>Cross-exchange route improver that swaps segments between different routes.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,8 +519,13 @@ Wraps LocalSearchManager.cross_exchange_op.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_improvement.cross_exchange.CrossExchangeRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">CrossExchangeRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.cross_exchange.CrossExchangeRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Cross-exchange route improver that swaps segments between different routes.
-Wraps LocalSearchManager.cross_exchange_op.</p>
+<p>Cross-exchange route improver that swaps segments between different routes.</p>
+<p>Wraps LocalSearchManager.cross_exchange_op.</p>
+<p>Attributes:
+config (Dict[str, Any]): Configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; improver = CrossExchangeRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -524,10 +536,18 @@ passed, its value is used as the config dict directly.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.cross_exchange.CrossExchangeRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply cross-exchange improvement to the tour.</p>
 <p>Args:
-tour: Initial tour (List of bin IDs including depot 0s).
-**kwargs: Context containing ‘distance_matrix’, ‘cross_exchange_max_segment_len’, ‘iterations’, etc.</p>
+tour (List[int]): Initial tour (List of bin IDs including depot 0s).
+kwargs (Any): Search context, including:
+- distance_matrix (np.ndarray): The distance matrix.
+- cross_exchange_max_segment_len (int): Maximum segment length to swap.
+- iterations (int): Maximum number of iterations.
+- wastes (Dict[int, float]): Bin waste demands.
+- capacity (float): Vehicle capacity.
+- R (float): Revenue per kg.
+- C (float): Cost per km.
+- seed (int): Random seed.</p>
 <p>Returns:
-List[int]: Refined tour.</p>
+Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.</p>
 </dd></dl>
 
 </dd></dl>

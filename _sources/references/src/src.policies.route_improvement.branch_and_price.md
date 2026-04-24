@@ -81,6 +81,9 @@ Bases: {py:obj}`logic.src.interfaces.route_improvement.IRouteImprovement`
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.ImprovementMetrics]
 :canonical: src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover.process
 
+```{autodoc2-docstring} src.policies.route_improvement.branch_and_price.BranchAndPriceRouteImprover.process
+```
+
 ````
 
 ````{py:method} _solve_inhouse(input_routes: typing.List[typing.List[int]], dm: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, cost_per_km: float, revenue_kg: float, mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Optional[typing.List[typing.List[int]]]

@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -491,7 +492,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.fast_tsp">
 <span id="src-policies-route-improvement-fast-tsp"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.fast_tsp" title="src.policies.route_improvement.fast_tsp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.fast_tsp</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.fast_tsp" title="Link to this heading">#</a></h1>
-<p>Fast TSP Refinement Route Improver.</p>
+<p>Fast TSP Solver for route reoptimization.</p>
+<p>Provides a lightweight TSP implementation suitable for recurring
+reoptimization in inner loops.</p>
+<p>Attributes:
+FastTSPRouteImprover: Main class for fast TSP solving.
+Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.fast_tsp import FastTSPRouteImprover
+&gt;&gt;&gt; improver = FastTSPRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.fast_tsp.FastTSPRouteImprover" title="src.policies.route_improvement.fast_tsp.FastTSPRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FastTSPRouteImprover</span></code></a></p></td>
-<td><p>Refines all sub-tours using the fast_tsp library.
-Splits long tours by depot (0), re-optimizes each segment, and reconstructs.</p></td>
+<td><p>Fast TSP route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,9 +519,15 @@ Splits long tours by depot (0), re-optimizes each segment, and reconstructs.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_improvement.fast_tsp.FastTSPRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.fast_tsp.</span></span><span class="sig-name descname"><span class="pre">FastTSPRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.fast_tsp.FastTSPRouteImprover" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IRouteImprovement</span></code></p>
-<p>Refines all sub-tours using the fast_tsp library.
-Splits long tours by depot (0), re-optimizes each segment, and reconstructs.</p>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
+<p>Fast TSP route improver.</p>
+<p>Refines all sub-tours by splitting the tour by depot (0),
+re-optimizing each segment, and reconstructing the final tour.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
+<p>Example:
+&gt;&gt;&gt; improver = FastTSPRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, time_limit=5.0)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -522,12 +536,17 @@ passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.fast_tsp.FastTSPRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.fast_tsp.FastTSPRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd><p>Refine the tour by splitting it into trips and optimizing each with fast_tsp.</p>
+<dd><p>Apply fast TSP reoptimization to each route in the tour.</p>
 <p>Args:
-tour: The initial tour to refine (list of node IDs).
-**kwargs: Keyword arguments containing ‘distance_matrix’.</p>
+tour (List[int]): Initial tour sequence.
+**kwargs: Context containing:
+distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+time_limit (float): Maximum time for TSP solve per segment (default 2.0).
+seed (int): Random seed for the solver.
+wastes (Dict[int, float]): Bin mass dictionary.
+capacity (float): Vehicle capacity.</p>
 <p>Returns:
-List[int]: The optimized tour with reduced total distance.</p>
+Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.</p>
 </dd></dl>
 
 </dd></dl>

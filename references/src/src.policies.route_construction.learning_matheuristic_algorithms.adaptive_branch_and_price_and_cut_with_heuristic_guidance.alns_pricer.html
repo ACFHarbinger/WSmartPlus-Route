@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.route_construction.learning_algorithms" href="src.policies.route_construction.learning_algorithms.html" />
+    <link rel="next" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.html" />
     <link rel="prev" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -494,7 +495,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-alns-pricer"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer" title="Link to this heading">#</a></h1>
-<p>ALNS Metaheuristic Pricing logic.</p>
+<p>ALNS Metaheuristic Pricing.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,8 +503,8 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALNSMultiPeriodPricer</span></code></a></p></td>
-<td><p>ALNS-based column generator that navigates the reduced cost landscape defined
-by scenario-augmented prizes. Acts as a heuristic pricing subproblem solver.</p></td>
+<td><p>ALNS-based column generator that navigates the reduced-cost landscape
+defined by scenario-augmented prizes from <code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,35 +515,156 @@ by scenario-augmented prizes. Acts as a heuristic pricing subproblem solver.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.</span></span><span class="sig-name descname"><span class="pre">ALNSMultiPeriodPricer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exact_pricer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer" title="Link to this definition">#</a></dt>
-<dd><p>ALNS-based column generator that navigates the reduced cost landscape defined
-by scenario-augmented prizes. Acts as a heuristic pricing subproblem solver.</p>
+<dd><p>ALNS-based column generator that navigates the reduced-cost landscape
+defined by scenario-augmented prizes from <code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code>.</p>
+<p class="rubric" id="id1">Role in the Pipeline</p>
+<p>Acts as the primary heuristic pricing subproblem solver in the BPC
+column-generation loop.  For each call to <code class="docutils literal notranslate"><span class="pre">solve()</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Applies iterative destroy-and-repair cycles to a set of seed routes
+using scenario-aware operators.</p></li>
+<li><p>Collects routes with positive reduced cost (VRPP maximisation: rc &gt; tol).</p></li>
+<li><p>Falls back to the exact ESPPRC solver (<code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code>) when no
+improving column is found, guaranteeing column-generation optimality.</p></li>
+</ol>
+<p class="rubric" id="id2">Operators</p>
+<p><code class="docutils literal notranslate"><span class="pre">scenario_overflow_removal</span></code> (destroy):
+Removes the <code class="docutils literal notranslate"><span class="pre">num_remove</span></code> nodes with the lowest urgency score
+π_i^{scenario} − π_i^{dual}.  Low-urgency nodes contribute little
+to the multi-period objective and are strong candidates for ejection.
+Depot (node 0) is always protected.</p>
+<p><code class="docutils literal notranslate"><span class="pre">scenario_aware_insertion</span></code> (repair):
+Inserts unrouted nodes greedily by maximising a combined spatial–prize
+score:  prize(u) − insertion_cost(u, position) at each candidate
+insertion position.  Only profitable insertions (score &gt; 0) are
+accepted, preserving the reduced-cost improvement invariant.</p>
+<p class="rubric" id="id3">Reduced Cost Convention</p>
+<p>This codebase uses the VRPP <em>maximisation</em> convention throughout:
+a column with <strong>positive</strong> reduced cost rc &gt; tol is an improving column.
+This is the sign-flip of the standard LP minimisation convention
+(rc &lt; −tol).</p>
+<p class="rubric" id="id4">Attributes</p>
+<p>exact_pricer : RCSPPSolver
+Exact ESPPRC solver used as fallback when ALNS fails to find
+improving columns.
+rng : np.random.Generator
+Seeded random number generator for reproducible ALNS behaviour.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+exact_pricer: Exact <code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code> instance used when ALNS cannot
+produce a route with reduced cost &gt; <code class="docutils literal notranslate"><span class="pre">rc_tolerance</span></code>.
+rng_seed: Seed for the NumPy random number generator.  Fix to
+a constant for reproducible experiments; vary across restarts
+for diversification.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer.scenario_overflow_removal">
 <span class="sig-name descname"><span class="pre">scenario_overflow_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer.scenario_overflow_removal" title="Link to this definition">#</a></dt>
-<dd><p>Iteratively remove node i from route k that minimizes (pi_i^scenario - pi_i^dual).
-This destroys routes containing bins that have low overflow urgency across the tree.</p>
+<dd><p>Destroy operator: remove the <code class="docutils literal notranslate"><span class="pre">num_remove</span></code> lowest-urgency nodes from
+the route.</p>
+<p>Urgency score for node i: π_i^{scenario} − π_i^{dual}.</p>
+<p>Nodes with low urgency contribute little net benefit to the current
+pricing objective and are the first candidates for ejection.  This
+targets bins that are either near-empty (low scenario prize) or whose
+dual value has already absorbed most of their contribution.</p>
+<p>The depot (node 0) is always assigned score +∞ and is never removed.</p>
+<p>Args:
+route_nodes: Current route as an ordered node list (may include
+depot at position 0 and/or as the last node).
+scenario_prizes: Node prizes {node_id: π_i^{scenario}} from
+<code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code> for the current day and scenario.
+dual_values: RMP dual variables {node_id: π_i^{dual}} for the
+current covering constraints.
+num_remove: Number of non-depot nodes to remove.</p>
+<p>Returns:
+Pruned route node list with the <code class="docutils literal notranslate"><span class="pre">num_remove</span></code> lowest-urgency
+non-depot nodes removed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer.scenario_aware_insertion">
 <span class="sig-name descname"><span class="pre">scenario_aware_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unrouted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_insert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer.scenario_aware_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Score unrouted candidate nodes based on multi-period expected value rather than
-static fill. Insert node i that maximizes spatial insertion savings weighted by pi_i^scenario.</p>
+<dd><p>Repair operator: greedily insert up to <code class="docutils literal notranslate"><span class="pre">num_insert</span></code> unrouted nodes
+into the route by maximising the spatial–prize insertion score.</p>
+<p>For each candidate node u and each feasible insertion position (after
+route_nodes[i]):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cost(u, i)  = dist[route[i], u] + dist[u, route[i+1]] − dist[route[i], route[i+1]]
+score(u, i) = (π_u^{scenario} − π_u^{dual}) − cost(u, i)
+</pre></div>
+</div>
+<p>The (u, i) pair with the highest positive score is inserted first.
+Insertion stops when no profitable candidate remains or <code class="docutils literal notranslate"><span class="pre">num_insert</span></code>
+nodes have been placed.</p>
+<p>Args:
+route_nodes: Current (possibly partial) route after the destroy step.
+unrouted: List of non-depot nodes not currently in <code class="docutils literal notranslate"><span class="pre">route_nodes</span></code>.
+Modified in-place: successfully inserted nodes are removed.
+scenario_prizes: Node prizes {node_id: π_i^{scenario}}.
+dual_values: RMP dual variables {node_id: π_i^{dual}}.
+dist_matrix: Square distance / cost matrix.
+num_insert: Maximum number of nodes to insert in this repair step.</p>
+<p>Returns:
+Updated route node list with inserted nodes in their optimal
+spatial positions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer._calculate_reduced_cost">
 <span class="sig-name descname"><span class="pre">_calculate_reduced_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer._calculate_reduced_cost" title="Link to this definition">#</a></dt>
-<dd><p>Evaluates routes based on formula:
-c’_k = -dist(k) + sum_i(pi_i^scenario - pi_i^dual)</p>
+<dd><p>Evaluate the reduced cost of a route under the VRPP maximisation convention.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>rc_k = −dist(k) + Σ_{i ∈ k, i≠0} (π_i^{scenario} − π_i^{dual})
+</pre></div>
+</div>
+<p>A route with rc_k &gt; 0 improves the current master LP objective and is
+a valid new column.</p>
+<p>Args:
+route_nodes: Ordered node list including depot (0) at both ends.
+scenario_prizes: Node prizes {node_id: π_i^{scenario}}.
+dual_values: RMP dual variables {node_id: π_i^{dual}}.
+dist_matrix: Square distance matrix.</p>
+<p>Returns:
+Reduced cost rc_k (VRPP maximisation: positive = improving).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alns_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.Route</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.ALNSMultiPeriodPricer.solve" title="Link to this definition">#</a></dt>
-<dd><p>Run ALNS Pricing. If it fails to find strictly profitable columns (&gt;1e-4),
-fallback to exact ESPPRC solver.</p>
+<dd><p>Run ALNS pricing and return improving columns, falling back to exact
+ESPPRC if none are found.</p>
+<p>For each route in <code class="docutils literal notranslate"><span class="pre">initial_routes</span></code>, the ALNS loop applies
+<code class="docutils literal notranslate"><span class="pre">alns_iterations</span></code> rounds of (destroy → repair), collecting routes
+with rc &gt; <code class="docutils literal notranslate"><span class="pre">rc_tolerance</span></code> into a candidate pool.  The top
+<code class="docutils literal notranslate"><span class="pre">max_routes</span></code> columns by reduced cost are returned.</p>
+<p>If no improving columns are produced across all seeds, the exact
+ESPPRC solver (<code class="docutils literal notranslate"><span class="pre">self.exact_pricer</span></code>) is invoked as a fallback to
+guarantee completeness of the pricing step.</p>
+<p>Args:
+dual_values: RMP dual variables {node_id: π_i^{dual}} for the
+current covering constraints.
+scenario_prizes: Node prizes {node_id: π_i^{scenario}} from
+<code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code>.
+dist_matrix: Square distance matrix over all nodes (0-indexed,
+depot at 0).
+initial_routes: Seed routes for the ALNS loop.  Typically drawn
+from the current RMP column pool or a construction heuristic.
+all_nodes: Complete list of non-depot customer nodes.
+max_routes: Maximum number of improving columns to return per
+pricing call.  Capped at this value to bound the number of
+master LP pivots per CG iteration.
+rc_tolerance: Minimum reduced cost threshold (VRPP maximisation:
+rc &gt; tol is improving).  Corresponds to −1e-4 in the standard
+LP minimisation convention.
+alns_iterations: Number of destroy-and-repair cycles per seed
+route.
+**kwargs: Forwarded verbatim to <code class="docutils literal notranslate"><span class="pre">self.exact_pricer.solve()</span></code> when
+the fallback is triggered.</p>
+<p>Returns:
+routes : List[Route]
+Improving columns sorted descending by reduced cost.  If ALNS
+succeeds, these are ALNS-generated routes; if the fallback is
+used, these are exact ESPPRC routes.
+used_exact : bool
+<code class="docutils literal notranslate"><span class="pre">True</span></code> if the exact ESPPRC fallback was invoked,
+<code class="docutils literal notranslate"><span class="pre">False</span></code> if ALNS produced at least one improving column.</p>
 </dd></dl>
 
 </dd></dl>
@@ -572,11 +694,11 @@ fallback to exact ESPPRC solver.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.route_construction.learning_algorithms.html"
+       href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

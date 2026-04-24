@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -470,8 +471,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunRouteImprover</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunRouteImprover.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LKHRouteImprover"><code class="docutils literal notranslate"><span class="pre">LKHRouteImprover</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LKHRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LKHRouteImprover.process()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -491,15 +492,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.lkh">
 <span id="src-policies-route-improvement-lkh"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.lkh" title="src.policies.route_improvement.lkh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.lkh</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.lkh" title="Link to this heading">#</a></h1>
-<p>LKH (Lin-Kernighan-Helsgaun) Route Improver.</p>
+<p>LKH-3 Route Improver (Keldahl &amp; Helsgaun).</p>
+<p>Attributes:
+LKHRouteImprover: Main class for LKH-3 based improvement.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover" title="src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinKernighanHelsgaunRouteImprover</span></code></a></p></td>
-<td><p>Refines tours using the Lin-Kernighan-Helsgaun heuristic for TSP.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.lkh.LKHRouteImprover" title="src.policies.route_improvement.lkh.LKHRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LKHRouteImprover</span></code></a></p></td>
+<td><p>LKH-3 route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -508,21 +511,22 @@ document.write(`
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.lkh.</span></span><span class="sig-name descname"><span class="pre">LinKernighanHelsgaunRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IRouteImprovement</span></code></p>
-<p>Refines tours using the Lin-Kernighan-Helsgaun heuristic for TSP.</p>
-<p>Handles VRPP subset routes by extracting a dense sub-matrix containing
-only the visited nodes, running LKH on this sub-problem, and mapping
-the results back to the original node IDs.</p>
+<dt class="sig sig-object py" id="src.policies.route_improvement.lkh.LKHRouteImprover">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.lkh.</span></span><span class="sig-name descname"><span class="pre">LKHRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.lkh.LKHRouteImprover" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
+<p>LKH-3 route improver.</p>
+<p>Utilizes the sophisticated Lin-Kernighan-Helsgaun (LKH) solver
+(v3.0.x) for high-quality TSP reoptimization.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
 kwargs: Configuration values.  If a single <code class="docutils literal notranslate"><span class="pre">config</span></code> key is
 passed, its value is used as the config dict directly.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover.process" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.route_improvement.lkh.LKHRouteImprover.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.lkh.LKHRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply LKH refinement to a tour using sub-matrix extraction.</p>
 <p>For VRPP instances where only a subset of nodes are visited, this
 method creates a dense sub-problem by extracting only the relevant
@@ -590,8 +594,8 @@ List[int]: The refined tour with original node IDs.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunRouteImprover</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LinKernighanHelsgaunRouteImprover.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LKHRouteImprover"><code class="docutils literal notranslate"><span class="pre">LKHRouteImprover</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lkh.LKHRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LKHRouteImprover.process()</span></code></a></li>
 </ul>
 </li>
 </ul>

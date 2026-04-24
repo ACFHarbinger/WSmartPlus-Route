@@ -15,16 +15,16 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`path <src.constants.paths.path>`
-  - ```{autodoc2-docstring} src.constants.paths.path
-    :summary:
-    ```
 * - {py:obj}`parts <src.constants.paths.parts>`
   - ```{autodoc2-docstring} src.constants.paths.parts
     :summary:
     ```
 * - {py:obj}`ROOT_DIR <src.constants.paths.ROOT_DIR>`
   - ```{autodoc2-docstring} src.constants.paths.ROOT_DIR
+    :summary:
+    ```
+* - {py:obj}`CONFIGS_DIR <src.constants.paths.CONFIGS_DIR>`
+  - ```{autodoc2-docstring} src.constants.paths.CONFIGS_DIR
     :summary:
     ```
 * - {py:obj}`ICON_FILE <src.constants.paths.ICON_FILE>`
@@ -34,17 +34,6 @@
 ````
 
 ### API
-
-````{py:data} path
-:canonical: src.constants.paths.path
-:type: pathlib.Path
-:value: >
-   'Path(...)'
-
-```{autodoc2-docstring} src.constants.paths.path
-```
-
-````
 
 ````{py:data} parts
 :canonical: src.constants.paths.parts
@@ -64,6 +53,17 @@
    None
 
 ```{autodoc2-docstring} src.constants.paths.ROOT_DIR
+```
+
+````
+
+````{py:data} CONFIGS_DIR
+:canonical: src.constants.paths.CONFIGS_DIR
+:type: str
+:value: >
+   'configs'
+
+```{autodoc2-docstring} src.constants.paths.CONFIGS_DIR
 ```
 
 ````

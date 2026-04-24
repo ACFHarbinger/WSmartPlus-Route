@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -498,7 +499,8 @@ document.write(`
 <p>This module implements the Factory pattern for creating <code class="docutils literal notranslate"><span class="pre">MandatorySelectionStrategy</span></code>
 instances. It allows creating strategies by name or from a configuration object.</p>
 <p>Attributes:
-None</p>
+MandatorySelectionFactory: Factory for strategy creation.
+CONFIG_MAPPING: Mapping from strategy names to config attributes.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.mandatory.base.selection_factory import MandatorySelectionFactory
 &gt;&gt;&gt; strategy = MandatorySelectionFactory.create_strategy(“regular”, threshold=2)</p>
@@ -538,13 +540,19 @@ None</p>
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.selection_factory.MandatorySelectionFactory">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.selection_factory.</span></span><span class="sig-name descname"><span class="pre">MandatorySelectionFactory</span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_factory.MandatorySelectionFactory" title="Link to this definition">#</a></dt>
 <dd><p>Factory for creating Mandatory selection strategies.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; strategy = MandatorySelectionFactory.create_strategy(“regular”, threshold=80)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.selection_factory.MandatorySelectionFactory.create_strategy">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_factory.MandatorySelectionFactory.create_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Create a selection strategy by name.</p>
 <p>Args:
-name: Name of the strategy.
+name (str): Name of the strategy.
 **kwargs: Arguments to pass to the strategy constructor.</p>
+<p>Returns:
+IMandatorySelectionStrategy: The instantiated selection strategy.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -552,7 +560,9 @@ name: Name of the strategy.
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.selection_factory.MandatorySelectionFactory.create_from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create a selection strategy from a MandatorySelectionConfig object.</p>
 <p>Args:
-config: MandatorySelectionConfig instance.</p>
+config (Any): MandatorySelectionConfig instance.</p>
+<p>Returns:
+IMandatorySelectionStrategy: The instantiated selection strategy.</p>
 </dd></dl>
 
 </dd></dl>

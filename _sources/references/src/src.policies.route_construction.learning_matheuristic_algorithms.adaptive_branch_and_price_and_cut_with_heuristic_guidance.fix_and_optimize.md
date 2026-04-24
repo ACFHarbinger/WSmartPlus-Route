@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} _add_to_tabu(cluster: typing.Set[int])
+````{py:method} _add_to_tabu(cluster: typing.Set[int]) -> None
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner._add_to_tabu
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner._add_to_tabu

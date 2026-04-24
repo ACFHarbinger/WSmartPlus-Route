@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -491,13 +492,23 @@ document.write(`
 <span id="src-policies-selection-and-construction-non-dominated-sorting-biased-random-key-genetic-algorithm"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm" title="src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm" title="Link to this heading">#</a></h1>
 <p>NDS-BRKGA sub-package.</p>
 <p>Exposes the public API of the Non-Dominated Sorting Biased Random-Key
-Genetic Algorithm core:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>NDSBRKGAPolicy   — main policy (joint selection and construction)
-NDSBRKGAParams   — hyperparameter configuration
-Chromosome       — BRKGA chromosome with adaptive threshold decode
-Population       — population management (seeding, breeding, elite extraction)
-</pre></div>
-</div>
+Genetic Algorithm (NDS-BRKGA) core components.</p>
+<p>Attributes:
+NDSBRKGAPolicy (Type[NDSBRKGAPolicy]): Main policy for joint selection and construction.
+NDSBRKGAParams (Type[NDSBRKGAParams]): Hyperparameter configuration dataclass.
+Chromosome (Type[Chromosome]): Representation of a solution candidate.
+Population (Type[Population]): Manager for solution candidates and evolution.
+biased_crossover (Callable): Biased uniform crossover operator.
+fast_non_dominated_sort (Callable): NSGA-II sorting algorithm.
+crowding_distance (Callable): Crowd distance assignment for diversity.
+select_elite_nsga2 (Callable): Pareto-based elite selection.
+compute_overflow_risk (Callable): Risk calculation utility.
+evaluate_chromosome (Callable): Single candidate objective evaluator.
+evaluate_population (Callable): Batch population evaluator.
+compute_adaptive_thresholds (Callable): Dynamic selection threshold calculator.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm import NDSBRKGAPolicy
+&gt;&gt;&gt; policy = NDSBRKGAPolicy()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

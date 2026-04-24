@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -491,15 +492,16 @@ document.write(`
 <span id="src-policies-route-improvement-base"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.base" title="src.policies.route_improvement.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.base</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.base" title="Link to this heading">#</a></h1>
 <p>Route Improvement Base Package.</p>
 <p>This package defines the core infrastructure for the “Route Improvement”
-policy, including the factory pattern for algorithm creation,
-and the registry for available algorithms.</p>
+policy, including the abstract interfaces, the factory pattern for algorithm
+creation, and the registry for available algorithms.</p>
 <p>Attributes:
-RouteImproverFactory (class): Factory for creating algorithms.
-RouteImproverRegistry (class): Registry for algorithm classes.</p>
+IRouteImprovement (Type[IRouteImprovement]): Interface for route improvement algorithms.
+RouteImproverFactory (Type[RouteImproverFactory]): Factory for creating algorithms.
+RouteImproverRegistry (Type[RouteImproverRegistry]): Registry for algorithm classes.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.helpers.route_improvement.base import RouteImproverFactory
+&gt;&gt;&gt; from logic.src.policies.route_improvement.base import RouteImproverFactory
 &gt;&gt;&gt; factory = RouteImproverFactory()
-&gt;&gt;&gt; algorithm = factory.create(“fast_tsp”)</p>
+&gt;&gt;&gt; algorithm = factory.get_algorithm(“fast_tsp”, config=cfg)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

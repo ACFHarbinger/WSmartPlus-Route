@@ -41,10 +41,16 @@ Bases: {py:obj}`logic.src.policies.selection_and_construction.base.base_joint_po
 :canonical: src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._get_config_key
+```
 
 ````
 

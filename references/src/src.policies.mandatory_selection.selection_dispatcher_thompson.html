@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -505,11 +506,10 @@ for the current operation. It maintains a Beta-Bernoulli posterior for each
 candidate, which can be persisted across calls. High-performing strategies
 (those resulting in lower operational cost/higher reward) are sampled
 more frequently over time.</p>
-<p>Note:
-This dispatcher uses a class-level shared state for tracking posteriors.
-In multi-tenant environments, instance-specific state should be used instead.</p>
+<p>Attributes:
+logger (logging.Logger): Logger for the module.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.helpers.mandatory.selection_dispatcher_thompson import ThompsonDispatcher
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_dispatcher_thompson import ThompsonDispatcher
 &gt;&gt;&gt; strategy = ThompsonDispatcher()
 &gt;&gt;&gt; bins = strategy.select_bins(context)</p>
 <section id="module-contents">
@@ -519,8 +519,7 @@ In multi-tenant environments, instance-specific state should be used instead.</p
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher" title="src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThompsonDispatcher</span></code></a></p></td>
-<td><p>Contextual Thompson Sampling dispatcher for selection strategies.
-Hardened for thread-safety and principled exploration.</p></td>
+<td><p>Contextual Thompson Sampling dispatcher for selection strategies.</p></td>
 </tr>
 </tbody>
 </table>
@@ -549,8 +548,10 @@ Hardened for thread-safety and principled exploration.</p></td>
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_dispatcher_thompson.</span></span><span class="sig-name descname"><span class="pre">ThompsonDispatcher</span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></code></p>
-<p>Contextual Thompson Sampling dispatcher for selection strategies.
-Hardened for thread-safety and principled exploration.</p>
+<p>Contextual Thompson Sampling dispatcher for selection strategies.</p>
+<p>Attributes:
+_lock (threading.Lock): Thread lock for state access.
+_shared_state (Dict[str, Tuple[float, float]]): Non-persistent class-level state for Beta distributions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher._lock">
 <span class="sig-name descname"><span class="pre">_lock</span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher._lock" title="Link to this definition">#</a></dt>
@@ -568,34 +569,43 @@ Hardened for thread-safety and principled exploration.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">record_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher.record_reward" title="Link to this definition">#</a></dt>
 <dd><p>Update the posterior based on an observed reward.</p>
 <p>Args:
-strategy_name: Name of the strategy that was used.
-reward: Real-valued reward (e.g., negative cost).
-baseline: Optional baseline to binarize reward (success if reward &gt; baseline).
-success_prob: Optional direct probability of success [0, 1]. If provided,
+strategy_name (str): Name of the strategy that was used.
+reward (float): Real-valued reward (e.g., negative cost).
+baseline (Optional[float]): Optional baseline to binarize reward (success if reward &gt; baseline).
+success_prob (Optional[float]): Optional direct probability of success [0, 1]. If provided,
 reward/baseline are ignored.
-state_path: Optional path to persist the updated state.</p>
+state_path (Optional[str]): Optional path to persist the updated state.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher._load_state_locked">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_load_state_locked</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher._load_state_locked" title="Link to this definition">#</a></dt>
 <dd><p>Internal load within lock.</p>
+<p>Args:
+path (Optional[str]): Path to the state file.</p>
+<p>Returns:
+Dict[str, Tuple[float, float]]: The loaded state mapping.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher._save_state_locked">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_save_state_locked</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher._save_state_locked" title="Link to this definition">#</a></dt>
 <dd><p>Internal save within lock.</p>
+<p>Args:
+state (Dict[str, Tuple[float, float]]): The state mapping to save.
+path (Optional[str]): Path to the state file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher.select_bins">
-<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher.select_bins" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher.select_bins" title="Link to this definition">#</a></dt>
 <dd><p>Sample a strategy via Thompson Sampling and dispatch the call.</p>
 <p>Args:
-context: SelectionContext with dispatcher configuration.</p>
+context (SelectionContext): The selection context.</p>
 <p>Returns:
-List[int]: List of bin IDs (1-based index).</p>
+Tuple[List[int], SearchContext]: Selected bin IDs and search context.</p>
 </dd></dl>
 
 </dd></dl>

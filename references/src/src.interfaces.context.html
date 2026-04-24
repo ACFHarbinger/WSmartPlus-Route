@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -495,13 +496,14 @@ JointSelectionConstructionContext: Joint selection and construction context
 MultiDayContext: Multi-day routing context
 ProblemContext: Problem definition context
 SolutionContext: Solution context
-SearchContext: Search context
-AcceptanceMetrics: Acceptance metrics
-ConstructionMetrics: Construction metrics
-ImprovementMetrics: Improvement metrics
-SelectionMetrics: Selection metrics
-SearchPhase: Search phase
-merge_context: Merge contexts</p>
+SearchContext: Search context.
+AcceptanceMetrics: Acceptance metrics.
+ConstructionMetrics: Construction metrics.
+ImprovementMetrics: Improvement metrics.
+SelectionMetrics: Selection metrics.
+SearchPhase: Search phase.
+SelectionContext: Data container for selection context and state.
+merge_context: Merge contexts.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.interfaces.context import (
 AcceptanceMetrics,
@@ -510,6 +512,7 @@ ImprovementMetrics,
 SearchContext,
 SearchPhase,
 SelectionMetrics,
+SelectionContext,
 merge_context,
 MultiDayContext,
 ProblemContext,
@@ -525,6 +528,7 @@ JointSelectionConstructionContext,
 <li class="toctree-l1"><a class="reference internal" href="src.interfaces.context.multi_day_context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context.multi_day_context</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.interfaces.context.problem_context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context.problem_context</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.interfaces.context.solution_context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context.solution_context</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.interfaces.context.selection_context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context.selection_context</span></code></a></li>
 </ul>
 </div>
 </section>

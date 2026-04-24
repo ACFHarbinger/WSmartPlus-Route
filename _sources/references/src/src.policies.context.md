@@ -26,7 +26,7 @@
 ````{py:data} __all__
 :canonical: src.policies.context.__all__
 :value: >
-   ['SearchContext', 'SearchPhase', 'SelectionMetrics', 'ConstructionMetrics', 'AcceptanceMetrics', 'Im...
+   ['SearchContext', 'SearchPhase', 'SelectionMetrics', 'SelectionContext', 'ConstructionMetrics', 'Acc...
 
 ```{autodoc2-docstring} src.policies.context.__all__
 ```

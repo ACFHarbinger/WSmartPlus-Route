@@ -16,7 +16,6 @@
 src.policies.mandatory_selection.base.selection_factory
 src.policies.mandatory_selection.base.eoq
 src.policies.mandatory_selection.base.selection_registry
-src.policies.mandatory_selection.base.selection_context
 ```
 
 ## Package Contents
@@ -38,7 +37,7 @@ src.policies.mandatory_selection.base.selection_context
 ````{py:data} __all__
 :canonical: src.policies.mandatory_selection.base.__all__
 :value: >
-   ['MandatorySelectionFactory', 'MandatorySelectionRegistry', 'SelectionContext']
+   ['MandatorySelectionFactory', 'MandatorySelectionRegistry']
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.base.__all__
 ```

@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -499,8 +500,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa">
 <span id="src-policies-selection-and-construction-joint-simulated-annealing-policy-jsa"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa" title="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa" title="Link to this heading">#</a></h1>
 <p>Joint Simulated Annealing Policy.</p>
-<p>A meta-heuristic policy for the Traveling Thief Problem / Thief Orienteering Problem
-style combined selection and routing.</p>
+<p>A meta-heuristic policy for the combined selection and routing problem,
+employing a simulated annealing trajectory search over both node selection
+(bitstrings) and node sequencing (permutations).</p>
+<p>Attributes:
+JointSAPolicy: The policy class implementing JSA logic.</p>
+<p>Example:
+&gt;&gt;&gt; policy = JointSAPolicy()
+&gt;&gt;&gt; selection, routes, profit, cost = policy.solve_joint(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -508,7 +515,7 @@ style combined selection and routing.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy" title="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JointSAPolicy</span></code></a></p></td>
-<td><p>Simulated Annealing policy for joint mandatory-bin selection and route construction.</p></td>
+<td><p>Simulated Annealing policy for joint selection and construction.</p></td>
 </tr>
 </tbody>
 </table>
@@ -520,58 +527,109 @@ style combined selection and routing.</p>
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.</span></span><span class="sig-name descname"><span class="pre">JointSAPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.jsa.JointSAConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy</span></code></p>
-<p>Simulated Annealing policy for joint mandatory-bin selection and route construction.</p>
+<p>Simulated Annealing policy for joint selection and construction.</p>
 <p>State space:
 - Selection: Bitstring (mask) of bins to visit.
 - Routing: Permutation of selected bins (tours).</p>
 <p>Objective:
-Maximise Net Profit (Revenue - Distance Cost) - Overflow Penalties.</p>
+Maximise Net Profit (Revenue - Distance Cost) - Overflow Penalties for
+unserved nodes at risk.</p>
+<p>Attributes:
+config (Optional[Union[JointSAConfig, Dict[str, Any]]]): Configuration source.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config.</p>
+<p>Initialize JointSAPolicy.</p>
+<p>Args:
+config (Optional[Union[JointSAConfig, Dict[str, Any]]]): Configuration source.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the dataclass type for config parsing.</p>
+<p>Returns:
+Optional[Type]: The JointSAConfig type.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the Hydra configuration key.</p>
+<p>Returns:
+str: The configuration key string ‘jsa’.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy.solve_joint">
 <span class="sig-name descname"><span class="pre">solve_joint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy.solve_joint" title="Link to this definition">#</a></dt>
 <dd><p>Execute SA loop to find near-optimal selection and routing.</p>
+<p>Args:
+context (JointSelectionConstructionContext): The problem data and environment.</p>
+<p>Returns:
+Tuple[List[int], List[List[int]], float, float]:
+- selected_bins: Best bin mask IDs.
+- routes: Final routes (local node indices).
+- profit: Best found net profit.
+- cost: Routing cost of the best solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._initial_selection">
 <span class="sig-name descname"><span class="pre">_initial_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._initial_selection" title="Link to this definition">#</a></dt>
-<dd><p>Simple initial selection: bins &gt; 80% full.</p>
+<dd><p>Generate high-fill seed selection.</p>
+<p>Args:
+context (JointSelectionConstructionContext): Problem state.</p>
+<p>Returns:
+List[int]: IDs of bins with &gt;80% fill level.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._construct_greedy_routes">
 <span class="sig-name descname"><span class="pre">_construct_greedy_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._construct_greedy_routes" title="Link to this definition">#</a></dt>
-<dd><p>Greedy insertion routing for a fixed selection.</p>
+<dd><p>Compute greedy insertion routes for a fixed selection.</p>
+<p>Args:
+selected_bins (List[int]): Subset of bins to serve.
+context (JointSelectionConstructionContext): Environmental data.</p>
+<p>Returns:
+List[List[int]]: Routes as local node indices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.selection_and_construction.joint_simulated_annealing.params.html#src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams" title="src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd><p>Calculate score (Profit - Penalty).</p>
+<dd><p>Calculate state score (Profit minus Overflow Penalties).</p>
+<p>Args:
+selected_bins (List[int]): Current selection IDs.
+routes (List[List[int]]): Current routes (local indices).
+context (JointSelectionConstructionContext): Problem state.
+params (JointSAParams): Configuration weights.</p>
+<p>Returns:
+Tuple[float, float, float]:
+- score: Total objective value (higher is better).
+- profit: Net financial profit.
+- cost: Routing distance/cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._total_overflow_penalty">
 <span class="sig-name descname"><span class="pre">_total_overflow_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.selection_and_construction.joint_simulated_annealing.params.html#src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams" title="src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._total_overflow_penalty" title="Link to this definition">#</a></dt>
-<dd><p>Penalty for bins NOT selected that are at risk.</p>
+<dd><p>Estimate penalty for unserved at-risk bins.</p>
+<p>Args:
+selected_bins (List[int]): Served bin IDs.
+context (JointSelectionConstructionContext): Environmental data.
+params (JointSAParams): Penalty coefficients.</p>
+<p>Returns:
+float: Total aggregated penalty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._generate_neighbor">
 <span class="sig-name descname"><span class="pre">_generate_neighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_selection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.selection_and_construction.joint_simulated_annealing.params.html#src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams" title="src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams"><span class="pre">src.policies.selection_and_construction.joint_simulated_annealing.params.JointSAParams</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa.JointSAPolicy._generate_neighbor" title="Link to this definition">#</a></dt>
-<dd><p>Move: Flip selection OR swap routing.</p>
+<dd><p>Apply a stochastic move to generate a neighboring solution.</p>
+<p>Args:
+current_selection (List[int]): Current selection mask.
+current_routes (List[List[int]]): Current routing plan.
+context (JointSelectionConstructionContext): Environmental state.
+params (JointSAParams): Movement probabilities.</p>
+<p>Returns:
+Tuple[List[int], List[List[int]]]: The neighboring selection and routing.</p>
 </dd></dl>
 
 </dd></dl>

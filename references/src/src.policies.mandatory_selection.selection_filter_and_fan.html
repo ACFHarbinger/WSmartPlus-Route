@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -503,6 +504,12 @@ terminates early when no improving move is found.</p>
 <p>References:
 Glover, F. (1998). A template for scatter search and path relinking.
 Lecture Notes in Computer Science, 1415, 1-51.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_filter_and_fan import FilterAndFanSelection
+&gt;&gt;&gt; strategy = FilterAndFanSelection()
+&gt;&gt;&gt; bins = strategy.select_bins(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,19 +536,16 @@ top-k (controlled by <code class="docutils literal notranslate"><span class="pre
 moves for up to <code class="docutils literal notranslate"><span class="pre">context.ff_fan_depth</span></code> passes. The separable net-profit
 objective makes each move evaluation O(1), so the full fan phase runs in
 O(n * ff_fan_depth) time.</p>
-<p>Parameters (read from SelectionContext):
-ff_filter_width: Number of top-scoring bins kept after the filter phase.
-Defaults to max(5, n_bins // 3).
-ff_fan_depth:    Maximum number of add/remove sweep passes in the fan
-phase. Defaults to 3.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_filter_and_fan.FilterAndFanSelection.select_bins">
-<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_filter_and_fan.FilterAndFanSelection.select_bins" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_filter_and_fan.FilterAndFanSelection.select_bins" title="Link to this definition">#</a></dt>
 <dd><p>Select bins using the Filter-and-Fan procedure.</p>
 <p>Args:
-context: SelectionContext with fill levels, revenue, and cost data.</p>
+context (SelectionContext): SelectionContext with fill levels, revenue, and cost data.</p>
 <p>Returns:
-Tuple of selected bin IDs (1-based) and a SearchContext with metrics.</p>
+Tuple[List[int], SearchContext]: Selected bin IDs and search context.</p>
 </dd></dl>
 
 </dd></dl>

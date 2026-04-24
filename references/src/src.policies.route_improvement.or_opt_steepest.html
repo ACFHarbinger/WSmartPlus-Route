@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -495,6 +496,11 @@ document.write(`
 <p>Delegates to operators.improvement_descent.or_opt_steepest (or its profit
 variant when revenue/cost are configured) to perform chain relocations
 (lengths 1, 2, 3) until a local minimum is reached.</p>
+<p>Attributes:
+OrOptSteepestRouteImprover: Steepest Or-opt improver class.</p>
+<p>Example:
+&gt;&gt;&gt; improver = OrOptSteepestRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,8 +508,7 @@ variant when revenue/cost are configured) to perform chain relocations
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.or_opt_steepest.OrOptSteepestRouteImprover" title="src.policies.route_improvement.or_opt_steepest.OrOptSteepestRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OrOptSteepestRouteImprover</span></code></a></p></td>
-<td><p>Steepest-descent Or-opt route improver. Performs inter-route and
-intra-route chain relocations to improve the tour.</p></td>
+<td><p>Steepest-descent Or-opt route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,8 +520,13 @@ intra-route chain relocations to improve the tour.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_improvement.or_opt_steepest.OrOptSteepestRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.or_opt_steepest.</span></span><span class="sig-name descname"><span class="pre">OrOptSteepestRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.or_opt_steepest.OrOptSteepestRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Steepest-descent Or-opt route improver. Performs inter-route and
-intra-route chain relocations to improve the tour.</p>
+<p>Steepest-descent Or-opt route improver.</p>
+<p>Performs inter-route and intra-route chain relocations to improve the tour.</p>
+<p>Attributes:
+config (Dict[str, Any]): Configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; improver = OrOptSteepestRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm, chain_len=2)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -525,7 +535,20 @@ passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.or_opt_steepest.OrOptSteepestRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.or_opt_steepest.OrOptSteepestRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply steepest Or-opt improvement to the tour.</p>
+<p>Args:
+tour (List[int]): The initial tour sequence.
+kwargs (Any): Search context, including:
+- distance_matrix (np.ndarray): The distance matrix.
+- wastes (Dict[int, float]): Bin waste demands.
+- capacity (float): Vehicle capacity.
+- cost_per_km (float): Distance cost.
+- revenue_kg (float): Waste revenue.
+- max_iter (int): Maximum number of iterations.
+- chain_lengths (Tuple[int, …]): Chain lengths to try for relocation.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.</p>
+</dd></dl>
 
 </dd></dl>
 

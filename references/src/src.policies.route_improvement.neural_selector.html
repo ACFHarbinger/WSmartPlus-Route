@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -501,6 +502,11 @@ document.write(`
 <p>Neural Operator Selector Route Improver.</p>
 <p>Utilizes a PyTorch Neural Network (Policy) to orchestrate local search operators,
 mapping the current search state to a probability distribution over available moves.</p>
+<p>Attributes:
+logger (logging.Logger): Module-level logger.</p>
+<p>Example:
+&gt;&gt;&gt; improver = NeuralSelectorRouteImprover()
+&gt;&gt;&gt; best_tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -511,8 +517,7 @@ mapping the current search state to a probability distribution over available mo
 <td><p>Lightweight MLP for state-to-operator mapping.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover" title="src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeuralSelectorRouteImprover</span></code></a></p></td>
-<td><p>Machine-learning-augmented operator orchestrator.
-Extracts a localized state vector and predicts the optimal algorithm sequence.</p></td>
+<td><p>Machine-learning-augmented operator orchestrator.</p></td>
 </tr>
 </tbody>
 </table>
@@ -542,12 +547,22 @@ Extracts a localized state vector and predicts the optimal algorithm sequence.</
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.neural_selector.</span></span><span class="sig-name descname"><span class="pre">OperatorSelectionPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.neural_selector.OperatorSelectionPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Lightweight MLP for state-to-operator mapping.</p>
+<p>Attributes:
+net (nn.Sequential): The neural network layers.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialise the operator selection policy.</p>
+<p>Args:
+state_dim (int): Dimension of the input state vector.
+n_operators (int): Number of available operators (output dimension).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.neural_selector.OperatorSelectionPolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.policies.route_improvement.neural_selector.OperatorSelectionPolicy.forward" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Forward pass to compute operator probabilities.</p>
+<p>Args:
+state (torch.Tensor): The input state vector.</p>
+<p>Returns:
+torch.Tensor: Probability distribution over operators.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -555,23 +570,43 @@ Extracts a localized state vector and predicts the optimal algorithm sequence.</
 <dt class="sig sig-object py" id="src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.neural_selector.</span></span><span class="sig-name descname"><span class="pre">NeuralSelectorRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Machine-learning-augmented operator orchestrator.
-Extracts a localized state vector and predicts the optimal algorithm sequence.</p>
+<p>Machine-learning-augmented operator orchestrator.</p>
+<p>Extracts a localized state vector and predicts the optimal algorithm sequence.</p>
+<p>Attributes:
+operators (List[str]): Names of available improvement operators.
+policy_net (OperatorSelectionPolicy): Neural model for operator selection.
+config (Dict[str, Any]): Configuration settings.</p>
+<p>Example:
+&gt;&gt;&gt; improver = NeuralSelectorRouteImprover()
+&gt;&gt;&gt; tour, metrics = improver.process(tour, distance_matrix=dm)</p>
 <p class="rubric">Initialization</p>
-<p>Initialise route improver with configuration.</p>
+<p>Initialise the neural selector.</p>
 <p>Args:
-kwargs: Configuration values.  If a single <code class="docutils literal notranslate"><span class="pre">config</span></code> key is
-passed, its value is used as the config dict directly.</p>
+config (Optional[Dict[str, Any]]): Configuration dictionary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover._extract_state">
 <span class="sig-name descname"><span class="pre">_extract_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stagnation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover._extract_state" title="Link to this definition">#</a></dt>
 <dd><p>Constructs a dimensionless state vector.</p>
+<p>Args:
+current_cost (float): Cost of the current tour.
+best_cost (float): Best cost found so far.
+iteration (int): Current iteration number.
+max_iter (int): Maximum number of iterations.
+stagnation (int): Number of iterations without improvement.</p>
+<p>Returns:
+torch.Tensor: Dimensionsless state vector [gap, progress, stagnation, bias].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.neural_selector.NeuralSelectorRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply neural operator selection to improve the tour.</p>
+<p>Args:
+tour (List[int]): The initial tour sequence.
+kwargs (Any): Search context, including ‘distance_matrix’.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: Improved tour and metadata.</p>
+</dd></dl>
 
 </dd></dl>
 

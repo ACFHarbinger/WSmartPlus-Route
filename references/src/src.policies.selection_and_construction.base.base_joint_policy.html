@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -497,10 +498,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection_and_construction.base.base_joint_policy">
 <span id="src-policies-selection-and-construction-base-base-joint-policy"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.base.base_joint_policy" title="src.policies.selection_and_construction.base.base_joint_policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.base.base_joint_policy</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.base.base_joint_policy" title="Link to this heading">#</a></h1>
-<p>Base Joint Policy Module.</p>
+<p>Base classes for joint selection and construction policies.</p>
 <p>Provides :class:<code class="docutils literal notranslate"><span class="pre">BaseJointPolicy</span></code>, an abstract base class for solvers that
 perform mandatory-bin selection <strong>and</strong> route construction in a single
 integrated optimisation loop.</p>
+<p>Attributes:
+BaseJointPolicy: The abstract base class defined in this module.</p>
+<p>Example:
+&gt;&gt;&gt; class MyJointPolicy(BaseJointPolicy):
+…     def solve_joint(self, context):
+…         return [], [], 0.0, 0.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -508,7 +515,7 @@ integrated optimisation loop.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy" title="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseJointPolicy</span></code></a></p></td>
-<td><p>Abstract base class for joint selection-and-construction policies.</p></td>
+<td><p>Abstract base class for joint selection and construction policies.</p></td>
 </tr>
 </tbody>
 </table>
@@ -520,57 +527,95 @@ integrated optimisation loop.</p>
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection_and_construction.base.base_joint_policy.</span></span><span class="sig-name descname"><span class="pre">BaseJointPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.tracking.viz_mixin.PolicyVizMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_constructor.IRouteConstructor</span></code></p>
-<p>Abstract base class for joint selection-and-construction policies.</p>
-<p>Unlike :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code>,
-this class does <strong>not</strong> separate the selection and construction phases.
-Instead it exposes a single :meth:<code class="docutils literal notranslate"><span class="pre">solve_joint</span></code> entry point that returns
-both the selected bin IDs and the constructed routes in one call.</p>
-<p>Subclasses must implement :meth:<code class="docutils literal notranslate"><span class="pre">solve_joint</span></code>.</p>
-<p>This class implements :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.interfaces.route_constructor.IRouteConstructor</span></code>
-directly, providing a generic <code class="docutils literal notranslate"><span class="pre">execute</span></code> method that extracts the
-needed simulation context into a <code class="docutils literal notranslate"><span class="pre">JointSelectionConstructionContext</span></code>.</p>
+<p>Abstract base class for joint selection and construction policies.</p>
+<p>These policies jointly handle bin selection and route construction
+across a multi-day horizon, typically balancing immediate routing costs
+with long-term profit opportunities.</p>
+<p>Attributes:
+config (Optional[Any]): Configuration parameters for the policy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize policy with optional config.</p>
+<p>Args:
+config (Optional[Any], optional): Configuration parameters. Defaults to None.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy.config">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy.config" title="Link to this definition">#</a></dt>
 <dd><p>Return the policy configuration.</p>
+<p>Returns:
+Any: The policy configuration object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._config_class" title="Link to this definition">#</a></dt>
 <dd><p>Return the dataclass type for config parsing.</p>
+<p>Returns:
+Optional[Type]: The configuration class type.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd><p>Hydra key (defaulting to class name lower).</p>
+<dd><p>Return the Hydra configuration key.</p>
+<p>Default implementation uses the lowercase class name without ‘policy’.</p>
+<p>Returns:
+str: The configuration key string.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy.solve_joint">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solve_joint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy.solve_joint" title="Link to this definition">#</a></dt>
 <dd><p>Solve mandatory-bin selection and route construction jointly.</p>
+<p>Args:
+context (JointSelectionConstructionContext): The search and problem context.</p>
+<p>Returns:
+Tuple[List[int], List[List[int]], float, float]:
+- selected_bins: List of bin IDs selected for service.
+- routes: Constructed routes as lists of node indices.
+- profit: Total expected profit.
+- cost: Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy.execute" title="Link to this definition">#</a></dt>
 <dd><p>Simulation-engine entry point. Extracts context and calls solve_joint.</p>
+<p>Args:
+kwargs (Any): Simulation context and parameters.</p>
+<p>Returns:
+Tuple[List[int], float, float, Optional[SearchContext], Optional[Any]]:
+- tour: Flat global-ID tour.
+- cost: Total routing cost.
+- profit: Total expected profit.
+- out_ctx: Updated search context.
+- multi_day_ctx: Multi-day state context.</p>
+<p>Raises:
+ValueError: If ‘bins’ or ‘distance_matrix’ are not provided in kwargs.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._build_subset_problem">
 <span class="sig-name descname"><span class="pre">_build_subset_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._build_subset_problem" title="Link to this definition">#</a></dt>
 <dd><p>Build distance sub-matrix and wastes dict.</p>
+<p>Args:
+selected_bins (List[int]): IDs of selected bins.
+context (JointSelectionConstructionContext): Context containing problem data.</p>
+<p>Returns:
+Tuple[np.ndarray, Dict[int, float], List[int]]:
+- sub_dist: Distance sub-matrix for selected bins.
+- sub_wastes: Waste demands for selected bins.
+- subset_indices: Mapping from local index to global ID.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._routes_to_flat_tour">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_routes_to_flat_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy._routes_to_flat_tour" title="Link to this definition">#</a></dt>
 <dd><p>Convert local-index routes to a flat global-ID tour.</p>
+<p>Args:
+routes (List[List[int]]): Routes as node indices.
+subset_indices (List[int]): Local to global ID mapping.</p>
+<p>Returns:
+List[int]: Flat global-ID tour including depots.</p>
 </dd></dl>
 
 </dd></dl>

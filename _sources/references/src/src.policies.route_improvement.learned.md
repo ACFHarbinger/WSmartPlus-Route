@@ -108,6 +108,9 @@ Bases: {py:obj}`logic.src.interfaces.route_improvement.IRouteImprovement`
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.ImprovementMetrics]
 :canonical: src.policies.route_improvement.learned.LearnedRouteImprover.process
 
+```{autodoc2-docstring} src.policies.route_improvement.learned.LearnedRouteImprover.process
+```
+
 ````
 
 ````{py:method} _apply_learned_moves(routes: typing.List[typing.List[int]], dm: numpy.ndarray, wastes: dict, capacity: float, mandatory_nodes: set, max_iterations: int, min_improvement: float, neighborhood_size: int) -> typing.List[typing.List[int]]

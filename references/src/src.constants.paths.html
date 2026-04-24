@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -472,9 +473,9 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.path"><code class="docutils literal notranslate"><span class="pre">path</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.parts"><code class="docutils literal notranslate"><span class="pre">parts</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.ROOT_DIR"><code class="docutils literal notranslate"><span class="pre">ROOT_DIR</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.CONFIGS_DIR"><code class="docutils literal notranslate"><span class="pre">CONFIGS_DIR</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.ICON_FILE"><code class="docutils literal notranslate"><span class="pre">ICON_FILE</span></code></a></li>
 </ul>
 </li>
@@ -542,13 +543,13 @@ project root and asset locations. Used by:</p>
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.paths.path" title="src.constants.paths.path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.paths.parts" title="src.constants.paths.parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parts</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.paths.parts" title="src.constants.paths.parts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.paths.ROOT_DIR" title="src.constants.paths.ROOT_DIR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROOT_DIR</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.paths.ROOT_DIR" title="src.constants.paths.ROOT_DIR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ROOT_DIR</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.paths.CONFIGS_DIR" title="src.constants.paths.CONFIGS_DIR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONFIGS_DIR</span></code></a></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.constants.paths.ICON_FILE" title="src.constants.paths.ICON_FILE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ICON_FILE</span></code></a></p></td>
@@ -561,12 +562,6 @@ project root and asset locations. Used by:</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py data">
-<dt class="sig sig-object py" id="src.constants.paths.path">
-<span class="sig-prename descclassname"><span class="pre">src.constants.paths.</span></span><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="headerlink" href="#src.constants.paths.path" title="Link to this definition">#</a></dt>
-<dd><p>‘Path(…)’</p>
-</dd></dl>
-
-<dl class="py data">
 <dt class="sig sig-object py" id="src.constants.paths.parts">
 <span class="sig-prename descclassname"><span class="pre">src.constants.paths.</span></span><span class="sig-name descname"><span class="pre">parts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.constants.paths.parts" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -576,6 +571,12 @@ project root and asset locations. Used by:</p>
 <dt class="sig sig-object py" id="src.constants.paths.ROOT_DIR">
 <span class="sig-prename descclassname"><span class="pre">src.constants.paths.</span></span><span class="sig-name descname"><span class="pre">ROOT_DIR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pathlib.Path</span></em><a class="headerlink" href="#src.constants.paths.ROOT_DIR" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.constants.paths.CONFIGS_DIR">
+<span class="sig-prename descclassname"><span class="pre">src.constants.paths.</span></span><span class="sig-name descname"><span class="pre">CONFIGS_DIR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.constants.paths.CONFIGS_DIR" title="Link to this definition">#</a></dt>
+<dd><p>‘configs’</p>
 </dd></dl>
 
 <dl class="py data">
@@ -638,9 +639,9 @@ project root and asset locations. Used by:</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.path"><code class="docutils literal notranslate"><span class="pre">path</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.parts"><code class="docutils literal notranslate"><span class="pre">parts</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.ROOT_DIR"><code class="docutils literal notranslate"><span class="pre">ROOT_DIR</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.CONFIGS_DIR"><code class="docutils literal notranslate"><span class="pre">CONFIGS_DIR</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.paths.ICON_FILE"><code class="docutils literal notranslate"><span class="pre">ICON_FILE</span></code></a></li>
 </ul>
 </li>

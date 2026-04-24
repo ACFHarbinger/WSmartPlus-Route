@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -493,7 +494,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-dive-and-price"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price" title="Link to this heading">#</a></h1>
-<p>Dive-and-Price Heuristic.</p>
+<p>Dive-and-Price Primal Heuristic.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,8 +502,8 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiveAndPricePrimalHeuristic</span></code></a></p></td>
-<td><p>Executes a primal heuristic exactly once after root-node CG
-to establish a strong, scenario-consistent upper bound.</p></td>
+<td><p>Establishes a strong primal upper bound by greedily fixing the most
+scenario-consistent fractional columns after root-node CG.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,27 +514,113 @@ to establish a strong, scenario-consistent upper bound.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.</span></span><span class="sig-name descname"><span class="pre">DiveAndPricePrimalHeuristic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">penalty_M</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic" title="Link to this definition">#</a></dt>
-<dd><p>Executes a primal heuristic exactly once after root-node CG
-to establish a strong, scenario-consistent upper bound.</p>
+<dd><p>Establishes a strong primal upper bound by greedily fixing the most
+scenario-consistent fractional columns after root-node CG.</p>
+<p class="rubric" id="id1">Role in the Pipeline</p>
+<p>After the root-node Column Generation (with or without Progressive
+Hedging) produces a fractional LP solution, this heuristic performs a
+single diving pass to recover a scenario-consistent integer solution.
+The resulting bound acts as the initial upper bound UB for the subsequent
+Benders master–subproblem loop.</p>
+<p class="rubric" id="id2">Diving Strategy</p>
+<p>At each step, the column k with the highest composite score is fixed to 1:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>score(k) = λ_k · scenario_consensus(k)
+</pre></div>
+</div>
+<p>where λ_k ∈ (0,1) is the current fractional LP value and
+scenario_consensus(k) is the fraction of high-probability leaf scenarios
+in which all bins on route k are simultaneously projected to overflow
+(fill &gt; 90 %).  This jointly prioritises columns that are:</p>
+<ul class="simple">
+<li><p>Nearly integer (λ_k close to 1), reducing integrality gap exposure.</p></li>
+<li><p>Strongly urged by the scenario tree, ensuring the fixing is robust
+across realisations.</p></li>
+</ul>
+<p class="rubric" id="id3">Infeasibility Recovery</p>
+<p>The procedure is backtrack-free: if fixing a column causes the RMP to
+become infeasible, the column is unfixed and instead penalised by adding
+a large cost M to its objective coefficient.  This soft penalty makes the
+column unattractive without removing it from the feasible region.
+The penalised column is then excluded from further consideration in the
+current diving pass.</p>
+<p class="rubric" id="id4">Attributes</p>
+<p>penalty_M : float
+Big-M soft penalty applied to infeasibility-inducing columns.
+Should be large relative to the expected route profit to effectively
+exclude the column while preserving RMP feasibility.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+penalty_M: Soft penalty magnitude M.  Applied to a column’s
+objective coefficient when fixing it causes infeasibility.
+Defaults to 10,000 — well above typical route revenues on
+standard VRPP instances.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic.evaluate_scenario_consensus">
 <span class="sig-name descname"><span class="pre">evaluate_scenario_consensus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic.evaluate_scenario_consensus" title="Link to this definition">#</a></dt>
-<dd><p>scenario_consensus(k) is the proportion of high-probability scenarios
-in which the bins in route k are projected to face overflow simultaneously.</p>
+<dd><p>Compute the scenario consensus for route k.</p>
+<p>Consensus is defined as the probability-weighted fraction of leaf
+scenarios in which <em>all</em> non-depot bins on route k are simultaneously
+near overflow (fill &gt; 90 % of capacity):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>consensus(k) = Σ_{ℓ: all bins near overflow} p_ℓ  /  Σ_ℓ p_ℓ
+</pre></div>
+</div>
+<p>A high consensus value indicates that route k is urgently needed in
+most scenario realisations, making it a high-confidence fixing choice.</p>
+<p>Args:
+route_nodes: Ordered node list of route k (depot 0 may appear at
+either end).
+scenario_tree: ScenarioTree used to retrieve leaf scenario nodes
+and their fill-level vectors.</p>
+<p>Returns:
+Consensus value in [0, 1].  Returns 1.0 if the scenario tree has
+no leaves (degenerate / deterministic case).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic.select_column_to_fix">
 <span class="sig-name descname"><span class="pre">select_column_to_fix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractional_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic.select_column_to_fix" title="Link to this definition">#</a></dt>
-<dd><p>Calculate composite diving score: score(k) = lambda_k * scenario_consensus(k).
-Returns the column index to fix.</p>
+<dd><p>Select the fractional column to fix next based on the composite score.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>score(k) = λ_k · scenario_consensus(k)
+</pre></div>
+</div>
+<p>Only columns with 0 &lt; λ_k &lt; 1 are eligible.  Fully fixed (λ_k = 1)
+or excluded (λ_k = 0) columns are skipped.</p>
+<p>Args:
+fractional_columns: List of (col_idx, lambda_k, route_nodes)
+tuples representing currently fractional master LP columns.
+scenario_tree: ScenarioTree for consensus evaluation.</p>
+<p>Returns:
+Index (into the RMP) of the column to fix, or −1 if no fractional
+column is eligible.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rmp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fractional_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price.DiveAndPricePrimalHeuristic.execute" title="Link to this definition">#</a></dt>
-<dd><p>Execution and backtrack-free recovery for soft-fixing the best column.</p>
+<dd><p>Execute the backtrack-free diving procedure over fractional columns.</p>
+<p>At each step:</p>
+<ol class="arabic simple">
+<li><p>Select the column with the highest composite score via
+<code class="docutils literal notranslate"><span class="pre">select_column_to_fix</span></code>.</p></li>
+<li><p>Attempt to fix λ_k = 1 in the RMP and re-solve.</p></li>
+<li><p>If feasible: accept the fix and terminate (one column per pass).</p></li>
+<li><p>If infeasible: unfix the column, apply the big-M soft penalty,
+and continue to the next-best candidate.</p></li>
+</ol>
+<p>The loop exits when either a feasible fix is found or no remaining
+fractional column is eligible (all have been penalised).</p>
+<p>Args:
+rmp: Restricted Master Problem object exposing:
+- <code class="docutils literal notranslate"><span class="pre">fix_column(col_idx,</span> <span class="pre">value)</span></code>
+- <code class="docutils literal notranslate"><span class="pre">unfix_column(col_idx)</span></code>
+- <code class="docutils literal notranslate"><span class="pre">penalize_column(col_idx,</span> <span class="pre">M)</span></code>
+- <code class="docutils literal notranslate"><span class="pre">resolve()</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code> (returns <code class="docutils literal notranslate"><span class="pre">&quot;FEASIBLE&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;INFEASIBLE&quot;</span></code>).
+fractional_columns: List of (col_idx, lambda_k, route_nodes)
+tuples for currently fractional columns.  Modified in-place:
+infeasibility-inducing columns are removed from the candidate
+list.
+scenario_tree: ScenarioTree passed to <code class="docutils literal notranslate"><span class="pre">evaluate_scenario_consensus</span></code>.</p>
 </dd></dl>
 
 </dd></dl>

@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -503,8 +504,9 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FixAndOptimizeRefiner</span></code></a></p></td>
-<td><p>Exact decomposition sub-routine that polishes the incumbent solution by unfixing
-targeted clusters and re-optimizing them with the exact BPC engine.</p></td>
+<td><p>Exact decomposition sub-routine that polishes an incumbent solution by
+iteratively unfixing targeted bin clusters and re-optimising them with
+the exact BPC engine.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,36 +517,147 @@ targeted clusters and re-optimizing them with the exact BPC engine.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.</span></span><span class="sig-name descname"><span class="pre">FixAndOptimizeRefiner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tabu_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_unfix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner" title="Link to this definition">#</a></dt>
-<dd><p>Exact decomposition sub-routine that polishes the incumbent solution by unfixing
-targeted clusters and re-optimizing them with the exact BPC engine.</p>
+<dd><p>Exact decomposition sub-routine that polishes an incumbent solution by
+iteratively unfixing targeted bin clusters and re-optimising them with
+the exact BPC engine.</p>
+<p class="rubric" id="id1">Role in the Pipeline</p>
+<p>Called after the Benders loop converges (or reaches its iteration limit)
+to improve the incumbent solution quality via a sequence of restricted
+re-optimisations.  Each iteration:</p>
+<ol class="arabic simple">
+<li><p>Selects a cluster of <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> bins to release using one of the
+two cluster-selection strategies.</p></li>
+<li><p>Checks the cluster against the Jaccard-similarity tabu list to avoid
+revisiting recently explored neighbourhoods.</p></li>
+<li><p>Passes the corridor (fixed background + unfixed cluster) to the exact
+BPC engine via <code class="docutils literal notranslate"><span class="pre">bpc_engine.solve_corridor(cluster,</span> <span class="pre">warm_routes)</span></code>.</p></li>
+</ol>
+<p class="rubric" id="id2">Cluster Selection Strategies</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;overflow_urgency&quot;</span></code>
+Ranks all bins by ascending days-to-overflow and selects the
+<code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> most urgent bins.  Prioritises bins at risk of
+unserved overflow, improving solution feasibility under capacity
+constraints.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;scenario_divergence&quot;</span></code>
+Ranks bins by descending cross-scenario fill variance at the current
+day and selects the <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> most uncertain bins.  Focuses
+refinement effort on bins whose optimal service day is most ambiguous
+across the scenario tree.</p>
+<p class="rubric" id="id3">Tabu List</p>
+<p>To prevent short cycles, clusters with Jaccard similarity &gt; 0.8 to any
+recently used cluster are rejected.  The list stores the last
+<code class="docutils literal notranslate"><span class="pre">tabu_length</span></code> clusters in insertion order (FIFO eviction).</p>
+<p class="rubric" id="id4">Warm Start</p>
+<p>Before invoking the BPC engine, the global column pool is filtered for
+routes that exclusively service bins within the unfixed cluster.  These
+routes are passed as warm-start columns to the BPC RMP, reducing the
+initial column-generation overhead for the corridor sub-problem.</p>
+<p class="rubric" id="id5">Attributes</p>
+<p>tabu_list : List[Set[int]]
+Recently used cluster sets, bounded to the last <code class="docutils literal notranslate"><span class="pre">tabu_length</span></code> entries.
+tabu_length : int
+Maximum number of clusters retained in the tabu list.
+max_unfix : int
+Number of bins simultaneously unfixed in each corridor.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+tabu_length: Capacity of the tabu list.  Clusters older than
+the last <code class="docutils literal notranslate"><span class="pre">tabu_length</span></code> iterations are evicted and may be
+re-selected.
+max_unfix: Maximum corridor width — the number of bins
+simultaneously unfixed per iteration.  Larger values yield
+better improvement per iteration at the cost of sub-MIP
+solve time.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner._is_tabu">
 <span class="sig-name descname"><span class="pre">_is_tabu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner._is_tabu" title="Link to this definition">#</a></dt>
-<dd><p>Reject cluster selection that has Jaccard similarity &gt; 0.8 with any set in Tabu list.</p>
+<dd><p>Check whether a candidate cluster is tabu.</p>
+<p>A cluster is rejected if it has Jaccard similarity &gt; 0.8 with any
+entry currently in the tabu list:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>J(A, B) = |A ∩ B| / |A ∪ B|  &gt;  0.8
+</pre></div>
+</div>
+<p>An empty candidate set is unconditionally tabu to avoid degenerate
+no-op iterations.</p>
+<p>Args:
+candidate_set: Proposed cluster of bin ids to unfix.</p>
+<p>Returns:
+<code class="docutils literal notranslate"><span class="pre">True</span></code> if the cluster is tabu (should be skipped),
+<code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner._add_to_tabu">
-<span class="sig-name descname"><span class="pre">_add_to_tabu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner._add_to_tabu" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">_add_to_tabu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner._add_to_tabu" title="Link to this definition">#</a></dt>
+<dd><p>Add a cluster to the tabu list, evicting the oldest entry if needed.</p>
+<p>Args:
+cluster: Cluster of bin ids to record as recently explored.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner.select_cluster_overflow_urgency">
 <span class="sig-name descname"><span class="pre">select_cluster_overflow_urgency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unrouted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_to_overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner.select_cluster_overflow_urgency" title="Link to this definition">#</a></dt>
-<dd><p>Select top N bins based on expected overflow probability.</p>
+<dd><p>Select the <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> most overflow-urgent bins.</p>
+<p>Bins are ranked by ascending <code class="docutils literal notranslate"><span class="pre">days_to_overflow</span></code> (0-indexed array,
+bin k corresponds to index k-1).  The <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> bins with the
+fewest days until projected overflow are selected for the corridor.</p>
+<p>Args:
+unrouted: List of all candidate bin ids (1-based).
+days_to_overflow: 1-D array of shape (n_bins,) where entry i
+gives the predicted days until bin i+1 overflows.</p>
+<p>Returns:
+Set of at most <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> bin ids selected by overflow urgency.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner.select_cluster_scenario_divergence">
 <span class="sig-name descname"><span class="pre">select_cluster_scenario_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner.select_cluster_scenario_divergence" title="Link to this definition">#</a></dt>
-<dd><p>Select N bins with highest variance of scenario wastes.</p>
+<dd><p>Select the <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> bins with the highest cross-scenario fill
+variance at <code class="docutils literal notranslate"><span class="pre">current_day</span></code>.</p>
+<p>Bins with large variance are those whose optimal service decision is
+most sensitive to the scenario realisation, making them the most
+valuable targets for exact re-optimisation.</p>
+<p>Args:
+all_nodes: All candidate bin ids (1-based).
+scenario_tree: ScenarioTree; <code class="docutils literal notranslate"><span class="pre">get_scenarios_at_day(day)</span></code> must
+return a list of scenario objects with a <code class="docutils literal notranslate"><span class="pre">.wastes</span></code> array of
+shape (n_bins,).
+current_day: Planning day index used to retrieve the scenario
+fill distribution.</p>
+<p>Returns:
+Set of at most <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> bin ids ranked by descending fill
+variance.  Falls back to the first <code class="docutils literal notranslate"><span class="pre">max_unfix</span></code> nodes in
+<code class="docutils literal notranslate"><span class="pre">all_nodes</span></code> if no scenarios are available for <code class="docutils literal notranslate"><span class="pre">current_day</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner.refine">
 <span class="sig-name descname"><span class="pre">refine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_incumbent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bpc_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_to_overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_column_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'overflow_urgency'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize.FixAndOptimizeRefiner.refine" title="Link to this definition">#</a></dt>
-<dd><p>Unfix targeted clusters and re-optimize.</p>
+<dd><p>Execute one Fix-and-Optimize corridor refinement pass.</p>
+<p>Selects a cluster using the specified strategy, validates it against
+the tabu list, warm-starts the BPC engine with filtered corridor
+routes, and returns the refined solution (or the unmodified incumbent
+if the cluster is tabu or the BPC engine interface is unavailable).</p>
+<p>Args:
+current_incumbent: Current best solution object; returned unchanged
+if the corridor is tabu or BPC cannot be invoked.
+bpc_engine: Exact BPC engine object.  Must expose
+<code class="docutils literal notranslate"><span class="pre">solve_corridor(cluster:</span> <span class="pre">Set[int],</span> <span class="pre">warm_routes:</span> <span class="pre">List[Route])</span></code>
+returning a refined solution object.
+scenario_tree: ScenarioTree for scenario-divergence cluster
+selection.
+current_day: Planning day index for scenario retrieval.
+days_to_overflow: 1-D array of overflow urgency scores; entry i
+corresponds to bin i+1.
+global_column_pool: Full set of currently generated routes.
+Routes whose nodes are a subset of the unfixed cluster are
+filtered out and used to warm-start the corridor BPC solve.
+strategy: Cluster selection strategy — <code class="docutils literal notranslate"><span class="pre">&quot;overflow_urgency&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;scenario_divergence&quot;</span></code>.</p>
+<p>Returns:
+Refined solution from <code class="docutils literal notranslate"><span class="pre">bpc_engine.solve_corridor</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">current_incumbent</span></code> if the corridor was tabu or the engine
+interface was unavailable.</p>
 </dd></dl>
 
 </dd></dl>

@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.route_improvement.fix_and_optimize';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.route_improvement.random_local_search" href="src.policies.route_improvement.random_local_search.html" />
+    <link rel="next" title="src.policies.route_improvement.set_covering" href="src.policies.route_improvement.set_covering.html" />
     <link rel="prev" title="src.policies.route_improvement.cheapest_insertion" href="src.policies.route_improvement.cheapest_insertion.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -498,6 +499,11 @@ document.write(`
 variant when revenue/cost are configured). Selects the worst-quality
 routes, solves them exactly via a Gurobi sub-MIP, and recombines with
 the unchanged fixed routes.</p>
+<p>Attributes:
+FixAndOptimizeRouteImprover: Main class for sub-MIP intensification.</p>
+<p>Example:
+&gt;&gt;&gt; improver = FixAndOptimizeRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, fo_n_free=3)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -539,6 +545,11 @@ the unchanged fixed routes.</p>
 designates the <code class="docutils literal notranslate"><span class="pre">fo_free_fraction</span></code> worst routes as “free”, and solves
 their customers as a small Gurobi sub-MIP. The optimal recombination
 replaces the free routes; all other routes pass through unchanged.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
+<p>Example:
+&gt;&gt;&gt; improver = FixAndOptimizeRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, fo_free_fraction=0.5)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -547,7 +558,23 @@ passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.fix_and_optimize.FixAndOptimizeRouteImprover.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.fix_and_optimize.FixAndOptimizeRouteImprover.process" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply sub-MIP reoptimization to the tour.</p>
+<p>Args:
+tour (List[int]): Initial tour sequence.
+**kwargs: Context containing:
+distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+fo_n_free (int): Absolute number of routes to free (overrides fraction).
+fo_free_fraction (float): Fraction of routes to free (default 0.30).
+fo_time_limit (float): Seconds for Gurobi solve (default 30.0).
+seed (int): Random seed.
+wastes (Dict[int, float]): Bin mass dictionary.
+capacity (float): Maximum vehicle capacity.
+revenue_kg (float): Waste profit coefficient.
+cost_per_km (float): Distance cost coefficient.
+mandatory_nodes (List[int]): List of required visitor IDs.</p>
+<p>Returns:
+Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -576,11 +603,11 @@ passed, its value is used as the config dict directly.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.route_improvement.random_local_search.html"
+       href="src.policies.route_improvement.set_covering.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.random_local_search</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.set_covering</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

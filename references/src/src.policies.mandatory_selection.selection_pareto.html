@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -525,22 +526,20 @@ critically urgent or trivially cheap to collect without a justified trade-off.</
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.selection_pareto.</span></span><span class="sig-name descname"><span class="pre">ParetoFrontSelection</span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_pareto.ParetoFrontSelection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy</span></code></p>
 <p>Combinatorial selection strategy utilizing non-dominated sorting.</p>
-<p>Evaluates the set of all bins and selects the subset of non-dominated bins
-in the 2D objective space (Days to Overflow <span class="math notranslate nohighlight">\(\times\)</span> Distance to Depot).
-A bin <span class="math notranslate nohighlight">\(v_i\)</span> dominates <span class="math notranslate nohighlight">\(v_j\)</span> if it is strictly more urgent AND closer to the depot.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_pareto.ParetoFrontSelection.select_bins">
-<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.mandatory_selection.base.selection_context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_pareto.ParetoFrontSelection.select_bins" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_pareto.ParetoFrontSelection.select_bins" title="Link to this definition">#</a></dt>
 <dd><p>Selects the non-dominated set of bins based on urgency and routing cost.</p>
-<p>A pre-filtering step is applied using <code class="docutils literal notranslate"><span class="pre">context.threshold</span></code> to discard bins
-that have an abundance of remaining time (e.g., &gt; 7 days). This prevents
-degenerate Pareto solutions where an empty bin is selected simply because
-it happens to be physically adjacent to the depot.</p>
+<p>Evaluates bins on a bi-objective Pareto front of urgency (days to overflow)
+and routing efficiency (distance to depot).</p>
 <p>Args:
-context: Selection context containing current fill levels,
-accumulation rates, distance_matrix, and an urgency threshold.</p>
+context (SelectionContext): The selection context.</p>
 <p>Returns:
-List[int]: List of non-dominated bin IDs (1-based index).</p>
+Tuple[List[int], SearchContext]: Selected bin IDs (1-based) and search context.</p>
+<p>Raises:
+ValueError: If distance_matrix or accumulation_rates are missing.</p>
 </dd></dl>
 
 </dd></dl>

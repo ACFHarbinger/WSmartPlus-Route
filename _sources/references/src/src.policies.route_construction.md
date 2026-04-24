@@ -19,7 +19,6 @@ src.policies.route_construction.learning_algorithms
 src.policies.route_construction.exact_and_decomposition_solvers
 src.policies.route_construction.base
 src.policies.route_construction.learning_heuristic_algorithms
-src.policies.route_construction.acceptance_criteria
 src.policies.route_construction.hyper_heuristics
 src.policies.route_construction.other_algorithms
 src.policies.route_construction.matheuristics

@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -491,7 +492,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.path">
 <span id="src-policies-route-improvement-path"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.path" title="src.policies.route_improvement.path"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.path</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.path" title="Link to this heading">#</a></h1>
-<p>Path Refinement Route Improver.</p>
+<p>Path Route Improver.</p>
+<p>Attributes:
+PathRouteImprover: Main class for simple path-based improvement.
+Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.path import PathRouteImprover
+&gt;&gt;&gt; improver = PathRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, bins=my_bins, total_fill=my_fill)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +506,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.path.PathRouteImprover" title="src.policies.route_improvement.path.PathRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PathRouteImprover</span></code></a></p></td>
-<td><p>Refines the tour by including nodes that lie on the shortest paths between consecutive
-stops in the tour, provided they fit within the vehicle capacity.</p></td>
+<td><p>Simple path route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,9 +517,12 @@ stops in the tour, provided they fit within the vehicle capacity.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_improvement.path.PathRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.path.</span></span><span class="sig-name descname"><span class="pre">PathRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.path.PathRouteImprover" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IRouteImprovement</span></code></p>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
+<p>Simple path route improver.</p>
 <p>Refines the tour by including nodes that lie on the shortest paths between consecutive
 stops in the tour, provided they fit within the vehicle capacity.</p>
+<p>Attributes:
+config (Dict[str, Any]): Internal configuration state.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -524,11 +533,15 @@ passed, its value is used as the config dict directly.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.path.PathRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Refine the tour by picking up convenient bins along the path.</p>
 <p>Args:
-tour: The current tour (list of bin IDs).
-**kwargs: Context containing ‘bins’ or ‘total_fill’, ‘paths_between_states’,
-and ‘vehicle_capacity’.</p>
+tour (List[int]): The current tour (list of bin IDs).
+**kwargs: Context containing:
+bins (Any): Bin objects or metadata.
+total_fill (np.ndarray): Array of bin fill levels.
+paths_between_states (Dict[int, Dict[int, List[int]]]): Shortest paths between nodes.
+vehicle_capacity (float): Maximum vehicle capacity.
+max_capacity (float): Alias for vehicle_capacity.</p>
 <p>Returns:
-List[int]: The expanded tour including opportunistic pickups.</p>
+Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.</p>
 </dd></dl>
 
 </dd></dl>

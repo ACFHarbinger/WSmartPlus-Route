@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -497,6 +498,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection_and_construction.joint_greedy_orienteering.params">
 <span id="src-policies-selection-and-construction-joint-greedy-orienteering-params"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.joint_greedy_orienteering.params" title="src.policies.selection_and_construction.joint_greedy_orienteering.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.joint_greedy_orienteering.params</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.joint_greedy_orienteering.params" title="Link to this heading">#</a></h1>
 <p>Joint Greedy Orienteering Parameters.</p>
+<p>This module defines the configuration parameters for the randomized greedy
+orienteering policy.</p>
+<p>Attributes:
+JointGreedyParams: Data class for JGO configuration.</p>
+<p>Example:
+&gt;&gt;&gt; params = JointGreedyParams(k_best=5, n_starts=20)
+&gt;&gt;&gt; print(params.k_best)
+5</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,6 +525,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection_and_construction.joint_greedy_orienteering.params.</span></span><span class="sig-name descname"><span class="pre">JointGreedyParams</span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for the Joint Greedy Orienteering solver.</p>
+<p>Attributes:
+k_best (int): Number of top candidates to sample from (RCL size).
+n_starts (int): Number of multi-start randomized greedy iterations.
+distance_weight (float): Weight for distance in the scoring metric.
+seed (int): Random seed for reproducibility.
+time_limit (float): Maximum allowed execution time in seconds.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams.k_best">
 <span class="sig-name descname"><span class="pre">k_best</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams.k_best" title="Link to this definition">#</a></dt>
@@ -550,6 +565,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams" title="src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams"><span class="pre">src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams</span></a></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build params from a config dataclass or dictionary.</p>
+<p>Args:
+config (Any): Configuration source (dict, Hydra config, etc.).</p>
+<p>Returns:
+JointGreedyParams: The initialized parameters.</p>
 </dd></dl>
 
 </dd></dl>

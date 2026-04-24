@@ -337,39 +337,6 @@
 
 ````
 
-````{py:attribute} use_swc_tcf_initialization
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization
-```
-
-````
-
-````{py:attribute} use_swc_tcf_heuristic_pricing
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing
-```
-
-````
-
-````{py:attribute} use_swc_tcf_primal_heuristic
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic
-```
-
-````
-
 ````{py:attribute} lr_pre_pruning
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_pre_pruning
 :type: bool

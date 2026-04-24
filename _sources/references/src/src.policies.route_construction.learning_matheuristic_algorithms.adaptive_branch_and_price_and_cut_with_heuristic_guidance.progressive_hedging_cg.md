@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.__init__
 ```
 
-````{py:method} update_x_bar(scenario_solutions: typing.Dict[int, typing.Dict[int, float]])
+````{py:method} update_x_bar(scenario_solutions: typing.Dict[int, typing.Dict[int, float]]) -> None
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.update_x_bar
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.update_x_bar

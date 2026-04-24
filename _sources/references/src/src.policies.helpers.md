@@ -15,6 +15,7 @@
 
 src.policies.helpers.local_search
 src.policies.helpers.reinforcement_learning
+src.policies.helpers.hpo
 src.policies.helpers.solvers_and_matheuristics
 src.policies.helpers.operators
 ```

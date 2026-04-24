@@ -14,6 +14,7 @@
 :maxdepth: 3
 
 src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance
+src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic
 ```
 
 ## Package Contents
@@ -35,7 +36,7 @@ src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch
 ````{py:data} __all__
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.__all__
 :value: >
-   ['policy_abpc_hg']
+   ['policy_abpc_hg', 'policy_calm']
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.__all__
 ```

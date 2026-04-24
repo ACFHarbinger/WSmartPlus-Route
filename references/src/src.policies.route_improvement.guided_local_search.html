@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -494,6 +495,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_improvement.guided_local_search">
 <span id="src-policies-route-improvement-guided-local-search"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.guided_local_search" title="src.policies.route_improvement.guided_local_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.guided_local_search</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.guided_local_search" title="Link to this heading">#</a></h1>
 <p>Guided Local Search Route Improver.</p>
+<p>Attributes:
+GuidedLocalSearchRouteImprover: Main class for GLS improvement.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_improvement.guided_local_search import GuidedLocalSearchRouteImprover
+&gt;&gt;&gt; improver = GuidedLocalSearchRouteImprover(config=cfg)
+&gt;&gt;&gt; tour, metrics = improver.process([0, 1, 2, 0], gls_iterations=10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,9 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover" title="src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GuidedLocalSearchRouteImprover</span></code></a></p></td>
-<td><p>Guided Local Search (GLS) route improver.
-Augments the distance matrix with penalties on frequently used edges
-to escape local optima.</p></td>
+<td><p>Guided Local Search (GLS) route improver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,9 +520,14 @@ to escape local optima.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.guided_local_search.</span></span><span class="sig-name descname"><span class="pre">GuidedLocalSearchRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.route_improvement.IRouteImprovement</span></code></p>
-<p>Guided Local Search (GLS) route improver.
-Augments the distance matrix with penalties on frequently used edges
-to escape local optima.</p>
+<p>Guided Local Search (GLS) route improver.</p>
+<p>Augments the distance matrix with penalties on frequently used edges
+to escape local optima and encourage exploration of the search space.</p>
+<p>Attributes:
+config (dict): Internal configuration state.</p>
+<p>Example:
+&gt;&gt;&gt; improver = GuidedLocalSearchRouteImprover(config=cfg)
+&gt;&gt;&gt; refined_tour, metrics = improver.process(tour, gls_lambda_factor=0.2)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
@@ -528,23 +538,42 @@ passed, its value is used as the config dict directly.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply Guided Local Search to the tour.</p>
 <p>Args:
-tour: Initial tour (List of bin IDs including depot 0s).
-**kwargs: Context containing ‘distance_matrix’, ‘gls_iterations’,
-‘gls_inner_iterations’, ‘gls_lambda_factor’, ‘gls_base_operator’, etc.</p>
+tour (List[int]): Initial tour sequence.
+**kwargs: Context containing:
+distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
+gls_iterations (int): Number of GLS meta-iterations (default 20).
+gls_inner_iterations (int): Local search move limit per iteration (default 50).
+gls_lambda_factor (float): Penalty scaling weight (default 0.1).
+gls_penalty_decay (float): Penalty decay factor (default 1.0).
+gls_base_operator (str): Operator to use (default “or_opt”).
+seed (int): Random seed.
+wastes (Dict[int, float]): Bin mass dictionary.
+capacity (float): Maximum vehicle capacity.
+R (float): Revenue coefficient.
+C (float): Cost coefficient.</p>
 <p>Returns:
-List[int]: Refined tour.</p>
+Tuple[List[int], ImprovementMetrics]: Refined tour and metrics.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover._get_operator_method">
 <span class="sig-name descname"><span class="pre">_get_operator_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover._get_operator_method" title="Link to this definition">#</a></dt>
 <dd><p>Map operator name to LocalSearchManager method.</p>
+<p>Args:
+manager (LocalSearchManager): The local search manager instance.
+name (str): Name of the operator to retrieve.</p>
+<p>Returns:
+Callable: The operator method from the manager.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover._update_penalties">
 <span class="sig-name descname"><span class="pre">_update_penalties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.guided_local_search.GuidedLocalSearchRouteImprover._update_penalties" title="Link to this definition">#</a></dt>
 <dd><p>Identify maximum utility edge and increment penalty.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.
+dm (np.ndarray): Distance matrix.
+penalty (np.ndarray): Penalty matrix to update.</p>
 </dd></dl>
 
 </dd></dl>

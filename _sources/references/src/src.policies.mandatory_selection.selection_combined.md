@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStra
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_combined.CombinedSelection.__init__
 ```
 
-````{py:method} select_bins(context: src.policies.mandatory_selection.base.selection_context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.SearchContext]
+````{py:method} select_bins(context: logic.src.interfaces.context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.SearchContext]
 :canonical: src.policies.mandatory_selection.selection_combined.CombinedSelection.select_bins
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_combined.CombinedSelection.select_bins
@@ -45,7 +45,7 @@ Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStra
 
 ````
 
-````{py:method} _update_context(context: src.policies.mandatory_selection.base.selection_context.SelectionContext, params: typing.Dict[str, typing.Any]) -> src.policies.mandatory_selection.base.selection_context.SelectionContext
+````{py:method} _update_context(context: logic.src.interfaces.context.SelectionContext, params: typing.Dict[str, typing.Any]) -> logic.src.interfaces.context.SelectionContext
 :canonical: src.policies.mandatory_selection.selection_combined.CombinedSelection._update_context
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_combined.CombinedSelection._update_context

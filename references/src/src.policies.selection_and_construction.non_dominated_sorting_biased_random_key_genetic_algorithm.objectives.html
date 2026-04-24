@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -468,7 +469,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#objective-space">Objective Space</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overflow-risk-computation">Overflow Risk Computation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -500,18 +500,13 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">f2</span> <span class="pre">=</span> <span class="pre">overflow_cost</span></code> (→ minimise unselected bins’ expected overflow loss)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">f3</span> <span class="pre">=</span> <span class="pre">total_distance</span></code> (→ minimise total travel distance)</p></li>
 </ol>
-<p>The first two objectives are in direct tension: selecting more bins increases
-revenue (reducing <code class="docutils literal notranslate"><span class="pre">f1</span></code>) but also reduces overflow cost (reducing <code class="docutils literal notranslate"><span class="pre">f2</span></code>).
-The NSGA-II Pareto-front extraction resolves this by finding the non-dominated
-set, giving the solver a diverse portfolio of trade-off solutions.</p>
-</section>
-<section id="overflow-risk-computation">
-<h2>Overflow Risk Computation<a class="headerlink" href="#overflow-risk-computation" title="Link to this heading">#</a></h2>
-<p>Per-bin overflow risk (used for both <code class="docutils literal notranslate"><span class="pre">f2</span></code> and adaptive threshold generation)
-is computed identically to :func:<code class="docutils literal notranslate"><span class="pre">~logic.src.policies.mandatory_selection.selection_mip_knapsack._compute_overflow_risk</span></code>:</p>
-<p><code class="docutils literal notranslate"><span class="pre">score_i</span> <span class="pre">=</span> <span class="pre">E[overflow_kg_i]</span> <span class="pre">+</span> <span class="pre">P_i</span> <span class="pre">×</span> <span class="pre">penalty_frac</span> <span class="pre">×</span> <span class="pre">bin_mass_i</span></code></p>
-<p>where the expectation is taken over the <code class="docutils literal notranslate"><span class="pre">ScenarioTree</span></code> when available, and
-over the current fill level as a deterministic proxy otherwise.</p>
+<p>Attributes:
+compute_overflow_risk: Per-bin risk calculator.
+evaluate_chromosome: Single chromosome scorer.
+evaluate_population: Batch population scorer.</p>
+<p>Example:
+&gt;&gt;&gt; risk = compute_overflow_risk(current_fill, bin_mass, scenario_tree, 0.1)
+&gt;&gt;&gt; neg_profit, overflow, dist = evaluate_chromosome(chrom, thresholds, …)</p>
 </section>
 <p>Multi-Objective Evaluator Module.</p>
 <p>This module provides :func:<code class="docutils literal notranslate"><span class="pre">evaluate_chromosome</span></code> and
@@ -656,7 +651,6 @@ np.ndarray: Objective matrix of shape <code class="docutils literal notranslate"
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#objective-space">Objective Space</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overflow-risk-computation">Overflow Risk Computation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

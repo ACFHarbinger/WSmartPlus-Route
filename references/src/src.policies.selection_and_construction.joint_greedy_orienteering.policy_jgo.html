@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -496,7 +497,12 @@ document.write(`
 <span id="src-policies-selection-and-construction-joint-greedy-orienteering-policy-jgo"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo" title="src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo" title="Link to this heading">#</a></h1>
 <p>Joint Greedy Orienteering Policy.</p>
 <p>A constructive heuristic policy for joint selection and construction, picking nodes
-based on their incremental profitability.</p>
+based on their incremental profitability using a randomized greedy approach.</p>
+<p>Attributes:
+JointGreedyPolicy: The policy class implementing JGO logic.</p>
+<p>Example:
+&gt;&gt;&gt; policy = JointGreedyPolicy()
+&gt;&gt;&gt; selection, routes, profit, cost = policy.solve_joint(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,28 +523,54 @@ based on their incremental profitability.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.</span></span><span class="sig-name descname"><span class="pre">JointGreedyPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.jgo.JointGreedyConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy</span></code></p>
 <p>Greedy constructive policy for joint selection and construction.</p>
+<p>Uses a multi-start randomized greedy heuristic to balance local profitability
+(revenue minus distance cost) against resource consumption.</p>
+<p>Attributes:
+config (Optional[Union[JointGreedyConfig, Dict[str, Any]]]): Configuration source.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config.</p>
+<p>Initialize the JGO policy.</p>
+<p>Args:
+config (Optional[Union[JointGreedyConfig, Dict[str, Any]]]): Configuration source.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the dataclass type for config parsing.</p>
+<p>Returns:
+Optional[Type]: The JointGreedyConfig type.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the Hydra configuration key.</p>
+<p>Returns:
+str: The configuration key string ‘jgo’.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy.solve_joint">
 <span class="sig-name descname"><span class="pre">solve_joint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy.solve_joint" title="Link to this definition">#</a></dt>
 <dd><p>Run multi-start randomized greedy construction.</p>
+<p>Args:
+context (JointSelectionConstructionContext): The search and problem context.</p>
+<p>Returns:
+Tuple[List[int], List[List[int]], float, float]:
+- selected_bins: List of unique bin IDs selected.
+- local_routes: Constructed routes (local node indices).
+- total_profit: Net profit (Revenue - Distance Cost).
+- total_cost: Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._single_greedy_run">
 <span class="sig-name descname"><span class="pre">_single_greedy_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.joint_context.JointSelectionConstructionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.selection_and_construction.joint_greedy_orienteering.params.html#src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams" title="src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams"><span class="pre">src.policies.selection_and_construction.joint_greedy_orienteering.params.JointGreedyParams</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo.JointGreedyPolicy._single_greedy_run" title="Link to this definition">#</a></dt>
 <dd><p>One randomized greedy construction pass.</p>
+<p>Args:
+context (JointSelectionConstructionContext): The problem data.
+params (JointGreedyParams): Solver configurations.</p>
+<p>Returns:
+Tuple[List[int], List[List[int]], float, float]:
+Partial or full selection and routing solution.</p>
 </dd></dl>
 
 </dd></dl>

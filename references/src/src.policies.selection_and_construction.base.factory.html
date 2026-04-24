@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -471,9 +472,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory._registered"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory._registered</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.ensure_registered"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory.ensure_registered()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.get_solver"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory.get_solver()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.create"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory.create()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -493,9 +492,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.selection_and_construction.base.factory">
 <span id="src-policies-selection-and-construction-base-factory"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.base.factory" title="src.policies.selection_and_construction.base.factory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.base.factory</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.base.factory" title="Link to this heading">#</a></h1>
-<p>Joint Policy Factory Module.</p>
-<p>Provides a unified factory for instantiating joint selection-and-construction
-solvers with their appropriate configuration dataclasses.</p>
+<p>Factory for joint selection and construction policies.</p>
+<p>Provides a centralized mechanism to instantiate registered policies by name.</p>
+<p>Attributes:
+JointPolicyFactory: Factory class for instantiating policies.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.selection_and_construction.base.factory import JointPolicyFactory
+&gt;&gt;&gt; policy = JointPolicyFactory.create(“jgo”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +506,7 @@ solvers with their appropriate configuration dataclasses.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory" title="src.policies.selection_and_construction.base.factory.JointPolicyFactory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JointPolicyFactory</span></code></a></p></td>
-<td><p>Factory for creating joint selection-and-construction solvers.</p></td>
+<td><p>Factory for creating joint selection and construction policies.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,29 +517,22 @@ solvers with their appropriate configuration dataclasses.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.selection_and_construction.base.factory.JointPolicyFactory">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.selection_and_construction.base.factory.</span></span><span class="sig-name descname"><span class="pre">JointPolicyFactory</span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory" title="Link to this definition">#</a></dt>
-<dd><p>Factory for creating joint selection-and-construction solvers.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.selection_and_construction.base.factory.JointPolicyFactory._registered">
-<span class="sig-name descname"><span class="pre">_registered</span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory._registered" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
+<dd><p>Factory for creating joint selection and construction policies.</p>
+<p>Provides a centralized mechanism to instantiate registered policies by name.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.selection_and_construction.base.factory.JointPolicyFactory.ensure_registered">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensure_registered</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.ensure_registered" title="Link to this definition">#</a></dt>
-<dd><p>Import all solver modules to trigger &#64;JointPolicyRegistry.register() decorators.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.selection_and_construction.base.factory.JointPolicyFactory.get_solver">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.selection_and_construction.base.base_joint_policy.html#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy" title="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy"><span class="pre">src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy</span></a></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.get_solver" title="Link to this definition">#</a></dt>
-<dd><p>Create and return the appropriate joint solver instance.</p>
+<dt class="sig sig-object py" id="src.policies.selection_and_construction.base.factory.JointPolicyFactory.create">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.selection_and_construction.base.base_joint_policy.html#src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy" title="src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy"><span class="pre">src.policies.selection_and_construction.base.base_joint_policy.BaseJointPolicy</span></a></span></span><a class="headerlink" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.create" title="Link to this definition">#</a></dt>
+<dd><p>Create a joint policy by name.</p>
 <p>Args:
-name: Solver name (e.g., ‘nds_brkga’, ‘jsa’, ‘jgo’).
-config: Configuration object or dict.
-**kwargs: Extra arguments passed to the solver constructor.</p>
+name (str): Unique name identifier for the policy.
+config (Optional[Any], optional): Configuration parameters for the
+policy instance. Defaults to None.</p>
 <p>Returns:
-Instantiated joint solver.</p>
+BaseJointPolicy: The instantiated policy.</p>
+<p>Raises:
+ValueError: If no policy is registered under the given name.</p>
 </dd></dl>
 
 </dd></dl>
@@ -594,9 +590,7 @@ Instantiated joint solver.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory._registered"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory._registered</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.ensure_registered"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory.ensure_registered()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.get_solver"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory.get_solver()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.selection_and_construction.base.factory.JointPolicyFactory.create"><code class="docutils literal notranslate"><span class="pre">JointPolicyFactory.create()</span></code></a></li>
 </ul>
 </li>
 </ul>

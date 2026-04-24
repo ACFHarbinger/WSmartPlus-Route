@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -505,6 +506,13 @@ objective dimension.  Boundary solutions receive distance <code class="docutils 
 next complete front would overflow the budget, rank its members by
 crowding distance (larger = more isolated = more diverse = preferred).</p></li>
 </ol>
+<p>Attributes:
+fast_non_dominated_sort: Pareto layer extractor.
+crowding_distance: Diversity metric calculator.
+select_elite_nsga2: Main selection interface.</p>
+<p>Example:
+&gt;&gt;&gt; fronts = fast_non_dominated_sort(objectives)
+&gt;&gt;&gt; dists = crowding_distance(fronts[0], objectives)</p>
 <p>References:
 Deb, K., Pratap, A., Agarwal, S., &amp; Meyarivan, T. A. M. T. (2002).
 A fast and elitist multiobjective genetic algorithm: NSGA-II.

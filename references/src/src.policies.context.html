@@ -240,6 +240,7 @@
 <li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -494,6 +495,29 @@ metrics that flow immutably through the three-phase pipeline:</p>
 <p>Phase 1 — Mandatory Selection  : creates <code class="docutils literal notranslate"><span class="pre">SearchContext</span></code>
 Phase 2 — Route Construction   : merges <code class="docutils literal notranslate"><span class="pre">ConstructionMetrics</span></code> / <code class="docutils literal notranslate"><span class="pre">AcceptanceMetrics</span></code>
 Phase 3 — Route Improvement    : appends <code class="docutils literal notranslate"><span class="pre">ImprovementMetrics</span></code></p>
+<p>Attributes:
+AcceptanceMetrics: Metrics tracked during route acceptance.
+ConstructionMetrics: Metrics tracked during route construction.
+ImprovementMetrics: Metrics tracked during route improvement.
+JointSelectionConstructionContext: Context for joint selection and construction.
+MultiDayContext: Context for multi-day planning.
+SearchContext: Context for search.
+SelectionContext: Context for selection.
+SearchPhase: Phase of the search.
+SelectionMetrics: Metrics for selection.
+merge_context: Function to merge contexts.</p>
+<p>Example:</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>from logic.src.policies.context import SearchContext
+search_context = SearchContext()
+search_context = merge_context(search_context, construction_metrics)
+search_context = merge_context(search_context, acceptance_metrics)
+search_context = merge_context(search_context, improvement_metrics)</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
 <section id="package-contents">
 <h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
 <section id="data">
@@ -512,7 +536,7 @@ Phase 3 — Route Improvement    : appends <code class="docutils literal notrans
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.context.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.context.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.context.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘SearchContext’, ‘SearchPhase’, ‘SelectionMetrics’, ‘ConstructionMetrics’, ‘AcceptanceMetrics’, ‘Im…</p>
+<dd><p>[‘SearchContext’, ‘SearchPhase’, ‘SelectionMetrics’, ‘SelectionContext’, ‘ConstructionMetrics’, ‘Acc…</p>
 </dd></dl>
 
 </section>

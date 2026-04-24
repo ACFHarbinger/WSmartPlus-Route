@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer.html" />
-    <link rel="prev" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.html" />
+    <link rel="prev" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master" href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -493,7 +494,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-progressive-hedging-cg"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg" title="Link to this heading">#</a></h1>
-<p>Progressive Scenario Hedging within CG.</p>
+<p>Progressive Scenario Hedging within Column Generation.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,8 +502,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgressiveHedgingCGLoop</span></code></a></p></td>
-<td><p>Non-anticipativity enforcement mechanism strictly for the root-node Column Generation.
-Maintains distinct Restricted Master Problems for each scenario xi.</p></td>
+<td><p>Non-anticipativity enforcement mechanism for the root-node Column Generation.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,28 +513,116 @@ Maintains distinct Restricted Master Problems for each scenario xi.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.</span></span><span class="sig-name descname"><span class="pre">ProgressiveHedgingCGLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_scenarios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_rho</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop" title="Link to this definition">#</a></dt>
-<dd><p>Non-anticipativity enforcement mechanism strictly for the root-node Column Generation.
-Maintains distinct Restricted Master Problems for each scenario xi.</p>
+<dd><p>Non-anticipativity enforcement mechanism for the root-node Column Generation.</p>
+<p class="rubric" id="id1">Role in the Pipeline</p>
+<p>Maintains a distinct Restricted Master Problem (RMP) for each scenario ξ
+in the scenario tree and drives all per-scenario solutions toward a common
+non-anticipative consensus by injecting a quadratic proximal penalty into
+each scenario’s reduced-cost calculation.</p>
+<p>The update rule follows the standard Progressive Hedging (PH) algorithm
+of Rockafellar &amp; Wets (1991), adapted here to the column-generation
+pricing subproblem:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c&#39;_{k,ξ}  +=  −ρ_eff · (x_k − x̄_k)²
+</pre></div>
+</div>
+<p>where x̄_k is the probability-weighted average of the current scenario
+solutions and ρ_eff is a per-variable dynamic penalty.</p>
+<p>Note on the standard PH form: the full augmented-Lagrangian also includes
+a linear term w_k · (x_k − x̄_k) with a Lagrange multiplier w_k that is
+updated each iteration.  This implementation omits the linear term for
+simplicity; it can be incorporated by maintaining a dual multiplier
+vector updated as w_k ← w_k + ρ · (x_k − x̄_k) after each consensus step.</p>
+<p class="rubric" id="id2">Attributes</p>
+<p>num_scenarios : int
+Total number of scenarios |Ξ|; denominator of the x̄ average.
+base_rho : float
+Base penalty coefficient ρ₀.  The effective penalty is scaled
+dynamically per variable: ρ_eff = ρ₀ · (1 + Var_ξ[π_i^ξ]).
+x_bar : Dict[int, float]
+Current consensus variable values x̄_k, keyed by variable (route) id.
+Initialised to an empty dict; populated on the first <code class="docutils literal notranslate"><span class="pre">update_x_bar</span></code>
+call.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+num_scenarios: Total number of scenarios |Ξ| in the scenario tree.
+Used as the denominator when computing the consensus average x̄.
+base_rho: Base augmented-Lagrangian penalty coefficient ρ₀ &gt; 0.
+The effective per-variable penalty is ρ₀ · (1 + Var_ξ[π_i^ξ]).
+Larger values enforce stronger non-anticipativity but may slow
+per-scenario RMP convergence.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.update_x_bar">
-<span class="sig-name descname"><span class="pre">update_x_bar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario_solutions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.update_x_bar" title="Link to this definition">#</a></dt>
-<dd><p>Update the consensus variable values across all scenarios.
-scenario_solutions: scenario_id -&gt; {var_id -&gt; value}</p>
+<span class="sig-name descname"><span class="pre">update_x_bar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario_solutions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.update_x_bar" title="Link to this definition">#</a></dt>
+<dd><p>Recompute the consensus variable x̄ from the current per-scenario solutions.</p>
+<p>For each variable k that appears in at least one scenario solution:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>x̄_k  =  (1/|Ξ|) · Σ_ξ  x_k^ξ
+</pre></div>
+</div>
+<p>Variables absent from a scenario solution contribute 0.0 to the sum,
+meaning that |Ξ| in the denominator always equals <code class="docutils literal notranslate"><span class="pre">self.num_scenarios</span></code>
+regardless of sparsity.</p>
+<p>Args:
+scenario_solutions: Mapping from scenario id to a sparse solution
+dict {var_id: value}.  Values represent the current fractional
+or integral assignment of route k in scenario ξ’s RMP.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.compute_dynamic_penalty">
 <span class="sig-name descname"><span class="pre">compute_dynamic_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.compute_dynamic_penalty" title="Link to this definition">#</a></dt>
-<dd><p>Compute rho dynamically per iteration. Set rho proportional to variance of scenario prizes.
-Bins with high prize disagreement across scenarios incur steeper penalties.</p>
+<dd><p>Compute the dynamic penalty coefficient ρ_eff for a given variable.</p>
+<p>The effective penalty scales with the cross-scenario variance of the
+node prizes associated with the variable’s route:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ρ_eff = ρ₀ · (1 + Var_ξ[π_var_id^ξ])
+</pre></div>
+</div>
+<p>Rationale: variables (routes) whose profitability is highly uncertain
+across scenarios receive steeper proximal penalties, incentivising the
+per-scenario RMPs to agree early on these contested columns.</p>
+<p>Args:
+var_id: Variable (route) identifier used as key into
+<code class="docutils literal notranslate"><span class="pre">scenario_prizes</span></code>.
+scenario_prizes: Mapping {scenario_id: prize value} for the
+variable in question across all scenarios.</p>
+<p>Returns:
+ρ_eff ≥ ρ₀: effective penalty coefficient for this variable.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.calculate_augmented_reduced_cost">
 <span class="sig-name descname"><span class="pre">calculate_augmented_reduced_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_x_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg.ProgressiveHedgingCGLoop.calculate_augmented_reduced_cost" title="Link to this definition">#</a></dt>
-<dd><p>Modify reduced cost calculation for a specific scenario xi:
-c’_{k, xi} = -dist(k) + sum_i(pi_i^{scenario, xi} - pi_i^{xi}) - rho * (x_k - x_bar_k)^2</p>
+<dd><p>Compute the PH-augmented reduced cost for route k under scenario ξ.</p>
+<p>Standard reduced cost (VRPP maximisation):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c&#39;_k = −dist(k) + Σ_{i ∈ k} (π_i^{scenario,ξ} − π_i^{dual,ξ})
+</pre></div>
+</div>
+<p>PH-augmented form (proximal penalty subtracts from attractiveness):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>c&#39;_{k,ξ} = −dist(k)
+           + Σ_i (π_i^{scenario,ξ} − π_i^{dual,ξ})
+           − ρ_eff · (x_k^ξ − x̄_k)²
+</pre></div>
+</div>
+<p>The penalty term discourages scenario ξ from selecting route k when
+its current assignment x_k^ξ deviates significantly from the consensus
+x̄_k, driving convergence across per-scenario RMPs.</p>
+<p>Args:
+route_nodes: Ordered node list including depot (node 0) at both
+ends, e.g. [0, i, j, …, 0].
+dist_matrix: Square distance matrix; entry [a, b] is the arc
+cost from node a to node b.
+scenario_prizes: Node prizes {node_id: π_i^{scenario,ξ}} for the
+current scenario, as computed by <code class="docutils literal notranslate"><span class="pre">ScenarioPrizeEngine</span></code>.
+dual_values: RMP dual variables {node_id: π_i^{dual,ξ}} for the
+current scenario’s covering constraints.
+scenario_id: Identifier of the current scenario ξ (unused here
+but available for logging / extended implementations).
+route_id: Route identifier k; used as the key into <code class="docutils literal notranslate"><span class="pre">x_bar</span></code> and
+as <code class="docutils literal notranslate"><span class="pre">var_id</span></code> when computing the dynamic penalty.
+current_x_k: Value of the route-k variable x_k^ξ in the current
+scenario ξ RMP solution (typically fractional in [0,1]).</p>
+<p>Returns:
+Augmented reduced cost c’_{k,ξ}.  A value &gt; 0 indicates the route
+is a candidate improving column for scenario ξ’s RMP.</p>
 </dd></dl>
 
 </dd></dl>
@@ -555,12 +643,12 @@ c’_{k, xi} = -dist(k) + sum_i(pi_i^{scenario, xi} - pi_i^{xi}) - rho * (x_k - 
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.html"
+       href="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master</span></code></p>
       </div>
     </a>
     <a class="right-next"

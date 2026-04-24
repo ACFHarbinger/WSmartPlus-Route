@@ -240,6 +240,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 </ul>
@@ -507,8 +508,14 @@ document.write(`
 <span id="src-policies-selection-and-construction-non-dominated-sorting-biased-random-key-genetic-algorithm-params"></span><h1><a class="reference internal" href="#module-src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params" title="src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params</span></code></a><a class="headerlink" href="#module-src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params" title="Link to this heading">#</a></h1>
 <p>NDS-BRKGA Hyperparameter Configuration.</p>
 <p>This module defines :class:<code class="docutils literal notranslate"><span class="pre">NDSBRKGAParams</span></code>, the configuration dataclass
-for the Non-Dominated Sorting Biased Random-Key Genetic Algorithm.  All
+for the Non-Dominated Sorting Biased Random-Key Genetic Algorithm. All
 fields have sensible defaults for the WCVRP/VRPP problem family.</p>
+<p>Attributes:
+NDSBRKGAParams: Data class for evolutionary hyper-parameters.</p>
+<p>Example:
+&gt;&gt;&gt; params = NDSBRKGAParams(pop_size=100, max_generations=500)
+&gt;&gt;&gt; print(params.n_elite)
+15</p>
 <p>References:
 Gonçalves, J. F., &amp; Resende, M. G. (2011).
 Biased random-key genetic algorithms for combinatorial optimization.
@@ -667,7 +674,7 @@ selection_threshold_max: Upper bound for the per-bin adaptive
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params.NDSBRKGAParams" title="src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params.NDSBRKGAParams"><span class="pre">src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params.NDSBRKGAParams</span></a></span></span><a class="headerlink" href="#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params.NDSBRKGAParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Construct from a configuration object (dataclass or dict-like).</p>
 <p>Args:
-config: Any object with attribute or dict-key access.</p>
+config (object): Any object with attribute or dict-key access.</p>
 <p>Returns:
 NDSBRKGAParams: Populated parameter instance.</p>
 </dd></dl>
