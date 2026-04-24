@@ -1,9 +1,15 @@
-"""
-Steepest Node Exchange Route Improver.
+"""Steepest Node Exchange Route Improver.
 
 Delegates to operators.improvement_descent.node_exchange_steepest (or its
 profit variant when revenue/cost are configured) to perform pairwise
 node swaps until a local minimum is reached.
+
+Attributes:
+    NodeExchangeSteepestRouteImprover: Pairwise node exchange improver class.
+
+Example:
+    >>> improver = NodeExchangeSteepestRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 from typing import Any, List, Tuple
@@ -27,12 +33,34 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("node_exchange_steepest")
 class NodeExchangeSteepestRouteImprover(IRouteImprovement):
-    """
-    Steepest-descent node exchange route improver. Performs inter-route and
-    intra-route node swaps to improve the tour.
+    """Steepest-descent node exchange route improver.
+
+    Performs inter-route and intra-route node swaps to improve the tour.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = NodeExchangeSteepestRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, max_iter=100)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+        """Apply steepest node exchange improvement to the tour.
+
+        Args:
+            tour (List[int]): The initial tour sequence.
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - max_iter (int): Maximum number of iterations.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "NodeExchangeSteepestRouteImprover"}

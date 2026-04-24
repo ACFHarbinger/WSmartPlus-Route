@@ -1,19 +1,16 @@
-"""
-Set-Partitioning Route Improver (Pool-Restricted Exact).
+"""Set-Partitioning Route Improver (Pool-Restricted Exact).
 
-Builds a route pool from the input tour plus perturbations and solves the
-set-partitioning IP exactly via Gurobi. The result is optimal *within the
-pool* — not over all feasible routes. For the column-generation variant
-that lifts this restriction see BranchAndPriceRouteImprover.
+This module builds a route pool from the input tour plus perturbations and
+solves the set-partitioning IP exactly via Gurobi. The result is optimal
+within the provided pool. Unlike Set Covering, each node must appear exactly
+once in the selected routes.
 
-Pool sources (toggleable via config):
-    1. Input tour's routes (always).
-    2. Routes from `sp_n_perturbations` independent ruin-and-recreate calls.
-    3. Held-Karp DP-optimised sequencings of the input routes.
-    4. Singleton routes for any uncovered mandatory bins.
+Attributes:
+    SetPartitioningRouteImprover: Route improvement class using Set Partitioning.
 
-Routes are deduplicated by canonical form (min of tuple and reversed tuple)
-so that symmetric duplicates do not inflate the IP.
+Example:
+    >>> improver = SetPartitioningRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
 import logging
@@ -62,7 +59,14 @@ except ImportError:
 
 
 def _canonical(route: List[int]) -> Tuple[int, ...]:
-    """Canonical form for symmetric-distance deduplication."""
+    """Canonical form for symmetric-distance deduplication.
+
+    Args:
+        route (List[int]): The route sequence to canonicalize.
+
+    Returns:
+        Tuple[int, ...]: The canonical representation of the route.
+    """
     fwd = tuple(route)
     rev = tuple(reversed(route))
     return min(fwd, rev)
@@ -75,20 +79,41 @@ def _canonical(route: List[int]) -> Tuple[int, ...]:
 )
 @RouteImproverRegistry.register("set_partitioning")
 class SetPartitioningRouteImprover(IRouteImprovement):
-    """
-    Pool-restricted exact set-partitioning route improver.
+    """Set-Partitioning route improver.
 
     Constructs a route pool by combining the input tour with multiple
     ruin-and-recreate perturbations and per-route DP optimisations, then
-    delegates to operators.intensification.set_partitioning_polish to solve
-    the IP exactly with Gurobi.
+    solves the IP exactly with Gurobi.
 
-    The optimality guarantee is **conditional on the pool**: the returned
-    tour is optimal among all combinations of the pool's routes, but a
-    better tour may exist using routes never generated.
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = SetPartitioningRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:  # noqa: C901
+        """Apply Set Partitioning intensification to the tour.
+
+        Args:
+            tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - sp_n_perturbations (int): Number of LNS perturbations for pool.
+                - sp_include_dp (bool): Whether to include DP-optimized variants.
+                - dp_max_nodes (int): Max nodes for DP re-optimization.
+                - ruin_fraction (float): LNS ruin fraction.
+                - sp_time_limit (float): Gurobi time limit.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - seed (int): Random seed.
+
+        Returns:
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
+        """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
             return tour, {"algorithm": "SetPartitioningRouteImprover"}
@@ -178,7 +203,6 @@ class SetPartitioningRouteImprover(IRouteImprovement):
                         add(r)
                 except Exception as e:
                     logger.debug("set_partitioning: dp_route_reopt failed: %s", e)
-                    pass
 
             # Source 4: mandatory singletons
             if mandatory_nodes:
@@ -216,8 +240,6 @@ class SetPartitioningRouteImprover(IRouteImprovement):
                 )
 
             # Acceptance gate: only return the polished tour if it's actually better.
-            # The polisher should never *worsen* the input (it includes input routes
-            # in the pool), but defensive guard against solver edge cases.
             polished_cost = tour_distance(refined, dm)
             input_cost = tour_distance(input_routes, dm)
             if polished_cost > input_cost + 1e-6:

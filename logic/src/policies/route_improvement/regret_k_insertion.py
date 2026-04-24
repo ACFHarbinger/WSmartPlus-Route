@@ -1,3 +1,9 @@
+"""Regret-K Insertion Route Improver.
+
+Attributes:
+    RegretKInsertionRouteImprover: Main class for regret-based insertion.
+"""
+
 from typing import Any, List, Tuple
 
 from logic.src.enums import GlobalRegistry, PolicyTag
@@ -23,18 +29,19 @@ from .common.helpers import (
 )
 @RouteImproverRegistry.register("regret_k_insertion")
 class RegretKInsertionRouteImprover(IRouteImprovement):
-    """
-    Regret-k insertion route improver. Delegates to operators.repair.regret.
-    Useful for selecting bins that have a high cost if not inserted into their best position.
+    """Regret-K insertion route improver.
+
+    Calculates regret values to prioritize bin insertions that have
+    few good alternative positions across the current routes.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply Regret-k insertion augmentation to the tour.
+        """Apply Regret-K insertion to reconcile omitted bins.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'wastes', 'capacity',
                      'regret_k', 'regret_noise', 'cost_per_km', 'revenue_kg', etc.
 
         Returns:

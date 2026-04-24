@@ -19,13 +19,24 @@ from logic.src.interfaces.route_improvement import IRouteImprovement
 
 
 class RouteImproverRegistry:
-    """Registry for routing route improvement strategies."""
+    """Registry for routing route improvement strategies.
+
+    Attributes:
+        _strategies (Dict[str, Type[IRouteImprovement]]): Internal mapping of names to improver classes.
+    """
 
     _strategies: Dict[str, Type[IRouteImprovement]] = {}
 
     @classmethod
     def register(cls, name: str) -> Callable:
-        """Decorator to register a route improver."""
+        """Decorator to register a route improver.
+
+        Args:
+            name (str): Unique identifier to register the class under.
+
+        Returns:
+            Callable: A decorator function that registers the class.
+        """
 
         def wrapper(processor_cls: Type[IRouteImprovement]):
             """Wrapper for registering the processor class."""
@@ -36,10 +47,21 @@ class RouteImproverRegistry:
 
     @classmethod
     def get_route_improver_class(cls, name: str) -> Optional[Type[IRouteImprovement]]:
-        """Retrieve a route improver by name."""
+        """Retrieve a route improver by name.
+
+        Args:
+            name (str): The name of the registered improver.
+
+        Returns:
+            Optional[Type[IRouteImprovement]]: The improver class if found, else None.
+        """
         return cls._strategies.get(name.lower())
 
     @classmethod
     def list_improvers(cls) -> list:
-        """List all registered improver names."""
+        """List all registered improver names.
+
+        Returns:
+            list: A list of registered improver names.
+        """
         return list(cls._strategies.keys())

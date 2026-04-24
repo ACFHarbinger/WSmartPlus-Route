@@ -1,5 +1,4 @@
-"""
-Base Joint Policy Module.
+"""Base classes for joint selection and construction policies.
 
 Provides :class:`BaseJointPolicy`, an abstract base class for solvers that
 perform mandatory-bin selection **and** route construction in a single
@@ -24,39 +23,49 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
 class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
-    """
-    Abstract base class for joint selection-and-construction policies.
+    """Abstract base class for joint selection and construction policies.
 
-    Unlike :class:`~logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy`,
-    this class does **not** separate the selection and construction phases.
-    Instead it exposes a single :meth:`solve_joint` entry point that returns
-    both the selected bin IDs and the constructed routes in one call.
+    These policies jointly handle bin selection and route construction
+    across a multi-day horizon, typically balancing immediate routing costs
+    with long-term profit opportunities.
 
-    Subclasses must implement :meth:`solve_joint`.
-
-    This class implements :class:`~logic.src.interfaces.route_constructor.IRouteConstructor`
-    directly, providing a generic ``execute`` method that extracts the
-    needed simulation context into a ``JointSelectionConstructionContext``.
+    Attributes:
+        config (Optional[Any]): Configuration parameters for the policy.
     """
 
     def __init__(self, config: Any = None):
-        """Initialize policy with optional config."""
-        # Simple config storage mirroring BaseRoutingPolicy
+        """Initialize policy with optional config.
+
+        Args:
+            config (Optional[Any], optional): Configuration parameters. Defaults to None.
+        """
         self._config = config
         self._seed = getattr(config, "seed", 42) if config is not None else 42
 
     @property
     def config(self) -> Any:
-        """Return the policy configuration."""
+        """Return the policy configuration.
+
+        Returns:
+            Any: The policy configuration object.
+        """
         return self._config
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """Return the dataclass type for config parsing."""
+        """Return the dataclass type for config parsing.
+
+        Returns:
+            Optional[Type]: The configuration class type.
+        """
         return None
 
     def _get_config_key(self) -> str:
-        """Hydra key (defaulting to class name lower)."""
+        """Hydra key (defaulting to class name lower).
+
+        Returns:
+            str: The configuration key string.
+        """
         return type(self).__name__.lower().replace("policy", "")
 
     # ------------------------------------------------------------------
@@ -68,8 +77,17 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         self,
         context: JointSelectionConstructionContext,
     ) -> Tuple[List[int], List[List[int]], float, float]:
-        """
-        Solve mandatory-bin selection and route construction jointly.
+        """Solve mandatory-bin selection and route construction jointly.
+
+        Args:
+            context (JointSelectionConstructionContext): The search and problem context.
+
+        Returns:
+            Tuple[List[int], List[List[int]], float, float]:
+                - selected_bins: List of bin IDs selected for service.
+                - routes: Constructed routes as lists of node indices.
+                - profit: Total expected profit.
+                - cost: Total routing cost.
         """
 
     # ------------------------------------------------------------------
@@ -80,8 +98,18 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         self,
         **kwargs: Any,
     ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[Any]]:
-        """
-        Simulation-engine entry point. Extracts context and calls solve_joint.
+        """Simulation-engine entry point. Extracts context and calls solve_joint.
+
+        Args:
+            **kwargs (Any): Simulation context and parameters.
+
+        Returns:
+            Tuple[List[int], float, float, Optional[SearchContext], Optional[Any]]:
+                - tour: Flat global-ID tour.
+                - cost: Total routing cost.
+                - profit: Total expected profit.
+                - out_ctx: Updated search context.
+                - multi_day_ctx: Multi-day state context.
         """
         # 1. Extract inputs from kwargs (sim context)
         bins = kwargs.get("bins")
@@ -90,7 +118,6 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         multi_day_ctx = kwargs.get("multi_day_context")
 
         # Load area-specific constants if available
-        # Mirrors BaseRoutingPolicy._load_area_params
         from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
         area = kwargs.get("area", "generic")
@@ -168,7 +195,7 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         return tour, cost, profit, out_ctx, multi_day_ctx
 
     # ------------------------------------------------------------------
-    # Shared utility helpers (Moved from solver implementation)
+    # Shared utility helpers
     # ------------------------------------------------------------------
 
     def _build_subset_problem(
@@ -176,14 +203,24 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         selected_bins: List[int],
         context: JointSelectionConstructionContext,
     ) -> Tuple[np.ndarray, Dict[int, float], List[int]]:
-        """Build distance sub-matrix and wastes dict."""
+        """Build distance sub-matrix and wastes dict.
+
+        Args:
+            selected_bins (List[int]): IDs of selected bins.
+            context (JointSelectionConstructionContext): Context containing problem data.
+
+        Returns:
+            Tuple[np.ndarray, Dict[int, float], List[int]]:
+                - sub_dist: Distance sub-matrix for selected bins.
+                - sub_wastes: Waste demands for selected bins.
+                - subset_indices: Mapping from local index to global ID.
+        """
         subset_indices = [0] + list(selected_bins)
         dist_np = np.asarray(context.distance_matrix, dtype=float)
         sub_dist = dist_np[np.ix_(subset_indices, subset_indices)]
 
         sub_wastes: Dict[int, float] = {}
         for local_i, global_i in enumerate(subset_indices[1:], start=1):
-            # global_i is ID, current_fill is array indexed by ID-1
             sub_wastes[local_i] = float(context.current_fill[global_i - 1])
 
         return sub_dist, sub_wastes, subset_indices
@@ -193,7 +230,15 @@ class BaseJointPolicy(PolicyVizMixin, IRouteConstructor):
         routes: List[List[int]],
         subset_indices: List[int],
     ) -> List[int]:
-        """Convert local-index routes to a flat global-ID tour."""
+        """Convert local-index routes to a flat global-ID tour.
+
+        Args:
+            routes (List[List[int]]): Routes as node indices.
+            subset_indices (List[int]): Local to global ID mapping.
+
+        Returns:
+            List[int]: Flat global-ID tour including depots.
+        """
         tour: List[int] = [0]
         for route in routes:
             for node in route:

@@ -1,5 +1,16 @@
 """
 Routing route improvement sub-package.
+
+Attributes:
+    IRouteImprovement: Interface for route improvement algorithms.
+    RouteImproverRegistry: Registry for route improver classes.
+    RouteImproverFactory: Factory for creating route improver instances.
+    AdaptiveEnsembleRouteImprover: Orchestrator for multiple improvement strategies.
+
+Example:
+    >>> from logic.src.policies.route_improvement import RouteImproverFactory
+    >>> factory = RouteImproverFactory()
+    >>> improver = factory.create("adaptive_ensemble")
 """
 
 from logic.src.interfaces import IRouteImprovement
@@ -67,15 +78,8 @@ __all__ = [
     "RegretKInsertionRouteImprover",
     "RuinRecreateRouteImprover",
     "SimulatedAnnealingRouteImprover",
-    "MultiPhaseRouteImprover",
     "SteepestTwoOptRouteImprover",
-    "OrOptSteepestRouteImprover",
-    "NodeExchangeSteepestRouteImprover",
-    "DPRouteReoptRouteImprover",
-    "FixAndOptimizeRouteImprover",
-    "SetPartitioningPolishRouteImprover",
-    "SetPartitioningRouteImprover",
-    "BranchAndPriceRouteImprover",
-    "LearnedRouteImprover",
     "SetCoverRouteImprover",
+    "SetPartitioningRouteImprover",
+    "SetPartitioningPolishRouteImprover",
 ]

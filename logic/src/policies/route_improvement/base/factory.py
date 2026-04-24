@@ -20,12 +20,24 @@ from .registry import RouteImproverRegistry
 
 
 class RouteImproverFactory:
-    """Factory for creating route improvement strategy instances."""
+    """Factory for creating route improvement strategy instances.
+
+    Attributes:
+        None
+    """
 
     @staticmethod
     def create(name: str) -> IRouteImprovement:  # noqa: C901
-        """
-        Create a route improver instance by name.
+        """Create a route improver instance by name.
+
+        Args:
+            name (str): Unique identifier of the route improver.
+
+        Returns:
+            IRouteImprovement: An instance of the requested route improver.
+
+        Raises:
+            ValueError: If the requested improver name is unknown.
         """
         from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
         from logic.src.policies.route_improvement.adaptive_large_neighborhood_search import (
@@ -121,11 +133,13 @@ class RouteImproverFactory:
 
     @classmethod
     def create_from_config(cls, config: Any) -> List[IRouteImprovement]:  # noqa: C901
-        """
-        Create a list of route improver instances from a RouteImprovingConfig object.
+        """Create a list of route improver instances from a configuration object.
 
         Args:
-            config: RouteImprovingConfig instance.
+            config (Any): Configuration object containing method names and parameters.
+
+        Returns:
+            List[IRouteImprovement]: List of instantiated route improver operators.
         """
         from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
         from logic.src.policies.route_improvement.adaptive_large_neighborhood_search import (

@@ -1,3 +1,12 @@
+"""Cheapest Insertion Route Improver.
+
+This module provides a route improver that utilizes cheapest insertion
+heuristics to augment existing tours with unselected profitable bins.
+
+Attributes:
+    CheapestInsertionRouteImprover: Main class for cheapest insertion improvement.
+"""
+
 from typing import Any, List, Tuple
 
 from logic.src.enums import GlobalRegistry, PolicyTag
@@ -20,9 +29,18 @@ from .common.helpers import (
 )
 @RouteImproverRegistry.register("cheapest_insertion")
 class CheapestInsertionRouteImprover(IRouteImprovement):
-    """
-    Cheapest insertion route improver. Delegates to operators.repair.greedy_insertion
-    (or greedy_profit_insertion when cost_per_km/revenue_kg are configured).
+    """Cheapest insertion route improver.
+
+    Delegates to operators.repair.greedy_insertion (or greedy_profit_insertion
+    when cost_per_km/revenue_kg are configured) to attempt augmenting
+    the tour with any omitted bins that improve the total objective.
+
+    Attributes:
+        config (Dict[str, Any]): Internal configuration state.
+
+    Example:
+        >>> improver = CheapestInsertionRouteImprover(config=cfg)
+        >>> refined_tour, metrics = improver.process(tour, capacity=1000.0)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:

@@ -1,8 +1,14 @@
-"""
-Joint Greedy Orienteering Policy.
+"""Joint Greedy Orienteering Policy.
 
 A constructive heuristic policy for joint selection and construction, picking nodes
-based on their incremental profitability.
+based on their incremental profitability using a randomized greedy approach.
+
+Attributes:
+    JointGreedyPolicy: The policy class implementing JGO logic.
+
+Example:
+    >>> policy = JointGreedyPolicy()
+    >>> selection, routes, profit, cost = policy.solve_joint(context)
 """
 
 import random
@@ -33,8 +39,13 @@ from .params import JointGreedyParams
 @JointPolicyRegistry.register("jgo")
 @RouteConstructorRegistry.register("jgo")
 class JointGreedyPolicy(BaseJointPolicy):
-    """
-    Greedy constructive policy for joint selection and construction.
+    """Greedy constructive policy for joint selection and construction.
+
+    Uses a multi-start randomized greedy heuristic to balance local profitability
+    (revenue minus distance cost) against resource consumption.
+
+    Attributes:
+        config (Optional[Union[JointGreedyConfig, Dict[str, Any]]]): Configuration source.
     """
 
     def __init__(self, config: Optional[Union[JointGreedyConfig, Dict[str, Any]]] = None):
@@ -51,8 +62,17 @@ class JointGreedyPolicy(BaseJointPolicy):
         self,
         context: JointSelectionConstructionContext,
     ) -> Tuple[List[int], List[List[int]], float, float]:
-        """
-        Run multi-start randomized greedy construction.
+        """Run multi-start randomized greedy construction.
+
+        Args:
+            context (JointSelectionConstructionContext): The search and problem context.
+
+        Returns:
+            Tuple[List[int], List[List[int]], float, float]:
+                - selected_bins: List of unique bin IDs selected.
+                - local_routes: Constructed routes (local node indices).
+                - total_profit: Net profit (Revenue - Distance Cost).
+                - total_cost: Total routing cost.
         """
         params = JointGreedyParams.from_config(self._config) if self._config else JointGreedyParams()
 
@@ -81,7 +101,16 @@ class JointGreedyPolicy(BaseJointPolicy):
     def _single_greedy_run(
         self, context: JointSelectionConstructionContext, params: JointGreedyParams
     ) -> Tuple[List[int], List[List[int]], float, float]:
-        """One randomized greedy construction pass."""
+        """One randomized greedy construction pass.
+
+        Args:
+            context (JointSelectionConstructionContext): The problem data.
+            params (JointGreedyParams): Solver configurations.
+
+        Returns:
+            Tuple[List[int], List[List[int]], float, float]:
+                Partial or full selection and routing solution.
+        """
         n_bins = len(context.bin_ids)
         unvisited = list(range(n_bins))
 

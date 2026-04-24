@@ -1,5 +1,15 @@
-"""
-Joint Simulated Annealing Parameters.
+"""Joint Simulated Annealing Parameters.
+
+This module defines the configuration parameters for the simulated annealing
+meta-heuristic for joint selection and construction.
+
+Attributes:
+    JointSAParams: Data class for JSA configuration.
+
+Example:
+    >>> params = JointSAParams(start_temp=500.0, max_steps=1000)
+    >>> print(params.cooling_rate)
+    0.995
 """
 
 from dataclasses import dataclass
@@ -8,8 +18,18 @@ from typing import Any
 
 @dataclass
 class JointSAParams:
-    """
-    Configuration parameters for the Joint Simulated Annealing solver.
+    """Configuration parameters for the Joint Simulated Annealing solver.
+
+    Attributes:
+        start_temp (float): Initial temperature for annealing.
+        cooling_rate (float): Multiplier for cooling (temp = temp * rate).
+        max_steps (int): Total number of iterations.
+        restart_limit (int): Number of times to restart or reheat.
+        prob_bit_flip (float): Probability of a selection-mask change move.
+        prob_route_swap (float): Probability of a tour permutation move.
+        overflow_penalty (float): Multiplier for risk penalty of unserved bins.
+        seed (int): Random seed for reproducibility.
+        time_limit (float): Maximum allowed execution time in seconds.
     """
 
     # --- Annealing Schedule ---
@@ -31,8 +51,13 @@ class JointSAParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "JointSAParams":
-        """
-        Build params from a config dataclass or dictionary.
+        """Build params from a config dataclass or dictionary.
+
+        Args:
+            config (Any): Configuration source (dict, Hydra config, etc.).
+
+        Returns:
+            JointSAParams: The initialized parameters.
         """
         if config is None:
             return cls()

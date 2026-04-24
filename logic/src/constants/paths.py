@@ -41,13 +41,18 @@ Example:
 """
 
 import os
+import sys
 from pathlib import Path
 
 # Dynamic root directory resolution
 # Searches upward from cwd for project root marker ("WSmart-Route" or "WSmartPlus-Route")
-path: Path = Path(os.getcwd())  # Current working directory
-parts: tuple[str, ...] = path.parts  # Split path into components
+if getattr(sys, "frozen", False):
+    path: Path = Path(sys._MEIPASS)  # Current working directory
+else:
+    path: Path = Path(__file__).parent.absolute()  # Current working directory
 
+
+parts: tuple[str, ...] = path.parts  # Split path into components
 try:
     # Primary project name (standard repository)
     root_dir = Path(*parts[: parts.index("WSmart-Route") + 1])
@@ -58,6 +63,9 @@ except ValueError:
 # Project root directory (absolute path)
 # Example: /home/user/Repositories/WSmart-Route
 ROOT_DIR: Path = root_dir
+
+# Hydra configurations directory
+CONFIGS_DIR: str = "../../assets/configs"
 
 # GUI application icon (PNG format, white logo on transparent background)
 # Used in: PySide6 QMainWindow.setWindowIcon(), system tray, taskbar

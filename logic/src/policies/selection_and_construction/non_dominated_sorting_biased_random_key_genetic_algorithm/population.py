@@ -23,6 +23,13 @@ optimised) are also injected to capture complementary structure.
 
 The remaining population slots are filled with uniformly random chromosomes
 to maintain genetic diversity.
+
+Attributes:
+    Population: Container for chromosomes and their fitness values.
+
+Example:
+    >>> pop = Population.initialise(n_bins=10, ...)
+    >>> next_gen = pop.breed_next_generation(...)
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -64,8 +71,7 @@ def _seed_selection(
     strategy_name: str,
     rng: np.random.Generator,
 ) -> List[int]:
-    """
-    Run a selection sub-problem solver and return selected 1-based bin IDs.
+    """Run a selection sub-problem solver and return selected 1-based bin IDs.
 
     Falls back to a fill-threshold heuristic (bins >= 80 %) if the
     requested strategy is unavailable or raises an exception.
@@ -116,8 +122,7 @@ def _seed_routing_order(
     selected_1based: List[int],
     dist_matrix: np.ndarray,
 ) -> List[int]:
-    """
-    Build a nearest-neighbour greedy tour order for the selected bins.
+    """Build a nearest-neighbour greedy tour order for the selected bins.
 
     Args:
         selected_1based: 1-based IDs of selected bins.
@@ -154,8 +159,7 @@ def _build_seed_chromosomes(
     params: NDSBRKGAParams,
     rng: np.random.Generator,
 ) -> List[Chromosome]:
-    """
-    Generate a batch of seeded chromosomes using domain-specific solvers.
+    """Generate a batch of seeded chromosomes using domain-specific solvers.
 
     Produces up to ``2 * params.n_seed_solutions`` chromosomes:
     - ``n_seed_solutions`` with the selection from the selection-seeder
@@ -240,14 +244,12 @@ def _build_seed_chromosomes(
 
 
 class Population:
-    """
-    Manages the NDS-BRKGA chromosome pool for a single run.
+    """Manages the NDS-BRKGA chromosome pool for a single run.
 
     Attributes:
-        chromosomes: Current list of :class:`~.chromosome.Chromosome` objects.
-        objectives: Objective matrix, shape ``(P, 3)``.  Updated after each
-            evaluation step.  Columns: ``[neg_profit, overflow_cost, distance]``.
-        front_ranks: 1-based Pareto ranks. Shape ``(P,)``.
+        chromosomes (List[Chromosome]): Current list of chromosomes.
+        objectives (np.ndarray): Objective matrix, shape ``(P, 3)``.
+        front_ranks (np.ndarray): 1-based Pareto ranks. Shape ``(P,)``.
     """
 
     def __init__(

@@ -1,9 +1,16 @@
-"""
-Ruin and Recreate Route Improver.
+"""Ruin and Recreate Route Improver.
 
-Delegates Simulated Annealing acceptance to the pluggable
-``BoltzmannAcceptance`` criterion (Q2 decision), threading per-step
-``AcceptanceMetrics`` into the returned ``ImprovementMetrics``.
+This module implements a Large Neighborhood Search (LNS) strategy that
+systematically ruins a portion of the current solution and recreates it using
+greedy or profit-aware repair heuristics. It supports both simple descent and
+Simulated Annealing acceptance criteria.
+
+Attributes:
+    RuinRecreateRouteImprover: Route improvement class using LNS.
+
+Example:
+    >>> improver = RuinRecreateRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm, iterations=100)
 """
 
 import random
@@ -33,25 +40,42 @@ from .common.helpers import (
 )
 @RouteImproverRegistry.register("ruin_recreate")
 class RuinRecreateRouteImprover(IRouteImprovement):
-    """
-    Ruin and Recreate route improver (Large Neighborhood Search).
+    """Ruin and Recreate route improver (Large Neighborhood Search).
 
     Randomly removes a subset of bins and re-inserts them greedily.
     When the ``sa`` acceptance mode is selected, delegates to a
     ``BoltzmannAcceptance`` criterion rather than inlining Metropolis logic.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = RuinRecreateRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, ruin_fraction=0.2)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply Ruin and Recreate to the tour.
+        """Apply Ruin and Recreate to the tour.
 
         Args:
-            tour: Initial tour (List of bin IDs including depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'lns_iterations',
-                     'ruin_fraction', 'lns_acceptance', 'destroy_op', 'repair_op', etc.
+            tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - lns_iterations (int): Number of ruin-recreate cycles.
+                - ruin_fraction (float): Fraction of nodes to remove each iteration.
+                - lns_acceptance (str): Acceptance rule ('best' or 'sa').
+                - destroy_op (str): Name of the ruin operator.
+                - repair_op (str): Name of the repair operator.
+                - repair_k (int): Parameter for regret-based repair.
+                - lns_sa_temperature (float): Initial temperature for SA.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - cost_per_km (float): Distance cost.
+                - revenue_kg (float): Waste revenue.
+                - seed (int): Random seed.
 
         Returns:
-            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics)
+            Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:

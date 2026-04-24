@@ -1,5 +1,15 @@
-"""
-Random Local Search Route Improver.
+"""Random Local Search Route Improver.
+
+This module provides a stochastic local search strategy that applies multiple
+different local search operators chosen randomly based on pre-defined or
+configured probabilities.
+
+Attributes:
+    RandomLocalSearchRouteImprover: Stochastic local search improver class.
+
+Example:
+    >>> improver = RandomLocalSearchRouteImprover()
+    >>> best_tour, metrics = improver.process(tour, distance_matrix=dm, iterations=100)
 """
 
 from typing import Any, Callable, List, Tuple
@@ -23,21 +33,36 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
 )
 @RouteImproverRegistry.register("random_local_search")
 class RandomLocalSearchRouteImprover(IRouteImprovement):
-    """
-    Performs stochastic local search refinement by applying random operators from
-    the metaheuristic sub-package. Compatible with multi-route tours.
+    """Performs stochastic local search refinement.
+
+    Applies random operators from the metaheuristic sub-package. Compatible
+    with multi-route tours.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration parameters.
+
+    Example:
+        >>> improver = RandomLocalSearchRouteImprover()
+        >>> tour, metrics = improver.process(tour, distance_matrix=dm, max_iter=100)
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
-        """
-        Apply random local search operators stochastically.
+        """Apply random local search operators stochastically.
 
         Args:
-            tour: The initial tour to refine (includes depot 0s).
-            **kwargs: Context containing 'distance_matrix', 'iterations', 'params', 'seed'.
+            tour (List[int]): The initial tour sequence to refine (includes depot 0s).
+            **kwargs (Any): Search context, including:
+                - distance_matrix (np.ndarray): The distance matrix.
+                - iterations (int): Total number of random moves to attempt.
+                - params (Dict[str, float]): Probabilities for different operators.
+                - seed (int): Random seed.
+                - wastes (Dict[int, float]): Bin waste demands.
+                - capacity (float): Vehicle capacity.
+                - R (float): Revenue per kg.
+                - C (float): Cost per km.
 
         Returns:
-            List[int]: The refined tour.
+            Tuple[List[int], ImprovementMetrics]: The refined tour and performance metrics.
         """
 
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
