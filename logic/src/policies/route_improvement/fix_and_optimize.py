@@ -79,8 +79,8 @@ class FixAndOptimizeRouteImprover(IRouteImprovement):
         """Apply sub-MIP reoptimization to the tour.
 
         Args:
-            tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            tour: Initial tour sequence.
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 fo_n_free (int): Absolute number of routes to free (overrides fraction).
                 fo_free_fraction (float): Fraction of routes to free (default 0.30).

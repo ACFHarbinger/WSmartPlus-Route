@@ -4,6 +4,16 @@ MIP Large Neighborhood Search (Exact Ruin and Recreate).
 A matheuristic that disrupts the current routing architecture using a spatial
 ruin operator, but utilizes an exact Gurobi MILP formulation to re-insert the
 fragmented nodes optimally, bridging the speed of LNS with exact bounding.
+
+Attributes:
+    MIPLNSRouteImprover: A matheuristic that disrupts the current routing architecture using a spatial
+    ruin operator, but utilizes an exact Gurobi MILP formulation to re-insert the
+    fragmented nodes optimally, bridging the speed of LNS with exact bounding.
+
+Example:
+    >>> from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
+    >>> improver = MIPLNSRouteImprover(config=cfg)
+    >>> tour, metrics = improver.process([0, 1, 2, 3, 0], iterations=5)
 """
 
 import logging
@@ -49,7 +59,7 @@ class MIPLNSRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 iterations (int): Number of LNS cycles (default 5).
                 ruin_fraction (float): Portion of nodes to remove (default 0.2).

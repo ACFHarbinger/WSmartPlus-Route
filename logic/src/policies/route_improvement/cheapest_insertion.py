@@ -52,7 +52,7 @@ class CheapestInsertionRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 wastes (Dict[int, float]): Bin waste mass mapping.
                 capacity (float): Maximum vehicle capacity.

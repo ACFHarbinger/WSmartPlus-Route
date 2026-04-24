@@ -1,5 +1,7 @@
-"""
-Ensemble Move Acceptance (EMA) Criterion.
+"""Ensemble Move Acceptance (EMA) Criterion.
+
+Aggregates multiple move acceptance criteria into a single decision using
+various logical rules (AND, OR, Voting).
 """
 
 from typing import Any, Dict, List, Tuple, cast
@@ -12,18 +14,26 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("ema")
 class EnsembleAcceptance(IAcceptanceCriterion):
-    """
-    Meta-decision architecture combining multiple criteria.
+    """Meta-decision architecture combining multiple criteria.
 
     Evaluates a candidate solution through a portfolio of heterogeneous criteria
     and aggregates the decision via logical ensemble rules (e.g., G-AND, G-OR, G-VOT).
+
+    Attributes:
+        criteria (List[IAcceptanceCriterion]): Portfolio of sub-criteria.
+        rule (str): Aggregation logic ('G-AND', 'G-OR', 'G-VOT').
     """
 
     def __init__(self, criteria: List[IAcceptanceCriterion], rule: str = "G-VOT"):
-        """
+        """Initialize the Ensemble criterion.
+
         Args:
             criteria (List[IAcceptanceCriterion]): The instantiated sub-criteria.
             rule (str): The aggregation logic ('G-AND', 'G-OR', 'G-VOT').
+                Defaults to 'G-VOT'.
+
+        Raises:
+            ValueError: If the criteria list is empty.
         """
         if not criteria:
             raise ValueError("EnsembleAcceptance requires at least one initialized criterion.")
@@ -31,6 +41,11 @@ class EnsembleAcceptance(IAcceptanceCriterion):
         self.rule = rule.upper()
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize all sub-criteria in the ensemble.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         for crit in self.criteria:
             crit.setup(initial_objective)
@@ -38,6 +53,21 @@ class EnsembleAcceptance(IAcceptanceCriterion):
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Aggregate acceptance decisions from all sub-criteria.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context.
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): Combined decision based on the ensemble rule.
+                - metrics (AcceptanceMetrics): Performance metadata.
+
+        Raises:
+            ValueError: If an unknown ensemble rule is specified.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         # Gather votes from all encapsulated criteria (List of Tuple[bool, AcceptanceMetrics])
@@ -58,6 +88,14 @@ class EnsembleAcceptance(IAcceptanceCriterion):
             raise ValueError(f"Unknown EMA rule: {self.rule}")
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """Advance the internal states of all sub-criteria.
+
+        Args:
+            current_obj (ObjectiveValue): Previous solution's objective.
+            candidate_obj (ObjectiveValue): Candidate solution's objective.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         # Advance the state of all encapsulated criteria
@@ -65,5 +103,10 @@ class EnsembleAcceptance(IAcceptanceCriterion):
             crit.step(current_obj, candidate_obj, accepted)
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the aggregated states of all underlying criteria.
+
+        Returns:
+            Dict[str, Any]: State dictionary mapping criterion index to its state.
+        """
         # Aggregate the states of the underlying criteria
         return {f"criterion_{i}": crit.get_state() for i, crit in enumerate(self.criteria)}

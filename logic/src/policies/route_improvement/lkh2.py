@@ -1,11 +1,13 @@
 """
 LKH-2 (Lin-Kernighan-Helsgaun 2009) Route Improver.
-"""
-
-"""LKH-2 Route Improver (Keldahl & Helsgaun).
 
 Attributes:
     LKH2RouteImprover: Main class for LKH-2 based improvement.
+
+Example:
+    >>> from logic.src.policies.route_improvement.lkh2 import LKH2RouteImprover
+    >>> improver = LKH2RouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, max_iterations=200)
 """
 
 from typing import Any, List, Tuple
@@ -16,7 +18,7 @@ from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces import IRouteImprovement
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two import (
-    solve_lkh,
+    solve_lkh2,
 )
 
 from .base import RouteImproverRegistry
@@ -56,9 +58,13 @@ class LKH2RouteImprover(IRouteImprovement):
         Args:
             tour:      The initial tour to refine (list of node IDs from the full
                        problem).
-            **kwargs:  Must contain ``distance_matrix``.  Optionally accepts
-                       ``max_iterations``, ``max_k``, ``population_size``,
-                       ``n_candidates``, and ``seed``.
+            kwargs:    Context containing:
+                       - distance_matrix: Distance matrix.
+                       - max_iterations: Maximum iterations.
+                       - max_k: Maximum k for LKH.
+                       - population_size: Population size.
+                       - n_candidates: Number of candidates.
+                       - seed: Random seed.
 
         Returns:
             Tuple[List[int], ImprovementMetrics]: The refined tour with original
@@ -103,7 +109,7 @@ class LKH2RouteImprover(IRouteImprovement):
             sub_tour_indices = [node_to_idx[0]] + [node_to_idx[node] for node in trip] + [node_to_idx[0]]
 
             try:
-                optimized_indices, _ = solve_lkh(
+                optimized_indices, _, _ = solve_lkh2(
                     sub_matrix,
                     initial_tour=sub_tour_indices,
                     max_iterations=max_iterations,

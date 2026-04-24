@@ -1,3 +1,9 @@
+"""Epsilon-Dominance Acceptance Criterion.
+
+Discretizes objective space into grid boxes to provide a finite archive of
+non-dominated solutions.
+"""
+
 import math
 from typing import Any, Dict, List, Sequence, Tuple, Union, cast
 
@@ -9,23 +15,30 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("edc")
 class EpsilonDominanceCriterion(IAcceptanceCriterion):
-    """
-    Epsilon-Dominance Acceptance Criterion with Grid Archiving.
+    """Epsilon-Dominance Acceptance Criterion with Grid Archiving.
 
     Ensures a finite archive size and mathematically guaranteed convergence limits
-     by discretizing the objective space into epsilon-boxes (hyper-rectangles).
+    by discretizing the objective space into epsilon-boxes (hyper-rectangles).
 
     A candidate solution f_cand is accepted if its epsilon-box is not dominated
     by any existing epsilon-box in the archive. If accepted, it replaces
     dominated solutions in the archive.
+
+    Attributes:
+        epsilon (Union[float, Sequence[float]]): Discretization step size for each
+            objective.
+        maximization (bool): Whether to maximize the objectives.
+        archive (List[Tuple[Tuple[int, ...], Tuple[float, ...]]]): List of
+            (epsilon_box, objective_vector) pairs representing the Pareto front.
     """
 
     def __init__(self, epsilon: Union[float, Sequence[float]], maximization: bool = True):
-        """
+        """Initialize the Epsilon-Dominance criterion.
+
         Args:
             epsilon (Union[float, Sequence[float]]): The discretization step size
                 for each objective. Can be a scalar for all objectives or a sequence.
-            maximization (bool): Whether to maximize the objectives.
+            maximization (bool): Whether to maximize the objectives. Defaults to True.
         """
         self.epsilon = epsilon
         self.maximization = maximization
@@ -33,9 +46,10 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
         self.archive: List[Tuple[Tuple[int, ...], Tuple[float, ...]]] = []
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
-        """
-        Initial setup. Note: initial_objective index 0 is used if it's a scalar,
-        but typically we expect a sequence for multi-objective.
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
         """
         # Multi-objective handling usually passes a tuple as current_obj/candidate_obj
         # IAcceptanceCriterion interface signature uses 'float' for type-hinting compatibility,
@@ -43,6 +57,14 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
         pass
 
     def _get_epsilon_box(self, objs: Sequence[float]) -> Tuple[int, ...]:
+        """Calculate the epsilon-box coordinates for an objective vector.
+
+        Args:
+            objs (Sequence[float]): Vector of objective values.
+
+        Returns:
+            Tuple[int, ...]: Grid coordinates of the epsilon-box.
+        """
         if isinstance(self.epsilon, (float, int)):
             eps_vec = [float(self.epsilon)] * len(objs)
         else:
@@ -56,7 +78,15 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
             return tuple(int(math.ceil(o / e)) for o, e in zip(objs, eps_vec, strict=False))
 
     def _dominates(self, box_a: Tuple[int, ...], box_b: Tuple[int, ...]) -> bool:
-        """Returns True if box_a dominates box_b."""
+        """Determine if box_a dominates box_b.
+
+        Args:
+            box_a (Tuple[int, ...]): Grid coordinates of the first box.
+            box_b (Tuple[int, ...]): Grid coordinates of the second box.
+
+        Returns:
+            bool: True if box_a dominates box_b.
+        """
         if self.maximization:
             # a dominates b if every coord of a >= b AND at least one a > b
             greater_or_equal = all(a >= b for a, b in zip(box_a, box_b, strict=False))
@@ -71,10 +101,17 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
-        """
+        """Determine whether to accept based on epsilon-dominance.
+
         Args:
-            current_obj: Expects Sequence[float]
-            candidate_obj: Expects Sequence[float]
+            current_obj (ObjectiveValue): Objective of current (not used, relies on archive).
+            candidate_obj (ObjectiveValue): Objective vector of the candidate.
+            **kwargs (Any): Additional context.
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate is not dominated.
+                - metrics (AcceptanceMetrics): Archive size and parameters.
         """
         cand_vec = cast(Sequence[float], candidate_obj)
         cand_box = self._get_epsilon_box(cand_vec)
@@ -91,6 +128,14 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
         }
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """Update the archive if the candidate was accepted.
+
+        Args:
+            current_obj (ObjectiveValue): Previous solution's objective.
+            candidate_obj (ObjectiveValue): Candidate solution's objective.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context.
+        """
         if not accepted:
             return
 
@@ -107,4 +152,9 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
         self.archive = new_archive
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current archive size and parameters.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {"archive_size": len(self.archive), "epsilon": self.epsilon, "maximization": self.maximization}

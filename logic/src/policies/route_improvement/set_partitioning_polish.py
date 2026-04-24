@@ -79,7 +79,7 @@ class SetPartitioningPolishRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 route_pool (List[List[int]]): List of candidate routes to select from.
                 sp_time_limit (float): Seconds for Gurobi solve (default 60.0).

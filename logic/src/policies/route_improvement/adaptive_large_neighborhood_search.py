@@ -61,7 +61,7 @@ class AdaptiveLargeNeighborhoodSearchRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): The distance matrix lookup.
                 alns_iterations (int): Number of ALNS iterations (default 200).
                 ruin_fraction (float): Fraction of nodes to ruin (default 0.2).

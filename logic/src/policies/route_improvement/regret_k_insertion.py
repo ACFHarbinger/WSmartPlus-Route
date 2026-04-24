@@ -52,7 +52,7 @@ class RegretKInsertionRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 regret_k (int): Regret depth (default 2).
                 regret_noise (float): Random noise factor for insertion (default 0.0).

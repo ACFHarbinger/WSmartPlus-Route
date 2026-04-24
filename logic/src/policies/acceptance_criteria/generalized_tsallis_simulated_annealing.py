@@ -1,3 +1,9 @@
+"""Generalized (Tsallis) Simulated Annealing Acceptance Criterion.
+
+Uses non-extensive entropy formulation for heavy-tailed acceptance
+probabilities to escape deep local minima.
+"""
+
 import math
 import random
 from collections import deque
@@ -13,16 +19,27 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("gt_sa")
 class GeneralizedTsallisSA(IAcceptanceCriterion):
-    """
-    Generalized (Tsallis) Simulated Annealing Acceptance Criterion (Tsallis & Stariolo, 1996).
+    """Generalized (Tsallis) Simulated Annealing Acceptance Criterion.
 
     Uses a non-extensive entropy formulation to generate heavy-tailed acceptance
     probabilities, allowing for larger jumps out of deep local minima compared to
-    standard Boltzmann-Gibbs SA.
+    standard Boltzmann-Gibbs SA. Reference: Tsallis & Stariolo (1996).
 
     Mathematical Formulation:
     P(A) = [1 - (1-q) * (delta_f / T)]^(1 / (1-q))
     where q is the non-extensivity parameter (q=1 converges to standard SA).
+
+    Attributes:
+        q (float): Non-extensivity parameter in (1, 3).
+        p0 (float): Target probability for 1-sigma worsening move at T0.
+        window_size (int): Window for sigma calculation.
+        alpha (float): Cooling rate factor.
+        min_temp (float): Minimum allowable temperature.
+        maximization (bool): Whether the problem is maximization.
+        rng (random.Random): Random number generator.
+        deltas (deque): Moving window of observed deltas.
+        temp (float): Current temperature.
+        sigma (float): Standard deviation of observed deltas.
     """
 
     def __init__(
@@ -35,15 +52,18 @@ class GeneralizedTsallisSA(IAcceptanceCriterion):
         seed: Optional[int] = None,
         maximization: bool = False,
     ):
-        """
+        """Initialize the Generalized Tsallis SA criterion.
+
         Args:
-            q (float): Non-extensivity parameter. Must be in (1, 3).
-            p0 (float): Target probability for accepting a 1-sigma worsening move at T0.
+            q (float): Non-extensivity parameter. Must be in (1, 3). Defaults to 1.5.
+            p0 (float): Target probability for accepting a 1-sigma worsening move at
+                T0. Defaults to 0.5.
             window_size (int): Moving window size for sigma calculation.
-            alpha (float): Cooling rate factor.
-            min_temp (float): Minimum allowable temperature.
-            seed (Optional[int]): Random seed.
-            maximization (bool): Whether the problem is maximization.
+                Defaults to 100.
+            alpha (float): Cooling rate factor. Defaults to 0.95.
+            min_temp (float): Minimum allowable temperature. Defaults to 1e-6.
+            seed (Optional[int]): Random seed. Defaults to None.
+            maximization (bool): Whether the problem is maximization. Defaults to False.
         """
         if not (1.0 < q < 3.0):
             raise ValueError("Parameter q must be in the range (1, 3) for Tsallis SA.")
@@ -61,10 +81,20 @@ class GeneralizedTsallisSA(IAcceptanceCriterion):
         self.sigma = 0.0
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         pass
 
     def _update_stats(self, delta: float) -> None:
+        """Update sigma estimation and determine T0 if necessary.
+
+        Args:
+            delta (float): Difference in objective values.
+        """
         self.deltas.append(abs(delta))
         if len(self.deltas) >= 5 and self.temp == 0.0:
             self.sigma = float(np.std(self.deltas))
@@ -78,6 +108,18 @@ class GeneralizedTsallisSA(IAcceptanceCriterion):
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Determine acceptance based on heavy-tailed Tsallis probability.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context.
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate is accepted.
+                - metrics (AcceptanceMetrics): Performance metadata.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
@@ -132,6 +174,14 @@ class GeneralizedTsallisSA(IAcceptanceCriterion):
         }
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """Update stats and apply the cooling schedule.
+
+        Args:
+            current_obj (ObjectiveValue): Previous solution's objective.
+            candidate_obj (ObjectiveValue): Candidate solution's objective.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
@@ -145,6 +195,11 @@ class GeneralizedTsallisSA(IAcceptanceCriterion):
             self.temp *= self.alpha
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current temperature, q, and sigma estimation.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {
             "temperature": self.temp,
             "q": self.q,

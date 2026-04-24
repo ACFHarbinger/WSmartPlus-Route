@@ -3,6 +3,11 @@ Lin-Kernighan (LK) Route Improver.
 
 Attributes:
     LKRouteImprover: Main class for Lin-Kernighan improvement.
+
+Example:
+    >>> from logic.src.policies.route_improvement.lk import LKRouteImprover
+    >>> improver = LKRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, max_iterations=50)
 """
 
 from typing import Any, List, Tuple
@@ -52,9 +57,12 @@ class LKRouteImprover(IRouteImprovement):
         Args:
             tour:      The initial tour to refine (list of node IDs from the
                        full problem).
-            **kwargs:  Must contain ``distance_matrix``.  Optionally accepts
-                       ``max_iterations``, ``max_depth``, ``n_candidates``,
-                       and ``seed``.
+            kwargs:    Context containing:
+                       - distance_matrix: Distance matrix.
+                       - max_iterations: Maximum iterations.
+                       - max_depth: Maximum depth.
+                       - n_candidates: Number of candidates.
+                       - seed: Random seed.
 
         Returns:
             Tuple[List[int], ImprovementMetrics]: The refined tour with

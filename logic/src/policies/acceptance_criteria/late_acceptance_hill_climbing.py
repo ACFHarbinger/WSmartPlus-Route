@@ -1,5 +1,7 @@
-"""
-Late Acceptance Hill Climbing (LAHC) Criterion.
+"""Late Acceptance Hill Climbing (LAHC) Criterion.
+
+Memory-based thresholding utilizing a finite circular array to escape local
+optima.
 """
 
 from typing import Any, Dict, List, Tuple, cast
@@ -12,16 +14,21 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("lahc")
 class LateAcceptance(IAcceptanceCriterion):
-    """
-    Memory-based thresholding utilizing a finite circular array.
+    """Memory-based thresholding utilizing a finite circular array.
 
     A candidate is accepted if its objective is strictly improving against the
-    current solution OR if it is better than the cost encountered exactly L steps ago.
-    Reference: Burke & Bykov (2017).
+    current solution OR if it is better than the cost encountered exactly L
+    steps ago. Reference: Burke & Bykov (2017).
+
+    Attributes:
+        L (int): The length of the historical memory queue.
+        history (List[float]): Circular array storing historical objective values.
+        pointer (int): Current index in the circular array.
     """
 
     def __init__(self, queue_size: int):
-        """
+        """Initialize the LAHC criterion.
+
         Args:
             queue_size (int): The length of the historical memory queue (L).
         """
@@ -30,6 +37,11 @@ class LateAcceptance(IAcceptanceCriterion):
         self.pointer = 0
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the historical memory with the starting objective.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         # Populate the entire circular array with the starting objective
         self.history = [initial_objective] * self.L
@@ -38,6 +50,18 @@ class LateAcceptance(IAcceptanceCriterion):
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Determine whether to accept based on current and historical costs.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context (not used).
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate improves current OR historical.
+                - metrics (AcceptanceMetrics): State metadata including historical bound.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         # Accept if improving vs current OR improving vs L steps ago
@@ -50,6 +74,14 @@ class LateAcceptance(IAcceptanceCriterion):
         }
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """Update the history queue with the cost of the accepted solution.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the previous solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context (not used).
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         # Always insert the *current accepted state's* cost into the array
@@ -57,4 +89,9 @@ class LateAcceptance(IAcceptanceCriterion):
         self.pointer = (self.pointer + 1) % self.L
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current pointer and historical bound.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {"pointer": self.pointer, "current_history_val": self.history[self.pointer]}

@@ -140,7 +140,7 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour represented as bin IDs (depot 0s as separators).
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 wastes (Dict[int, float]): Mapping of bin IDs to waste amounts.
                 capacity (float): Maximum vehicle capacity.
@@ -275,7 +275,7 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
             cost_per_km (float): Distance cost coefficient.
             revenue_kg (float): Revenue coefficient.
             mandatory_nodes (List[int]): List of nodes that must be visited.
-            **kwargs: Algorithmic parameters prefixed with 'bp_'.
+            kwargs: Algorithmic parameters prefixed with 'bp_'.
 
         Returns:
             Optional[List[List[int]]]: Re-optimized routes if improved, else None.
@@ -435,7 +435,7 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
             cost_per_km (float): Distance cost coefficient.
             revenue_kg (float): Revenue coefficient.
             mandatory_nodes (List[int]): Required nodes.
-            **kwargs: Forwarded context, including 'bp_time_limit' and 'bp_use_cspy'.
+            kwargs: Forwarded context, including 'bp_time_limit' and 'bp_use_cspy'.
 
         Returns:
             Optional[List[List[int]]]: Improved routes or None if optimization failed.
@@ -528,7 +528,7 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Current tour to be refined.
-            **kwargs: Forwarded context for SetPartitioningRouteImprover.
+            kwargs: Forwarded context for SetPartitioningRouteImprover.
 
         Returns:
             List[int]: Refined tour or original tour if fallback fails.

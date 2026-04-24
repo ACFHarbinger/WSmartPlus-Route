@@ -55,7 +55,7 @@ class SimulatedAnnealingRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence (list of bin IDs including depot 0s).
-            **kwargs: Search context, including:
+            kwargs: Search context, including:
                 distance_matrix (np.ndarray | torch.Tensor): The distance matrix lookup.
                 sa_iterations (int): Total number of iterations to perform (default 5000).
                 sa_t_init (float): Initial temperature (default 10.0).

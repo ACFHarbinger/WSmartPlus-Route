@@ -1,3 +1,8 @@
+"""Non-Linear Great Deluge (NLGD) Acceptance Criterion.
+
+Implements a convex water-level decay for convergence in metaheuristic search.
+"""
+
 import math
 from typing import Any, Dict, Tuple, cast
 
@@ -9,16 +14,26 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("nlgd")
 class NonLinearGreatDeluge(IAcceptanceCriterion):
-    """
-    Non-Linear Great Deluge (NLGD) Acceptance Criterion (Landa-Silva et al., 2004).
+    """Non-Linear Great Deluge (NLGD) Acceptance Criterion.
 
     Implements a convex water-level decay that tracks the global best solution
     f_best with a small tolerance gap epsilon. This ensures exploration while
-    forcing asymptotic convergence.
+    forcing asymptotic convergence. Reference: Landa-Silva et al. (2004).
 
     Mathematical Formulation:
     Level_t = f_target + (Level_0 - f_target) * exp(-beta * t / t_max)
     where f_target = f_best * (1 - gap_epsilon) for minimization.
+
+    Attributes:
+        t_max (int): Total iteration budget.
+        initial_tolerance (float): Factor for Level_0 relative to initial objective.
+        gap_epsilon (float): Tolerance gap from f_best to prevent stagnation.
+        beta (float): Decay factor (convexity of the decay curve).
+        maximization (bool): Whether the problem is maximization.
+        level_0 (float): Initial water level.
+        water_level (float): Current acceptance threshold.
+        t (int): Current iteration index.
+        f_best_ever (float): Best objective observed during search.
     """
 
     def __init__(
@@ -29,13 +44,16 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         beta: float = 5.0,
         maximization: bool = False,
     ):
-        """
+        """Initialize the NLGD criterion.
+
         Args:
             t_max (int): Total iteration budget.
-            initial_tolerance (float): Factor for Level_0 relative to initial objective.
-            gap_epsilon (float): Tolerance gap from f_best to prevent zero-distance stagnation.
-            beta (float): Decay factor (convexity of the decay curve).
-            maximization (bool): Whether the problem is maximization.
+            initial_tolerance (float): Factor for Level_0 relative to initial
+                objective. Defaults to 0.1.
+            gap_epsilon (float): Tolerance gap from f_best to prevent stagnation.
+                Defaults to 0.01.
+            beta (float): Decay factor (convexity). Defaults to 5.0.
+            maximization (bool): Whether the problem is maximization. Defaults to False.
         """
         self.t_max = t_max
         self.initial_tolerance = initial_tolerance
@@ -49,6 +67,11 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         self.f_best_ever = float("inf") if not maximization else float("-inf")
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         if self.maximization:
             self.level_0 = initial_objective * (1.0 - self.initial_tolerance)
@@ -60,17 +83,30 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         self.t = 0
 
     def _get_f_best(self, **kwargs: Any) -> float:
-        # User dynamic reference or internal tracking
-        f_best = kwargs.get("f_best")
-        if f_best is not None:
-            if callable(f_best):
-                return float(f_best())
-            return float(f_best)
-        return self.f_best_ever
+        """Retrieve the best objective found so far.
+
+        Args:
+            **kwargs (Any): Should contain 'f_best' if external tracking is used.
+
+        Returns:
+            float: The best objective value.
+        """
 
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Determine whether to accept based on the non-linear water level.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context (may contain f_best).
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate improves the water level.
+                - metrics (AcceptanceMetrics): State metadata including progress.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         # f_best tracking for internal fallback
@@ -101,6 +137,14 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
             }
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """Update the iteration counter and re-calculate the water level.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the previous solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context (may contain f_best).
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         self.t += 1
@@ -115,6 +159,11 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         self.water_level = f_target + (self.level_0 - f_target) * decay
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current water level and iteration progress.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {
             "water_level": self.water_level,
             "iteration": self.t,
