@@ -39,24 +39,20 @@ a = Analysis(
         ('assets/model_weights/*', 'assets/model_weights'),
         ('assets/logs/*', 'assets/logs'),
 
-        # === Manually include specific utility files ===
-        ('app/src/utils/arg_parser.py', 'app/src/utils'),
-        ('app/src/utils/cryptography.py', 'app/src/utils'),
-        ('app/src/utils/definitions.py', 'app/src/utils'),
-        ('app/src/utils/functions.py', 'app/src/utils'),
-        ('app/src/utils/graph_utils.py', 'app/src/utils'),
-        ('app/src/utils/io_utils.py', 'app/src/utils'),
-        ('app/src/utils/log_utils.py', 'app/src/utils'),
-        ('app/src/utils/setup_utils.py', 'app/src/utils'),
-
-        # Include the __init__.py file to make 'utils' a package
-        ('app/src/utils/__init__.py', 'app/src/utils'),
+        # ---------------------------------------------------------
+        # NEW: Map the configs to the exact relative internal path
+        # ---------------------------------------------------------
+        ('logic/configs', 'logic/configs'), 
     ],
     hiddenimports=[
         # Other modules
         'torch', 'numpy', 'argparse',
         'multiprocessing', 'torch.multiprocessing',
         'multiprocessing.pool', 'multiprocessing.manager',
+
+        # Ensure Hydra's dynamic internal configs are bundled
+        'hydra._internal.conf.hydra_conf',
+        'hydra._internal.conf.user_conf',
     ],
     hookspath=[],
     hooksconfig={},
@@ -74,10 +70,17 @@ a = Analysis(
     optimize=0,
     cipher=None,
     key=None,
-    # === Use collect_data for the required code directories ===
+    # ---------------------------------------------------------
+    # UPDATED: Reflect the new module paths for PyInstaller's AST
+    # ---------------------------------------------------------
     collect_all=[
-        'src.policies',
-        'src.pipeline.simulator',
+        'logic.src.policies',
+        'logic.src.models',
+        'logic.src.pipeline',
+        'logic.src.utils',
+        'logic.src.interfaces',
+        'logic.src.envs',
+        'logic.src.data',
     ],
     collect_submodules=[],
     collect_data=[],
