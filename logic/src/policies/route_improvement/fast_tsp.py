@@ -50,7 +50,7 @@ class FastTSPRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): Initial tour sequence.
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
                 time_limit (float): Maximum time for TSP solve per segment (default 2.0).
                 seed (int): Random seed for the solver.

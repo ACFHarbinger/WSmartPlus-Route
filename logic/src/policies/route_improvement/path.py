@@ -43,7 +43,7 @@ class PathRouteImprover(IRouteImprovement):
 
         Args:
             tour (List[int]): The current tour (list of bin IDs).
-            **kwargs: Context containing:
+            kwargs: Context containing:
                 bins (Any): Bin objects or metadata.
                 total_fill (np.ndarray): Array of bin fill levels.
                 paths_between_states (Dict[int, Dict[int, List[int]]]): Shortest paths between nodes.

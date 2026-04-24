@@ -1,3 +1,38 @@
+"""Acceptance Criteria Package.
+
+This package contains implementations of various move acceptance criteria
+for metaheuristic search (e.g., SA, Late Acceptance, Great Deluge).
+
+Attributes:
+    adaptive_boltzmann_metropolis: Adaptive Boltzmann Metropolis criterion.
+    all_moves_accepted: Criterion that accepts all moves.
+    aspiration_criterion: Aspiration-based acceptance.
+    binary_tournament_acceptance: Binary tournament selection for acceptance.
+    boltzmann_metropolis_criterion: Standard Boltzmann Metropolis (SA).
+    demon_algorithm: Demon algorithm acceptance.
+    ensemble_move_acceptance: Ensemble-based acceptance.
+    epsilon_dominance: Epsilon-dominance for multi-objective search.
+    exponential_monte_carlo_counter: EMCC criterion.
+    fitness_proportional: Fitness-proportional acceptance.
+    generalized_tsallis_simulated_annealing: Tsallis-based SA.
+    great_deluge: Standard Great Deluge algorithm.
+    improving_and_equal: Accepts improving or equal cost moves.
+    late_acceptance_hill_climbing: LAHC criterion.
+    monte_carlo: General Monte Carlo acceptance.
+    non_linear_great_deluge: NLGD variant.
+    old_bachelor_acceptance: Old Bachelor acceptance.
+    only_improving: Strict descent criterion.
+    pareto_dominance: Pareto-dominance for multi-objective search.
+    probabilistic_transition: Probabilistic transition criterion.
+    record_to_record_travel: Record-to-record travel criterion.
+    skewed_variable_neighborhood_search: Skewed VNS acceptance.
+    step_counting_hill_climbing: SCHC criterion.
+    threshold_accepting: Threshold accepting algorithm.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria import adaptive_boltzmann_metropolis
+"""
+
 from . import adaptive_boltzmann_metropolis as adaptive_boltzmann_metropolis
 from . import all_moves_accepted as all_moves_accepted
 from . import aspiration_criterion as aspiration_criterion

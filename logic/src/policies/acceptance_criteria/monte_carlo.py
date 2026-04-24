@@ -1,5 +1,7 @@
-"""
-Monte Carlo Acceptance (MCA) Criterion.
+"""Monte Carlo Acceptance (MCA) Criterion.
+
+Stochastic criterion that accepts worsening moves with a fixed, unannealed
+probability.
 """
 
 import random
@@ -13,28 +15,51 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("mc")
 class MonteCarloAcceptance(IAcceptanceCriterion):
-    """
-    Fixed-probability stochastic acceptance.
-    Deterministically accepts improving candidates.
-    Worsening candidates are accepted with a fixed, unannealed probability `p`.
+    """Fixed-probability stochastic acceptance.
+
+    Deterministically accepts improving candidates. Worsening candidates are
+    accepted with a fixed, unannealed probability `p`.
+
+    Attributes:
+        p (float): Probability of accepting a worsening move.
+        rng (random.Random): Random number generator.
     """
 
     def __init__(self, p: float = 0.1, seed: Optional[int] = None) -> None:
-        """
+        """Initialize the Monte Carlo criterion.
+
         Args:
             p (float): The probability of accepting a worsening move (0.0 to 1.0).
-            seed (Optional[int]): Random seed for reproducibility.
+                Defaults to 0.1.
+            seed (Optional[int]): Random seed. Defaults to None.
         """
         self.p = max(0.0, min(1.0, p))
         self.rng = random.Random(seed)
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         pass
 
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Determine acceptance based on a roll against fixed probability p.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context.
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate is accepted.
+                - metrics (AcceptanceMetrics): Performance metadata.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         if candidate_obj >= current_obj:
@@ -52,9 +77,22 @@ class MonteCarloAcceptance(IAcceptanceCriterion):
         }
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """No-op update step.
+
+        Args:
+            current_obj (ObjectiveValue): Previous solution's objective.
+            candidate_obj (ObjectiveValue): Candidate solution's objective.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         pass
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the fixed acceptance probability.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {"acceptance_probability": self.p}

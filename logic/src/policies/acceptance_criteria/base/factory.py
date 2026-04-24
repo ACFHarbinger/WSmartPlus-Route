@@ -1,3 +1,11 @@
+"""Factory for move acceptance criteria.
+
+Provides a centralized mechanism to instantiate registered criteria by name.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.base import AcceptanceCriterionFactory
+"""
+
 from typing import Any, Dict, Optional, Union
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
@@ -6,11 +14,13 @@ from .registry import AcceptanceCriterionRegistry
 
 
 class AcceptanceCriterionFactory:
-    """
-    Factory for creating move acceptance criteria.
+    """Factory for creating move acceptance criteria.
 
     Integrates with the configuration system to provide solver-specific
     move acceptance logic.
+
+    Attributes:
+        _registered (bool): Flag indicating if modules have been loaded.
     """
 
     _registered = False
@@ -65,16 +75,19 @@ class AcceptanceCriterionFactory:
         config: Optional[Union[Dict[str, Any], Any]] = None,
         **kwargs: Any,
     ) -> IAcceptanceCriterion:
-        """
-        Instantiate an acceptance criterion.
+        """Instantiate an acceptance criterion.
 
         Args:
-            name: Identifier for the criterion (e.g., 'bmc').
-            config: Configuration parameters. Can be a dict or a dataclass instance.
-            **kwargs: Fallback parameters if config is not comprehensive.
+            name (str): Identifier for the criterion (e.g., 'bmc').
+            config (Optional[Union[Dict[str, Any], Any]]): Configuration parameters.
+                Can be a dict or a dataclass instance. Defaults to None.
+            **kwargs (Any): Fallback parameters if config is not comprehensive.
 
         Returns:
-            Instantiated acceptance criterion.
+            IAcceptanceCriterion: The instantiated acceptance criterion.
+
+        Raises:
+            ValueError: If no criterion is registered under the given name.
         """
         cls.ensure_registered()
 

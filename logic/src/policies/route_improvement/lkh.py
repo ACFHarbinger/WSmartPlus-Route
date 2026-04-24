@@ -1,7 +1,12 @@
-"""LKH-3 Route Improver (Keldahl & Helsgaun).
+"""
+LKH-3 Route Improver (Keldahl & Helsgaun).
 
 Attributes:
     LKHRouteImprover: Main class for LKH-3 based improvement.
+
+Example:
+    >>> improver = LKHRouteImprover(config=cfg)
+    >>> refined_tour, metrics = improver.process(tour, max_iterations=200)
 """
 
 from typing import Any, List, Tuple
@@ -11,7 +16,7 @@ import numpy as np
 from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.route_improvement import IRouteImprovement
 from logic.src.interfaces.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.intensification_fixing.lkh import lkh_solve
+from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun import solve_lkh1
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
@@ -43,7 +48,11 @@ class LKHRouteImprover(IRouteImprovement):
 
         Args:
             tour: The initial tour to refine (list of node IDs from the full problem).
-            **kwargs: Must contain 'distance_matrix'. Optionally 'max_iterations' and 'seed'.
+            kwargs: Context containing:
+                - distance_matrix: Distance matrix.
+                - max_iterations: Maximum iterations.
+                - max_k: Maximum k for LKH.
+                - seed: Random seed.
 
         Returns:
             List[int]: The refined tour with original node IDs.
@@ -88,7 +97,7 @@ class LKHRouteImprover(IRouteImprovement):
             seed = kwargs.get("seed", self.config.get("seed", 42))
 
             try:
-                optimized_indices, _ = solve_lkh(
+                optimized_indices, _, _ = solve_lkh1(
                     sub_matrix,
                     initial_tour=sub_tour_indices,
                     max_iterations=max_iterations,

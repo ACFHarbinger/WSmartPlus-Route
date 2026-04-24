@@ -1,5 +1,7 @@
-"""
-Simulated Tournament Acceptance (STA) Criterion.
+"""Binary Tournament Acceptance (BTA) Criterion.
+
+Stochastic criterion based on a competition between the current and candidate
+solutions.
 """
 
 import random
@@ -13,32 +15,52 @@ from .base.registry import AcceptanceCriterionRegistry
 
 @AcceptanceCriterionRegistry.register("bta")
 class BinaryTournamentAcceptance(IAcceptanceCriterion):
-    """
-    Binary Tournament stochastic acceptance.
+    """Binary Tournament stochastic acceptance.
+
     Evaluates the current solution against the candidate solution. The superior
     solution "wins" the tournament with probability `p` (where `p` > 0.5), and
     the inferior solution wins with probability `1 - p`.
 
-    If the candidate wins, it is accepted.
+    Attributes:
+        p (float): Probability that the superior solution wins.
+        rng (random.Random): Random number generator.
     """
 
     def __init__(self, p: float = 0.8, seed: Optional[int] = None) -> None:
-        """
+        """Initialize the Binary Tournament criterion.
+
         Args:
-            p (float): The probability that the superior solution wins the tournament.
-                Typically between 0.5 and 1.0.
-            seed (Optional[int]): Random seed for reproducibility.
+            p (float): The probability that the superior solution wins.
+                Typically in [0.5, 1.0]. Defaults to 0.8.
+            seed (Optional[int]): Random seed. Defaults to None.
         """
         self.p = p
         self.rng = random.Random(seed)
 
     def setup(self, initial_objective: ObjectiveValue) -> None:
+        """Initialize the criterion state.
+
+        Args:
+            initial_objective (ObjectiveValue): The initial solution's objective.
+        """
         initial_objective = cast(float, initial_objective)
         pass
 
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
     ) -> Tuple[bool, AcceptanceMetrics]:
+        """Perform a binary tournament between current and candidate solutions.
+
+        Args:
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            **kwargs (Any): Additional context.
+
+        Returns:
+            Tuple[bool, AcceptanceMetrics]: A tuple containing:
+                - accepted (bool): True if candidate wins the tournament.
+                - metrics (AcceptanceMetrics): Performance metadata.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         roll = self.rng.random()
@@ -62,9 +84,22 @@ class BinaryTournamentAcceptance(IAcceptanceCriterion):
             }
 
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        """No-op update step.
+
+        Args:
+            current_obj (ObjectiveValue): Previous solution's objective.
+            candidate_obj (ObjectiveValue): Candidate solution's objective.
+            accepted (bool): Whether the candidate was accepted.
+            **kwargs (Any): Additional context.
+        """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
         pass
 
     def get_state(self) -> Dict[str, Any]:
+        """Return the current tournament probability.
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         return {"tournament_probability": self.p}

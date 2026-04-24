@@ -1,25 +1,32 @@
+"""Registry for move acceptance criteria.
+
+Maintains a mapping of criterion identifiers to their respective classes.
+"""
+
 from typing import Callable, Dict, List, Optional, Type
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
 
 class AcceptanceCriterionRegistry:
-    """
-    Central registry for move acceptance criteria.
+    """Central registry for move acceptance criteria.
 
     Allows for the modular decoupling of search strategies (e.g., SA, Late Acceptance)
     from the solvers that use them.
+
+    Attributes:
+        _registry (Dict[str, Type[IAcceptanceCriterion]]): Internal mapping of
+            identifiers to class types.
     """
 
     _registry: Dict[str, Type[IAcceptanceCriterion]] = {}
 
     @classmethod
     def register(cls, name: str) -> Callable:
-        """
-        Decorator to register an acceptance criterion class.
+        """Decorator to register an acceptance criterion class.
 
         Args:
-            name: Unique identifier for the criterion (e.g., 'boltzmann', 'demon').
+            name (str): Unique identifier for the criterion (e.g., 'boltzmann', 'demon').
 
         Returns:
             Callable: The decorator function.
@@ -33,11 +40,10 @@ class AcceptanceCriterionRegistry:
 
     @classmethod
     def get(cls, name: str) -> Optional[Type[IAcceptanceCriterion]]:
-        """
-        Retrieve a criterion class by name.
+        """Retrieve a criterion class by name.
 
         Args:
-            name: The name of the criterion to retrieve.
+            name (str): The name of the criterion to retrieve.
 
         Returns:
             Optional[Type[IAcceptanceCriterion]]: The class if found, else None.
@@ -46,8 +52,7 @@ class AcceptanceCriterionRegistry:
 
     @classmethod
     def list_criteria(cls) -> List[str]:
-        """
-        List all registered criteria identifiers.
+        """List all registered criteria identifiers.
 
         Returns:
             List[str]: A list of all registered names.
