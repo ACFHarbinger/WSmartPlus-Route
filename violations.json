@@ -1,0 +1,3649 @@
+[
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/tracking/profiling/timer.py",
+    "line": 372,
+    "type": "Function",
+    "name": "decorator",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/tracking/profiling/timer.py",
+    "line": 376,
+    "type": "Function",
+    "name": "wrapper",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/selection_and_construction/base/registry.py",
+    "line": 39,
+    "type": "Function",
+    "name": "decorator",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_improvement/set_partitioning.py",
+    "line": 156,
+    "type": "Function",
+    "name": "add",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_improvement/set_covering.py",
+    "line": 150,
+    "type": "Function",
+    "name": "add",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/other_algorithms/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/other_algorithms/adaptive_route_constructor_orchestrator/policy_arco.py",
+    "line": 118,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/other_algorithms/adaptive_route_constructor_orchestrator/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/other_algorithms/sequential_route_constructor/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/simulated_annealing_neighborhood_search/common/routes.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/evolution_strategy_mu_plus_lambda/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/league_championship_algorithm/policy_lca.py",
+    "line": 28,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/league_championship_algorithm/solver.py",
+    "line": 47,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/differential_evolution/solver.py",
+    "line": 80,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/particle_swarm_optimization_memetic_algorithm/solver.py",
+    "line": 43,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/particle_swarm_optimization_memetic_algorithm/particle.py",
+    "line": 20,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/particle_swarm_optimization_memetic_algorithm/policy_psoma.py",
+    "line": 28,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/firefly_algorithm/solver.py",
+    "line": 42,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/firefly_algorithm/policy_fa.py",
+    "line": 28,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/reactive_tabu_search/policy_rts.py",
+    "line": 21,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/reactive_tabu_search/solver.py",
+    "line": 45,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/particle_swarm_optimization/policy_pso.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_island_model/policy_ma_im.py",
+    "line": 23,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_island_model/solver.py",
+    "line": 55,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/simulated_annealing/policy_sa.py",
+    "line": 51,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/simulated_annealing/solver.py",
+    "line": 39,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/guided_local_search/policy_gls.py",
+    "line": 29,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/guided_local_search/solver.py",
+    "line": 44,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/sine_cosine_algorithm/policy_sca.py",
+    "line": 27,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/sine_cosine_algorithm/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/sine_cosine_algorithm/solver.py",
+    "line": 38,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/hgs.py",
+    "line": 354,
+    "type": "Function",
+    "name": "tournament",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/params.py",
+    "line": 147,
+    "type": "Function",
+    "name": "lambda_param",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/params.py",
+    "line": 156,
+    "type": "Function",
+    "name": "population_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/params.py",
+    "line": 165,
+    "type": "Function",
+    "name": "elite_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/params.py",
+    "line": 174,
+    "type": "Function",
+    "name": "no_improvement_threshold",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/params.py",
+    "line": 183,
+    "type": "Function",
+    "name": "neighbor_list_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/individual.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_iterated_local_search/policy_mp_ils.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_iterated_local_search/policy_mp_ils.py",
+    "line": 43,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_iterated_local_search/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/fast_iterative_localized_optimization/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/fast_iterative_localized_optimization/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/genetic_algorithm/policy_ga.py",
+    "line": 46,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/genetic_algorithm/solver.py",
+    "line": 40,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_memetic_search/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/variable_neighborhood_search/solver.py",
+    "line": 51,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/variable_neighborhood_search/policy_vns.py",
+    "line": 37,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_diversity_control/policy_hgs_adc.py",
+    "line": 67,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_diversity_control/params.py",
+    "line": 15,
+    "type": "Class",
+    "name": "HGSADCParams",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_diversity_control/params.py",
+    "line": 23,
+    "type": "Function",
+    "name": "from_config",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_diversity_control/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_diversity_control/population.py",
+    "line": 15,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_large_neighborhood_search/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_dual_population/policy_ma_dp.py",
+    "line": 23,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/knowledge_guided_local_search/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/knowledge_guided_local_search/cost_evaluator.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/evolution_strategy_mu_comma_lambda/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/adaptive_large_neighborhood_search/alns.py",
+    "line": 588,
+    "type": "Function",
+    "name": "solve",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/adaptive_large_neighborhood_search/alns.py",
+    "line": 683,
+    "type": "Function",
+    "name": "calculate_cost",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_simulated_annealing/policy_mp_sa.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_simulated_annealing/policy_mp_sa.py",
+    "line": 39,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_simulated_annealing/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/harmony_search/policy_hs.py",
+    "line": 43,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/harmony_search/solver.py",
+    "line": 40,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/quantum_differential_evolution/solver.py",
+    "line": 39,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/quantum_differential_evolution/policy_qde.py",
+    "line": 28,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/iterated_local_search/policy_ils.py",
+    "line": 29,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/iterated_local_search/solver.py",
+    "line": 41,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_ant_colony_optimization/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_ant_colony_optimization/policy_mp_aco.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_ant_colony_optimization/policy_mp_aco.py",
+    "line": 33,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/tabu_search/policy_ts.py",
+    "line": 47,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/tabu_search/solver.py",
+    "line": 54,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/tabu_search/solver.py",
+    "line": 880,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/soccer_league_competition/policy_slc.py",
+    "line": 27,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/soccer_league_competition/solver.py",
+    "line": 55,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_tolerance_based_selection/solver.py",
+    "line": 69,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_tolerance_based_selection/policy_ma_ts.py",
+    "line": 23,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/augmented_hybrid_volleyball_premier_league/policy_ahvpl.py",
+    "line": 39,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/augmented_hybrid_volleyball_premier_league/ahvpl.py",
+    "line": 52,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/augmented_hybrid_volleyball_premier_league/ahvpl.py",
+    "line": 243,
+    "type": "Function",
+    "name": "tournament",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/augmented_hybrid_volleyball_premier_league/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/genius/policy_genius.py",
+    "line": 26,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/evolution_strategy_mu_kappa_lambda/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/evolution_strategy_mu_kappa_lambda/individual.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_particle_swarm_optimization/policy_mp_pso.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_particle_swarm_optimization/policy_mp_pso.py",
+    "line": 40,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/multi_period_particle_swarm_optimization/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/artificial_bee_colony/solver.py",
+    "line": 47,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/meta_heuristics/artificial_bee_colony/policy_abc.py",
+    "line": 28,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk/operators.py",
+    "line": 70,
+    "type": "Function",
+    "name": "apply_unstring_type_i",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk/operators.py",
+    "line": 73,
+    "type": "Function",
+    "name": "apply_unstring_type_ii",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk/operators.py",
+    "line": 76,
+    "type": "Function",
+    "name": "apply_unstring_type_iii",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk/operators.py",
+    "line": 79,
+    "type": "Function",
+    "name": "apply_unstring_type_iv",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk/operators.py",
+    "line": 82,
+    "type": "Function",
+    "name": "apply_unstring_shaw",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk/operators.py",
+    "line": 90,
+    "type": "Function",
+    "name": "apply_unstring_string",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk/policy_hulk.py",
+    "line": 30,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_hyper_heuristic/tree.py",
+    "line": 47,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_hyper_heuristic/tree.py",
+    "line": 81,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_hyper_heuristic/tree.py",
+    "line": 128,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_hyper_heuristic/policy_gp_hh.py",
+    "line": 93,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_hyper_heuristic/solver.py",
+    "line": 64,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/population_based_hyper_heuristic/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/population_based_hyper_heuristic/policy_phh.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/population_based_hyper_heuristic/policy_phh.py",
+    "line": 56,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/adaptive_memory_programming_hyper_heuristic/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/adaptive_memory_programming_hyper_heuristic/policy_amphh.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/adaptive_memory_programming_hyper_heuristic/policy_amphh.py",
+    "line": 53,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/matheuristic_hyper_heuristic/policy_mhh.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/matheuristic_hyper_heuristic/policy_mhh.py",
+    "line": 50,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/matheuristic_hyper_heuristic/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hidden_markov_model_great_deluge_hyper_heuristic/policy_hmm_gd_hh.py",
+    "line": 44,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/hidden_markov_model_great_deluge_hyper_heuristic/solver.py",
+    "line": 85,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_multi_period_hyper_heuristic/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_multi_period_hyper_heuristic/policy_gp_mp_hh.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/genetic_programming_multi_period_hyper_heuristic/policy_gp_mp_hh.py",
+    "line": 52,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/selection_hyper_heuristic/policy_shh.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/selection_hyper_heuristic/policy_shh.py",
+    "line": 41,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/selection_hyper_heuristic/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/guided_indicators_hyper_heuristic/gihh.py",
+    "line": 55,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/sequence_based_selection_hyper_heuristic/policy_ss_hh.py",
+    "line": 35,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/hyper_heuristics/sequence_based_selection_hyper_heuristic/solver.py",
+    "line": 89,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/two_phase_kernel_search/policy_tpks.py",
+    "line": 49,
+    "type": "Function",
+    "name": "execute",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/two_phase_kernel_search/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/two_phase_kernel_search/params.py",
+    "line": 8,
+    "type": "Class",
+    "name": "TPKSParams",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/two_phase_kernel_search/params.py",
+    "line": 32,
+    "type": "Function",
+    "name": "from_config",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/two_phase_kernel_search/params.py",
+    "line": 42,
+    "type": "Function",
+    "name": "to_dict",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/two_phase_kernel_search/solver.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/two_phase_kernel_search/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/partial_optimization_metaheuristic_under_special_intensification_conditions/solver.py",
+    "line": 159,
+    "type": "Function",
+    "name": "get_centroid",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/partial_optimization_metaheuristic_under_special_intensification_conditions/policy_popmusic.py",
+    "line": 40,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/large_neighborhood_search_mixed_integer_programming/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/large_neighborhood_search_mixed_integer_programming/params.py",
+    "line": 6,
+    "type": "Class",
+    "name": "LNSMIPParams",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/large_neighborhood_search_mixed_integer_programming/params.py",
+    "line": 18,
+    "type": "Function",
+    "name": "from_config",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/large_neighborhood_search_mixed_integer_programming/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/large_neighborhood_search_mixed_integer_programming/policy_lns_mip.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/large_neighborhood_search_mixed_integer_programming/policy_lns_mip.py",
+    "line": 39,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/relax_and_fix_and_optimize/policy_rfo.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/relax_and_fix_and_optimize/policy_rfo.py",
+    "line": 54,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/relax_and_fix_and_optimize/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/column_generation_heuristic/policy_cgh.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/column_generation_heuristic/policy_cgh.py",
+    "line": 32,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/column_generation_heuristic/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/cluster_first_route_second/policy_cf_rs.py",
+    "line": 47,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lin_kernighan_helsgaun_three/graph_augmentation.py",
+    "line": 195,
+    "type": "Function",
+    "name": "get_dummy",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lin_kernighan_helsgaun_three/graph_augmentation.py",
+    "line": 284,
+    "type": "Function",
+    "name": "get_entry",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lin_kernighan_helsgaun_three/tour_construction.py",
+    "line": 426,
+    "type": "Function",
+    "name": "find_matchings",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lin_kernighan_helsgaun_three/load_tracker.py",
+    "line": 68,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lin_kernighan_helsgaun_three/tour_adapter.py",
+    "line": 76,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lin_kernighan_helsgaun_three/tour_improvement.py",
+    "line": 649,
+    "type": "Function",
+    "name": "__or_opt_relocation",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lagrangian_relaxation_heuristic/policy_lrh.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lagrangian_relaxation_heuristic/policy_lrh.py",
+    "line": 38,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/matheuristics/lagrangian_relaxation_heuristic/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 199,
+    "type": "Class",
+    "name": "BundleEntry",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 374,
+    "type": "Function",
+    "name": "build_dual_bound_tracker",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 72,
+    "type": "Function",
+    "name": "current_dual_bound",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 96,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 121,
+    "type": "Function",
+    "name": "submit",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 145,
+    "type": "Function",
+    "name": "current_dual_bound",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 188,
+    "type": "Function",
+    "name": "ema_snapshot",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 226,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/dual.py",
+    "line": 304,
+    "type": "Function",
+    "name": "current_dual_bound",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/routing.py",
+    "line": 42,
+    "type": "Class",
+    "name": "RoutingResult",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/policy_calm.py",
+    "line": 132,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/selection.py",
+    "line": 206,
+    "type": "Function",
+    "name": "insertion_cost",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lookahead.py",
+    "line": 82,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lookahead.py",
+    "line": 90,
+    "type": "Function",
+    "name": "get_scenario_tree",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/bandit.py",
+    "line": 60,
+    "type": "Function",
+    "name": "theta",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/bandit.py",
+    "line": 67,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/bandit.py",
+    "line": 97,
+    "type": "Function",
+    "name": "arms",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/bandit.py",
+    "line": 147,
+    "type": "Function",
+    "name": "summary",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/params.py",
+    "line": 224,
+    "type": "Function",
+    "name": "to_dict",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/oracle.py",
+    "line": 68,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/oracle.py",
+    "line": 99,
+    "type": "Function",
+    "name": "get_incumbent",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/regret.py",
+    "line": 77,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/regret.py",
+    "line": 89,
+    "type": "Function",
+    "name": "phase",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lagrangian.py",
+    "line": 57,
+    "type": "Function",
+    "name": "__post_init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lagrangian.py",
+    "line": 63,
+    "type": "Function",
+    "name": "snapshot",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lagrangian.py",
+    "line": 85,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lagrangian.py",
+    "line": 238,
+    "type": "Function",
+    "name": "current_dual_bound",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lagrangian.py",
+    "line": 241,
+    "type": "Function",
+    "name": "lambdas_snapshot",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/concurrent_adaptive_lagrangian_matheuristic/lagrangian.py",
+    "line": 245,
+    "type": "Function",
+    "name": "gamma_snapshot",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/adaptive_branch_and_price_and_cut_with_heuristic_guidance/policy_abpc_hg.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/adaptive_branch_and_price_and_cut_with_heuristic_guidance/policy_abpc_hg.py",
+    "line": 124,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/adaptive_branch_and_price_and_cut_with_heuristic_guidance/scenario_prize_engine.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_matheuristic_algorithms/adaptive_branch_and_price_and_cut_with_heuristic_guidance/scenario_prize_engine.py",
+    "line": 28,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_algorithms/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/tree.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/tree.py",
+    "line": 25,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/tree.py",
+    "line": 95,
+    "type": "Function",
+    "name": "get_root",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/tree.py",
+    "line": 98,
+    "type": "Function",
+    "name": "get_leaves",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/st_ef_engine.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/st_ef_engine.py",
+    "line": 29,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/st_ef_engine.py",
+    "line": 337,
+    "type": "Class",
+    "name": "EngineNode",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form/st_ef_engine.py",
+    "line": 345,
+    "type": "Function",
+    "name": "traverse",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price/bp.py",
+    "line": 216,
+    "type": "Function",
+    "name": "solve",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/constraint_programming_with_boolean_satisfiability/cp_sat_engine.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/constraint_programming_with_boolean_satisfiability/cp_sat_engine.py",
+    "line": 21,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/master.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/master.py",
+    "line": 23,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/master.py",
+    "line": 111,
+    "type": "Function",
+    "name": "collect",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/master.py",
+    "line": 140,
+    "type": "Function",
+    "name": "find_parent",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/subproblem.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/subproblem.py",
+    "line": 19,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/policy_lbbd.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/lbbd_engine.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/logic_based_benders_decomposition/lbbd_engine.py",
+    "line": 18,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/integer_l_shaped_benders_decomposition/ils_bd_engine.py",
+    "line": 130,
+    "type": "Function",
+    "name": "get_all_paths",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/progressive_hedging/ph_engine.py",
+    "line": 65,
+    "type": "Function",
+    "name": "ensure_route_list",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/progressive_hedging/ph_engine.py",
+    "line": 109,
+    "type": "Function",
+    "name": "get_all_paths",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py",
+    "line": 50,
+    "type": "Function",
+    "name": "valid_arcs_rule",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py",
+    "line": 65,
+    "type": "Function",
+    "name": "cap_match_rule",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py",
+    "line": 70,
+    "type": "Function",
+    "name": "flow_waste_rule",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py",
+    "line": 77,
+    "type": "Function",
+    "name": "flow_empty_rule",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py",
+    "line": 97,
+    "type": "Function",
+    "name": "route_in_rule",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py",
+    "line": 102,
+    "type": "Function",
+    "name": "route_out_rule",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py",
+    "line": 121,
+    "type": "Function",
+    "name": "obj_rule",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/esdp_engine.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/esdp_engine.py",
+    "line": 16,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/esdp_engine.py",
+    "line": 59,
+    "type": "Function",
+    "name": "compute_overflow_penalty",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/params.py",
+    "line": 34,
+    "type": "Function",
+    "name": "to_dict",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/state_space.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/state_space.py",
+    "line": 14,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/cop_evaluator.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/exact_stochastic_dynamic_programming/cop_evaluator.py",
+    "line": 14,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 252,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 297,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 300,
+    "type": "Function",
+    "name": "separate_and_add_cuts",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 417,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 547,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 584,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 626,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 635,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 639,
+    "type": "Function",
+    "name": "engines",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 642,
+    "type": "Function",
+    "name": "separate_and_add_cuts",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 649,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 667,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 733,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 767,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 771,
+    "type": "Function",
+    "name": "separate_and_add_cuts",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 861,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 904,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 1019,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/cutting_planes.py",
+    "line": 825,
+    "type": "Function",
+    "name": "compute_lifting_coeff",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/bpc_engine.py",
+    "line": 616,
+    "type": "Function",
+    "name": "evaluate_branch",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/search_strategy.py",
+    "line": 106,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/search_strategy.py",
+    "line": 161,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/search_strategy.py",
+    "line": 220,
+    "type": "Function",
+    "name": "get_name",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/search_strategy.py",
+    "line": 98,
+    "type": "Function",
+    "name": "get_best_first_key",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/search_strategy.py",
+    "line": 213,
+    "type": "Function",
+    "name": "get_best_first_key",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_cut/bc.py",
+    "line": 1081,
+    "type": "Function",
+    "name": "find",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_cut/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/base/base_multi_period_policy.py",
+    "line": 38,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/base/base_multi_period_policy.py",
+    "line": 141,
+    "type": "Function",
+    "name": "execute",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/rl_ahvpl.py",
+    "line": 483,
+    "type": "Function",
+    "name": "tournament",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 95,
+    "type": "Function",
+    "name": "bandit_algorithm",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 99,
+    "type": "Function",
+    "name": "bandit_max_iterations",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 103,
+    "type": "Function",
+    "name": "bandit_quality_weight",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 107,
+    "type": "Function",
+    "name": "bandit_improvement_weight",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 111,
+    "type": "Function",
+    "name": "bandit_diversity_weight",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 115,
+    "type": "Function",
+    "name": "bandit_novelty_weight",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 119,
+    "type": "Function",
+    "name": "bandit_reward_threshold",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 123,
+    "type": "Function",
+    "name": "bandit_default_reward",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 127,
+    "type": "Function",
+    "name": "cfe_alpha",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 131,
+    "type": "Function",
+    "name": "cfe_feature_dim",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 135,
+    "type": "Function",
+    "name": "cfe_operator_selection_threshold",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 139,
+    "type": "Function",
+    "name": "cfe_lambda_prior",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 143,
+    "type": "Function",
+    "name": "cfe_noise_variance",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 147,
+    "type": "Function",
+    "name": "cfe_epsilon",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 151,
+    "type": "Function",
+    "name": "cfe_epsilon_decay",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 155,
+    "type": "Function",
+    "name": "cfe_epsilon_decay_step",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 159,
+    "type": "Function",
+    "name": "cfe_epsilon_min",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 163,
+    "type": "Function",
+    "name": "cfe_diversity_history_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 167,
+    "type": "Function",
+    "name": "cfe_improvement_history_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 171,
+    "type": "Function",
+    "name": "cfe_operator_reward_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 175,
+    "type": "Function",
+    "name": "cfe_improvement_threshold",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 179,
+    "type": "Function",
+    "name": "qlearning_alpha",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 183,
+    "type": "Function",
+    "name": "qlearning_gamma",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 187,
+    "type": "Function",
+    "name": "qlearning_epsilon",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 191,
+    "type": "Function",
+    "name": "qlearning_epsilon_decay",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 195,
+    "type": "Function",
+    "name": "qlearning_epsilon_decay_step",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 199,
+    "type": "Function",
+    "name": "qlearning_epsilon_min",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 203,
+    "type": "Function",
+    "name": "qlearning_history_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 207,
+    "type": "Function",
+    "name": "qlearning_rewards_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 211,
+    "type": "Function",
+    "name": "qlearning_improvement_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 216,
+    "type": "Function",
+    "name": "sarsa_alpha",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 220,
+    "type": "Function",
+    "name": "sarsa_gamma",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 224,
+    "type": "Function",
+    "name": "sarsa_epsilon",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 228,
+    "type": "Function",
+    "name": "sarsa_epsilon_decay",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 232,
+    "type": "Function",
+    "name": "sarsa_epsilon_decay_step",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 236,
+    "type": "Function",
+    "name": "sarsa_epsilon_min",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 240,
+    "type": "Function",
+    "name": "sarsa_diversity_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 244,
+    "type": "Function",
+    "name": "sarsa_scores_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 248,
+    "type": "Function",
+    "name": "sarsa_qtable_size_rate",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 252,
+    "type": "Function",
+    "name": "sarsa_improvement_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 257,
+    "type": "Function",
+    "name": "sarsa_operator_progress_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 262,
+    "type": "Function",
+    "name": "sarsa_operator_stagnation_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/params.py",
+    "line": 267,
+    "type": "Function",
+    "name": "sarsa_operator_diversity_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_augmented_hybrid_volleyball_premier_league/policy_rl_ahvpl.py",
+    "line": 54,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 116,
+    "type": "Function",
+    "name": "qlearning_alpha",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 120,
+    "type": "Function",
+    "name": "qlearning_gamma",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 124,
+    "type": "Function",
+    "name": "qlearning_epsilon",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 128,
+    "type": "Function",
+    "name": "qlearning_epsilon_decay",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 132,
+    "type": "Function",
+    "name": "qlearning_epsilon_decay_step",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 136,
+    "type": "Function",
+    "name": "qlearning_epsilon_min",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 140,
+    "type": "Function",
+    "name": "qlearning_improvement_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 145,
+    "type": "Function",
+    "name": "qlearning_history_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 149,
+    "type": "Function",
+    "name": "sarsa_alpha",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 153,
+    "type": "Function",
+    "name": "sarsa_gamma",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 157,
+    "type": "Function",
+    "name": "sarsa_epsilon",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 161,
+    "type": "Function",
+    "name": "sarsa_epsilon_decay",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 165,
+    "type": "Function",
+    "name": "sarsa_epsilon_decay_step",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 169,
+    "type": "Function",
+    "name": "sarsa_epsilon_min",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 173,
+    "type": "Function",
+    "name": "sarsa_diversity_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 177,
+    "type": "Function",
+    "name": "sarsa_improvement_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 182,
+    "type": "Function",
+    "name": "sarsa_operator_progress_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 187,
+    "type": "Function",
+    "name": "sarsa_operator_stagnation_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league/params.py",
+    "line": 192,
+    "type": "Function",
+    "name": "sarsa_operator_diversity_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/policy_rl_alns.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 54,
+    "type": "Function",
+    "name": "alpha",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 58,
+    "type": "Function",
+    "name": "gamma",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 62,
+    "type": "Function",
+    "name": "epsilon",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 66,
+    "type": "Function",
+    "name": "ucb_c",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 70,
+    "type": "Function",
+    "name": "reward_new_global_best",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 74,
+    "type": "Function",
+    "name": "reward_improved_current",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 78,
+    "type": "Function",
+    "name": "reward_accepted_worse",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 82,
+    "type": "Function",
+    "name": "reward_rejected",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 86,
+    "type": "Function",
+    "name": "adaptive_rewards",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 90,
+    "type": "Function",
+    "name": "normalize_rewards",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 94,
+    "type": "Function",
+    "name": "epsilon_decay",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 100,
+    "type": "Function",
+    "name": "epsilon_min",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 106,
+    "type": "Function",
+    "name": "ucb_gamma",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 110,
+    "type": "Function",
+    "name": "ucb_window_size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 114,
+    "type": "Function",
+    "name": "ts_alpha_prior",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 118,
+    "type": "Function",
+    "name": "ts_beta_prior",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 122,
+    "type": "Function",
+    "name": "exp3_gamma",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 126,
+    "type": "Function",
+    "name": "progress_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 130,
+    "type": "Function",
+    "name": "stagnation_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search/params.py",
+    "line": 134,
+    "type": "Function",
+    "name": "diversity_thresholds",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_great_deluge_hyper_heuristic/solver.py",
+    "line": 66,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/mandatory_selection/selection_filter_and_fan.py",
+    "line": 98,
+    "type": "Function",
+    "name": "objective",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/mandatory_selection/selection_submodular_greedy.py",
+    "line": 80,
+    "type": "Function",
+    "name": "get_total_objective",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/mandatory_selection/selection_submodular_greedy.py",
+    "line": 94,
+    "type": "Function",
+    "name": "compute_marginal_gain",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/mandatory_selection/selection_mip_knapsack.py",
+    "line": 191,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/mandatory_selection/selection_learned.py",
+    "line": 43,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/mandatory_selection/selection_fptas_knapsack.py",
+    "line": 366,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/mandatory_selection/selection_supermodular_greedy.py",
+    "line": 77,
+    "type": "Function",
+    "name": "get_marginal_gain",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/acceptance_criteria/base/registry.py",
+    "line": 35,
+    "type": "Function",
+    "name": "decorator",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/separation/inequality.py",
+    "line": 18,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/separation/inequality.py",
+    "line": 40,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/separation/inequality.py",
+    "line": 62,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/separation/inequality.py",
+    "line": 80,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/separation/engine.py",
+    "line": 943,
+    "type": "Function",
+    "name": "find",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/pricing/solver.py",
+    "line": 46,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/pricing/solver.py",
+    "line": 139,
+    "type": "Function",
+    "name": "expand_ng_neighborhoods",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/pricing/solver.py",
+    "line": 151,
+    "type": "Function",
+    "name": "solve",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/common/route.py",
+    "line": 37,
+    "type": "Function",
+    "name": "__repr__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/branching/constraints.py",
+    "line": 138,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/branching/constraints.py",
+    "line": 146,
+    "type": "Function",
+    "name": "__repr__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/branching/constraints.py",
+    "line": 154,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/branching/constraints.py",
+    "line": 168,
+    "type": "Function",
+    "name": "__repr__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 83,
+    "type": "Function",
+    "name": "build_model",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 85,
+    "type": "Function",
+    "name": "solve_lp_relaxation",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 93,
+    "type": "Function",
+    "name": "solve_ip",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 95,
+    "type": "Function",
+    "name": "add_route",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 101,
+    "type": "Function",
+    "name": "purge_useless_columns",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 103,
+    "type": "Function",
+    "name": "get_reduced_cost_coefficients",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 105,
+    "type": "Function",
+    "name": "get_node_visitation",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 107,
+    "type": "Function",
+    "name": "get_edge_usage",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 109,
+    "type": "Function",
+    "name": "save_basis",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 111,
+    "type": "Function",
+    "name": "restore_basis",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 114,
+    "type": "Function",
+    "name": "sift_global_column_pool",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 126,
+    "type": "Function",
+    "name": "calculate_reduced_cost",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 128,
+    "type": "Function",
+    "name": "set_phase",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 130,
+    "type": "Function",
+    "name": "deduplicate_column_pool",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 132,
+    "type": "Function",
+    "name": "has_artificial_variables_active",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 135,
+    "type": "Function",
+    "name": "add_edge_clique_cut",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 143,
+    "type": "Function",
+    "name": "add_subset_row_cut",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 148,
+    "type": "Function",
+    "name": "add_capacity_cut",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 157,
+    "type": "Function",
+    "name": "add_lci_cut",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 166,
+    "type": "Function",
+    "name": "add_set_packing_capacity_cut",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 168,
+    "type": "Function",
+    "name": "add_sec_cut",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 181,
+    "type": "Function",
+    "name": "remove_local_cuts",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py",
+    "line": 183,
+    "type": "Function",
+    "name": "find_and_add_violated_rcc",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/alns_perturbation_context.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/reward/shaping.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/reward/shaping.py",
+    "line": 149,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/reward/shaping.py",
+    "line": 154,
+    "type": "Function",
+    "name": "adapt",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/reward/shaping.py",
+    "line": 163,
+    "type": "Function",
+    "name": "compute_reward",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/reward/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/features/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/features/state.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/features/state.py",
+    "line": 17,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/features/state.py",
+    "line": 123,
+    "type": "Function",
+    "name": "state_to_index",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/td_learning.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/base.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 104,
+    "type": "Function",
+    "name": "select_action",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 125,
+    "type": "Function",
+    "name": "select_super_arm",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 142,
+    "type": "Function",
+    "name": "update",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 179,
+    "type": "Function",
+    "name": "get_statistics",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 188,
+    "type": "Function",
+    "name": "get_weights",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 191,
+    "type": "Function",
+    "name": "save",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 206,
+    "type": "Function",
+    "name": "load",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/gpcmab.py",
+    "line": 215,
+    "type": "Function",
+    "name": "reset",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/linucb.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/thompson.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/base.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/base.py",
+    "line": 40,
+    "type": "Function",
+    "name": "decay_epsilon",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/base.py",
+    "line": 44,
+    "type": "Function",
+    "name": "select_action",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/base.py",
+    "line": 48,
+    "type": "Function",
+    "name": "get_weights",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/base.py",
+    "line": 51,
+    "type": "Function",
+    "name": "save",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/base.py",
+    "line": 54,
+    "type": "Function",
+    "name": "load",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/contextual/base.py",
+    "line": 57,
+    "type": "Function",
+    "name": "reset",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/bandits/exp3.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/bandits/epsilon_greedy.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/bandits/softmax.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/bandits/thompson.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/bandits/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/bandits/base.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/reinforcement_learning/agents/bandits/ucb.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/hpo/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/intra_route_local_search/cross_exchange.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/destroy_ruin/cluster.py",
+    "line": 57,
+    "type": "Function",
+    "name": "find",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/destroy_ruin/cluster.py",
+    "line": 63,
+    "type": "Function",
+    "name": "union",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/search_heuristics/large_neighborhood_search.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/search_heuristics/lin_kernighan_helsgaun_two.py",
+    "line": 250,
+    "type": "Function",
+    "name": "size",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/search_heuristics/_tour_adapter.py",
+    "line": 76,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/sequence_merging/markov_chain_sequence.py",
+    "line": 58,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/sequence_merging/markov_chain_sequence.py",
+    "line": 83,
+    "type": "Function",
+    "name": "index",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/sequence_merging/sequential_selection.py",
+    "line": 80,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/sequence_merging/sequential_selection.py",
+    "line": 103,
+    "type": "Function",
+    "name": "index",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/sequence_merging/aco_sequence.py",
+    "line": 68,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/sequence_merging/aco_sequence.py",
+    "line": 100,
+    "type": "Function",
+    "name": "index",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/crossover_recombination/random_node_inheritance.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/crossover_recombination/selective_route_exchange.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/crossover_recombination/generalized_partition.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/crossover_recombination/ordered.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/crossover_recombination/position_independent.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/crossover_recombination/edge_recombination.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/generalized_insertion_and_deletion/_routes.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/recreate_repair/regret.py",
+    "line": 138,
+    "type": "Function",
+    "name": "get_best_for_route",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/recreate_repair/regret.py",
+    "line": 389,
+    "type": "Function",
+    "name": "get_best_for_route_profit",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/recreate_repair/regret.py",
+    "line": 417,
+    "type": "Function",
+    "name": "get_seed_profit_regret",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/recreate_repair/multi_period.py",
+    "line": 266,
+    "type": "Function",
+    "name": "dfs_ef",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/recreate_repair/multi_period.py",
+    "line": 292,
+    "type": "Function",
+    "name": "find_nodes",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/policies/helpers/operators/recreate_repair/multi_period.py",
+    "line": 303,
+    "type": "Function",
+    "name": "dfs_p",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/enums/registry.py",
+    "line": 63,
+    "type": "Function",
+    "name": "decorator",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/models/subnets/modules/moe_layer.py",
+    "line": 90,
+    "type": "Function",
+    "name": "build_mlp",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/models/policies/operators/move/__init__.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/models/core/mdam/model.py",
+    "line": 56,
+    "type": "Function",
+    "name": "eval_model",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/gen_dataset.py",
+    "line": 48,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/gen_dataset.py",
+    "line": 90,
+    "type": "Function",
+    "name": "__len__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/npz_dataset.py",
+    "line": 24,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/npz_dataset.py",
+    "line": 27,
+    "type": "Function",
+    "name": "__len__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/npz_dataset.py",
+    "line": 31,
+    "type": "Function",
+    "name": "__getitem__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/pd_xlsx_dataset.py",
+    "line": 34,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/pd_xlsx_dataset.py",
+    "line": 37,
+    "type": "Function",
+    "name": "__len__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/pd_xlsx_dataset.py",
+    "line": 40,
+    "type": "Function",
+    "name": "__getitem__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/pd_csv_dataset.py",
+    "line": 30,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/pd_csv_dataset.py",
+    "line": 33,
+    "type": "Function",
+    "name": "__len__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/pd_csv_dataset.py",
+    "line": 36,
+    "type": "Function",
+    "name": "__getitem__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/np_pkl_dataset.py",
+    "line": 25,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/np_pkl_dataset.py",
+    "line": 28,
+    "type": "Function",
+    "name": "__len__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/np_pkl_dataset.py",
+    "line": 31,
+    "type": "Function",
+    "name": "__getitem__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/sim_dataset.py",
+    "line": 24,
+    "type": "Function",
+    "name": "__len__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/data/datasets/simulation/sim_dataset.py",
+    "line": 27,
+    "type": "Function",
+    "name": "__getitem__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/st_ef.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/st_ef.py",
+    "line": 43,
+    "type": "Function",
+    "name": "__post_init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/hgs_adc.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/hgs_adc.py",
+    "line": 7,
+    "type": "Class",
+    "name": "HGSADCConfig",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/lbbd.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/lbbd.py",
+    "line": 45,
+    "type": "Function",
+    "name": "__post_init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/cp_sat.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/abpc_hg.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/esdp.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/configs/policies/other/acceptance_criteria.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/simulator.py",
+    "line": 298,
+    "type": "Class",
+    "name": "SimpleCounter",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/simulator.py",
+    "line": 325,
+    "type": "Class",
+    "name": "ProgressUpdater",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/simulator.py",
+    "line": 299,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/simulator.py",
+    "line": 302,
+    "type": "Function",
+    "name": "update",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/simulator.py",
+    "line": 326,
+    "type": "Function",
+    "name": "update",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/repository/dataset.py",
+    "line": 30,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/bins/prediction.py",
+    "line": 51,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/simulations/bins/prediction.py",
+    "line": 35,
+    "type": "Function",
+    "name": "traverse",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/rl/hpo/ray_tune_hpo.py",
+    "line": 98,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/rl/hpo/hyp_rl_enc.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/rl/hpo/hyp_rl_pol.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/rl/hpo/base.py",
+    "line": 110,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/rl/core/time_tracking.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/features/train/hpo.py",
+    "line": 193,
+    "type": "Function",
+    "name": "dehb_obj",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/features/test/orchestrator/results_handler.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/features/test/orchestrator/monitor.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/pipeline/features/test/orchestrator/parallel_runner.py",
+    "line": 1,
+    "type": "Module",
+    "name": "<module>",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/utils/validation/debug_utils.py",
+    "line": 60,
+    "type": "Function",
+    "name": "tracer",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/utils/validation/debug_utils.py",
+    "line": 47,
+    "type": "Function",
+    "name": "default_callback",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/utils/validation/visualize_module_graph.py",
+    "line": 232,
+    "type": "Function",
+    "name": "pkg",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/utils/validation/visualize_module_graph.py",
+    "line": 281,
+    "type": "Function",
+    "name": "pkg",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/envs/routing/atsp.py",
+    "line": 38,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/envs/routing/pctsp.py",
+    "line": 41,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/envs/routing/op.py",
+    "line": 41,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/envs/routing/pdp.py",
+    "line": 43,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/envs/routing/spctsp.py",
+    "line": 33,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/envs/routing/cvrp.py",
+    "line": 40,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  },
+  {
+    "path": "/home/pkhunter/Repositories/WSmart-Route/logic/src/envs/routing/thop.py",
+    "line": 64,
+    "type": "Function",
+    "name": "__init__",
+    "description": "Missing docstring"
+  }
+]
