@@ -1,5 +1,15 @@
 """
 Strategy for computing distances using Google Maps API.
+
+Attributes:
+    GoogleMapsStrategy: Strategy for computing distances using Google Maps API.
+
+Example:
+    >>> from logic.src.data.network.google import GoogleMapsStrategy
+    >>> strategy = GoogleMapsStrategy()
+    >>> strategy.calculate(pd.DataFrame({"Lng": [0, 1], "Lat": [0, 1]}))
+    array([[0.        , 111.31949079],
+           [111.31949079, 0.        ]])
 """
 
 import os
@@ -17,11 +27,22 @@ from .base import DistanceStrategy
 
 
 class GoogleMapsStrategy(DistanceStrategy):
-    """Strategy for computing distances using Google Maps API."""
+    """Strategy for computing distances using Google Maps API.
+
+    Attributes:
+        None
+    """
 
     def calculate(self, coords: pd.DataFrame, **kwargs: Any) -> np.ndarray:
         """
         Computes distances using the Google Maps Distance Matrix API.
+
+        Args:
+            coords: DataFrame with coordinates (must contain 'Lat', 'Lng' columns).
+            kwargs: Additional arguments for the distance strategy.
+
+        Returns:
+            Distance matrix as a NumPy array.
         """
         assert self._eval_kwarg("env_filename", kwargs)
         env_path = os.path.join(ROOT_DIR, "env", kwargs["env_filename"])

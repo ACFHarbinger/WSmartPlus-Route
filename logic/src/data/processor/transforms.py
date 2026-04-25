@@ -1,5 +1,25 @@
 """
 Data augmentation transforms for RL4CO.
+
+Attributes:
+    batchify: Repeats the TensorDict along a new dimension.
+    dihedral_8_augmentation: Augmentation (x8) for grid-based data (x, y) using Dihedral group D4.
+    dihedral_8_augmentation_wrapper: Wrapper for dihedral_8_augmentation.
+    symmetric_transform: Symmetric rotation and reflection transform.
+    symmetric_augmentation: Augment xy data by `num_augment` times via symmetric transform.
+    min_max_normalize: Normalize tensor to [0, 1] range using min-max scaling.
+    get_augment_function: Get augmentation function by name or return callable directly.
+    StateAugmentation: Augment state by N times via symmetric rotation/reflection transform.
+
+Example:
+    batchify(td, num_samples)
+    dihedral_8_augmentation(xy)
+    dihedral_8_augmentation_wrapper(xy, reduce=True)
+    symmetric_transform(x, y, phi, offset=0.5)
+    symmetric_augmentation(xy, num_augment=8, first_augment=False)
+    min_max_normalize(x)
+    get_augment_function("dihedral8")
+    state_augmentation = StateAugmentation(num_augment=8, augment_fn="symmetric")
 """
 
 import math
@@ -14,7 +34,15 @@ log = get_pylogger(__name__)
 
 
 def batchify(td: TensorDict, num_samples: int) -> TensorDict:
-    """Repeats the TensorDict along a new dimension."""
+    """Repeats the TensorDict along a new dimension.
+
+    Args:
+        td: TensorDict to repeat.
+        num_samples: Number of times to repeat.
+
+    Returns:
+        Repeated TensorDict.
+    """
     # Tensordict 0.3.1 might not propagate reshape(-1) to all keys correctly
     # Use repeat_interleave which is more explicit
     try:
@@ -44,6 +72,9 @@ def dihedral_8_augmentation(xy: torch.Tensor) -> torch.Tensor:
     Augmentation (x8) for grid-based data (x, y) using Dihedral group D4.
     Args:
         xy: [batch, graph, 2] tensor of x and y coordinates
+
+    Returns:
+        [batch*8, graph, 2] tensor of augmented x and y coordinates
     """
     x, y = xy.split(1, dim=2)
     # Augmentations [batch, graph, 2]
@@ -61,7 +92,17 @@ def dihedral_8_augmentation(xy: torch.Tensor) -> torch.Tensor:
 
 
 def dihedral_8_augmentation_wrapper(xy: torch.Tensor, reduce: bool = True, *args, **kw) -> torch.Tensor:
-    """Wrapper for dihedral_8_augmentation."""
+    """Wrapper for dihedral_8_augmentation.
+
+    Args:
+        xy: [batch, graph, 2] tensor of x and y coordinates
+        reduce: Whether to reduce the batch size by a factor of 8.
+        args: Additional arguments.
+        kw: Additional keyword arguments.
+
+    Returns:
+        [batch*8, graph, 2] tensor of augmented x and y coordinates
+    """
     if reduce:
         if xy.shape[0] % 8 != 0:
             # Fallback or warning if batch size is not divisible by 8
@@ -72,7 +113,17 @@ def dihedral_8_augmentation_wrapper(xy: torch.Tensor, reduce: bool = True, *args
 
 
 def symmetric_transform(x: torch.Tensor, y: torch.Tensor, phi: torch.Tensor, offset: float = 0.5):
-    """Symmetric rotation and reflection transform."""
+    """Symmetric rotation and reflection transform.
+
+    Args:
+        x: x coordinates.
+        y: y coordinates.
+        phi: Rotation angles.
+        offset: Offset for transformation.
+
+    Returns:
+        Augmented coordinates.
+    """
     x, y = x - offset, y - offset
     # Random rotation
     x_prime = torch.cos(phi) * x - torch.sin(phi) * y
@@ -91,7 +142,18 @@ def symmetric_augmentation(
     generator: Optional[torch.Generator] = None,
     **kwargs,
 ):
-    """Augment xy data by `num_augment` times via symmetric transform."""
+    """Augment xy data by `num_augment` times via symmetric transform.
+
+    Args:
+        xy: [batch, graph, 2] tensor of x and y coordinates
+        num_augment: Number of augmented copies to generate.
+        first_augment: If True, first augmentation is the identity.
+        generator: Random number generator.
+        kwargs: Additional keyword arguments.
+
+    Returns:
+        [batch*num_augment, graph, 2] tensor of augmented x and y coordinates
+    """
     if generator is None:
         generator = torch.Generator(device=xy.device)
     total_batch = xy.shape[0]
@@ -144,6 +206,13 @@ def get_augment_function(augment_fn: Union[str, Callable]):
 class StateAugmentation:
     """
     Augment state by N times via symmetric rotation/reflection transform.
+
+    Attributes:
+        num_augment: Number of augmented copies to generate.
+        augment_fn: Augmentation function ('symmetric', 'dihedral8', or callable).
+        first_aug_identity: If True, first augmentation is the identity.
+        normalize: Whether to apply min-max normalization after augmentation.
+        feats: List of feature names to augment (default: ['locs']).
     """
 
     def __init__(

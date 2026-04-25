@@ -1,5 +1,16 @@
 """
 Dataset that generates instances on-the-fly.
+
+Attributes:
+    GeneratorDataset: Dataset that generates instances on-the-fly.
+
+Example:
+    >>> from logic.src.data.datasets import GeneratorDataset
+    >>> dataset = GeneratorDataset(generator, size)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from tensordict.tensordict import TensorDict
@@ -9,6 +20,10 @@ from torch.utils.data import Dataset
 class GeneratorDataset(Dataset):
     """
     Dataset that generates instances on-the-fly.
+
+    Attributes:
+        generator: A callable that generates TensorDicts when invoked.
+        size: The virtual size of the dataset.
     """
 
     def __init__(self, generator, size: int):

@@ -16,7 +16,14 @@ from .base import BaseDistribution
 
 
 class Mixed(BaseDistribution):
-    """50% uniform + 50% Gaussian clusters."""
+    """50% uniform + 50% Gaussian clusters.
+
+    Attributes:
+        n_cluster_mix: Number of clusters to mix.
+        lower: Lower bound for cluster centers.
+        upper: Upper bound for cluster centers.
+        std: Standard deviation for Gaussian clusters.
+    """
 
     def __init__(self, n_cluster_mix: int = 1):
         """Initialize Class.
@@ -79,7 +86,15 @@ class Mixed(BaseDistribution):
         return coords.clamp_(0, 1)
 
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
-        """NumPy version of _sample_tensor."""
+        """Sample from 50% uniform + 50% Gaussian clusters.
+
+        Args:
+            size (Tuple[int, ...]): Tuple of size (batch_size, num_loc, 2).
+            rng (Optional[np.random.Generator], optional): Random number generator.
+
+        Returns:
+            np.ndarray: Sampled values.
+        """
         if rng is None:
             rng = np.random.default_rng()
 

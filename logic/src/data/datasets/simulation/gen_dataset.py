@@ -4,6 +4,17 @@ Generative simulation dataset that produces training examples on the fly.
 This module provides a ``GenerativeDataset`` that lazily generates waste
 samples using distribution classes from ``logic.src.data.distributions``,
 without requiring pre-computed data files.
+
+Attributes:
+    GenerativeDataset: Dataset that generates instances on-the-fly.
+
+Example:
+    >>> from logic.src.data.datasets import GenerativeDataset
+    >>> dataset = GenerativeDataset(generator, size)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Any, Dict, Optional, Tuple
@@ -30,7 +41,7 @@ class GenerativeDataset(SimulationDataset):
     Samples are reproducible: each index gets a deterministic seed derived
     from ``base_seed + index``.
 
-    Args:
+    Attributes:
         data_dir: Path to data directory.
         n_samples: Total number of virtual samples.
         n_days: Number of simulation days per sample.
@@ -60,7 +71,22 @@ class GenerativeDataset(SimulationDataset):
         grid: Optional[Any] = None,
         seed: Optional[int] = None,
     ):
-        """Initialize the generative dataset."""
+        """Initialize the generative dataset.
+
+        Args:
+            data_dir: Description of data_dir.
+            n_samples: Description of n_samples.
+            n_days: Description of n_days.
+            n_bins: Description of n_bins.
+            distribution: Description of distribution.
+            depot: Description of depot.
+            locs: Description of locs.
+            noise_mean: Description of noise_mean.
+            noise_variance: Description of noise_variance.
+            max_waste: Description of max_waste.
+            grid: Description of grid.
+            seed: Description of seed.
+        """
         self.data_dir = data_dir
         self.n_samples = n_samples
         self.n_days = n_days
@@ -89,7 +115,11 @@ class GenerativeDataset(SimulationDataset):
         self.noisy_waste_fills = self._apply_noise(self.waste_fills)
 
     def __len__(self) -> int:
-        """Return the number of samples in the dataset."""
+        """Return the number of samples in the dataset.
+
+        Returns:
+            Description of return value.
+        """
         return self.n_samples
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:

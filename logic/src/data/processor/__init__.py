@@ -11,6 +11,18 @@ Submodules
 - ``dataframes``:  DataFrame helpers (sort, sample, convert, export)
 - ``processing``:  Data transform wrappers (process_data, process_coordinates, process_model_data)
 - ``setup``:       Simulation bootstrap (setup_basedata, setup_dist_path_tup)
+
+Attributes:
+    dataframes: DataFrame helpers (sort, sample, convert, export)
+    formatting: Coordinate normalization methods (mmn, wmp, hdp, …)
+    mapper:      ``SimulationDataMapper`` class
+    processing:  Data transform wrappers (process_data, process_coordinates, process_model_data)
+    setup:       Simulation bootstrap (setup_basedata, setup_dist_path_tup)
+
+Example:
+    >>> from logic.src.data.processor.dataframes import convert_to_dict
+    >>> convert_to_dict(pd.DataFrame({"Lng": [0, 1], "Lat": [0, 1]}))
+    {'Lng': [0, 1], 'Lat': [0, 1]}
 """
 
 from .dataframes import (

@@ -1,5 +1,16 @@
 """
 NumPy dict dataset for simulation data stored in .npz files.
+
+Attributes:
+    NumpyDictDataset: Dataset wrapping a dict of named numpy arrays.
+
+Example:
+    >>> from logic.src.data.datasets import NumpyDictDataset
+    >>> dataset = NumpyDictDataset(data)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Dict
@@ -19,26 +30,55 @@ class NumpyDictDataset(SimulationDataset):
         - 'waste': (n_samples, n_days, n_nodes)
         - 'noisy_waste': (n_samples, n_days, n_nodes)
         - 'max_waste': (n_samples,)
+
+    Attributes:
+        data: Dictionary containing the dataset.
     """
 
     def __init__(self, data: Dict[str, np.ndarray]):
-        """Initialize the NumPy dict dataset."""
+        """Initialize the NumPy dict dataset.
+
+        Args:
+            data: Description of data.
+        """
         self.data = data
 
     def __len__(self) -> int:
-        """Return the number of samples in the dataset."""
+        """Return the number of samples in the dataset.
+
+        Returns:
+            Description of return value.
+        """
         first_key = next(iter(self.data))
         return self.data[first_key].shape[0]
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
-        """Return the sample at the given index."""
+        """Return the sample at the given index.
+
+        Args:
+            index: Description of index.
+
+        Returns:
+            Description of return value.
+        """
         return {key: arr[index] for key, arr in self.data.items()}
 
     @staticmethod
     def load(path: str) -> "NumpyDictDataset":
-        """Load a NumpyDictDataset from a .npz file."""
+        """Load a NumpyDictDataset from a .npz file.
+
+        Args:
+            path: Description of path.
+
+        Returns:
+            Description of return value.
+        """
         return NumpyDictDataset(dict(np.load(path)))
 
     def save(self, path: str) -> None:
-        """Save the dataset to a .npz file."""
+        """Save the dataset to a .npz file.
+
+        Args:
+            path: Description of path.
+        """
         np.savez_compressed(path, **self.data)

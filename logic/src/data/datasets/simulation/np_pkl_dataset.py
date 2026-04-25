@@ -1,5 +1,16 @@
 """
 NumPy pickle dataset for legacy simulation data stored in .pkl files.
+
+Attributes:
+    NumpyPickleDataset: Dataset wrapping legacy pickle simulation data.
+
+Example:
+    >>> from logic.src.data.datasets import NumpyPickleDataset
+    >>> dataset = NumpyPickleDataset(data)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 import pickle
@@ -20,18 +31,36 @@ class NumpyPickleDataset(SimulationDataset):
 
     This class normalises access so that __getitem__ always returns a dict
     with the same keys as NumpyDictDataset.
+
+    Attributes:
+        data: List of tuples containing the dataset.
     """
 
     def __init__(self, data: List[Tuple[Any, ...]]):
-        """Initialize the NumPy pickle dataset."""
+        """Initialize the NumPy pickle dataset.
+
+        Args:
+            data: Description of data.
+        """
         self._data = data
 
     def __len__(self) -> int:
-        """Return the number of samples in the dataset."""
+        """Return the number of samples in the dataset.
+
+        Returns:
+            Description of return value.
+        """
         return len(self._data)
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
-        """Return the sample at the given index."""
+        """Return the sample at the given index.
+
+        Args:
+            index: Description of index.
+
+        Returns:
+            Description of return value.
+        """
         sample = self._data[index]
         if len(sample) == 5:
             depot, locs, waste, noisy_waste, max_waste = sample
@@ -50,7 +79,14 @@ class NumpyPickleDataset(SimulationDataset):
 
     @staticmethod
     def load(path: str) -> "NumpyPickleDataset":
-        """Load a NumpyPickleDataset from a .pkl file."""
+        """Load a NumpyPickleDataset from a .pkl file.
+
+        Args:
+            path: Description of path.
+
+        Returns:
+            Description of return value.
+        """
         with open(path, "rb") as f:
             data = pickle.load(f)  # noqa: S301
         return NumpyPickleDataset(data)

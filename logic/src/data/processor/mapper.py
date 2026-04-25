@@ -1,5 +1,16 @@
 """
 Data Mapper for transformation between raw data and simulation representations.
+
+Attributes:
+    SimulationDataMapper: Instance of SimulationDataMapper.
+
+Example:
+    from logic.src.data.processor import SimulationDataMapper
+    mapper = SimulationDataMapper()
+    depot_sample = pd.DataFrame([{'ID': 0, 'Lat': 40.7128, 'Lng': -74.0060}])
+    bin_samples = pd.DataFrame([{'ID': 1, 'Lat': 40.7128, 'Lng': -74.0060}, {'ID': 2, 'Lat': 40.7128, 'Lng': -74.0060}])
+    coords_sample = pd.DataFrame([{'ID': 0, 'Lat': 40.7128, 'Lng': -74.0060}, {'ID': 1, 'Lat': 40.7128, 'Lng': -74.0060}, {'ID': 2, 'Lat': 40.7128, 'Lng': -74.0060}])
+    mapper.process_raw_data(bin_samples, coords_sample, depot_sample)
 """
 
 import json
@@ -27,16 +38,35 @@ from .formatting import format_coordinates
 class SimulationDataMapper:
     """
     Data Mapper for the WSmart+ Route simulator.
+    Attributes:
+        None
     """
 
     def sort_dataframe(self, df: pd.DataFrame, metric_tosort: str, ascending_order: bool = True) -> pd.DataFrame:
-        """Sorts a DataFrame by a metric."""
+        """Sorts a DataFrame by a metric.
+
+        Args:
+            df: DataFrame to sort.
+            metric_tosort: Metric to sort by.
+            ascending_order: Whether to sort in ascending order.
+
+        Returns:
+            Sorted DataFrame.
+        """
         df = df.sort_values(by=metric_tosort, ascending=ascending_order)
         columns = [metric_tosort] + [col for col in df.columns if col != metric_tosort]
         return cast(pd.DataFrame, df[columns])
 
     def get_df_types(self, df: pd.DataFrame, prec: str = "32") -> Dict[str, str]:
-        """Infers and maps column data types to specific precisions."""
+        """Infers and maps column data types to specific precisions.
+
+        Args:
+            df: DataFrame to get types from.
+            prec: Precision to use for floating point and integer types.
+
+        Returns:
+            Dictionary of column names to data types.
+        """
         df_types = dict(df.dtypes)
         for key, val in df_types.items():
             if key == "ID":
@@ -57,7 +87,17 @@ class SimulationDataMapper:
         col_names: List[str],
         index_name: Optional[str] = "#bin",
     ) -> pd.DataFrame:
-        """Merges depot and bin data."""
+        """Merges depot and bin data.
+
+        Args:
+            depot: DataFrame containing depot data.
+            df: DataFrame containing bin data.
+            col_names: List of column names to include.
+            index_name: Name of the index column.
+
+        Returns:
+            DataFrame containing merged and sorted data.
+        """
         df = df.loc[:, col_names].copy()
         df.loc[-1] = depot.loc[0, col_names].values
         df.index = df.index + 1
@@ -77,7 +117,17 @@ class SimulationDataMapper:
         depot: Optional[pd.DataFrame] = None,
         output_path: Optional[str] = None,
     ) -> pd.DataFrame:
-        """Samples a subset of bins."""
+        """Samples a subset of bins.
+
+        Args:
+            df: DataFrame to sample from.
+            n_elems: Number of elements to sample.
+            depot: Optional depot DataFrame to add to the sample.
+            output_path: Optional path to save the sample indices.
+
+        Returns:
+            Sampled DataFrame.
+        """
         df = df.sample(n=n_elems)
         df_types = self.get_df_types(df)
         if depot is not None:
@@ -94,7 +144,15 @@ class SimulationDataMapper:
         return df.sort_values(by="ID").reset_index(drop=True).astype(df_types)
 
     def process_indices(self, df: pd.DataFrame, indices: Optional[List[int]]) -> pd.DataFrame:
-        """Extracts subset based on indices."""
+        """Extracts subset based on indices.
+
+        Args:
+            df: DataFrame to extract subset from.
+            indices: Indices to extract.
+
+        Returns:
+            Subset of DataFrame.
+        """
         if indices is None:
             return df.copy()
         if "index" in df.columns or "ID" in df.columns:
@@ -114,7 +172,17 @@ class SimulationDataMapper:
         depot: pd.DataFrame,
         indices: Optional[List[int]] = None,
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """Prepares coordinate and statistic data."""
+        """Prepares coordinate and statistic data.
+
+        Args:
+            data: DataFrame containing bin data.
+            bins_coordinates: DataFrame containing bin coordinates.
+            depot: DataFrame containing depot data.
+            indices: Optional indices to extract.
+
+        Returns:
+            Tuple of (DataFrame, DataFrame) containing processed data and coordinates.
+        """
         new_data = self.process_indices(data, indices)
         coords = self.process_indices(bins_coordinates, indices)
         coords = self.setup_df(depot, coords, ["ID", "Lat", "Lng"])
@@ -124,7 +192,17 @@ class SimulationDataMapper:
     def _prepare_model_data(
         self, coordinates: Any, method: str, configs: Dict[str, Any], problem_size: int
     ) -> Dict[str, torch.Tensor]:
-        """Prepare the base model data dictionary."""
+        """Prepare the base model data dictionary.
+
+        Args:
+            coordinates: Coordinates of bins.
+            method: Normalization method.
+            configs: Configuration dictionary.
+            problem_size: Size of the problem.
+
+        Returns:
+            Dictionary of model data.
+        """
         depot, loc = format_coordinates(coordinates, method)
         model_data = {
             "locs": torch.as_tensor(loc, dtype=torch.float32),
@@ -151,7 +229,19 @@ class SimulationDataMapper:
         edge_method: str,
         adj_matrix: Optional[np.ndarray],
     ) -> Optional[torch.Tensor]:
-        """Prepare edge indices and adjacency matrix."""
+        """Prepare edge indices and adjacency matrix.
+
+        Args:
+            dist_matrix: Distance matrix.
+            configs: Configuration dictionary.
+            device: Device to use.
+            edge_threshold: Threshold for edge detection.
+            edge_method: Method to use for edge detection.
+            adj_matrix: Adjacency matrix.
+
+        Returns:
+            Edge indices and adjacency matrix.
+        """
         if not (0 < edge_threshold < 1):
             return None
 
@@ -173,7 +263,15 @@ class SimulationDataMapper:
         return edges.unsqueeze(0).to(device, dtype=dtype)
 
     def _load_profit_vars(self, area: str, waste_type: str) -> Dict[str, float]:
-        """Load profit-related variables for the simulation."""
+        """Load profit-related variables for the simulation.
+
+        Args:
+            area: Area of the simulation.
+            waste_type: Type of waste.
+
+        Returns:
+            Dictionary of profit-related variables.
+        """
         from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 
         (
@@ -204,7 +302,23 @@ class SimulationDataMapper:
         waste_type: str,
         adj_matrix: Optional[np.ndarray] = None,
     ) -> Tuple[Dict[str, torch.Tensor], Tuple[Optional[torch.Tensor], torch.Tensor], Dict[str, float]]:
-        """Prepares data for neural models."""
+        """Prepares data for neural models.
+
+        Args:
+            coordinates: Coordinates of bins.
+            dist_matrix: Distance matrix.
+            device: Device to use.
+            method: Normalization method.
+            configs: Configuration dictionary.
+            edge_threshold: Threshold for edge detection.
+            edge_method: Method to use for edge detection.
+            area: Area of the simulation.
+            waste_type: Type of waste.
+            adj_matrix: Adjacency matrix.
+
+        Returns:
+            Tuple of (model data, edges and distance matrix, profit variables).
+        """
         problem_size = len(dist_matrix) - 1
 
         # 1. Prepare Model Data
@@ -228,7 +342,16 @@ class SimulationDataMapper:
     def save_results(
         self, matrix: List[List[float]], results_dir: str, seed: int, data_dist: str, policy: str, sample_id: int
     ) -> None:
-        """Exports history to Excel."""
+        """Exports fill history to Excel.
+
+        Args:
+            matrix: Fill history matrix.
+            results_dir: Directory to save results.
+            seed: Random seed.
+            data_dist: Data distribution.
+            policy: Policy used.
+            sample_id: Sample ID.
+        """
         path = os.path.join(results_dir, "fill_history", data_dist)
         os.makedirs(path, exist_ok=True)
         filepath = os.path.join(path, f"{policy}{seed}_sample{sample_id}.xlsx")

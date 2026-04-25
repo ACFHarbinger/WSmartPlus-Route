@@ -1,5 +1,27 @@
 """
 Facade for sampling distributions.
+
+Attributes:
+    BaseDistribution: Base class for sampling distributions.
+    Cluster: Cluster distribution.
+    Mixed: Mixed distribution.
+    GaussianMixture: Gaussian mixture distribution.
+    Gamma: Gamma distribution.
+    Empirical: Empirical distribution.
+    MixDistribution: Mix distribution.
+    MixMultiDistributions: Multi-mix distribution.
+    Distance: Distance distribution.
+    BernoulliGammaMixture: Bernoulli-gamma mixture distribution.
+    Beta: Beta distribution.
+    Constant: Constant distribution.
+    CompoundPoissonGamma: Compound Poisson-gamma distribution.
+    Uniform: Uniform distribution.
+    DISTRIBUTION_REGISTRY: Registry of sampling distributions.
+
+Example:
+    >>> from logic.src.data.distributions import BernoulliGammaMixture
+    >>> distribution = BernoulliGammaMixture()
+    >>> print(distribution.sample())
 """
 
 from typing import Any, Callable

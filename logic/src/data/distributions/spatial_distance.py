@@ -1,5 +1,13 @@
 """
 Spatial sampling distributions - Distance-based.
+
+Attributes:
+    Distance: Distance-based sampling.
+
+Example:
+    >>> from logic.src.data.distributions import Distance
+    >>> distance = Distance()
+    >>> print(distance.sample())
 """
 
 from typing import Any, Optional, Tuple, Union
@@ -11,7 +19,11 @@ from .base import BaseDistribution
 
 
 class Distance(BaseDistribution):
-    """Distance-based sampling."""
+    """Distance-based sampling.
+
+    Attributes:
+        graph: Graph containing depot and locations.
+    """
 
     def __init__(self, graph: Tuple[Any, Any]):
         """Initialize Class.
@@ -25,6 +37,10 @@ class Distance(BaseDistribution):
         self, size: Tuple[int, ...], rng: Optional[Union[torch.Generator, np.random.Generator]] = None
     ) -> np.ndarray:
         """Sample from distance-based distribution.
+
+        Args:
+            size: Description of size.
+            rng: Description of rng.
 
         Returns:
             np.ndarray: Sampled values [num_loc] or [batch_size, num_loc]
@@ -43,7 +59,15 @@ class Distance(BaseDistribution):
             return np.broadcast_to(res, size)
 
     def _sample_tensor(self, size: Tuple[int, ...], generator: Optional[torch.Generator] = None) -> torch.Tensor:
-        """PyTorch version of distance-based sampling."""
+        """PyTorch version of distance-based sampling.
+
+        Args:
+            size: Description of size.
+            generator: Description of generator.
+
+        Returns:
+            Description of return value.
+        """
         # Ensure inputs are tensors
         depot = torch.as_tensor(self.depot).float()
         loc = torch.as_tensor(self.loc).float()

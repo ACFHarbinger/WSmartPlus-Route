@@ -1,5 +1,31 @@
 """
 Dataset classes for WSmart-Route.
+
+Attributes:
+    BaselineDataset: BaseLine dataset for training.
+    ExtraKeyDataset: Extra Key dataset for training.
+    TensorDictDatasetFastGeneration: TensorDict dataset for fast generation.
+    FastTdDataset: Fast TensorDict dataset for training.
+    GeneratorDataset: Generator dataset for training.
+    TensorDictDataset: TensorDict dataset for training.
+    GenerativeDataset: Generative dataset for simulation.
+    NumpyDictDataset: NumpyDict dataset for simulation.
+    NumpyPickleDataset: NumpyPickle dataset for simulation.
+    PandasCsvDataset: PandasCsv dataset for simulation.
+    PandasExcelDataset: PandasExcel dataset for simulation.
+    SimulationDataset: Simulation dataset for simulation.
+    td_kwargs: Generator dataset for training.
+    tensordict_collate_fn: Generator dataset for training.
+
+Example:
+    >>> from logic.src.data.datasets import td_kwargs, tensordict_collate_fn, BaselineDataset
+    >>> td_kwargs = td_kwargs()
+    >>> tensordict_collate_fn = tensordict_collate_fn()
+    >>> dataset = BaselineDataset(**td_kwargs)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 # Import from utils.data.td_utils, not from a local td_utils

@@ -1,5 +1,16 @@
 """
 Dataset with extra key/value pairs.
+
+Attributes:
+    ExtraKeyDataset: Dataset that includes an extra key/value pair (e.g., for baseline rewards).
+
+Example:
+    >>> from logic.src.data.datasets import ExtraKeyDataset
+    >>> dataset = ExtraKeyDataset(dataset, extra)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Sized, cast
@@ -11,6 +22,10 @@ from torch.utils.data import Dataset
 class ExtraKeyDataset(Dataset):
     """
     Dataset that includes an extra key/value pair (e.g., for baseline rewards).
+
+    Attributes:
+        dataset: The underlying dataset.
+        extra: Dictionary of extra tensors to include (e.g., {'baseline': ...}).
     """
 
     def __init__(self, dataset: Dataset, extra: dict[str, torch.Tensor]):

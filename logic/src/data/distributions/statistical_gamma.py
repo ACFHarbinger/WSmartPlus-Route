@@ -1,5 +1,13 @@
 """
 Statistical sampling distributions - Gamma.
+
+Attributes:
+    Gamma(alpha, theta, option):
+        Gamma distribution sampling.
+
+Example:
+    gamma = Gamma()
+    gamma.sample(torch.Size((10, 50)))
 """
 
 import math
@@ -14,7 +22,13 @@ from .base import BaseDistribution
 
 
 class Gamma(BaseDistribution):
-    """Gamma distribution sampling with optional per-node preset parameters."""
+    """Gamma distribution sampling with optional per-node preset parameters.
+
+    Attributes:
+        alpha (Union[float, torch.Tensor]): Shape parameter.
+        theta (Union[float, torch.Tensor]): Scale parameter.
+        option (Optional[int]): Preset index for per-node parameters.
+    """
 
     def __init__(
         self,

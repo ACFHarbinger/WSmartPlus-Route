@@ -1,5 +1,13 @@
 """
 Statistical sampling distributions - Constant.
+
+Attributes:
+    Constant(value: Union[float, torch.Tensor] = 1.0):
+        Constant value sampling.
+
+Example:
+    constant = Constant()
+    constant.sample(torch.Size((10, 50)))
 """
 
 from typing import Optional, Tuple, Union
@@ -11,7 +19,11 @@ from .base import BaseDistribution
 
 
 class Constant(BaseDistribution):
-    """Constant value sampling."""
+    """Constant value sampling.
+
+    Attributes:
+        value (Union[float, torch.Tensor]): Constant value to return.
+    """
 
     def __init__(self, value: Union[float, torch.Tensor] = 1.0):
         """Initialize Class.

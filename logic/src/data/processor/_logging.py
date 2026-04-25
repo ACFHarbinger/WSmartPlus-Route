@@ -1,4 +1,13 @@
-"""Internal logging helper for processor events."""
+"""Internal logging helper for processor events.
+
+Attributes:
+    _log_processor_event: Logs a data processing event to the active tracking run (if any).
+
+Example:
+    >>> from logic.src.data.processor._logging import _log_processor_event
+    >>> _log_processor_event("test_event", shape=(10,))
+    >>>
+"""
 
 import contextlib
 import sys
@@ -10,7 +19,15 @@ except ImportError:
 
 
 def _log_processor_event(event_name, variable_name="data", event_type="mutate", shape=None, **kwargs):
-    """Log a data processing event to the active tracking run (if any)."""
+    """Log a data processing event to the active tracking run (if any).
+
+    Args:
+        event_name: Description of event_name.
+        variable_name: Description of variable_name.
+        event_type: Description of event_type.
+        shape: Description of shape.
+        kwargs: Description of kwargs.
+    """
     try:
         source_line = sys._getframe(1).f_lineno
     except Exception:

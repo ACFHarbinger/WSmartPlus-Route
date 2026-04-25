@@ -19,7 +19,11 @@ from .spatial_mixed import Mixed
 
 
 class MixMultiDistributions(BaseDistribution):
-    """Batch-wise sampling from multiple distribution variants."""
+    """Batch-wise sampling from multiple distribution variants.
+
+    Attributes:
+        distributions: List of distribution classes and their arguments.
+    """
 
     def __init__(self):
         """Initialize Class.
@@ -73,7 +77,15 @@ class MixMultiDistributions(BaseDistribution):
         return coords.clamp_(0, 1)
 
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
-        """NumPy version of the distribution-mixing sampler."""
+        """Sample from multiple distributions.
+
+        Args:
+            size (Tuple[int, ...]): Tuple of size (batch_size, num_loc, 2).
+            rng (Optional[np.random.Generator], optional): Random number generator.
+
+        Returns:
+            np.ndarray: Sampled values.
+        """
         if rng is None:
             rng = np.random.default_rng()
 

@@ -1,5 +1,13 @@
 """
 Statistical sampling distributions - Compound Poisson-Gamma.
+
+Attributes:
+    CompoundPoissonGamma(lam, alpha, theta):
+        Compound Poisson-Gamma distribution sampling.
+
+Example:
+    cpg = CompoundPoissonGamma()
+    cpg.sample(torch.Size((10, 50)))
 """
 
 from typing import Optional, Tuple, Union
@@ -11,7 +19,13 @@ from .base import BaseDistribution
 
 
 class CompoundPoissonGamma(BaseDistribution):
-    """Compound Poisson-Gamma distribution sampling."""
+    """Compound Poisson-Gamma distribution sampling.
+
+    Attributes:
+        lam (Union[float, torch.Tensor]): Poisson rate parameter (expected number of events).
+        alpha (Union[float, torch.Tensor]): Gamma shape parameter for each event.
+        theta (Union[float, torch.Tensor]): Gamma scale parameter for each event.
+    """
 
     def __init__(
         self,

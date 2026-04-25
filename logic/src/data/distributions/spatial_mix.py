@@ -18,7 +18,12 @@ from .spatial_mixed import Mixed
 
 
 class MixDistribution(BaseDistribution):
-    """33/33/33 mix of Uniform/Cluster/Mixed."""
+    """33/33/33 mix of Uniform/Cluster/Mixed.
+
+    Attributes:
+        n_cluster: Number of clusters.
+        n_cluster_mix: Number of clusters in the mixed distribution.
+    """
 
     def __init__(self, n_cluster: int = 3, n_cluster_mix: int = 1):
         """Initialize Class.
@@ -61,7 +66,15 @@ class MixDistribution(BaseDistribution):
         return coords
 
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
-        """NumPy version of the probabilistic spatial sampler."""
+        """Sample from a 33/33/33 mix of Uniform/Cluster/Mixed distributions.
+
+        Args:
+            size (Tuple[int, ...]): Tuple of size (batch_size, num_loc, 2).
+            rng (Optional[np.random.Generator], optional): Random number generator.
+
+        Returns:
+            np.ndarray: Sampled values.
+        """
         if rng is None:
             rng = np.random.default_rng()
 

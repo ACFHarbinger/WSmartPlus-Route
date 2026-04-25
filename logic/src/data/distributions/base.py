@@ -1,5 +1,13 @@
 """
 Statistical sampling distributions.
+
+Attributes:
+    BaseDistribution: Base class for sampling distributions.
+
+Example:
+    >>> from logic.src.data.distributions import BaseDistribution
+    >>> distribution = BaseDistribution()
+    >>> print(distribution.sample())
 """
 
 from abc import ABC, abstractmethod
@@ -12,10 +20,19 @@ from logic.src.constants import MAX_WASTE
 
 
 class BaseDistribution(ABC):
-    """Constant value sampling."""
+    """Constant value sampling.
+
+    Attributes:
+        _sampling_method: Sampling method.
+    """
 
     def __init__(self, *args, **kwargs):
-        """Initialize Class."""
+        """Initialize Class.
+
+        Args:
+            args: Description of args.
+            kwargs: Description of kwargs.
+        """
         self._sampling_method = None
 
     def set_sampling_method(self, sampling_method: str):
@@ -23,6 +40,9 @@ class BaseDistribution(ABC):
 
         Args:
             sampling_method: Sampling method.
+
+        Returns:
+            Description of return value.
         """
         self._sampling_method = sampling_method
         return self

@@ -1,5 +1,13 @@
 """
 Statistical sampling distributions - Uniform.
+
+Attributes:
+    Uniform(low, high):
+        Uniform distribution sampling.
+
+Example:
+    dist = Uniform()
+    data = dist._sample_tensor(torch.Size((10, 50)))
 """
 
 from typing import Optional, Tuple, cast
@@ -11,7 +19,12 @@ from .base import BaseDistribution
 
 
 class Uniform(BaseDistribution):
-    """Discrete uniform sampling distribution."""
+    """Discrete uniform sampling distribution.
+
+    Attributes:
+        low (int): Minimum value for randint.
+        high (int): Maximum value for randint.
+    """
 
     def __init__(self, low: int = 0, high: int = 100):
         """Initialize Class.

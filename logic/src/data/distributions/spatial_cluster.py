@@ -1,10 +1,12 @@
 """spatial_cluster.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    Cluster: Multiple Gaussian distributed clusters.
 
 Example:
-    >>> import spatial_cluster
+    >>> from logic.src.data.distributions import Cluster
+    >>> cluster = Cluster(n_cluster=3)
+    >>> print(cluster.sample())
 """
 
 from typing import Optional, Tuple
@@ -16,7 +18,14 @@ from .base import BaseDistribution
 
 
 class Cluster(BaseDistribution):
-    """Multiple Gaussian distributed clusters."""
+    """Multiple Gaussian distributed clusters.
+
+    Attributes:
+        n_cluster: Number of clusters.
+        lower: Lower bound for cluster centers.
+        upper: Upper bound for cluster centers.
+        std: Standard deviation for Gaussian distribution.
+    """
 
     def __init__(self, n_cluster: int = 3):
         """Initialize Class.
@@ -66,7 +75,15 @@ class Cluster(BaseDistribution):
         return coords.clamp_(0, 1)
 
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
-        """NumPy version of clustered location sampling."""
+        """NumPy version of clustered location sampling.
+
+        Args:
+            size: Description of size.
+            rng: Description of rng.
+
+        Returns:
+            Description of return value.
+        """
         if rng is None:
             rng = np.random.default_rng()
 

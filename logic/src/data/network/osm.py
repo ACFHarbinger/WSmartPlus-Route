@@ -1,5 +1,15 @@
 """
 Strategy for computing distances using OpenStreetMap.
+
+Attributes:
+    OSMStrategy: Strategy for computing distances using OpenStreetMap (OSMnx).
+
+Example:
+    >>> from logic.src.data.network.osm import OSMStrategy
+    >>> strategy = OSMStrategy()
+    >>> strategy.calculate(pd.DataFrame({"Lng": [0, 1], "Lat": [0, 1]}))
+    array([[0.        , 111.31949079],
+           [111.31949079, 0.        ]])
 """
 
 from typing import Any
@@ -14,11 +24,22 @@ from .base import DistanceStrategy
 
 
 class OSMStrategy(DistanceStrategy):
-    """Strategy for computing distances using OpenStreetMap road network."""
+    """Strategy for computing distances using OpenStreetMap road network.
+
+    Attributes:
+        None
+    """
 
     def calculate(self, coords: pd.DataFrame, **kwargs: Any) -> np.ndarray:
         """
         Computes road network distances using OpenStreetMap (OSMnx).
+
+        Args:
+            coords: DataFrame with coordinates (must contain 'ID', 'lat', 'lng' columns).
+            kwargs: Additional arguments for the distance strategy.
+
+        Returns:
+            Distance matrix as a NumPy array.
         """
         if "graph" in kwargs and isinstance(kwargs["graph"], MultiDiGraph):
             GG = kwargs["graph"]

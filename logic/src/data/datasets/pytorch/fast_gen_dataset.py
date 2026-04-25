@@ -1,5 +1,16 @@
 """
 Dataset optimized for fast instantiation.
+
+Attributes:
+    TensorDictDatasetFastGeneration: Dataset optimized for fast instantiation.
+
+Example:
+    >>> from logic.src.data.datasets import TensorDictDatasetFastGeneration
+    >>> dataset = TensorDictDatasetFastGeneration(td)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Any
@@ -14,6 +25,9 @@ from logic.src.utils.data.td_utils import td_kwargs
 class TensorDictDatasetFastGeneration(Dataset):
     """
     Dataset optimized for fast instantiation (avoiding list comp).
+
+    Attributes:
+        data: TensorDict containing the dataset.
     """
 
     def __init__(self, td: TensorDict):
