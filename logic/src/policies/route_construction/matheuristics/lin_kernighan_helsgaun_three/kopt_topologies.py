@@ -59,6 +59,16 @@ References
 Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan
 traveling salesman heuristic. *European Journal of Operational Research*,
 126(1), 106-130.
+
+Attributes:
+    EXHAUSTIVE_5OPT_CASES: Pre-computed list of all valid 5-opt reconnection topologies.
+    EXHAUSTIVE_4OPT_CASES: Pre-computed list of all valid 4-opt reconnection topologies.
+    EXHAUSTIVE_3OPT_CASES: Pre-computed list of all valid 3-opt reconnection topologies.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.kopt_topologies import EXHAUSTIVE_5OPT_CASES
+    >>> len(EXHAUSTIVE_5OPT_CASES)
+    60
 """
 
 from __future__ import annotations

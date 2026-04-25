@@ -7,6 +7,16 @@ Variable Neighborhood Descent (RVND) and an exact Set Partitioning (SP) formulat
 Reference:
     Subramanian et al. "A hybrid algorithm for a class of vehicle routing problems",
     Computers & Operations Research, 2013.
+
+Attributes:
+    ILSRVNDSPSolver: Main solver class combining ILS, RVND, and set partitioning.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import ILSRVNDSPSolver
+    >>> from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
+    >>> dm = np.zeros((3, 3))
+    >>> solver = ILSRVNDSPSolver(dm, {1: 0.5}, 10.0, 5.0, 1.0, ILSRVNDSPParams())
 """
 
 import copy
@@ -39,6 +49,21 @@ logger = logging.getLogger(__name__)
 class ILSRVNDSPSolver:
     """
     ILS-RVND-SP solver executing ILS with RVND and resolving via Set Partitioning.
+
+    Attributes:
+        dist_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1) including depot.
+        wastes: Waste amounts keyed by node index.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier per unit of waste.
+        C: Cost multiplier per unit of distance.
+        params: Runtime parameters controlling the solver.
+        mandatory_nodes: Node indices that must be included in the solution.
+        rng: NumPy random generator for stochastic operations.
+        random: Python Random instance for sampling.
+        n_nodes: Number of customer nodes (excluding depot).
+        nodes: List of all customer node indices.
+        route_pool: Set of unique canonical routes discovered during search.
+        ls_manager: ACO-based local search manager.
     """
 
     def __init__(
@@ -95,7 +120,14 @@ class ILSRVNDSPSolver:
         )
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost."""
+        """Calculate total routing cost.
+
+        Args:
+            routes: List of routes, each a list of node indices.
+
+        Returns:
+            float: Total travel cost scaled by the cost multiplier C.
+        """
         total_dist = 0.0
         for route in routes:
             if not route:
@@ -108,20 +140,29 @@ class ILSRVNDSPSolver:
         return total_dist * self.C
 
     def calculate_profit(self, routes: List[List[int]]) -> float:
-        """Calculate network profit (revenue - cost)."""
+        """Calculate network profit (revenue - cost).
+
+        Args:
+            routes: List of routes, each a list of node indices.
+
+        Returns:
+            float: Net profit (revenue minus travel cost).
+        """
         cost = self.calculate_cost(routes)
         revenue = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return revenue - cost
 
     def _add_to_pool(self, routes: List[List[int]], pool: Optional[Set[Tuple[int, ...]]] = None):
-        """
-        Standardize and hash routes to add to the unique pool with canonical representation.
+        """Standardize and hash routes to add to the unique pool with canonical representation.
 
         Routes [1, 2, 3] and [3, 2, 1] are geographically identical (same tour, opposite direction).
         To prevent symmetric duplicates from bloating the MIP pool, we enforce a canonical
         orientation: the route endpoint with the smaller node ID is always placed first.
-
         This reduces the MIP pool size by ~50% and significantly speeds up Gurobi solving.
+
+        Args:
+            routes: Routes to add; each is a list of node indices.
+            pool: Target pool to add to. If None, uses the solver's route_pool.
         """
         target_pool = pool if pool is not None else self.route_pool
         for route in routes:
@@ -135,12 +176,17 @@ class ILSRVNDSPSolver:
             target_pool.add(canonical_route)
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Random perturbation for ILS as specified in Subramanian et al. (2013).
+        """Random perturbation for ILS as specified in Subramanian et al. (2013).
 
         Performs 2-5 random moves. Each move is either:
         - Swap(1,1): Swap one random node from r1 with one random node from r2.
         - Shift(1,1): Relocate one random node from r1 to a random position in r2.
+
+        Args:
+            routes: Current solution routes to perturb.
+
+        Returns:
+            List[List[int]]: New perturbed solution routes.
         """
         new_routes = [r[:] for r in routes]
         n_moves = self.random.randint(2, 5)
@@ -176,7 +222,11 @@ class ILSRVNDSPSolver:
         return new_routes
 
     def build_initial_solution(self) -> List[List[int]]:
-        """Construct initial solution using standard greedy heuristic."""
+        """Construct initial solution using standard greedy heuristic.
+
+        Returns:
+            List[List[int]]: Initial feasible routes.
+        """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -200,6 +250,12 @@ class ILSRVNDSPSolver:
         - Objective: maximize total profit (revenue - routing cost)
 
         This is a Set Packing formulation adapted for VRPP, not strict Set Partitioning.
+
+        Args:
+            pool: Route pool to solve over. If None, uses the solver's route_pool.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Best routes, profit, and travel cost.
         """
         target_pool = list(pool) if pool is not None else list(self.route_pool)
         n_routes = len(target_pool)
@@ -285,7 +341,20 @@ class ILSRVNDSPSolver:
         start_time: float,
         rvnd: RVND,
     ) -> Tuple[List[List[int]], float]:
-        """Execute ILS-RVND metaheuristic iterations."""
+        """Execute ILS-RVND metaheuristic iterations.
+
+        Args:
+            initial_routes: Starting routes for the ILS loop.
+            max_iterations: Outer ILS iteration count.
+            max_ils_iterations: Inner ILS iteration count per outer iteration.
+            target_pool: Route pool to populate during search.
+            tolerance: Relative deviation tolerance for adding routes to pool.
+            start_time: Process time at search start, used for time limit checks.
+            rvnd: RVND instance providing local search operators.
+
+        Returns:
+            Tuple[List[List[int]], float]: Best routes and best profit found.
+        """
         best_routes = copy.deepcopy(initial_routes)
         best_profit = self.calculate_profit(best_routes)
         current_profit = best_profit
@@ -355,7 +424,16 @@ class ILSRVNDSPSolver:
         start_time: float,
         rvnd: RVND,
     ) -> Tuple[List[List[int]], float]:
-        """Execute Strategy A for smaller instances (n <= N)."""
+        """Execute Strategy A for smaller instances (n <= N).
+
+        Args:
+            initial_solution: Optional pre-built starting routes.
+            start_time: Process time at search start.
+            rvnd: RVND instance providing local search operators.
+
+        Returns:
+            Tuple[List[List[int]], float]: Best routes and best profit found.
+        """
         global_best_routes = []
         global_best_profit = -float("inf")
 
@@ -395,7 +473,16 @@ class ILSRVNDSPSolver:
         start_time: float,
         rvnd: RVND,
     ) -> Tuple[List[List[int]], float]:
-        """Execute Strategy B for larger instances (n > N)."""
+        """Execute Strategy B for larger instances (n > N).
+
+        Args:
+            initial_solution: Optional pre-built starting routes.
+            start_time: Process time at search start.
+            rvnd: RVND instance providing local search operators.
+
+        Returns:
+            Tuple[List[List[int]], float]: Best routes and best profit found.
+        """
         global_best_routes = []
         global_best_profit = -float("inf")
 
@@ -520,7 +607,14 @@ class ILSRVNDSPSolver:
         return operators
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
-        """Main ILS-RVND-SP execution loop with dual strategy handling."""
+        """Main ILS-RVND-SP execution loop with dual strategy handling.
+
+        Args:
+            initial_solution: Optional pre-built starting routes. Built greedily if None.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Best routes, profit, and travel cost.
+        """
         start_time = time.process_time()
 
         # Create RVND with local search operators

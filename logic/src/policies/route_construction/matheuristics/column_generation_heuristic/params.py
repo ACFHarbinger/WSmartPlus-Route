@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Column Generation Heuristic (CGH).
+
+Attributes:
+    CGHParams: Dataclass holding CGH solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.column_generation_heuristic.params import CGHParams
+    >>> params = CGHParams(cg_iters=10, routes_per_iter=50)
+    >>> d = params.to_dict()
 """
 
 from __future__ import annotations
@@ -25,7 +33,14 @@ class CGHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> CGHParams:
-        """Create CGHParams from a configuration object or dictionary."""
+        """Create CGHParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dict with CGH parameter attributes.
+
+        Returns:
+            CGHParams: Populated parameter dataclass.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -36,5 +51,9 @@ class CGHParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert CGHParams to a dictionary for backend compatibility."""
+        """Convert CGHParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Mapping of parameter names to their values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

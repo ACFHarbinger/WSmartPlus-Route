@@ -18,6 +18,16 @@ Reference:
     for vehicle routing". Networks, 11(2), 109-124.
     Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017). "A Variant Fisher
     and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem".
+
+Attributes:
+    run_cf_rs: Main entry point orchestrating clustering and routing stages.
+
+Example:
+    >>> import numpy as np, pandas as pd
+    >>> from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.solver import run_cf_rs
+    >>> dm = np.zeros((3, 3))
+    >>> coords = pd.DataFrame({"Lat": [0, 1, 2], "Lng": [0, 1, 2]})
+    >>> routes, cost, meta = run_cf_rs(coords, [1, 2], dm, {1: 0.3, 2: 0.4}, 1.0, 5.0, 1.0, 1)
 """
 
 import math
@@ -270,7 +280,14 @@ def fisher_jaikumar_clustering(
 
 
 def _get_depot_coords(coords: Any) -> Tuple[float, float]:
-    """Extract coordinates of the depot node (index 0)."""
+    """Extract coordinates of the depot node (index 0).
+
+    Args:
+        coords: Either a DataFrame with "Lat"/"Lng" columns or a 2-D array of shape (n, 2).
+
+    Returns:
+        Tuple[float, float]: Latitude and longitude of the depot.
+    """
     if isinstance(coords, pd.DataFrame):
         return float(coords.iloc[0]["Lat"]), float(coords.iloc[0]["Lng"])
     return float(coords[0, 0]), float(coords[0, 1])
@@ -283,7 +300,18 @@ def _compute_node_features(
     depot_lng: float,
     distance_matrix: np.ndarray,
 ) -> pd.DataFrame:
-    """Compute angular positions and distances for all nodes relative to depot."""
+    """Compute angular positions and distances for all nodes relative to depot.
+
+    Args:
+        coords: Either a DataFrame with "Lat"/"Lng" columns or a 2-D array.
+        mandatory: Node indices for which to compute features.
+        depot_lat: Latitude of the depot.
+        depot_lng: Longitude of the depot.
+        distance_matrix: Distance matrix of shape (n_nodes, n_nodes).
+
+    Returns:
+        pd.DataFrame: DataFrame with columns "idx", "angle", "dist", sorted by angle.
+    """
     node_data = []
     for idx in mandatory:
         if isinstance(coords, pd.DataFrame):

@@ -1,5 +1,12 @@
 """
 Column Generation Heuristic (CGH) policy implementation.
+
+Attributes:
+    ColumnGenerationHeuristicPolicy: Multi-period CGH policy using Gurobi master problem.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh import ColumnGenerationHeuristicPolicy
+    >>> policy = ColumnGenerationHeuristicPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -28,9 +35,16 @@ from logic.src.utils.policy.wrappers import greedy_day_route, two_opt
 class ColumnGenerationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Column Generation Heuristic (CGH).
+
     Uses a master problem (set packing/partitioning) and generates routes heuristically.
     Instead of solving the exact subproblem (ESPPRC), it uses simulated annealing/ILS
     to find negative reduced-cost columns.
+
+    Attributes:
+        params: CGH runtime parameters.
+        cg_iters: Number of column generation iterations per day.
+        routes_per_iter: Number of heuristic routes generated per CG iteration.
+        seed: Random seed for reproducibility.
     """
 
     def __init__(self, config: Any = None):
@@ -49,11 +63,19 @@ class ColumnGenerationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
     def _generate_columns_heuristically(
         self, problem: ProblemContext, duals: Dict[int, float], n_routes: int, rng: np.random.Generator
     ) -> List[List[int]]:
-        """
-        Produce a list of routes with high negative reduced cost heuristically.
+        """Produce a list of routes with high negative reduced cost heuristically.
+
         Reduced cost of a route = sum(duals[i]) - Profit(route).
-        (We maximize Profit + duals).
-        We'll use a randomized greedy strategy where we modify the perceived revenue.
+        We maximize Profit + duals using a randomized greedy strategy.
+
+        Args:
+            problem: Problem context providing distance matrix, wastes, and capacity.
+            duals: Dual variable values keyed by node index from the master LP.
+            n_routes: Number of heuristic routes to generate.
+            rng: Random number generator for shuffling candidate nodes.
+
+        Returns:
+            List[List[int]]: Generated candidate routes, each as a list of node indices.
         """
         cols = []
         for _ in range(n_routes):
@@ -83,6 +105,15 @@ class ColumnGenerationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         return cols
 
     def _solve_cg_for_day(self, problem: ProblemContext, rng: np.random.Generator) -> List[int]:
+        """Solve one day's routing using the column generation heuristic.
+
+        Args:
+            problem: Problem context for the current day.
+            rng: Random number generator for heuristic column generation.
+
+        Returns:
+            List[int]: Route for the day as a list of node indices.
+        """
         # Master problem
         model = gp.Model("CG_Heur")
         model.setParam("OutputFlag", 0)
@@ -153,6 +184,16 @@ class ColumnGenerationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
     def _run_multi_period_solver(
         self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """Run the CGH solver over the full planning horizon.
+
+        Args:
+            problem: Multi-day problem context.
+            multi_day_ctx: Optional multi-day context for inter-day state propagation.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: Today's
+                solution context, full plan per day, and solver metadata.
+        """
         D = problem.horizon
         full_plan = []
         cur_prob = problem

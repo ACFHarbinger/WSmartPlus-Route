@@ -10,6 +10,15 @@ Reference:
     Vehicle Routing Problem with Pickups and Deliveries". Networks, 56(4), 297–307.
     Angelelli, R., & Mansini, R. (2010). "Kernel Search: a new heuristic framework for
     portfolio selection".
+
+Attributes:
+    run_kernel_search_gurobi: Main entry point for the Kernel Search solver.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.kernel_search.solver import run_kernel_search_gurobi
+    >>> dm = np.zeros((3, 3))
+    >>> tour, obj, cost = run_kernel_search_gurobi(dm, {1: 0.5}, 10.0, 5.0, 1.0, [])
 """
 
 import random
@@ -311,9 +320,14 @@ def _set_mip_start(
 
 
 def _separate_fractional_subtours(model, x_vars, num_nodes):
-    """
-    Identify and inject fractional subtour elimination cuts (User Cuts).
+    """Identify and inject fractional subtour elimination cuts (User Cuts).
+
     Uses Max-Flow/Min-Cut to find violated directed cuts.
+
+    Args:
+        model: Gurobi model with attached _y_vars attribute.
+        x_vars: Edge flow variable dictionary keyed by (i, j) tuples.
+        num_nodes: Total number of nodes including the depot.
     """
     # 1. Build a capacity graph from the fractional solution
     G = nx.DiGraph()
@@ -350,9 +364,13 @@ def _separate_fractional_subtours(model, x_vars, num_nodes):
 
 
 def _root_node_callback(model, where):
-    """
-    Gurobi callback to harvest the root node relaxation values.
-    ENHANCED: Adds fractional subtour elimination user cuts before harvesting.
+    """Gurobi callback to harvest the root node relaxation values.
+
+    Enhanced to add fractional subtour elimination user cuts before harvesting.
+
+    Args:
+        model: Gurobi model with _x_vars, _num_nodes, and _all_vars_list attributes.
+        where: Gurobi callback code indicating the invocation point.
     """
     if where == GRB.Callback.MIPNODE:
         status = model.cbGet(GRB.Callback.MIPNODE_STATUS)
@@ -386,6 +404,23 @@ def _get_partitioned_vars(
     formulation is a pure 0-1 MIP. While Guastaroba et al. (2017) suggests
     maintaining separate lists for binary and general integer variables, they
     are merged here as all discrete variables in this model are binary.
+
+    Args:
+        model: Gurobi model to optimize.
+        x: Edge decision variables keyed by (i, j) tuples.
+        y: Node selection variables keyed by node index.
+        initial_kernel_size: Minimum number of variables in the initial kernel.
+        bucket_size: Number of variables per bucket.
+        dist_matrix: Distance matrix of shape (n_nodes, n_nodes).
+        wastes: Waste amounts keyed by node index.
+        capacity: Vehicle capacity.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance traveled.
+        mandatory_nodes: Node indices that must be included in the solution.
+
+    Returns:
+        Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]: Kernel variables,
+            remaining variables, and bucketed remaining variables.
     """
     # Ensure Lazy Constraints are enabled for any solve with callbacks
     model.Params.LazyConstraints = 1
@@ -478,10 +513,20 @@ def _solve_ks_iterations(
     time_limit: float,
     mip_limit_nodes: int,
 ) -> Set[gp.Var]:
-    """
-    Perform the iterative improvement phase by solving sub-problems with DFJ cuts.
+    """Perform the iterative improvement phase by solving sub-problems with DFJ cuts.
 
     Each iteration adds one bucket of variables and a budget constraint.
+
+    Args:
+        model: Gurobi model to optimize.
+        kernel_vars: Variables in the initial kernel.
+        buckets: List of variable buckets to iterate over.
+        remaining_vars: All variables not in the kernel, used to fix upper bounds.
+        time_limit: Total time budget in seconds.
+        mip_limit_nodes: Node limit for each bucket MIP solve.
+
+    Returns:
+        Set[gp.Var]: Variables that took positive values in the best solution found.
     """
     # Fix everything to zero initially
     for v in remaining_vars:

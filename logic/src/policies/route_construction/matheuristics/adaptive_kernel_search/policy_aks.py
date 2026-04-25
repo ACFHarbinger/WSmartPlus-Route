@@ -1,5 +1,12 @@
 """
 Simulator adapter for the Adaptive Kernel Search (AKS) matheuristic.
+
+Attributes:
+    AdaptiveKernelSearchPolicy: Policy class wrapping the AKS solver for simulation.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.adaptive_kernel_search.policy_aks import AdaptiveKernelSearchPolicy
+    >>> policy = AdaptiveKernelSearchPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -58,19 +65,26 @@ class AdaptiveKernelSearchPolicy(BaseRoutingPolicy):
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Initialize the Adaptive Kernel Search policy.
+
+        Args:
+            config: Optional Hydra configuration dictionary for AKS parameters.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """
-        Return the configuration dataclass.
+        """Return the configuration dataclass for AKS.
+
+        Returns:
+            Optional[Type]: The AdaptiveKernelSearchConfig class.
         """
         return AdaptiveKernelSearchConfig
 
     def _get_config_key(self) -> str:
-        """
-        Return the unique Hydra configuration key "aks".
+        """Return the unique Hydra configuration key for AKS.
+
+        Returns:
+            str: The string "aks".
         """
         return "aks"
 
@@ -85,7 +99,21 @@ class AdaptiveKernelSearchPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - AKS requires specialized execute()."""
+        """Not used — AKS uses a specialized execute() method.
+
+        Args:
+            sub_dist_matrix: Distance matrix for the subproblem.
+            sub_wastes: Waste amounts keyed by node index.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit of waste.
+            cost_unit: Cost per unit of distance.
+            values: Additional solver values.
+            mandatory_nodes: Node indices that must be visited.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty tour, zero objective, zero cost.
+        """
         return [], 0.0, 0.0
 
     def execute(
@@ -104,7 +132,7 @@ class AdaptiveKernelSearchPolicy(BaseRoutingPolicy):
         includes subtour elimination constraints.
 
         Args:
-            **kwargs: Context for matheuristic execution, including:
+            kwargs: Context for matheuristic execution, including:
                 - distance_matrix (np.ndarray): Full distance matrix for the problem.
                 - wastes (Dict[int, float]): Bin inventory levels.
                 - capacity (float): Vehicle collection capacity.

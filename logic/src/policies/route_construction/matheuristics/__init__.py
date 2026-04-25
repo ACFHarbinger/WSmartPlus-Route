@@ -1,5 +1,18 @@
 """
 Matheuristics for route construction.
+
+Attributes:
+    policy_aks: Adaptive Kernel Search policy module.
+    policy_cf_rs: Cluster-First Route-Second policy module.
+    policy_cgh: Column Generation Heuristic policy module.
+    policy_ks: Kernel Search policy module.
+    policy_lrh: Lagrangian Relaxation Heuristic policy module.
+    policy_lns_mip: Large Neighborhood Search MIP policy module.
+    policy_lkh3: Lin-Kernighan-Helsgaun 3 policy module.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics import policy_aks
+    >>> policy = policy_aks.AdaptiveKernelSearchPolicy()
 """
 
 from .adaptive_kernel_search import policy_aks as policy_aks

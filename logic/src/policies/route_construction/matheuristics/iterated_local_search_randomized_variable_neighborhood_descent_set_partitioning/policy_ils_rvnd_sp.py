@@ -1,7 +1,15 @@
 """
 ILS-RVND-SP Policy Adapter.
 
-Adapts the Iterated Local Search - Randomized Variable Neighborhood Descent - Set Partitioning (ILS-RVND-SP) logic to the agnostic interface.
+Adapts the Iterated Local Search - Randomized Variable Neighborhood Descent - Set Partitioning
+(ILS-RVND-SP) logic to the agnostic interface.
+
+Attributes:
+    ILSRVNDSPPolicy: Policy class wrapping the ILS-RVND-SP solver for simulation.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import ILSRVNDSPPolicy
+    >>> policy = ILSRVNDSPPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -31,7 +39,11 @@ class ILSRVNDSPPolicy(BaseRoutingPolicy):
     """
     ILS-RVND-SP policy class.
 
-    Visits pre-selected 'mandatory' bins using Iterated Local Search, Randomized Variable Neighborhood Descent, and Set Partitioning.
+    Visits pre-selected 'mandatory' bins using Iterated Local Search, Randomized Variable
+    Neighborhood Descent, and Set Partitioning.
+
+    Attributes:
+        config: Optional Hydra configuration dictionary or ILSRVNDSPConfig instance.
     """
 
     def __init__(self, config: Optional[Union[ILSRVNDSPConfig, Dict[str, Any]]] = None):
@@ -44,10 +56,19 @@ class ILSRVNDSPPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration dataclass for ILS-RVND-SP.
+
+        Returns:
+            Optional[Type]: The ILSRVNDSPConfig class.
+        """
         return ILSRVNDSPConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for ILS-RVND-SP."""
+        """Return the Hydra configuration key for ILS-RVND-SP.
+
+        Returns:
+            str: The string "ils_rvnd_sp".
+        """
         return "ils_rvnd_sp"
 
     def _run_solver(
@@ -86,7 +107,7 @@ class ILSRVNDSPPolicy(BaseRoutingPolicy):
                 ILS settings, RVND neighborhood configurations, and SP MIP goals.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

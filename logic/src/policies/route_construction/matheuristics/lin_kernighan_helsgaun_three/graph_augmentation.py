@@ -53,6 +53,22 @@ augment_graph(distance_matrix, wastes, n_vehicles, capacity, high_penalty) ->
     (augmented_dist, augmented_wastes, n_original)
 
 decode_augmented_tour(tour, n_original) -> List[List[int]]
+
+Attributes:
+    augment_graph: Augment a graph with dummy depots for multi-vehicle support.
+    augment_prize_collecting_graph: Jonker-Volgenant ATSP transformation for prize-collecting.
+    decode_augmented_tour: Decode a flat augmented tour into per-vehicle routes.
+    is_dummy_depot: Check whether a node index is an augmented dummy depot.
+    is_any_depot: Check whether a node index is any depot (real or dummy).
+    inject_augmented_dummies: Rebuild a flat tour by injecting dummy depot indices.
+    validate_augmented_graph: Validate structure of an augmented distance matrix.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation import augment_graph, decode_augmented_tour
+    >>> dist = np.zeros((3, 3))
+    >>> aug_dist, aug_waste, n_orig = augment_graph(dist, {1: 0.5}, n_vehicles=2)
+    >>> routes = decode_augmented_tour([0, 1, 3, 2, 0], n_orig)
 """
 
 from __future__ import annotations
@@ -184,6 +200,14 @@ def augment_prize_collecting_graph(
        - Direct to Real Route: D(0, j') = c_0j
        - Return to Depot: D(i, 0) = c_i0
        - Return to Depot (ALL skipped): D(i', 0) = 0
+
+    Args:
+        distance_matrix: Original (N×N) distance matrix.
+        wastes: Waste amounts keyed by node index.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, int]: Augmented distance matrix of shape
+            (2N-1, 2N-1), zero waste array, and the original graph size N.
     """
     n_original = len(distance_matrix)
     n_customers = n_original - 1
@@ -312,15 +336,27 @@ def decode_augmented_tour(tour: List[int], n_original: int) -> List[List[int]]:
 
 
 def is_dummy_depot(node: int, n_original: int) -> bool:
-    """
-    Check if a node is an augmented dummy depot.
+    """Check if a node is an augmented dummy depot.
+
+    Args:
+        node: Node index to check.
+        n_original: Original graph size (depot + customers).
+
+    Returns:
+        bool: True if node index is >= n_original (i.e., a dummy depot).
     """
     return node >= n_original
 
 
 def is_any_depot(node: int, n_original: int) -> bool:
-    """
-    Check if a node is either the main depot (0) or a dummy depot.
+    """Check if a node is either the main depot (0) or a dummy depot.
+
+    Args:
+        node: Node index to check.
+        n_original: Original graph size (depot + customers).
+
+    Returns:
+        bool: True if node is the main depot (0) or a dummy depot index.
     """
     return node == 0 or node >= n_original
 

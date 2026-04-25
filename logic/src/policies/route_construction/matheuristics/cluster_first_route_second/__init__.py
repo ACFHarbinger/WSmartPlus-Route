@@ -14,6 +14,16 @@ Modules:
     greedy_assignment: Greedy heuristic for node-to-cluster assignment.
     mip_assignment: Exact MIP formulation for node-to-cluster assignment.
     policy_cf_rs: Simulator adapter for the CF-RS algorithm.
+
+Attributes:
+    ClusterFirstRouteSecondPolicy: Policy adapter class for CF-RS.
+    run_cf_rs: Core solver function for CF-RS routing.
+    assign_greedy: Greedy cluster assignment function.
+    assign_exact_mip: Exact MIP cluster assignment function.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.cluster_first_route_second import ClusterFirstRouteSecondPolicy
+    >>> policy = ClusterFirstRouteSecondPolicy()
 """
 
 from .greedy_assignment import assign_greedy

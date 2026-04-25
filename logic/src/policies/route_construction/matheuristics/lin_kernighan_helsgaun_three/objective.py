@@ -57,19 +57,24 @@ compute_alpha_measures(distance_matrix, pi=None) -> np.ndarray
 get_candidate_set(distance_matrix, alpha_measures, ...) -> Dict[int, List[int]]
     Build sorted candidate list per node restricted to small α-measures.
 
-Typical usage
--------------
->>> from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
-...     get_score, is_better, split_tour_at_dummies, solve_subgradient
-... )
->>> # 1. Optimize penalties and compute candidates
->>> pi = solve_subgradient(distance_matrix)
->>> alpha = compute_alpha_measures(distance_matrix, pi)
->>> candidates = get_candidate_set(distance_matrix, alpha)
->>> # 2. Evaluate solution
->>> pen, cost = get_score(tour, dist, demands, capacity)
->>> if is_better(pen, cost, best_pen, best_cost):
-...     routes = split_tour_at_dummies(tour)
+Attributes:
+    DEPOT_NODE: The index of the main depot (always 0).
+    is_dummy_depot: Check if a node represents a secondary vehicle (dummy depot).
+    is_any_depot: Check if node is either the main depot or an augmented dummy depot.
+    calculate_penalty: Compute total capacity violation over all routes in the tour.
+    get_score: Return the full (penalty, cost) pair for a tour with dummy depots.
+    is_better: Lexicographic dominance check — True iff (p1, c1) strictly beats (p2, c2).
+    split_tour_at_dummies: Extract multi-route representation from a dummy-depot-encoded tour.
+    solve_subgradient: Held-Karp subgradient ascent to optimize node penalties.
+    compute_alpha_measures: Compute alpha-nearness for every edge using MST sensitivity.
+    get_candidate_set: Build sorted candidate list per node restricted to small alpha-measures.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective import get_score, is_better, solve_subgradient
+    >>> dm = np.zeros((3, 3))
+    >>> pi = solve_subgradient(dm)
+    >>> pen, cost = get_score([0, 1, 2, 0], dm, None, None, 3)
 """
 
 from __future__ import annotations
@@ -93,6 +98,13 @@ def is_dummy_depot(node: int, n_original: Optional[int] = None) -> bool:
 
     In augmented graph mode (VRPP/CVRP), dummy depots are placed after
     original nodes. In legacy mode, they are represented by negative indices.
+
+    Args:
+        node: The node to check.
+        n_original: The number of original nodes.
+
+    Returns:
+        True if the node is a dummy depot, False otherwise.
     """
     if n_original is not None:
         return node >= n_original
@@ -100,7 +112,16 @@ def is_dummy_depot(node: int, n_original: Optional[int] = None) -> bool:
 
 
 def is_any_depot(node: int, n_original: Optional[int] = None) -> bool:
-    """Check if node is either the main depot or an augmented dummy depot."""
+    """
+    Check if node is either the main depot or an augmented dummy depot.
+
+    Args:
+        node: The node to check.
+        n_original: The number of original nodes.
+
+    Returns:
+        True if the node is a depot or dummy depot, False otherwise.
+    """
     return node == DEPOT_NODE or is_dummy_depot(node, n_original)
 
 
@@ -110,6 +131,13 @@ def split_tour_at_dummies(tour: List[int], n_original: Optional[int] = None) -> 
 
     Segments are delimited by any node identified as a depot or dummy depot.
     Resulting routes contain only customer node indices.
+
+    Args:
+        tour: The tour to split.
+        n_original: The number of original nodes.
+
+    Returns:
+        The split routes.
     """
     routes: List[List[int]] = []
     current: List[int] = []
@@ -145,6 +173,15 @@ def calculate_penalty(
     Penalty calculation is performed at the route level to avoid double-counting.
     A route only contributes to the penalty if its cumulative load exceeds
     the vehicle capacity.
+
+    Args:
+        tour: The tour to evaluate.
+        waste: The waste vector.
+        capacity: The capacity.
+        n_original: The number of original nodes.
+
+    Returns:
+        The total penalty.
     """
     if waste is None or capacity is None:
         return 0.0
@@ -177,6 +214,16 @@ def get_score(
 
     Penalty represents feasibility (sum of overloads), while cost represents
     optimality (total edge weight). Feasibility is always prioritized.
+
+    Args:
+        tour: The tour to evaluate.
+        distance_matrix: The distance matrix.
+        waste: The waste vector.
+        capacity: The capacity.
+        n_original: The number of original nodes.
+
+    Returns:
+        A tuple containing the penalty and cost.
     """
     n = len(tour) - 1
     c = 0.0
@@ -204,6 +251,15 @@ def is_better(p1: float, c1: float, p2: float, c2: float) -> bool:
 
     (p1, c1) beats (p2, c2) if p1 < p2 OR (p1 == p2 AND c1 < c2).
     Uses a small epsilon (1e-6) for float stability.
+
+    Args:
+        p1: The first penalty.
+        c1: The first cost.
+        p2: The second penalty.
+        c2: The second cost.
+
+    Returns:
+        True if the first is better than the second, False otherwise.
     """
     if abs(p1 - p2) > 1e-6:
         return p1 < p2
@@ -217,7 +273,18 @@ def penalty_delta(
     capacity: Optional[float],
     n_original: Optional[int] = None,
 ) -> float:
-    """Compute ΔP = P(new) - P(old). Used for pre-screening k-opt moves."""
+    """Compute ΔP = P(new) - P(old). Used for pre-screening k-opt moves.
+
+    Args:
+        old_tour: The old tour.
+        new_tour: The new tour.
+        waste: The waste vector.
+        capacity: The capacity.
+        n_original: The number of original nodes.
+
+    Returns:
+        The penalty delta.
+    """
     if waste is None or capacity is None:
         return 0.0
     return calculate_penalty(new_tour, waste, capacity, n_original) - calculate_penalty(
@@ -237,6 +304,13 @@ def compute_min_1_tree(distance_matrix: np.ndarray, pi: np.ndarray) -> Tuple[flo
     The 1-tree consists of a MST of nodes {1..N-1} plus the two cheapest edges
     connected to the depot (node 0). The sum of node penalties (π) drives
     the MST nodes toward degree 2.
+
+    Args:
+        distance_matrix: The distance matrix.
+        pi: The penalty vector.
+
+    Returns:
+        A tuple containing the minimum 1-tree length, degrees, and edges.
     """
     n = len(distance_matrix)
     if n < 3:
@@ -281,6 +355,16 @@ def solve_subgradient(
 
     The penalties π_i are added to edges incident to node i to 'encourage'
     the MST to resemble a Hamiltonian circuit (all degrees = 2).
+
+    Args:
+        distance_matrix: The distance matrix.
+        max_iterations: The maximum number of iterations.
+        n_original: The number of original nodes.
+        initial_pi: The initial penalty vector.
+        initial_step: The initial step size.
+
+    Returns:
+        The optimized penalty vector.
     """
     n = len(distance_matrix)
     if n < 3:
@@ -320,7 +404,15 @@ def solve_subgradient(
 
 
 def _compute_all_pairs_max_edge(mst_adj: np.ndarray, n: int) -> np.ndarray:
-    """O(N²) BFS pass to find heaviest edge on MST paths between all pairs."""
+    """O(N²) BFS pass to find heaviest edge on MST paths between all pairs.
+
+    Args:
+        mst_adj: The MST adjacency matrix.
+        n: The number of nodes.
+
+    Returns:
+        The maximum edge weights.
+    """
     max_edge = np.zeros((n, n))
     adj: Dict[int, List[Tuple[int, float]]] = {i: [] for i in range(n)}
     for i in range(n):
@@ -348,6 +440,13 @@ def compute_alpha_measures(distance_matrix: np.ndarray, pi: Optional[np.ndarray]
 
     α(i,j) measures the 'distance' of edge (i,j) from the MST. Edges with
     low α are likely constituents of the optimal tour.
+
+    Args:
+        distance_matrix: The distance matrix.
+        pi: The penalty vector.
+
+    Returns:
+        The α-measures.
     """
     n = len(distance_matrix)
     pi = pi if pi is not None else np.zeros(n)
@@ -366,7 +465,16 @@ def get_candidate_set(
     alpha_measures: np.ndarray,
     max_candidates: int = 5,
 ) -> Dict[int, List[int]]:
-    """Build per-node candidate lists restricted to small α-measures."""
+    """Build per-node candidate lists restricted to small α-measures.
+
+    Args:
+        distance_matrix: The distance matrix.
+        alpha_measures: The α-measures.
+        max_candidates: The maximum number of candidates per node.
+
+    Returns:
+        The candidate set.
+    """
     n = len(distance_matrix)
     candidates: Dict[int, List[int]] = {}
     for i in range(n):

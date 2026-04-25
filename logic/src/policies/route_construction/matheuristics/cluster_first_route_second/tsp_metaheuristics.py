@@ -15,6 +15,17 @@ Reference:
     Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017).
     Section 4: "VFJ algorithm with PSO performs better than VFJ algorithm with
     ACO and VFJ algorithm with GA"
+
+Attributes:
+    find_route_pso: TSP solver using Velocity Tentative PSO.
+    find_route_aco: TSP solver using Ant Colony Optimization.
+    find_route_ga: TSP solver using a Genetic Algorithm.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics import find_route_pso
+    >>> dm = np.zeros((3, 3))
+    >>> tour = find_route_pso(dm, [0, 1, 2])
 """
 
 import random
@@ -25,7 +36,15 @@ import numpy as np
 
 
 def _calculate_tour_distance(tour: List[int], distance_matrix: np.ndarray) -> float:
-    """Calculate total distance of a TSP tour."""
+    """Calculate total distance of a TSP tour.
+
+    Args:
+        tour: Sequence of node indices representing the tour.
+        distance_matrix: Distance matrix of shape (n_nodes, n_nodes).
+
+    Returns:
+        float: Sum of edge distances along the tour.
+    """
     total = 0.0
     for i in range(len(tour) - 1):
         total += distance_matrix[tour[i], tour[i + 1]]
@@ -108,7 +127,15 @@ def _get_swap_sequence(source: List[int], target: List[int]) -> List[Tuple[int, 
 
 
 def _get_swap_operators(tour1: List[int], tour2: List[int]) -> List[Tuple[int, int]]:
-    """Compute sequence of swap operations to transform tour1 into tour2."""
+    """Compute sequence of swap operations to transform tour1 into tour2.
+
+    Args:
+        tour1: Source tour to transform.
+        tour2: Target tour to reach.
+
+    Returns:
+        List[Tuple[int, int]]: Index-pair swaps that convert tour1 to tour2.
+    """
     swaps = []
     t1 = list(tour1)
     for i in range(len(t1)):
@@ -127,7 +154,17 @@ def _apply_2opt_local_search(
     n_customers: int,
     max_swaps: int = 10,
 ) -> List[int]:
-    """Apply random 2-opt swaps to improve a tour."""
+    """Apply random 2-opt swaps to improve a tour.
+
+    Args:
+        tour: Current tour including depot at start and end.
+        distance_matrix: Distance matrix of shape (n_nodes, n_nodes).
+        n_customers: Number of customer nodes (excluding depot).
+        max_swaps: Maximum number of 2-opt swaps to attempt.
+
+    Returns:
+        List[int]: Improved tour after applying the best 2-opt moves found.
+    """
     best_tour = tour.copy()
     best_dist = _calculate_tour_distance(best_tour, distance_matrix)
 
@@ -269,6 +306,9 @@ def find_route_aco(
         vague on evaporation and deposit scale. We adopt rho=0.1 and Q=100
         as robust defaults for the pheromone update Delta_tau = Q / L, where
         L is the tour distance.
+
+    Returns:
+        List[int]: Best TSP tour found as a list of node indices.
     """
     np.random.seed(seed)
     random.seed(seed)
@@ -356,7 +396,16 @@ def find_route_aco(
 
 
 def _eer_crossover(p1: List[int], p2: List[int], customers: List[int]) -> List[int]:
-    """Enhanced Edge Recombination (EER) crossover."""
+    """Enhanced Edge Recombination (EER) crossover.
+
+    Args:
+        p1: First parent tour (customer nodes only, no depot).
+        p2: Second parent tour (customer nodes only, no depot).
+        customers: List of customer node indices.
+
+    Returns:
+        List[int]: Child tour produced by EER crossover.
+    """
     n_cust = len(customers)
     edge_table: Dict[int, Set[int]] = {node: set() for node in customers}
     for parent in [p1, p2]:
@@ -403,6 +452,9 @@ def find_route_ga(
         seed: Random seed.
         pop_size: Population size.
         mutation_rate: Mutation probability.
+
+    Returns:
+        List[int]: Best TSP tour found as a list of node indices.
     """
     np.random.seed(seed)
     random.seed(seed)
