@@ -1,9 +1,16 @@
-"""
-Branch-and-Cut (BC) Policy Adapter.
+"""Branch-and-Cut (BC) Policy Adapter.
 
 Adapts the core Branch-and-Cut solver logic to the systems-agnostic
 policy interface, handling parameter mapping, profit calculation, and environment
 integration.
+
+Attributes:
+    BranchAndCutPolicy (class): Adapter for the BC routing solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.policy_bc import BranchAndCutPolicy
+    >>> policy = BranchAndCutPolicy(config)
+    >>> routes, obj = policy.execute(context)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -36,8 +43,11 @@ class BranchAndCutPolicy(BaseRoutingPolicy):
     - Branch-and-bound for integer optimization
     - Separation algorithms for subtour elimination and capacity constraints
 
-    As an exact solver, it provides provable optimality guarantees within
-    the specified MIP gap and time limit.
+    As an exact solver using Gurobi's callback system, it provides high
+    performance by only adding constraints as they are violated.
+
+    Attributes:
+        config (BCConfig): Configuration dataclass for the policy.
     """
 
     def __init__(self, config: Optional[Union[BCConfig, Dict[str, Any]]] = None):
@@ -51,11 +61,19 @@ class BranchAndCutPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """Return the configuration dataclass type for automatic parsing."""
+        """Return the configuration dataclass type for automatic parsing.
+
+        Returns:
+            Type: The BCConfig class.
+        """
         return BCConfig
 
     def _get_config_key(self) -> str:
-        """Return the unique identification key for this policy's configuration."""
+        """Return the unique identification key for this policy's configuration.
+
+        Returns:
+            str: The config key 'bc'.
+        """
         return "bc"
 
     def _run_solver(
@@ -98,7 +116,7 @@ class BranchAndCutPolicy(BaseRoutingPolicy):
                 BC parameters (mip_gap, time_limit, cuts_enabled).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

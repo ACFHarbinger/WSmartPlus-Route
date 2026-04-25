@@ -36,6 +36,13 @@ Registry key: ``"cp_sat"``
 References:
     Schutt, A., et al. (2013). "LCG-based solvers for the traveling salesman
     problem with time windows". OR Spectrum, 35(3), 543-575.
+
+Attributes:
+    CPSATPolicy (class): Adapter for the CP-SAT policy using OR-Tools.
+
+Example:
+    >>> policy = CPSATPolicy(config)
+    >>> sol, plan, stats = policy._run_multi_period_solver(problem, multi_day_ctx)
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -62,17 +69,29 @@ from .cp_sat_engine import CPSATEngine
 )
 @RouteConstructorRegistry.register("cp_sat")
 class CPSATPolicy(BaseMultiPeriodRoutingPolicy):
-    """
-    Adapter for the Constraint Programming with Boolean Satisfiability (CP-SAT) policy using OR-Tools.
+    """Adapter for the Constraint Programming with Boolean Satisfiability (CP-SAT) policy using OR-Tools.
+
     Now standardized to the Multi-Period framework.
+
+    Attributes:
+        config (CPSATConfig): Configuration for the CP-SAT policy.
     """
 
     @classmethod
     def _config_class(cls):
+        """Returns the configuration class for this policy.
+
+        Returns:
+            Type[CPSATConfig]: The configuration class.
+        """
         return CPSATConfig
 
     def _get_config_key(self) -> str:
-        """Return the configuration key."""
+        """Return the configuration key.
+
+        Returns:
+            str: The registry key 'cp_sat'.
+        """
         return "cp_sat"
 
     def _run_multi_period_solver(
@@ -141,5 +160,19 @@ class CPSATPolicy(BaseMultiPeriodRoutingPolicy):
         mandatory_nodes: Optional[List[int]] = None,
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Legacy fallback."""
+        """Legacy fallback solver.
+
+        Args:
+            sub_dist_matrix: Distance matrix for the sub-problem.
+            sub_wastes: Waste levels for the sub-problem.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit of waste.
+            cost_unit: Cost per unit of distance.
+            values: Additional values/parameters.
+            mandatory_nodes: List of nodes that must be visited.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty solution tuple.
+        """
         return [], 0.0, 0.0

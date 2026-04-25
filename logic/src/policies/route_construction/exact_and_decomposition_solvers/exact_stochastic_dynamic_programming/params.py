@@ -1,5 +1,11 @@
-"""
-Configuration parameters for the Exact Stochastic Dynamic Programming (ESDP) solver.
+"""Configuration parameters for the Exact Stochastic Dynamic Programming (ESDP) solver.
+
+Attributes:
+    SDPParams (class): Standardized parameters for ESDP.
+
+Example:
+    >>> params = SDPParams(num_days=3, max_nodes=5)
+    >>> config_dict = params.to_dict()
 """
 
 from dataclasses import dataclass
@@ -8,7 +14,19 @@ from typing import Any, Dict
 
 @dataclass
 class SDPParams:
-    """Standardized parameters for Exact Stochastic Dynamic Programming."""
+    """Standardized parameters for Exact Stochastic Dynamic Programming.
+
+    Attributes:
+        time_limit (float): Maximum time in seconds for the solver.
+        num_days (int): Planning horizon in days.
+        discrete_levels (int): Number of discretization levels for waste.
+        max_fill_rate (float): Maximum assumed daily fill rate.
+        max_nodes (int): Maximum nodes to consider in the state space.
+        discount_factor (float): Discount factor for future rewards.
+        overflow_penalty (float): Penalty for bin overflow.
+        cost_weight (float): Multiplier for travel cost.
+        waste_weight (float): Multiplier for waste revenue.
+    """
 
     time_limit: float = 3600.0
     num_days: int = 5
@@ -22,7 +40,14 @@ class SDPParams:
 
     @classmethod
     def from_config(cls, config: dict) -> "SDPParams":
-        """Create SDPParams from configuration dictionary."""
+        """Create SDPParams from configuration dictionary.
+
+        Args:
+            config (dict): Configuration dictionary with parameter overrides.
+
+        Returns:
+            SDPParams: An instance of the parameter class.
+        """
         return cls(
             time_limit=config.get("time_limit", 3600.0),
             num_days=config.get("num_days", 5),
@@ -36,7 +61,11 @@ class SDPParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert parameters to a dictionary."""
+        """Convert parameters to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of parameters.
+        """
         return {
             "time_limit": self.time_limit,
             "num_days": self.num_days,

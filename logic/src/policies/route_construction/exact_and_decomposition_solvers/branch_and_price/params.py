@@ -1,7 +1,13 @@
-"""
-Configuration parameters for the Branch-and-Price (BP) solver.
+"""Configuration parameters for the Branch-and-Price (BP) solver.
 
 Standard Column Generation and Branch-and-Bound parameters.
+
+Attributes:
+    BPParams (class): Configuration dataclass for the BP solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params import BPParams
+    >>> params = BPParams(max_iterations=200)
 """
 
 from __future__ import annotations
@@ -16,23 +22,25 @@ class BPParams:
     Configuration parameters for the Branch-and-Price solver.
 
     Attributes:
-        max_iterations: Maximum iterations for column generation loop.
-        max_routes_per_iteration: Maximum columns to add per pricing call.
-        optimality_gap: Relative gap for proven optimality.
-        branching_strategy: Branching rule ('ryan_foster', 'edge', or 'divergence').
-        max_branch_nodes: Maximum nodes to explore in the B&B tree.
-        use_exact_pricing: Whether to use DP-based exact pricing (True)
+        max_iterations (int): Maximum iterations for column generation loop.
+        max_routes_per_iteration (int): Maximum columns to add per pricing call.
+        optimality_gap (float): Relative gap for proven optimality.
+        branching_strategy (str): Branching rule ('ryan_foster', 'edge', or 'divergence').
+        max_branch_nodes (int): Maximum nodes to explore in the B&B tree.
+        use_exact_pricing (bool): Whether to use DP-based exact pricing (True)
             or a heuristic pricer (False).
-        use_ng_routes: Whether to use ng-route relaxation in exact pricing.
-        ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
-        tree_search_strategy: B&B search strategy ('best_first', 'depth_first').
-        vehicle_limit: Maximum number of vehicles available.
-        cleanup_frequency: Iterations between column cleanup rounds.
-        cleanup_threshold: Minimum reduced cost for column retention.
-        early_termination_gap: Gap at which to stop search early.
-        multiple_waste_types: Whether the problem has multiple waste types.
-        allow_heuristic_ryan_foster: Whether to allow Ryan-Foster branching
+        use_ng_routes (bool): Whether to use ng-route relaxation in exact pricing.
+        ng_neighborhood_size (int): Size of ng-neighborhoods for relaxation.
+        tree_search_strategy (str): B&B search strategy ('best_first', 'depth_first').
+        vehicle_limit (Optional[int]): Maximum number of vehicles available.
+        cleanup_frequency (int): Iterations between column cleanup rounds.
+        cleanup_threshold (float): Minimum reduced cost for column retention.
+        early_termination_gap (float): Gap at which to stop search early.
+        multiple_waste_types (bool): Whether the problem has multiple waste types.
+        allow_heuristic_ryan_foster (bool): Whether to allow Ryan-Foster branching
             even if it's theoretically a heuristic for the formulation.
+        use_ryan_foster (bool): Explicit toggle for Ryan-Foster branching logic.
+        multi_day_mode (bool): Multi-period adaptation (Inventory Routing Problem).
     """
 
     max_iterations: int = 100
@@ -56,7 +64,14 @@ class BPParams:
 
     @classmethod
     def from_config(cls, config: Any) -> BPParams:
-        """Create BPParams from a configuration object or dictionary."""
+        """Create a BPParams instance from a configuration object or dictionary.
+
+        Args:
+            config: A configuration object (Hydra/OmegaConf) or a raw dictionary.
+
+        Returns:
+            A BPParams instance with values mapped from the config.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 

@@ -1,9 +1,7 @@
-"""
-Pricing Subproblem for Branch-and-Price VRPP.
+"""Pricing Subproblem for Branch-and-Price VRPP.
 
 Solves the resource-constrained shortest path problem (RCSPP) heuristically
-to generate new routes with positive reduced cost.  The pricing problem finds
-routes that improve the LP relaxation of the master problem.
+to generate new routes with positive reduced cost.
 
 Based on Section 2.2 and Section 4 of Barnhart et al. (1998).
 
@@ -36,6 +34,13 @@ RyanFosterBranchingConstraint (together=True)
     discarding any finished route that contains exactly one node of a
     together-pair (i.e. partial together enforcement).  Full enforcement
     would require a DP.
+
+Attributes:
+    PricingSubproblem (class): Heuristic RCSPP solver using greedy insertion.
+
+Example:
+    >>> pricer = PricingSubproblem(n_nodes=50, cost_matrix=dist, ...)
+    >>> routes = pricer.solve(dual_values)
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -44,17 +49,23 @@ import numpy as np
 
 
 class PricingSubproblem:
-    """
-    Resource-Constrained Shortest Path Problem for Route Generation (Heuristic).
+    """Resource-Constrained Shortest Path Problem for Route Generation (Heuristic).
 
     Uses a greedy insertion heuristic to quickly generate routes with positive
-    reduced cost.  For exact pricing, use :class:`rcspp_dp.RCSPPSolver`.
+    reduced cost.
 
-    The heuristic respects active branching constraints during construction so
-    that generated columns are always feasible at the current B&B node.
+    Attributes:
+        n_nodes (int): Number of customer nodes.
+        cost_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Map from node to waste volume.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue per kg.
+        C (float): Cost per km.
+        mandatory_nodes (Set[int]): Nodes that must be visited.
+        depot (int): Index of the depot node (always 0).
     """
 
-    IS_EXACT = False  # Heuristic pricer — must never be used for LP optimality proofs.
+    IS_EXACT = False
 
     def __init__(
         self,
@@ -66,8 +77,7 @@ class PricingSubproblem:
         cost_per_km: float,
         mandatory_nodes: Set[int],
     ) -> None:
-        """
-        Initialise the pricing subproblem.
+        """Initialise the pricing subproblem.
 
         Args:
             n_nodes: Number of customer nodes (excluding depot, depot = 0).
@@ -77,7 +87,6 @@ class PricingSubproblem:
             revenue_per_kg: Revenue earned per unit of waste collected.
             cost_per_km: Cost per unit of distance travelled.
             mandatory_nodes: Set of node indices that must be visited.
-            params: Standardized BP parameters.
         """
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
@@ -101,33 +110,21 @@ class PricingSubproblem:
         assert_not_exact: bool = False,
         **kwargs: Any,
     ) -> List[Tuple[List[int], float]]:
-        """
-        Generate routes with positive reduced cost.
+        """Generate routes with positive reduced cost.
 
         **Warning:** This pricer is heuristic. It may miss columns with positive reduced
-        cost. It must only be used for warm-starting the initial column pool, never as the
-        pricer inside the B&B column generation loop where LP optimality must be certified.
-
-        Tries multiple starting nodes to diversify the column pool.  Each
-        candidate route is built with the greedy insertion heuristic and is
-        guaranteed to satisfy all active branching constraints.
+        cost.
 
         Args:
-            dual_values: Dual values from the master problem.  Keys are
-                customer node IDs (int) and optionally ``"vehicle_limit"``.
+            dual_values: Dual values from the master problem.
             max_routes: Maximum number of routes to return.
-            active_constraints: Active branching constraints at the current
-                B&B node, or ``None`` / empty list for the root.  Accepts
-                both :class:`branching.EdgeBranchingConstraint` and
-                :class:`branching.RyanFosterBranchingConstraint` instances.
-            capacity_cut_duals: Optional mapping of node-sets to dual values
-                for active capacity cuts.
-            assert_not_exact: If True, raises RuntimeError to prevent misuse
-                in an exact B&B pricing loop.
+            active_constraints: Active branching constraints at the current B&B node.
+            capacity_cut_duals: Optional mapping of node-sets to dual values.
+            assert_not_exact: If True, raises RuntimeError to prevent misuse.
+            kwargs: Additional parameters (e.g. node_prizes).
 
         Returns:
-            List of ``(route_nodes, reduced_cost)`` tuples sorted by
-            descending reduced cost.  ``route_nodes`` excludes the depot.
+            List of ``(route_nodes, reduced_cost)`` tuples.
         """
         if assert_not_exact:
             raise RuntimeError(
@@ -193,15 +190,8 @@ class PricingSubproblem:
     def _preprocess_constraints(
         self,
         constraints: List[Any],
-    ) -> Tuple[
-        Set[Tuple[int, int]],  # forbidden_arcs
-        Dict[int, int],  # req_successors:  u → required next node
-        Dict[int, int],  # req_predecessors: v → required previous node
-        Set[Tuple[int, int]],  # rf_separate_pairs: frozenset-like sorted pairs
-        Set[Tuple[int, int]],  # rf_together_pairs: sorted pairs
-    ]:
-        """
-        Convert active constraints into fast look-up structures.
+    ) -> Tuple[Set[Tuple[int, int]], Dict[int, int], Dict[int, int], Set[Tuple[int, int]], Set[Tuple[int, int]]]:
+        """Convert active constraints into fast look-up structures.
 
         Separates EdgeBranchingConstraint objects from RyanFosterBranchingConstraint
         objects without importing the classes (uses duck-typing to stay
@@ -255,7 +245,23 @@ class PricingSubproblem:
         visited: Set[int],
         node_prizes: Optional[Dict[int, float]] = None,
     ) -> Tuple[Optional[int], float]:
-        """Evaluate candidate v and find best insertion position and profit."""
+        """Evaluate candidate v and find best insertion position and profit.
+
+        Args:
+            v: Candidate node to insert.
+            v_waste: Waste volume of node v.
+            route: Current partial route.
+            dual_values: Node dual values.
+            forbidden_arcs: Set of forbidden arcs.
+            req_successors: Required successors map.
+            req_predecessors: Required predecessors map.
+            rf_separate_pairs: Ryan-Foster separation pairs.
+            visited: Set of nodes already in the route.
+            node_prizes: Optional fixed prizes per node.
+
+        Returns:
+            A tuple of (best_position, best_marginal_profit).
+        """
         # Rule 4: Ryan-Foster separation.
         if self._violates_rf_separation(v, visited, rf_separate_pairs):
             return None, -float("inf")
@@ -308,11 +314,10 @@ class PricingSubproblem:
         capacity_cut_duals: Optional[Dict[Any, float]] = None,
         node_prizes: Optional[Dict[int, float]] = None,
     ) -> Tuple[List[int], float]:
-        """
-        Build a single route greedily from *start_node*.
+        """Build a single route greedily from *start_node*.
 
         At each step the next insertion is chosen to maximise marginal profit
-        (revenue + dual benefit − detour cost).  All active branching
+        (revenue + dual benefit − detour cost). All active branching
         constraints are checked before a candidate node is accepted.
 
         Constraint enforcement inside the construction loop:
@@ -343,9 +348,11 @@ class PricingSubproblem:
             req_predecessors: v → x meaning v must be immediately preceded by x.
             rf_separate_pairs: Sorted node pairs that must be in different routes.
             rf_together_pairs: Sorted node pairs that must be in the same route.
+            capacity_cut_duals: Optional duals for capacity cuts.
+            node_prizes: Optional fixed prizes per node.
 
         Returns:
-            ``(route_nodes, reduced_cost)`` where route_nodes excludes the depot.
+            A tuple of (route_nodes, reduced_cost).
         """
         # ---- Validate start node itself ---------------------------------
         # The depot (0) is the implicit predecessor of start_node.
@@ -438,9 +445,7 @@ class PricingSubproblem:
         visited: Set[int],
         rf_separate_pairs: Set[Tuple[int, int]],
     ) -> bool:
-        """
-        Return True if adding *candidate* to the route would violate a
-        Ryan-Foster separation constraint.
+        """Return True if adding *candidate* violates a Ryan-Foster separation constraint.
 
         A violation occurs when *candidate* is in a ``together=False`` pair
         with any node already present in ``visited``.
@@ -470,8 +475,7 @@ class PricingSubproblem:
         capacity_cut_duals: Optional[Dict[Any, float]] = None,
         node_prizes: Optional[Dict[int, float]] = None,
     ) -> float:
-        """
-        Compute the reduced cost of a completed route.
+        """Compute the reduced cost of a completed route.
 
         reduced_cost = profit − Σ_i dual_i − dual_vehicle_limit − crossing_penalty
         profit       = (if node_prizes given) Σ_i node_prizes_i else Σ_i waste_i × R
@@ -480,8 +484,8 @@ class PricingSubproblem:
         Args:
             route: Ordered list of customer nodes (depot excluded).
             dual_values: Node-coverage duals and optional vehicle-limit dual.
-            capacity_cut_duals: Optional mapping of node-sets to dual values for active capacity cuts.
-            node_prizes: Optional fixed prizes per node replacing standard volumetric revenue.
+            capacity_cut_duals: Optional duals for active capacity cuts.
+            node_prizes: Optional fixed prizes per node.
 
         Returns:
             Scalar reduced cost.
@@ -520,14 +524,13 @@ class PricingSubproblem:
         self,
         route: List[int],
     ) -> Tuple[float, float, float, Set[int]]:
-        """
-        Compute cost, revenue, load, and node coverage for a given route.
+        """Compute cost, revenue, load, and node coverage for a given route.
 
         Args:
             route: Ordered list of customer nodes (depot excluded).
 
         Returns:
-            Tuple of (cost, revenue, load, node_coverage).
+            A 4-tuple of (cost, revenue, load, node_coverage).
         """
         total_distance = 0.0
         prev = self.depot

@@ -1,9 +1,16 @@
-"""
-Logic-Based Benders Decomposition (LBBD) Master Problem.
+r"""Logic-Based Benders Decomposition (LBBD) Master Problem.
 
 Implements the master allocation problem for LBBD, distributing bins
 to different days of the planning horizon while considering predicted
 waste levels and overflow penalties.
+
+Attributes:
+    LBBDMasterProblem: Master Problem for Logic-Based Benders Decomposition.
+
+Example:
+    >>> master = LBBDMasterProblem(config, num_customers)
+    >>> master.build(tree)
+    >>> assignments, thetas = master.solve()
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -23,9 +30,17 @@ from logic.src.pipeline.simulations.bins.prediction import ScenarioTree, Scenari
 
 
 class LBBDMasterProblem:
-    """
-    Master Problem for Logic-Based Benders Decomposition (LBBD).
+    r"""Master Problem for Logic-Based Benders Decomposition (LBBD).
+
     Modelled as an allocation problem across multiple days.
+
+    Attributes:
+        config (LBBDConfig): Configuration parameters.
+        num_customers (int): Number of customers.
+        num_nodes (int): Total number of nodes (including depot).
+        customers (List[int]): List of customer indices.
+        model (gp.Model): Gurobi model instance.
+        current_horizon (int): Number of days in the planning horizon.
     """
 
     def __init__(self, config: LBBDConfig, num_customers: int):
@@ -51,8 +66,14 @@ class LBBDMasterProblem:
 
         self._benders_cuts_count = 0
 
-    def build(self, tree: ScenarioTree, stochastic_master: bool = False):
-        """Builds the allocation model using the ScenarioTree."""
+    def build(self, tree: ScenarioTree, stochastic_master: bool = False) -> None:
+        """Builds the allocation model using the ScenarioTree.
+
+        Args:
+            tree (ScenarioTree): Scenario tree providing predicted wastes.
+            stochastic_master (bool): If True, build an Extensive Form (EF) model.
+                                     If False, build an Expected Value (EV) model.
+        """
         if not GUROBI_AVAILABLE:
             raise ImportError("Gurobi is required for LBBD Master Problem.")
 
@@ -77,6 +98,15 @@ class LBBDMasterProblem:
         self.model.update()
 
     def _build_ev_model(self, tree: ScenarioTree, horizon: int) -> Any:
+        """Build the Expected Value (EV) version of the master problem.
+
+        Args:
+            tree (ScenarioTree): The scenario tree.
+            horizon (int): Planning horizon in days.
+
+        Returns:
+            Any: The Gurobi expression for the expected profit.
+        """
         # Expected Value Mode: Single variable per (bin, day)
         for d in range(1, horizon + 1):
             for i in self.customers:
@@ -119,6 +149,15 @@ class LBBDMasterProblem:
         )
 
     def _build_ef_model(self, tree: ScenarioTree, horizon: int) -> Any:
+        """Build the Extensive Form (EF) version of the master problem.
+
+        Args:
+            tree (ScenarioTree): The scenario tree.
+            horizon (int): Planning horizon in days.
+
+        Returns:
+            Any: The Gurobi expression for the expected profit.
+        """
         # Extensive Form Mode: Variable per (bin, tree_node)
         node_map: List[ScenarioTreeNode] = []
 
@@ -197,8 +236,13 @@ class LBBDMasterProblem:
             for i in self.customers
         )
 
-    def add_nogood_cut(self, day: int, assigned_nodes: List[int]):
-        """Adds a cut preventing this set of nodes from being assigned together on this day."""
+    def add_nogood_cut(self, day: int, assigned_nodes: List[int]) -> None:
+        """Adds a cut preventing this set of nodes from being assigned together on this day.
+
+        Args:
+            day (int): The day for which the cut is added.
+            assigned_nodes (List[int]): The list of nodes assigned to this day.
+        """
         subset = [i for i in assigned_nodes if i != 0]
         if not subset:
             return
@@ -210,10 +254,15 @@ class LBBDMasterProblem:
         )
         self.model.update()
 
-    def add_optimality_cut(self, day: int, assigned_nodes: List[int], distance: float):
-        """
-        Adds a logic-based optimality cut: theta >= Dist * (1 - sum(1-z_i) - sum(z_j)).
+    def add_optimality_cut(self, day: int, assigned_nodes: List[int], distance: float) -> None:
+        """Adds a logic-based optimality cut: theta >= Dist * (1 - sum(1-z_i) - sum(z_j)).
+
         This is a standard LBBD optimality cut for routing.
+
+        Args:
+            day (int): The day for which the cut is added.
+            assigned_nodes (List[int]): The list of nodes assigned to this day.
+            distance (float): The optimal distance for the subproblem.
         """
         subset = [i for i in assigned_nodes if i != 0]
         others = [i for i in self.customers if i not in subset]
@@ -230,7 +279,13 @@ class LBBDMasterProblem:
         self.model.update()
 
     def solve(self) -> Tuple[Dict[int, List[int]], Dict[int, float]]:
-        """Solves the master problem and returns assignments and theta values."""
+        """Solves the master problem and returns assignments and theta values.
+
+        Returns:
+            Tuple[Dict[int, List[int]], Dict[int, float]]: A tuple containing:
+                - assignments: Dict mapping day index to list of assigned node IDs.
+                - thetas: Dict mapping day index to value of theta variable.
+        """
         self.model.optimize()
 
         if self.model.Status != GRB.OPTIMAL and self.model.SolCount == 0:

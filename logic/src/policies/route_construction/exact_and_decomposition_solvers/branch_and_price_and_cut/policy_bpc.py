@@ -1,7 +1,13 @@
-"""
-BPC Policy Adapter.
+"""BPC Policy Adapter.
 
 Adapts the Branch-and-Price-and-Cut (BPC) logic to the agnostic interface.
+
+Attributes:
+    BPCPolicy (class): Policy wrapper for the BPC solver.
+
+Example:
+    >>> policy = BPCPolicy(config=bpc_cfg)
+    >>> routes, profit, cost = policy.execute(env, bins)
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
@@ -28,10 +34,12 @@ from .params import BPCParams
 )
 @RouteConstructorRegistry.register("bpc")
 class BPCPolicy(BaseRoutingPolicy):
-    """
-    Branch-and-Price-and-Cut policy class.
+    """Branch-and-Price-and-Cut policy class.
 
     Visits pre-selected 'mandatory' bins using exact or heuristic BPC solvers.
+
+    Attributes:
+        config (BPCConfig): Configuration object.
     """
 
     def __init__(self, config: Optional[Union[BPCConfig, Dict[str, Any]]] = None):
@@ -44,10 +52,19 @@ class BPCPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for BPC.
+
+        Returns:
+            Type: BPCConfig class.
+        """
         return BPCConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for BPC."""
+        """Return config key for BPC.
+
+        Returns:
+            str: "bpc".
+        """
         return "bpc"
 
     def _run_solver(
@@ -61,38 +78,20 @@ class BPCPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute core BPC optimization combining column generation and cutting planes.
-
-        This method coordinates the highest-fidelity exact search in the
-        framework. It dynamically generates routes (columns) with positive
-        reduced cost and strengthens the master problem relaxation using valid
-        inequalities (cuts) like SECs and Rounded Capacity Inequalities. The
-        search is managed within a global branch-and-bound tree.
+        """Execute core BPC optimization.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                BPC parameters (branching_strategy, cuts_enabled, time_limit).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Map of local node indices to waste volume.
+            capacity: Vehicle capacity.
+            revenue: Revenue per kg.
+            cost_unit: Cost per km.
+            values: Configuration dictionary.
+            mandatory_nodes: Local indices of nodes that must be visited.
+            kwargs: Additional parameters (n_vehicles, model_env, etc).
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            A 3-tuple of (routes, profit, cost).
         """
         # Return contract for run_bpc:
         #   routes          — list of customer-node lists (depot excluded)

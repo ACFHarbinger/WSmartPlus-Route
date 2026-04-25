@@ -15,6 +15,13 @@ References:
     Kleywegt, A. J., Shapiro, A., & Homem-de-Mello, T. (2002). "The sample
     average approximation method for stochastic discrete optimization". SIAM
     Journal on Optimization, 12(2), 479-502.
+
+Attributes:
+    ScenarioGenerator (class): Generates discrete SAA scenarios.
+
+Example:
+    >>> gen = ScenarioGenerator()
+    >>> scenarios = gen.generate(sub_wastes, n_scenarios=20)
 """
 
 from typing import Dict, List, Optional
@@ -42,6 +49,9 @@ class ScenarioGenerator:
         This is the standard SAA formulation of Kleywegt et al. (2002).  More
         sophisticated stratification methods (Latin Hypercube, quasi-Monte Carlo)
         are not implemented but could be added without changing the ILS interface.
+
+    Attributes:
+        _None: This class has no public attributes.
     """
 
     def generate(

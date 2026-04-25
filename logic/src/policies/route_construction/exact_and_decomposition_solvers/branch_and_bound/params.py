@@ -1,5 +1,11 @@
-"""
-Parameter dataclasses for Branch-and-Bound solvers.
+"""Parameter dataclasses for Branch-and-Bound solvers.
+
+Attributes:
+    BBParams (class): Data structure for BB solver parameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params import BBParams
+    >>> params = BBParams(time_limit=120.0, formulation="dfj")
 """
 
 from dataclasses import dataclass
@@ -8,11 +14,25 @@ from typing import Any, Dict
 
 @dataclass
 class BBParams:
-    """
-    Standardized parameters for Branch-and-Bound solvers (MTZ, DFJ, and LR-UOP).
+    """Standardized parameters for Branch-and-Bound solvers (MTZ, DFJ, and LR-UOP).
 
     Shared parameters apply to all three formulations. Parameters prefixed with
     ``lr_`` are only used when ``formulation = "lr_uop"``.
+
+    Attributes:
+        time_limit (float): Maximum runtime in seconds. Defaults to 60.0.
+        mip_gap (float): Relative optimality gap threshold. Defaults to 0.01.
+        seed (int): Random seed for reproducibility. Defaults to 42.
+        branching_strategy (str): MTZ branching strategy ('strong', 'most_fractional', etc.).
+        strong_branching_limit (int): Candidates for strong branching. Defaults to 5.
+        formulation (str): Formulation choice ('dfj', 'mtz', or 'lr_uop').
+        lr_lambda_init (float): Initial Lagrange multiplier for LR-UOP.
+        lr_max_subgradient_iters (int): Iteration limit for subgradient phase.
+        lr_subgradient_theta (float): Step-size multiplier for Polyak rule.
+        lr_subgradient_time_fraction (float): Time fraction for Phase 1.
+        lr_op_time_limit (float): Time limit for inner OP solves.
+        lr_branching_strategy (str): LR-specific branching strategy.
+        lr_max_bb_nodes (int): Safety limit for LR-UOP search tree nodes.
     """
 
     # Core Solver Parameters
@@ -42,8 +62,7 @@ class BBParams:
 
     @classmethod
     def from_config(cls, config: Dict[str, Any]) -> "BBParams":
-        """
-        Create a BBParams instance from a raw configuration dictionary.
+        """Create a BBParams instance from a raw configuration dictionary.
 
         Args:
             config: Dictionary containing parameter overrides.

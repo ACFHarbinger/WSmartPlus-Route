@@ -35,6 +35,13 @@ Implementation:
       recomputation across simulation days.
 
 Registry key: ``"esdp"``
+
+Attributes:
+    ExactSDPPolicy (class): Adapter bridging simulation to the ESDP Engine.
+
+Example:
+    >>> policy = ExactSDPPolicy(config)
+    >>> sol, plan, stats = policy._run_multi_period_solver(problem, multi_day_ctx)
 """
 
 import itertools
@@ -67,18 +74,29 @@ _SDP_CACHE: Dict[Tuple[int, int, int, float], ExactSDPEngine] = {}
 )
 @RouteConstructorRegistry.register("esdp")
 class ExactSDPPolicy(BaseMultiPeriodRoutingPolicy):
-    """
-    Adapter bridging WSmart-Route simulation loop to the Exact SDP Engine.
+    """Adapter bridging WSmart-Route simulation loop to the Exact SDP Engine.
+
     Now optimized for multi-period rolling horizon re-optimization.
+
+    Attributes:
+        config (ExactSDPConfig): Configuration for the ESDP policy.
     """
 
     @classmethod
     def _config_class(cls) -> Type[ExactSDPConfig]:
-        """Return the SDP configuration dataclass."""
+        """Return the SDP configuration dataclass.
+
+        Returns:
+            Type[ExactSDPConfig]: The configuration class.
+        """
         return ExactSDPConfig
 
     def _get_config_key(self) -> str:
-        """Return the configuration key."""
+        """Return the configuration key.
+
+        Returns:
+            str: The registry key 'esdp'.
+        """
         return "esdp"
 
     def _run_multi_period_solver(
@@ -174,5 +192,19 @@ class ExactSDPPolicy(BaseMultiPeriodRoutingPolicy):
         mandatory_nodes: Optional[List[int]] = None,
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Legacy fallback."""
+        """Legacy fallback solver.
+
+        Args:
+            sub_dist_matrix: Distance matrix for the sub-problem.
+            sub_wastes: Waste levels for the sub-problem.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit of waste.
+            cost_unit: Cost per unit of distance.
+            values: Additional values/parameters.
+            mandatory_nodes: List of nodes that must be visited.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty solution tuple.
+        """
         return [], 0.0, 0.0

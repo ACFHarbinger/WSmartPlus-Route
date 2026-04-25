@@ -1,11 +1,19 @@
-"""
-Heuristic Algorithms for VRPP Primal Solutions.
+"""Heuristic Algorithms for VRPP Primal Solutions.
 
 This module provides construction heuristics for finding good feasible VRPP solutions
 to provide upper bounds for the branch-and-cut algorithm. It leverages existing
 operators from the WSmart+ Route codebase.
 
 Based on Section 4 of Fischetti et al. (1997) and classical VRP heuristics.
+
+Attributes:
+    construct_initial_solution (function): Greedy initialization wrapper.
+    construct_nn_solution (function): Nearest Neighbor initialization wrapper.
+    farthest_insertion (function): Farthest insertion heuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import construct_initial_solution
+    >>> tour, profit = construct_initial_solution(model)
 """
 
 from random import Random
@@ -183,8 +191,7 @@ def farthest_insertion(
 
 
 def _routes_to_tour(routes: List[List[int]], depot: int) -> List[int]:
-    """
-    Convert multiple routes into a single tour with depot returns.
+    """Convert multiple routes into a single tour with depot returns.
 
     Args:
         routes: List of routes (each route is a list of node indices).
@@ -212,8 +219,7 @@ def _routes_to_tour(routes: List[List[int]], depot: int) -> List[int]:
 
 
 def _apply_2opt_to_tour(model: VRPPModel, tour: List[int], max_iterations: int = 100) -> List[int]:
-    """
-    Apply 2-opt local search improvement to a tour.
+    """Apply 2-opt local search improvement to a tour.
 
     This is a lightweight Python implementation for the Branch-and-Cut heuristics.
     For more intensive optimization, use the k_opt operators from the operators module.
@@ -224,7 +230,7 @@ def _apply_2opt_to_tour(model: VRPPModel, tour: List[int], max_iterations: int =
         max_iterations: Maximum number of improvement iterations.
 
     Returns:
-        Improved tour.
+        Improved tour sequence.
     """
     if len(tour) <= 3:
         return tour

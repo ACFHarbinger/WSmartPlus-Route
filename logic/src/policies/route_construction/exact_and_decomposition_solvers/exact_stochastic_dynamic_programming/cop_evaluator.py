@@ -1,5 +1,14 @@
-"""
-Evaluator for Chance-Constrained Optimization (COP) subproblems.
+"""Evaluator for Chance-Constrained Optimization (COP) subproblems.
+
+Provides TSP cost precomputation and feasibility checking for the ESDP solver.
+
+Attributes:
+    COPEvaluator (class): Evaluator for routing costs and feasibility.
+
+Example:
+    >>> evaluator = COPEvaluator(dist_matrix, num_nodes=5)
+    >>> cost = evaluator.get_route_cost(frozenset([1, 2]))
+    >>> actions = evaluator.get_feasible_actions(state=(1, 2, 0), capacity=1.0, L=4)
 """
 
 import itertools
@@ -9,10 +18,15 @@ import numpy as np
 
 
 class COPEvaluator:
-    """
-    Evaluates and caches optimal routing costs for all possible subsets of nodes.
+    """Evaluates and caches optimal routing costs for all possible subsets of nodes.
+
     Since V <= 10, exact evaluation using Held-Karp dynamic programming is O(V^2 2^V),
     which takes less than a second to cache all 2^V subsets.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix between nodes.
+        num_nodes (int): Total number of nodes in the graph.
+        cost_cache (Dict[FrozenSet[int], float]): Cache mapping node subsets to TSP costs.
     """
 
     def __init__(self, dist_matrix: np.ndarray, num_nodes: int):
@@ -28,10 +42,11 @@ class COPEvaluator:
         self.cost_cache: Dict[FrozenSet[int], float] = {}
         self._precompute_all_subsets()
 
-    def _precompute_all_subsets(self):
-        """
-        Precomputes the TSP tour cost (starting and ending at depot 0)
+        """Precomputes the TSP tour cost (starting and ending at depot 0)
         for every possible subset of customer nodes {1, ..., V-1}.
+
+        Algorithm: Held-Karp dynamic programming.
+        Complexity: O(V^2 2^V).
         """
         customers = list(range(1, self.num_nodes))
 
@@ -76,13 +91,28 @@ class COPEvaluator:
                 self.cost_cache[S] = float(best_tour_cost)
 
     def get_route_cost(self, subset: FrozenSet[int]) -> float:
-        """Return pre-computed TSP cost for the selected node subset."""
+        """Return pre-computed TSP cost for the selected node subset.
+
+        Args:
+            subset (FrozenSet[int]): Set of node indices.
+
+        Returns:
+            float: Pre-computed TSP cost.
+        """
         return self.cost_cache.get(subset, float("inf"))
 
     def get_feasible_actions(self, discrete_state: Tuple[int, ...], capacity: float, L: int) -> List[FrozenSet[int]]:
-        """
-        Return all subsets of nodes whose total current actual weight <= vehicle capacity.
+        """Return all subsets of nodes whose total weight <= vehicle capacity.
+
         Since we operate in discretized fill levels, actual_weight approx = (level / (L-1)).
+
+        Args:
+            discrete_state (Tuple[int, ...]): Current discrete state tuple.
+            capacity (float): Vehicle capacity.
+            L (int): Number of discrete fill levels per bin.
+
+        Returns:
+            List[FrozenSet[int]]: List of feasible visit subsets.
         """
         customers = list(range(1, self.num_nodes))
         valid_actions: List[FrozenSet[int]] = [frozenset()]  # doing nothing is always valid

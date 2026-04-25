@@ -1,5 +1,11 @@
-"""
-LBBD engine coordinating master and subproblems.
+r"""LBBD engine coordinating master and subproblems.
+
+Attributes:
+    LBBDEngine: Coordination engine for Logic-Based Benders Decomposition.
+
+Example:
+    >>> engine = LBBDEngine(config, dist_matrix, tree)
+    >>> plan, profit, stats = engine.solve()
 """
 
 import time
@@ -15,8 +21,18 @@ from .subproblem import RoutingSubproblem
 
 
 class LBBDEngine:
-    """
-    Coordination engine for Logic-Based Benders Decomposition.
+    r"""Coordination engine for Logic-Based Benders Decomposition.
+
+    Attributes:
+        config (LBBDConfig): Configuration parameters.
+        distance_matrix (np.ndarray): Full N×N distance matrix.
+        tree (ScenarioTree): Scenario tree for stochasticity.
+        capacity (float): Vehicle capacity.
+        num_nodes (int): Total number of nodes (including depot).
+        num_customers (int): Total number of customers.
+        master (LBBDMasterProblem): Master problem container.
+        subproblem (RoutingSubproblem): Routing subproblem solver.
+        stats (Dict[str, Any]): Execution statistics.
     """
 
     def __init__(
@@ -25,15 +41,14 @@ class LBBDEngine:
         distance_matrix: np.ndarray,
         tree: ScenarioTree,
         capacity: float = 1.0,
-    ):
-        """
-        Initializes the LBBD engine.
+    ) -> None:
+        """Initializes the LBBD engine.
 
         Args:
-            config: Configuration parameters.
-            distance_matrix: Distance matrix.
-            tree: Scenario tree for stochasticity.
-            capacity: Vehicle capacity.
+            config (LBBDConfig): Configuration parameters.
+            distance_matrix (np.ndarray): Distance matrix.
+            tree (ScenarioTree): Scenario tree for stochasticity.
+            capacity (float): Vehicle capacity.
         """
         self.config = config
         self.distance_matrix = distance_matrix
@@ -49,9 +64,13 @@ class LBBDEngine:
         self.stats = {"iterations": 0, "cuts_added": 0, "converged": False, "solve_time": 0.0}
 
     def solve(self) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-        """
-        Runs the LBBD algorithm.
-        Returns (full_plan, total_expected_profit, stats).
+        """Runs the LBBD algorithm.
+
+        Returns:
+            Tuple[List[List[List[int]]], float, Dict[str, Any]]: A tuple containing:
+                - full_plan: Collection plan (nested list by day and vehicle).
+                - total_expected_profit: Total expected profit from the solution.
+                - stats: Execution statistics and iterations.
         """
         start_time = time.time()
         self.master.build(self.tree, self.config.stochastic_master)

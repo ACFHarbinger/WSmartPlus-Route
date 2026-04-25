@@ -1,5 +1,4 @@
-r"""
-Scenario Tree Extensive Form (ST-EF) Policy Adapter for Stochastic VRPP.
+r"""Scenario Tree Extensive Form (ST-EF) Policy Adapter for Stochastic VRPP.
 
 ST-EF solves the Multi-Period Stochastic Integer Routing Problem by constructing
 the Deterministic Equivalent Problem (DEP) over the entire `ScenarioTree`.
@@ -34,6 +33,13 @@ Complexity:
     computational resources.
 
 Registry key: ``"st_ef"``
+
+Attributes:
+    ScenarioTreeExtensiveFormPolicy: Policy adapter for ST-EF.
+
+Example:
+    >>> policy = ScenarioTreeExtensiveFormPolicy()
+    >>> sol, plan, stats = policy._run_multi_period_solver(problem, ctx)
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -61,17 +67,29 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.scena
 )
 @RouteConstructorRegistry.register("st_ef")
 class ScenarioTreeExtensiveFormPolicy(BaseMultiPeriodRoutingPolicy):
-    """
-    Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.
+    r"""Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.
+
     Now standardized to the Multi-Period framework.
+
+    Attributes:
+        config (ScenarioTreeExtensiveFormConfig): Policy configuration.
     """
 
     @classmethod
     def _config_class(cls):
+        """Return the configuration class for this policy.
+
+        Returns:
+            Type[ScenarioTreeExtensiveFormConfig]: The configuration class.
+        """
         return ScenarioTreeExtensiveFormConfig
 
     def _get_config_key(self) -> str:
-        """Return the configuration key."""
+        """Return the configuration key.
+
+        Returns:
+            str: The config key.
+        """
         return "st_ef"
 
     def _run_multi_period_solver(
@@ -138,5 +156,19 @@ class ScenarioTreeExtensiveFormPolicy(BaseMultiPeriodRoutingPolicy):
         mandatory_nodes: Optional[List[int]] = None,
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Legacy fallback."""
+        """Legacy fallback.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Local distance matrix.
+            sub_wastes (Dict[int, float]): Local fill levels.
+            capacity (float): Vehicle capacity.
+            revenue (float): Unit revenue.
+            cost_unit (float): Unit travel cost.
+            values (Dict[str, Any]): Additional state values.
+            mandatory_nodes (Optional[List[int]]): Local mandatory node indices.
+            kwargs (Any): Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty results.
+        """
         return [], 0.0, 0.0

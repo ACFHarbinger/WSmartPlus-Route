@@ -1,5 +1,11 @@
-"""
-Configuration parameters for the Branch-and-Cut (BC) algorithm.
+"""Configuration parameters for the Branch-and-Cut (BC) algorithm.
+
+Attributes:
+    BCParams (class): Data structure for BC solver parameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.params import BCParams
+    >>> params = BCParams(time_limit=300.0)
 """
 
 from dataclasses import dataclass
@@ -8,7 +14,23 @@ from typing import Any, Dict
 
 @dataclass
 class BCParams:
-    """Standardized parameters for the Branch-and-Cut solver."""
+    """Standardized parameters for the Branch-and-Cut solver.
+
+    Attributes:
+        time_limit (float): Maximum runtime in seconds. Defaults to 300.0.
+        mip_gap (float): Relative optimality gap threshold. Defaults to 0.01.
+        max_cuts_per_round (int): Maximum cuts per round. Defaults to 50.
+        use_heuristics (bool): Enable heuristic warmstarts. Defaults to True.
+        verbose (bool): Enable detailed logging. Defaults to False.
+        profit_aware_operators (bool): Use profit-centric heuristics. Defaults to False.
+        vrpp (bool): Problem type flag for VRPP. Defaults to False.
+        enable_fractional_capacity_cuts (bool): Enable fractional capacity cuts.
+        enable_heuristic_rcc_separation (bool): Enable heuristic RCC separation.
+        enable_exact_rcc_separation (bool): Enable exact RCC separation.
+        use_comb_cuts (bool): Enable comb cuts. Defaults to False.
+        use_saa (bool): Enable Sample Average Approximation. Defaults to False.
+        num_scenarios (int): Number of SAA scenarios. Defaults to 10.
+    """
 
     time_limit: float = 300.0
     mip_gap: float = 0.01
@@ -26,7 +48,14 @@ class BCParams:
 
     @classmethod
     def from_config(cls, config: Dict[str, Any]) -> "BCParams":
-        """Create BCParams from a configuration dictionary."""
+        """Create a BCParams instance from a configuration dictionary.
+
+        Args:
+            config: Dictionary containing parameter overrides.
+
+        Returns:
+            A BCParams instance with values mapped from the config.
+        """
         return cls(
             time_limit=config.get("time_limit", 300.0),
             mip_gap=config.get("mip_gap", 0.01),
@@ -44,7 +73,11 @@ class BCParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert params to a dictionary."""
+        """Convert the parameter object to a serializable dictionary.
+
+        Returns:
+            A dictionary containing all parameter values.
+        """
         return {
             "time_limit": self.time_limit,
             "mip_gap": self.mip_gap,

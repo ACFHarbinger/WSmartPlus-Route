@@ -1,5 +1,14 @@
-"""
-State space management for Stochastic Dynamic Programming.
+"""State space management for Stochastic Dynamic Programming.
+
+Provides the underlying discretization and transition probability mapping
+required for Exact Stochastic Dynamic Programming (ESDP).
+
+Attributes:
+    StateSpaceManager (class): Manager for discrete state space.
+
+Example:
+    >>> manager = StateSpaceManager(num_nodes=5, discrete_levels=4, max_fill_rate=0.3)
+    >>> all_states = manager.get_all_states()
 """
 
 import itertools
@@ -9,10 +18,14 @@ import numpy as np
 
 
 class StateSpaceManager:
-    """
-    Manages the discrete state space and transition probabilities for the Exact SDP.
+    """Manages the discrete state space and transition probabilities for the Exact SDP.
 
     The state is a tuple of V integers, each in {0, 1, ..., L-1}.
+
+    Attributes:
+        num_nodes (int): Total number of nodes (including depot).
+        L (int): Number of discrete fill levels per bin.
+        trans_matrix (np.ndarray): Probability transition matrix for a single bin.
     """
 
     def __init__(self, num_nodes: int, discrete_levels: int, max_fill_rate: float):
@@ -29,8 +42,11 @@ class StateSpaceManager:
         # Build 1D transition probabilities for a single bin
         self._build_bin_transitions(max_fill_rate)
 
-    def get_all_states(self) -> List[Tuple[int, ...]]:
-        """Return a list of all possible discrete state tuples."""
+        """Return a list of all possible discrete state tuples.
+
+        Returns:
+            List[Tuple[int, ...]]: List of all state combinations.
+        """
         # Excluding depot, depot has no fill level
         customer_nodes = self.num_nodes - 1
         return list(itertools.product(range(self.L), repeat=customer_nodes))
@@ -38,12 +54,16 @@ class StateSpaceManager:
     def _build_bin_transitions(self, mean_increment: float):
         """
         Builds a discrete probability transition matrix for a single bin.
+
         P[l][l'] = Probability of moving from level l to l' without a visit.
         If a visit occurs, the bin resets to l=0 -> we just use P[0][l'].
 
         We construct a simple discretized, discretized-gamma or uniformly spread distribution
         where the expected increment matches mean_increment.
         mean_increment is roughly continuous [0, 1]. In discrete units, it is expected_shift = mean_increment * (L-1).
+
+        Args:
+            mean_increment (float): The daily fill rate increment.
         """
         expected_shift = mean_increment * (self.L - 1)
         # simplistic Poisson-like logic or simply distributing mass
@@ -75,12 +95,18 @@ class StateSpaceManager:
     def get_transition_probs(
         self, state: Tuple[int, ...], action_set: Union[frozenset, set]
     ) -> List[Tuple[Tuple[int, ...], float]]:
-        """
-        Given a state and an action (subset of nodes to visit),
+        """Given a state and an action (subset of nodes to visit),
         generate reachable non-zero-prob states and their probabilities.
 
         Note: action_set contains global node indices. Customers start at 1.
         So bin index in state tuple is (node_idx - 1).
+
+        Args:
+            state (Tuple[int, ...]): The current discrete state.
+            action_set (Union[frozenset, set]): Set of node indices to visit.
+
+        Returns:
+            List[Tuple[Tuple[int, ...], float]]: List of (next_state, probability).
         """
         bin_probs = []
         for b_idx in range(self.num_nodes - 1):
@@ -105,11 +131,25 @@ class StateSpaceManager:
         return reachable_states
 
     def state_to_fraction(self, state: Tuple[int, ...]) -> Dict[int, float]:
-        """Map discrete state tuple back to dictionary of continuous variables."""
+        """Map discrete state tuple back to dictionary of continuous variables.
+
+        Args:
+            state (Tuple[int, ...]): Discrete state tuple.
+
+        Returns:
+            Dict[int, float]: Mapping of node index to continuous fill fraction.
+        """
         return {b_idx + 1: state[b_idx] / max(1, self.L - 1) for b_idx in range(self.num_nodes - 1)}
 
     def fraction_to_state(self, fractions: Dict[int, float]) -> Tuple[int, ...]:
-        """Map continuous dictionary to discrete state tuple."""
+        """Map continuous dictionary to discrete state tuple.
+
+        Args:
+            fractions (Dict[int, float]): Mapping of node index to continuous fill fraction.
+
+        Returns:
+            Tuple[int, ...]: Discrete state tuple.
+        """
         lst = []
         for b_idx in range(self.num_nodes - 1):
             node_idx = b_idx + 1

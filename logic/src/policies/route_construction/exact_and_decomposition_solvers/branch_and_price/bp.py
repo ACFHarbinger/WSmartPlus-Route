@@ -1,5 +1,4 @@
-"""
-Branch-and-Price Solver for VRPP.
+"""Branch-and-Price Solver for VRPP.
 
 Implements the complete Branch-and-Price algorithm with:
 - Column generation at each node
@@ -9,9 +8,16 @@ Implements the complete Branch-and-Price algorithm with:
 
 Based on Sections 5 and 6 of Barnhart et al. (1998).
 
-Reference:
+References:
     Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W. P., & Vance, P. H. (1998).
     "Branch-and-price: Column Generation for Solving Huge Integer Programs".
+
+Attributes:
+    BranchAndPriceSolver (class): The core optimization engine.
+
+Example:
+    >>> solver = BranchAndPriceSolver(n_nodes=50, cost_matrix=dist, ...)
+    >>> tour, profit, stats = solver.solve()
 """
 
 import logging
@@ -34,8 +40,7 @@ from .pricing_subproblem import PricingSubproblem
 
 
 class BranchAndPriceSolver:
-    """
-    Branch-and-Price Algorithm for VRPP with Column Generation.
+    """Branch-and-Price Algorithm for VRPP with Column Generation.
 
     Algorithm:
         1. Initialise with greedy routes.
@@ -43,36 +48,26 @@ class BranchAndPriceSolver:
         3. If LP solution is integer, terminate.
         4. Otherwise branch using the configured strategy and recurse.
 
-    Branching strategies
-    --------------------
-    ``"edge"`` (default)
-        Branches on the most-fractional directed arc (x_{uv}).  Integrates
-        natively with the DP label extension.
+    Branching strategies:
+        - "edge" (default): Branches on the most-fractional directed arc (x_{uv}).
+        - "ryan_foster": Selection of a node-pair (r, s) to branch on.
 
-    ``"ryan_foster"``
-        Selection of a node-pair (r, s) to branch on. Produces two
-        child nodes where r and s MUST or MUST NOT appear in the same
-        route. Note: This is theoretically a heuristic when using a
-        Set Covering master problem (default).
-        **WARNING:** Ryan-Foster branching loses its theoretical exactness
-        guarantee when applied to a Set Covering master problem (>= 1), as it
-        can erroneously prune optimal over-covering solutions. Use 'edge'
-        branching for rigorous proofs of optimality.
-
-    Label-Correcting Algorithm
-    --------------------------
-    When ``use_exact_pricing=True``, the DP-based ``RCSPPSolver`` is used.
-    This employs a **Label-Correcting** algorithm (FIFO queue) to handle
-    potential negative edge costs during column generation. Two sub-modes
-    are available via ``use_ng_routes``:
-
-    ``use_ng_routes=True`` (default)
-        Uses ng-route relaxation (Baldacci et al. 2011) — far fewer labels,
-        scalable to large instances.
-
-    ``use_ng_routes=False``
-        Falls back to exact ESPPRC — every generated route is elementary,
-        but the label count grows exponentially with instance size.
+    Attributes:
+        params (BPParams): Standardized configuration parameters.
+        n_nodes (int): Number of customer nodes.
+        cost_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Map from node to waste volume.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue per kg.
+        C (float): Cost per km.
+        mandatory_nodes (Set[int]): Indices of nodes that must be visited.
+        depot (int): Index of the depot node (always 0).
+        proven_optimal (bool): Whether the final solution is proven optimal.
+        num_iterations (int): Counter for pricing rounds.
+        num_columns_generated (int): Total columns added to the pool.
+        lp_bound (float): Best LP bound found at the root.
+        ip_solution (float): Objective value of the best integer solution.
+        tree (Optional[BranchAndBoundTree]): The search tree object.
     """
 
     def __init__(
@@ -102,8 +97,7 @@ class BranchAndPriceSolver:
         allow_heuristic_ryan_foster: bool = False,
         params: Optional[BPParams] = None,
     ) -> None:
-        """
-        Initialise the Branch-and-Price solver.
+        """Initialise the Branch-and-Price solver.
 
         Args:
             n_nodes: Number of customer nodes (excluding depot, depot = 0).
@@ -113,7 +107,23 @@ class BranchAndPriceSolver:
             revenue_per_kg: Revenue per unit of waste collected.
             cost_per_km: Operating cost per unit of distance travelled.
             mandatory_nodes: Node indices that must be visited.
-            params: Standardized BP parameters.
+            max_iterations: Maximum iterations for column generation loop.
+            max_routes_per_iteration: Maximum columns to add per pricing call.
+            optimality_gap: Relative gap for proven optimality.
+            use_ryan_foster: Whether to use Ryan-Foster branching.
+            branching_strategy: Branching rule ('ryan_foster', 'edge', etc.).
+            tree_search_strategy: B&B search strategy ('best_first', 'depth_first').
+            max_branch_nodes: Maximum nodes to explore in the B&B tree.
+            use_exact_pricing: Whether to use DP-based exact pricing.
+            vehicle_limit: Maximum number of vehicles available.
+            use_ng_routes: Whether to use ng-route relaxation.
+            ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
+            cleanup_frequency: Iterations between column cleanup rounds.
+            cleanup_threshold: Minimum reduced cost for column retention.
+            early_termination_gap: Gap at which to stop search early.
+            multiple_waste_types: Whether the problem has multiple waste types.
+            allow_heuristic_ryan_foster: Whether to allow Ryan-Foster branching.
+            params: Standardized BP parameters (overrides individual arguments).
         """
         if params is None:
             # Create a params object from explicit arguments for backward compatibility
@@ -214,11 +224,13 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[int], float, Dict[str, Any]]:
-        """
-        Solves the VRPP using Branch-and-Price.
+        """Solves the VRPP using Branch-and-Price.
 
         Returns:
-            A tuple containing (best_tour, best_profit, statistics).
+            A 3-tuple containing:
+                - best_tour: Optimized sequence of nodes.
+                - best_profit: Final objective value.
+                - statistics: Dictionary of execution metrics.
         """
         # Use the full B&P tree for all branching strategies.
         # _solve_without_branching is kept as a fast path only when
@@ -232,7 +244,11 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def _solve_without_branching(self) -> Tuple[List[int], float, Dict[str, Any]]:
-        """Solve with column generation followed by a direct MIP solve."""
+        """Solve with column generation followed by a direct MIP solve.
+
+        Returns:
+            A 3-tuple containing (tour, objective, statistics).
+        """
         master = self._make_master()
         heuristic_pricing, exact_pricing = self._make_pricing()
 
@@ -255,7 +271,11 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def _solve_with_branching(self) -> Tuple[List[int], Optional[float], Dict[str, Any]]:
-        """Solve using the configured branching strategy in a B&B tree."""
+        """Solve using the configured branching strategy in a B&B tree.
+
+        Returns:
+            A 3-tuple containing (tour, objective, statistics).
+        """
         self.tree = BranchAndBoundTree(
             v_model=None,
             strategy=self.params.branching_strategy,
@@ -359,7 +379,15 @@ class BranchAndPriceSolver:
         node: BranchNode,
         parent_routes: Optional[List[Route]] = None,
     ) -> Tuple[Optional[float], Dict[int, float], List[Route]]:
-        """Solve the LP relaxation at a single B&B node via column generation."""
+        """Solve the LP relaxation at a single B&B node via column generation.
+
+        Args:
+            node: The Branch-and-Bound node to evaluate.
+            parent_routes: Optional pool of routes from the parent node.
+
+        Returns:
+            A 3-tuple containing (lp_objective, route_values, routes).
+        """
         master = self._make_master()
         constraints = node.get_all_constraints()
         heuristic_pricing, exact_pricing = self._make_pricing()
@@ -405,7 +433,15 @@ class BranchAndPriceSolver:
         master: VRPPMasterProblem,
         pricing: Tuple[PricingSubproblem, Optional[RCSPPSolver]],
     ) -> Tuple[float, Dict[int, float]]:
-        """Perform unconstrained column generation with heuristic fallback."""
+        """Perform unconstrained column generation with heuristic fallback.
+
+        Args:
+            master: The Restricted Master Problem (RMP).
+            pricing: Pair of (heuristic, exact) pricing solvers.
+
+        Returns:
+            A tuple containing (lp_objective, route_values).
+        """
         heuristic_pricer, exact_pricer = pricing
         last_basis: Optional[Tuple[List[int], List[int]]] = None
 
@@ -460,7 +496,17 @@ class BranchAndPriceSolver:
         node: BranchNode,
         constraints: List[AnyBranchingConstraint],
     ) -> Tuple[float, Dict[int, float], float]:
-        """Perform constrained column generation with heuristic fallback."""
+        """Perform constrained column generation with heuristic fallback.
+
+        Args:
+            master: The Restricted Master Problem (RMP).
+            pricing: Pair of (heuristic, exact) pricing solvers.
+            node: The current Branch-and-Price search node.
+            constraints: List of branching constraints to respect in pricing.
+
+        Returns:
+            A 3-tuple containing (lp_objective, route_values, best_lagrangian_bound).
+        """
         heuristic_pricer, exact_pricer = pricing
         best_lagrangian = float("inf")
         last_basis: Optional[Tuple[List[int], List[int]]] = None
@@ -538,11 +584,18 @@ class BranchAndPriceSolver:
         dual_values: Dict[Union[int, frozenset[int], str, Tuple[int, int]], float],
         constraints: Optional[List[AnyBranchingConstraint]],
     ) -> List[Tuple[List[int], float]]:
-        """
-        Dispatch a pricing call to the correct solver with the right kwargs.
+        """Dispatch a pricing call to the correct solver with the right kwargs.
 
         RCSPPSolver uses ``branching_constraints``; PricingSubproblem uses
         ``active_constraints``.
+
+        Args:
+            pricing: The pricing solver instance.
+            dual_values: Map from constraints to their dual values.
+            constraints: Branching constraints to enforce.
+
+        Returns:
+            List of generated routes as (path, reduced_cost) pairs.
         """
         from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver
 
@@ -566,8 +619,7 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def _generate_initial_routes(self, pricing: Any) -> List[Route]:
-        """
-        Generate high-quality initial feasible columns for the master problem.
+        """Generate high-quality initial feasible columns for the master problem.
 
         Uses a Greedy Nearest Neighbor heuristic to cover all mandatory nodes
         with feasible routes, obeying capacity constraints. This provides a
@@ -630,7 +682,13 @@ class BranchAndPriceSolver:
         pricing: Any,
         new_routes: List[Tuple[List[int], float]],
     ) -> None:
-        """Add a batch of new route candidates to the master problem."""
+        """Add a batch of new route candidates to the master problem.
+
+        Args:
+            master: The Restricted Master Problem instance.
+            pricing: The pricing solver used to compute route metadata.
+            new_routes: List of (path, reduced_cost) pairs to add.
+        """
         for route_nodes, _ in new_routes:
             cost, revenue, load, cov = pricing.compute_route_details(route_nodes)
             route = Route(nodes=route_nodes, cost=cost, revenue=revenue, load=load, node_coverage=cov)
@@ -642,14 +700,14 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def _routes_to_tour(self, routes: List[Route]) -> List[int]:
-        """
-        Convert selected routes to a flat tour, deduplicating customer visits.
+        """Convert selected routes to a flat tour, deduplicating customer visits.
 
         Because the master problem uses Set Covering (≥ 1), the IP may select
-        overlapping routes.  Each customer node is included exactly once in the
+        overlapping routes. Each customer node is included exactly once in the
         output; subsequent routes that would revisit a node simply skip it.
-        Empty routes (all nodes already visited) are omitted to avoid bare
-        depot → depot arcs.
+
+        Args:
+            routes: List of Route objects selected in the integer solution.
 
         Returns:
             Flat tour: [depot, n1, n2, ..., depot, n3, ..., depot].
@@ -672,7 +730,11 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def _make_master(self) -> VRPPMasterProblem:
-        """Construct a fresh VRPPMasterProblem with the solver's parameters."""
+        """Construct a fresh VRPPMasterProblem with the solver's parameters.
+
+        Returns:
+            VRPPMasterProblem: The initialized RMP.
+        """
         return VRPPMasterProblem(
             n_nodes=self.n_nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -685,13 +747,12 @@ class BranchAndPriceSolver:
         )
 
     def _make_pricing(self) -> Tuple[PricingSubproblem, Optional[RCSPPSolver]]:
-        """
-        Construct the pricing solvers for this configuration.
+        """Construct the pricing solvers for this configuration.
 
         Returns:
-            Tuple of (heuristic_pricer, exact_pricer).
-            heuristic_pricer: Always provided (PricingSubproblem).
-            exact_pricer: RCSPPSolver if use_exact_pricing=True, else None.
+            A tuple containing:
+                - heuristic_pricer: Always provided (PricingSubproblem).
+                - exact_pricer: RCSPPSolver if use_exact_pricing=True, else None.
         """
         kwargs: Dict[str, Any] = dict(
             n_nodes=self.n_nodes,
@@ -717,14 +778,30 @@ class BranchAndPriceSolver:
         return heuristic_pricer, exact_pricer
 
     def _build_master_for_node(self, node: BranchNode, routes: List[Route]) -> VRPPMasterProblem:
-        """Build a master problem pre-loaded with constraint-feasible routes."""
+        """Build a master problem pre-loaded with constraint-feasible routes.
+
+        Args:
+            node: The search node defining feasibility constraints.
+            routes: Pool of routes to filter and load.
+
+        Returns:
+            VRPPMasterProblem: The populated RMP.
+        """
         master = self._make_master()
         feasible = [r for r in routes if node.is_route_feasible(r)]
         master.build_model(feasible)
         return master
 
     def _is_integer_solution(self, route_values: Dict[int, float], tol: float = 1e-5) -> bool:
-        """Return True if every LP route value is within *tol* of 0 or 1."""
+        """Return True if every LP route value is within *tol* of 0 or 1.
+
+        Args:
+            route_values: Mapping from route index to its continuous value.
+            tol: Tolerance for integrality check.
+
+        Returns:
+            bool: True if solution is integer.
+        """
         return all(abs(v - round(v)) <= tol for v in route_values.values())
 
     @staticmethod
@@ -735,11 +812,13 @@ class BranchAndPriceSolver:
     ) -> str:
         """Single source of truth for branching strategy resolution.
 
-        Priority (highest to lowest):
-            1. values["branching_strategy"]  — runtime override
-            2. branching_strategy constructor arg
-            3. values["use_ryan_foster_branching"] legacy bool
-            4. use_ryan_foster constructor bool (deprecated)
+        Args:
+            branching_strategy: Explicit strategy string.
+            use_ryan_foster: Legacy boolean flag.
+            values: Runtime configuration dictionary.
+
+        Returns:
+            str: Resolved branching strategy.
         """
         if "branching_strategy" in values:
             return str(values["branching_strategy"])
@@ -752,7 +831,11 @@ class BranchAndPriceSolver:
         return "edge"
 
     def _get_statistics(self) -> Dict[str, Any]:
-        """Collect and return solver statistics."""
+        """Collect and return solver statistics.
+
+        Returns:
+            Dict[str, Any]: Mapping of metric names to values.
+        """
         lp_b = self.lp_bound if self.lp_bound is not None else 0.0
         ip_s = self.ip_solution if self.ip_solution is not None else 0.0
         gap = abs(lp_b - ip_s) / max(abs(lp_b), 1e-10)

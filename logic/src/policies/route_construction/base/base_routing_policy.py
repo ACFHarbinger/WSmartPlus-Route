@@ -4,7 +4,13 @@ Base Routing Policy Module.
 Provides a template base class for routing policies, extracting common
 functionality like parameter loading, subset matrix creation, and tour mapping.
 
-This eliminates code duplication across policy_*.py files.
+Attributes:
+    BaseRoutingPolicy: Base class for all routing policies.
+    _flatten_raw_config: Helper to flatten nested config structures.
+
+Example:
+    >>> from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+    >>> # subclass and implement _run_solver
 """
 
 from abc import abstractmethod
@@ -26,7 +32,14 @@ def _flatten_raw_config(source: Any) -> Dict[str, Any]:
     Handles patterns like:
         {"custom": [{"time_limit": 60}, {"start_temp": 100}]}
         {"ortools": [{"time_limit": 60}]}
+
+    Args:
+        source: Source configuration (list, dict, or OmegaConf object).
+
+    Returns:
+        Flattened dictionary of configuration parameters.
     """
+
     result: Dict[str, Any] = {}
     if isinstance(source, list):
         for item in source:
@@ -87,7 +100,11 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
 
     @property
     def config(self) -> Any:
-        """Return the policy configuration dataclass."""
+        """Return the policy configuration dataclass.
+
+        Returns:
+            The configuration dataclass instance (e.g., HGSConfig).
+        """
         return self._config
 
     @classmethod
@@ -95,7 +112,9 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         """Return the dataclass type for this policy's config.
 
         Override in subclasses to enable automatic config parsing.
-        Returns None by default (no typed config).
+
+        Returns:
+            Dataclass type (e.g., ALNSConfig) or None if no typed config is used.
         """
         return None
 
@@ -113,6 +132,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         Returns:
             Tuple of (Typed config dataclass, seed) or (None, None).
         """
+
         config_cls = cls._config_class()
         if config_cls is None:
             return None, None
@@ -137,10 +157,12 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         return config_cls(**{k: v for k, v in filtered.items() if k != "seed"}), filtered.get("seed")
 
     def _get_config_key(self) -> str:
-        """
-        Return the config key for this policy (e.g., 'alns', 'bcp', 'hgs').
+        """Return the config key for this policy (e.g., 'alns', 'bcp', 'hgs').
 
         Override in subclasses.
+
+        Returns:
+            String key used to look up this policy's section in the global config.
         """
         return "default"
 
@@ -152,8 +174,9 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             config_cls: The expected dataclass class.
 
         Returns:
-            The parsed dataclass instance.
+            The parsed dataclass instance or the original object if parsing is not applicable.
         """
+
         if config is None:
             return config_cls()
         if isinstance(config, config_cls):
@@ -174,8 +197,9 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             mandatory: List of bin IDs to visit.
 
         Returns:
-            Empty tour tuple if no targets, else None (continue processing).
+            Optional tuple containing (empty_tour, 0.0) if no targets, else None.
         """
+
         if not mandatory:
             return [0, 0], 0.0
         return None
@@ -195,8 +219,9 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             config: Policy configuration dict (from context).
 
         Returns:
-            Tuple of (capacity, revenue, cost_unit, merged_values_dict)
+            Tuple of (capacity, revenue_scaled, cost_unit, merged_values_dict).
         """
+
         Q, R, B, C, V = load_area_and_waste_type_params(area, waste_type)
 
         # Build the policy config dict from the typed config or raw dict
@@ -263,12 +288,13 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             use_all_bins: If True, include all bins in the problem (VRPP mode).
 
         Returns:
-            Tuple of (sub_dist_matrix, sub_wastes, subset_indices, mandatory_nodes)
-                - sub_dist_matrix: Distance matrix for subset.
-                - sub_wastes: {local_idx: fill} for local nodes 1..M.
-                - subset_indices: Mapping from local to global indices.
-                - mandatory_nodes: List of local indices that MUST be visited.
+            Tuple containing:
+                - sub_dist_matrix (np.ndarray): Distance matrix for subset.
+                - sub_wastes (Dict[int, float]): {local_idx: fill} for local nodes.
+                - subset_indices (List[int]): Local to global index mapping.
+                - mandatory_nodes (List[int]): Local indices that MUST be visited.
         """
+
         if use_all_bins:
             # Include ALL bins in the solver problem (VRPP mode)
             n_bins = len(bins.c)
@@ -307,6 +333,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         Returns:
             Flat tour list with depot (0) separating routes.
         """
+
         tour = [0]
         if routes:
             for route in routes:
@@ -328,8 +355,9 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             tour: Tour as list of node indices.
 
         Returns:
-            Total distance cost.
+            Total distance cost of the tour.
         """
+
         from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import (
             get_route_cost,
         )
@@ -359,11 +387,12 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             cost_unit: Cost per distance unit.
             values: Merged config values.
             mandatory_nodes: Local indices of nodes that MUST be visited.
-            **kwargs: Additional solver-specific arguments.
+            kwargs: Additional solver-specific arguments.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple of (routes, profit, solver_cost).
         """
+
         pass
 
     def _log_solver_params(self, values: Dict[str, Any], context: Dict[str, Any]) -> None:
@@ -376,7 +405,11 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         Args:
             values: Merged solver configuration dict from ``_load_area_params``.
             context: Simulation day context kwargs.
+
+        Returns:
+            None.
         """
+
         if getattr(self, "_params_logged", False):
             return
         self._params_logged = True
@@ -400,8 +433,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
     def execute(
         self, **kwargs: Any
     ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[Any]]:
-        """
-        Execute the routing policy using template method pattern.
+        """Execute the routing policy using template method pattern.
 
         Threads the ``SearchContext`` (from Phase 1) forward:
         1. Reads ``kwargs["search_context"]`` if present.
@@ -409,11 +441,22 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         3. Returns (tour, cost, profit, search_context, multi_day_context).
 
         Args:
-            **kwargs: Simulation context.
+            kwargs: Simulation context containing:
+
+                - mandatory (List[int]): Global 1-based IDs to visit.
+                - bins: Bins state object.
+                - distance_matrix: Full NxN matrix.
+                - area (str): Geographic area name.
+                - waste_type (str): Waste type (e.g., "plastic").
+                - config (dict): Policy configuration overrides.
+                - search_context (SearchContext): Incoming metrics ledger.
+                - multi_day_context (MultiDayContext): Incoming multi-day state.
+                - coords (DataFrame): Optional node coordinates for pruning.
 
         Returns:
-            Tuple of (tour, cost, profit, search_context, multi_day_context)
+            A 5-tuple of (tour, cost, profit, search_context, multi_day_context).
         """
+
         from logic.src.interfaces.context.search_context import SearchContext
 
         mandatory = kwargs.get("mandatory", [])

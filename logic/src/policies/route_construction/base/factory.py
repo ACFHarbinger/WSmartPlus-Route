@@ -4,7 +4,12 @@ Policy Adapter module - Unified interface for all routing policies.
 This module implements the Adapter design pattern to provide a consistent
 interface for executing diverse routing policies within the simulator.
 
-Now also includes the IRouteConstructor interface and RouteConstructorRegistry.
+Attributes:
+    RouteConstructorFactory: Factory for creating route constructors.
+
+Example:
+    >>> from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
+    >>> adapter = RouteConstructorFactory.get_adapter("hgs")
 """
 
 from typing import Any, Optional
@@ -18,6 +23,9 @@ from .registry import RouteConstructorRegistry
 class RouteConstructorFactory:
     """
     Factory for creating route constructors.
+
+    Attributes:
+        _registered (bool): Internal flag indicating if policies have been registered.
     """
 
     _registered = False
@@ -75,7 +83,8 @@ class RouteConstructorFactory:
                     typed config dataclass is built automatically.
             engine: Deprecated. Engine should be specified in config.
             threshold: Deprecated. Threshold should be specified in config.
-            **kwargs: Additional keyword arguments (unused, for backward compat).
+            kwargs: Additional keyword arguments (unused, for backward compat).
+
 
         Returns:
             Instantiated policy adapter with typed config.

@@ -1,5 +1,4 @@
-"""
-Branch-and-Bound (BB) solver core engine.
+"""Branch-and-Bound (BB) solver core engine.
 
 Standard Best-Bound-First Branch-and-Bound algorithm based on LP relaxations.
 While Land & Doig (1960) established the foundational concept of Branch-and-Bound
@@ -20,6 +19,14 @@ subtour elimination strictly within the LP relaxations at each node.
 Reference:
     Land, A. H., & Doig, A. (1960). "An automatic method for solving discrete
     programming problems". Econometrica, 28(3), 497-520.
+
+Attributes:
+    BBSolver (class): Core Branch-and-Bound solver engine.
+    run_bb_mtz (function): Entry point for MTZ-formulation BB.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz import run_bb_mtz
+    >>> routes, obj = run_bb_mtz(dist_matrix, wastes, capacity, R, C)
 """
 
 import heapq
@@ -62,6 +69,30 @@ class BBSolver:
     - Fast node evaluation via variable bound updates (no model rebuilding)
     - Maximization objective (profit maximization, not cost minimization)
     - True Strong Branching using LP solves
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric matrix representing edge costs.
+        wastes (Dict[int, float]): Mapping customer IDs to their respective fill levels.
+        capacity (float): Physical payload limit for the routing model.
+        R (float): Revenue coefficient per unit of collected waste.
+        C (float): Cost coefficient per unit of distance traveled.
+        time_limit (float): Maximum allowed runtime in seconds.
+        mip_gap (float): Relative optimality gap threshold.
+        branching_strategy (str): Strategy for selecting branching variables.
+        strong_branching_limit (int): Number of candidates for strong branching.
+        mandatory_indices (Set[int]): Local indices of nodes that MUST be visited.
+        env (gp.Env): Gurobi environment for resource management.
+        recorder (PolicyStateRecorder): Telemetry recorder for state tracking.
+        num_nodes (int): Total number of nodes in the problem.
+        nodes_range (range): Range object for node indices.
+        customers (List[int]): List of customer node indices (excluding depot).
+        incumbent_obj (float): Objective value of the best integer solution found.
+        incumbent_routes (List[List[int]]): Route sequences of the incumbent solution.
+        start_time (float): Start time of the solve operation.
+        model (gp.Model): Persistent Gurobi LP model.
+        x (Dict): Dictionary of edge decision variables.
+        y (Dict): Dictionary of node visit decision variables.
+        u (Dict): Dictionary of MTZ load variables.
     """
 
     def __init__(
@@ -80,18 +111,18 @@ class BBSolver:
         recorder: Optional[PolicyStateRecorder] = None,
     ):
         """
-        Initialize the Branch-and-Bound solver.
-
         Args:
             dist_matrix: Symmetric matrix representing edge costs.
             wastes: Mapping customer IDs to their respective fill levels.
             capacity: Physical payload limit for the routing model.
             R: Revenue coefficient per unit of collected waste.
             C: Cost coefficient per unit of distance traveled.
-            values: Merged configuration dictionary from hydra and adapter.
+            time_limit: Maximum allowed runtime in seconds.
+            mip_gap: Relative optimality gap threshold.
+            branching_strategy: Strategy for selecting branching variables.
+            strong_branching_limit: Number of candidates for strong branching.
             mandatory_indices: Set of customer nodes that MUST be included in routes.
             env: Optional Gurobi environment for resource management.
-            seed: Optional random seed.
             recorder: Optional telemetry recorder for state tracking.
         """
         self.dist_matrix = dist_matrix
@@ -253,7 +284,15 @@ class BBSolver:
             return -float("inf")
 
     def _is_integer(self, val: float, tol: float = 1e-6) -> bool:
-        """Heuristic check for integer feasibility of a continuous variable."""
+        """Heuristic check for integer feasibility of a continuous variable.
+
+        Args:
+            val: The continuous variable value to check.
+            tol: Absolute tolerance for integer proximity.
+
+        Returns:
+            True if the value is within tolerance of its nearest integer.
+        """
         return abs(val - round(val)) < tol
 
     def _get_branching_variable(self) -> Optional[Tuple[str, Any]]:
@@ -571,6 +610,7 @@ def run_bb_mtz(
         mandatory_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
         recorder: Optional telemetry recorder.
+        kwargs: Additional arguments.
 
     Returns:
         Tuple of (routes, objective_value).

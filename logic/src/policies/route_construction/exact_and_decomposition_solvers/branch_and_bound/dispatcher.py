@@ -1,5 +1,4 @@
-"""
-Branch-and-Bound Optimizer Interface.
+"""Branch-and-Bound Optimizer Interface.
 
 Provides a unified dispatcher for selecting between different B&B formulations:
 - MTZ (Miller-Tucker-Zemlin): Compact formulation with load variables
@@ -7,6 +6,13 @@ Provides a unified dispatcher for selecting between different B&B formulations:
 
 This architecture mirrors the SWC-TCF dispatcher pattern, allowing seamless
 switching between mathematical formulations based on problem characteristics.
+
+Attributes:
+    run_bb_optimizer (function): Main dispatcher for BB solvers.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dispatcher import run_bb_optimizer
+    >>> routes, obj = run_bb_optimizer(dist_matrix, wastes, capacity, R, C)
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -81,6 +87,7 @@ def run_bb_optimizer(
         mandatory_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
         recorder: Optional telemetry recorder for state tracking.
+        kwargs: Additional arguments for specific formulations.
 
     Returns:
         Tuple of (routes, objective_value).

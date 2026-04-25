@@ -88,6 +88,16 @@ Additional components not in BHV2000 (VRPP adaptations):
     - GlobalCutPool: centralised cut registry ensuring parent cuts are
       re-injected at all descendant B&B nodes.
 
+Attributes:
+    logger (logging.Logger): Module-level logger.
+    _FARKAS_TOL (float): Numerical tolerance for Farkas pricing.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
+    >>> dist_matrix = np.array([[0, 10], [10, 0]])
+    >>> wastes = {1: 5.0}
+    >>> routes, cost = run_bpc(dist_matrix, wastes, capacity=10, R=1, C=1)
+
 References:
 -----------
 - Barnhart, C., Hane, C. A., & Vance, P. H. (2000). "Using branch-and-price-and-cut
@@ -145,7 +155,11 @@ _FARKAS_TOL: float = 1e-6
 
 
 class BPCPruningException(Exception):
-    """Exception raised when a node is pruned by a bound (e.g., Lagrangian)."""
+    """Exception raised when a node is pruned by a bound (e.g., Lagrangian).
+
+    Attributes:
+        message (str): Explanation of the pruning reason.
+    """
 
     pass
 
@@ -420,19 +434,21 @@ def _separate_cuts(
     node_depth: int = 0,
     cut_orthogonality_threshold: float = 0.8,
 ) -> int:
-    """
-    Separate and add valid inequalities using the configured cutting plane engine.
+    """Separate and add valid inequalities using the configured cutting plane engine.
 
     This is a modular wrapper that delegates to the specific cutting plane
     engine (RCC, fleet_cover, etc.) configured by the user.
 
     Args:
-        master: Master problem instance
-        cut_engine: Cutting plane separation engine
-        max_cuts: Maximum number of cuts to add
+        master (VRPPMasterProblem): Master problem instance.
+        cut_engine (CuttingPlaneEngine): Cutting plane separation engine.
+        max_cuts (int): Maximum number of cuts to add.
+        iteration (int): Current B&B node iteration index.
+        node_depth (int): Current B&B tree depth.
+        cut_orthogonality_threshold (float): Minimum cosine distance between cut vectors.
 
     Returns:
-        Number of cuts added
+        int: Number of cuts added.
     """
     return cut_engine.separate_and_add_cuts(
         master,
@@ -853,8 +869,7 @@ def _column_generation_loop(  # noqa: C901
     cg_at_root_only: bool = False,
     branching_strategy: str = "divergence",
 ) -> Tuple[float, Dict[int, float], Optional[Any], bool]:
-    """
-    Run the Column Generation and Cutting Plane loop at a B&B node.
+    """Run the Column Generation and Cutting Plane loop at a B&B node.
 
     Adopts the Barnhart et al. (1998) protocol for sequencing Cut Separation
     after CG convergence. Maintains the ng-route relaxation state and
@@ -866,6 +881,32 @@ def _column_generation_loop(  # noqa: C901
     already in the pool (sifted from the global pool at the root).  This
     replicates the "CG at root only" experiment from Table 2 of Barnhart,
     Hane, and Vance (2000), which trades bound quality for solve speed.
+
+    Args:
+        master (VRPPMasterProblem): Master problem instance.
+        pricing_solver (RCSPPSolver): RCSPP pricing solver.
+        cut_engine (CuttingPlaneEngine): Cutting plane separation engine.
+        branching_constraints (Optional[List[AnyBranchingConstraint]]): Active constraints.
+        max_cg_iterations (int): Maximum number of iterations per node.
+        max_cuts (int): Maximum number of cuts per iteration.
+        time_limit (Optional[float]): Time budget in seconds.
+        start_time (float): Start timestamp of the overall solve.
+        max_routes_per_pricing (int): Maximum number of columns to return.
+        vehicle_limit (Optional[int]): Fleet size limit.
+        optimality_gap (float): Target optimality gap.
+        early_termination_gap (float): Heuristic stopping threshold.
+        parent_basis (Optional[Any]): Gurobi basis from parent node.
+        incumbent_value (float): Best known integer solution value.
+        node_depth (int): Current B&B tree depth.
+        rc_tolerance (float): Minimum reduced cost for column acceptance.
+        cut_orthogonality_threshold (float): Minimum cut independence.
+        exact_mode (bool): If True, disables dual smoothing.
+        cg_at_root_only (bool): If True, skips pricing at descendant nodes.
+        branching_strategy (str): Active branching rule name.
+
+    Returns:
+        Tuple[float, Dict[int, float], Optional[Any], bool]:
+            (Objective value, Route values λ_k, LP basis, Timed out flag).
     """
     timed_out = False
     converged = False
@@ -1203,8 +1244,7 @@ def run_bpc(  # noqa: C901
     recorder: Optional[PolicyStateRecorder] = None,
     **kwargs: Any,
 ) -> Tuple[List[List[int]], float]:
-    """
-    Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.
+    """Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.
 
     This engine implements the Barnhart et al. (1998, OR 46(3):316-329) BPC framework with
     configurable algorithmic strategies:
@@ -1227,26 +1267,27 @@ def run_bpc(  # noqa: C901
         - Prune by bound
 
     Args:
-        dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1)
-        wastes: Waste volumes for each node
-        capacity: Vehicle capacity
-        R: Revenue per kg
-        C: Cost per km
-        values: Configuration dictionary with keys:
-            - max_cg_iterations: Max CG iterations per node (default 50)
-            - max_cuts_per_iteration: Max cuts to add per iteration (default 5)
-            - max_bb_nodes: Max B&B nodes to explore (default 1000)
-            - time_limit: Time limit in seconds (optional)
-            - search_strategy: "best_first" or "depth_first" (default "depth_first")
-            - cutting_planes: "rcc" (default "rcc")
-            - branching_strategy: "ryan_foster", "edge", or "divergence" (default "divergence")
-        mandatory_indices: Set of node indices that must be visited
-        env: Gurobi environment (ignored, kept for compatibility)
-        node_coords: Optional node coordinates for visualization
-        recorder: Optional state recorder for tracking
+        dist_matrix (np.ndarray): Distance matrix (n_nodes+1 x n_nodes+1).
+        wastes (Dict[int, float]): Waste volumes for each node.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue per kg.
+        C (float): Cost per km.
+        params (Optional[Union[BPCParams, Dict[str, Any]]]): Configuration parameters.
+        mandatory_indices (Optional[Set[int]]): Set of node indices that must be visited.
+        vehicle_limit (Optional[int]): Fleet size limit.
+        env (Optional[Any]): Gurobi environment (ignored, kept for compatibility).
+        node_coords (Optional[np.ndarray]): Optional node coordinates for visualization.
+        recorder (Optional[PolicyStateRecorder]): Optional state recorder for tracking.
+        kwargs: Additional keyword arguments.
 
     Returns:
-        Tuple of (best_routes, best_cost)
+        Tuple[List[List[int]], float]: (Best routes found, best objective value).
+
+    Example:
+        >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
+        >>> dist_matrix = np.array([[0, 10], [10, 0]])
+        >>> wastes = {1: 5.0}
+        >>> routes, cost = run_bpc(dist_matrix, wastes, capacity=10, R=1, C=1)
     """
     start_time = time.monotonic()
     n_nodes = len(dist_matrix) - 1

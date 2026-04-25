@@ -1,10 +1,15 @@
-"""
-SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Optimizer Interface.
+r"""SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Optimizer Interface.
 
 Reference:
     Ramos, T. R. P., Morais, C. S., & Barbosa-Povoa, A. P.
     "The smart waste collection routing problem:
     Alternative operational management approaches", 2018.
+
+Attributes:
+    run_swc_tcf_optimizer: Solves TCF using OR-Tools or Pyomo wrappers.
+
+Example:
+    >>> res = run_swc_tcf_optimizer(bins, dist, values, ids, mandatory)
 """
 
 from __future__ import annotations
@@ -32,8 +37,23 @@ def run_swc_tcf_optimizer(
     seed: int = 42,
     dual_values: Optional[Dict[int, float]] = None,
 ):
-    """
-    Solve SWC-TCF using either Google OR-Tools or Pyomo wrappers.
+    """Solve SWC-TCF using either Google OR-Tools or Pyomo wrappers.
+
+    Args:
+        bins (NDArray[np.float64]): Array of bin fill levels.
+        distance_matrix (List[List[float]]): Distance matrix between nodes.
+        values (Dict[str, float]): Problem parameters (Q, R, B, C, V, Omega, etc.).
+        binsids (List[int]): Global identifiers for bins.
+        mandatory_nodes (List[int]): IDs of bins that must be collected.
+        number_vehicles (int): Number of available vehicles.
+        time_limit (int): Solver time limit in seconds.
+        framework (str): Optimization framework ('ortools', 'pyomo', or 'native').
+        optimizer (str): Backend solver ('gurobi', 'scip', 'highs').
+        seed (int): Random seed for reproducibility.
+        dual_values (Optional[Dict[int, float]]): Dual values for pricing.
+
+    Returns:
+        Tuple[List[int], float, float]: (route, profit, cost)
     """
     # Map solver names to the exact casing required by the respective frameworks
     if framework == "ortools":

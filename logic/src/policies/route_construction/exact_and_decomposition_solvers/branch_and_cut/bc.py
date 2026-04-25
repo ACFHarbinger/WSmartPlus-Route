@@ -1,5 +1,4 @@
-r"""
-Branch-and-Cut Solver for VRPP using Gurobi.
+r"""Branch-and-Cut Solver for VRPP using Gurobi.
 
 This solver adapts the mathematical infrastructure of Fischetti et al. (1997)
 for the Symmetric Generalized TSP to the Single-Vehicle VRPP. Nodes are treated
@@ -12,6 +11,16 @@ References:
 
     Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004). "A new branch-and-cut algorithm
     for the capacitated vehicle routing problem". Mathematical Programming, 100(2), 423-445.
+
+Attributes:
+    BranchAndCutSolver (class): The core optimization engine using Gurobi.
+    GUROBI_AVAILABLE (bool): Whether the gurobipy package is installed.
+    NETWORKX_AVAILABLE (bool): Whether the networkx package is installed.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import BranchAndCutSolver
+    >>> solver = BranchAndCutSolver(model, params)
+    >>> routes, profit, stats = solver.solve()
 """
 
 import warnings
@@ -53,8 +62,7 @@ except ImportError:
 
 
 class BranchAndCutSolver:
-    """
-    Branch-and-Cut solver for VRPP.
+    """Branch-and-Cut solver for VRPP.
 
     Follows the cutting plane algorithm described in Section 5.1 of Fischetti et al. (1997):
     1. Solve LP relaxation
@@ -62,6 +70,16 @@ class BranchAndCutSolver:
     3. Add cuts and resolve
     4. Branch if fractional
     5. Use primal heuristics for upper bounds
+
+    Attributes:
+        model (VRPPModel): Problem definition and data.
+        params (BCParams): Solver configuration parameters.
+        scenarios (Optional[List[Dict[int, float]]]): SAA demand scenarios.
+        separator (SeparationEngine): Logic for cut detection.
+        stats (Dict[str, Any]): Internal solve statistics (cuts, nodes, etc.).
+        gurobi_model (Optional[gp.Model]): Underlying Gurobi optimization model.
+        x_vars (Dict[Tuple[int, int], gp.Var]): Edge selection variables.
+        y_vars (Dict[int, gp.Var]): Node selection variables.
     """
 
     def __init__(
@@ -78,7 +96,7 @@ class BranchAndCutSolver:
             model: VRPPModel instance defining the problem.
             params: Standardized BC configuration.
             scenarios: Optional list of mappings from node index to stochastic demand for SAA scenarios.
-            **kwargs: Legacy configuration parameters (for backward compatibility).
+            kwargs: Legacy configuration parameters (for backward compatibility).
         """
         if not GUROBI_AVAILABLE:
             raise ImportError("Gurobi is required for Branch-and-Cut solver")
@@ -159,11 +177,13 @@ class BranchAndCutSolver:
         self.y_vars: Dict[int, gp.Var] = {}
 
     def solve(self) -> Tuple[List[List[int]], float, Dict[str, Any]]:
-        """
-        Solve the VRPP instance.
+        """Solve the VRPP instance using Branch-and-Cut.
 
         Returns:
-            Tuple of (tour, profit, statistics).
+            A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists).
+                - profit: Total net profit (Revenue - Cost).
+                - stats: Dictionary of solver performance metrics.
         """
         if self.params.verbose:
             print("=" * 60)
@@ -234,7 +254,7 @@ class BranchAndCutSolver:
         return routes, profit, self.stats  # type: ignore[return-value]
 
     def _build_initial_model(self):
-        """Build the initial Gurobi model with basic constraints."""
+        """Build the initial Gurobi model with basic degree and capacity constraints."""
         self.gurobi_model = gp.Model("VRPP_BranchAndCut")
         self.gurobi_model.Params.TimeLimit = self.params.time_limit
         self.gurobi_model.Params.MIPGap = self.params.mip_gap
@@ -316,21 +336,15 @@ class BranchAndCutSolver:
         self.gurobi_model.update()
 
     def _lazy_constraint_callback(self, model, where):
-        """
-        Gurobi callback for Optimized Branch-and-Cut.
+        """Gurobi callback for Optimized Branch-and-Cut.
 
-        Optimized Callback Structure:
-            1. MIPSOL (Integer Solutions):
-               - Only separates and adds Subtour Elimination Cuts (SECs).
-               - These are mandatory for integer feasibility to prevent disconnected cycles.
-               - Added via cbLazy().
+        This method handles both integer solution checks (MIPSOL) and LP relaxation
+        node processing (MIPNODE). It coordinates the separation and addition
+        of SECs and Capacity Cuts to enforce feasibility and tighten the relaxation.
 
-            2. MIPNODE (Fractional LP Nodes):
-               - Separates and adds both Capacity Cuts and SECs.
-               - These act as User Cuts strengthening the LP relaxation bound.
-               - Capacity Cuts are mathematically redundant for integer feasibility
-                 due to the global knapsack constraint, but essential for a tight LP.
-               - Added via cbCut().
+        Args:
+            model: The Gurobi model instance.
+            where: Callback context identifier.
         """
         if where == GRB.Callback.MIPSOL:
             # Integer solution: only SECs are mandatory for feasibility
@@ -341,10 +355,16 @@ class BranchAndCutSolver:
             self._add_fractional_cuts(model)
 
     def _evaluate_pool_cuts(self, x_vals: np.ndarray, y_vals: np.ndarray) -> List[Any]:
-        """
-        Re-evaluate stored cuts against the current LP/MIP solution.
-        Returns cuts whose violation exceeds the threshold.
+        """Re-evaluate stored cuts against the current LP/MIP solution.
+
         Paper Section 5.1: pool cuts are checked before any separation call.
+
+        Args:
+            x_vals: Current edge variable values.
+            y_vals: Current node variable values.
+
+        Returns:
+            List of cuts from the pool that are violated by the current solution.
         """
         active = []
         for cut in self._cut_pool:
@@ -374,14 +394,14 @@ class BranchAndCutSolver:
         return active
 
     def _handle_custom_branching(self, model):
-        """
-        Custom branching on cuts (Section 5.4, Fischetti et al. 1997).
+        """Custom branching on cuts (Section 5.4, Fischetti et al. 1997).
 
-        NOT IMPLEMENTED: Gurobi does not expose a programmatic branching
-        interface from within Python callbacks. The paper's "branching on cuts"
-        strategy (choosing S such that sum_{e in delta(S)} x_e is fractional-odd
-        and imposing sum x_e <= 2k or sum x_e >= 2k+2) cannot be enforced via
-        cbBranch() — no such Gurobi API method exists.
+        Note:
+            NOT IMPLEMENTED: Gurobi does not expose a programmatic branching
+            interface from within Python callbacks. The paper's "branching on cuts"
+            strategy (choosing S such that sum_{e in delta(S)} x_e is fractional-odd
+            and imposing sum x_e <= 2k or sum x_e >= 2k+2) cannot be enforced via
+            cbBranch() — no such Gurobi API method exists.
 
         Alternative approaches for influencing branching in Gurobi:
           1. Set BranchPriority on x_vars to prefer edges near 0.5.
@@ -390,12 +410,13 @@ class BranchAndCutSolver:
 
         Gurobi's default variable branching (most fractional variable) is used
         instead, which corresponds to the paper's fallback strategy.
+
+        Args:
+            model: The Gurobi model instance.
         """
-        pass
 
     def _add_integer_cuts(self, model):
-        """
-        Add violated cuts at integer solutions (MIPSOL callback).
+        """Add violated cuts at integer solutions (MIPSOL callback).
 
         This method ensures correctness for the Natural Edge Formulation:
         1. Extracts the current integer solution (x_vals, y_vals) via cbGetSolution()
@@ -413,6 +434,9 @@ class BranchAndCutSolver:
             - Uses fast connected-components check for SECs (NetworkX-based)
             - Heuristic capacity separation (demand-based clustering)
             - O(n²) complexity, suitable for integer callback
+
+        Args:
+            model: The Gurobi model instance.
         """
         # Get current integer solution values using bulk API extraction
         # Performance Optimization: Bulk cbGetSolution() reduces Python-C API overhead
@@ -477,8 +501,7 @@ class BranchAndCutSolver:
         self.stats["lp_iterations"] += 1
 
     def _add_fractional_cuts(self, model):
-        """
-        Add violated cuts at fractional LP relaxation nodes (MIPNODE callback).
+        """Add violated cuts at fractional LP relaxation nodes (MIPNODE callback).
 
         DIVERGENCE FROM PAPER (Section 5.1, procedure SEPARATION):
         The paper separates in this order:
@@ -489,10 +512,9 @@ class BranchAndCutSolver:
           5. Per-threshold ε ∈ {0.1, 0.01, 0.001} combined pool check
           6. GSEC_SEP exact separation (forced every 10th node)
           7. Generalised comb heuristics — NOT IMPLEMENTED HERE
-        This implementation calls separate_fractional() which covers steps 3, 4,
-        and 6 (throttled). Steps 2, 5, and 7 are not implemented.
-        Paper Rule (Section 3.1): Exact separation (GSEC_SEP) is forced at every
-        10th decision-tree node regardless of depth.
+
+        Args:
+            model: The Gurobi model instance.
         """
         # Get current node count (depth indicator)
         node_count = model.cbGet(GRB.Callback.MIPNODE_NODCNT)
@@ -559,11 +581,14 @@ class BranchAndCutSolver:
             self._separate_lot_sizing_inequalities(model, x_vals, y_vals_array, is_integer=False)
 
     def _add_pcsec_lazy(self, model, cut: PCSubtourEliminationCut):
-        """
-        Add a prize-collecting subtour elimination cut (PC-SEC) as a lazy constraint.
+        """Add a prize-collecting subtour elimination cut (PC-SEC) as a lazy constraint.
 
         Lazy constraints are only checked for integer solutions and are essential
         for correctness in the Natural Edge Formulation.
+
+        Args:
+            model: The Gurobi model instance.
+            cut: The subtour elimination cut object to add.
         """
         cut_edges = self.model.delta(cut.node_set)
         edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
@@ -581,11 +606,14 @@ class BranchAndCutSolver:
                 model.cbLazy(gp.quicksum(edge_vars) >= 2 * (yi + yj - 1.0))
 
     def _add_capacity_cut_lazy(self, model, cut: CapacityCut):
-        """
-        Add a capacity cut as a lazy constraint (integer callback).
+        """Add a capacity cut as a lazy constraint (integer callback).
 
         Lazy constraints are only checked for integer solutions and are essential
         for correctness when capacity violations cannot be detected by base constraints.
+
+        Args:
+            model: The Gurobi model instance.
+            cut: The capacity cut object to add.
         """
         cut_edges = self.model.delta(cut.node_set)
         edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
@@ -594,11 +622,14 @@ class BranchAndCutSolver:
             model.cbLazy(gp.quicksum(edge_vars) >= cut.rhs)
 
     def _add_pcsec_user(self, model, cut: PCSubtourEliminationCut):
-        """
-        Add a prize-collecting subtour elimination cut (PC-SEC) as a user cut.
+        """Add a prize-collecting subtour elimination cut (PC-SEC) as a user cut.
 
         User cuts strengthen the LP relaxation at fractional nodes but are not
         required for correctness (unlike lazy constraints).
+
+        Args:
+            model: The Gurobi model instance.
+            cut: The subtour elimination cut object to add.
         """
         cut_edges = self.model.delta(cut.node_set)
         edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
@@ -616,11 +647,14 @@ class BranchAndCutSolver:
                 model.cbCut(gp.quicksum(edge_vars) >= 2 * (yi + yj - 1.0))
 
     def _add_capacity_cut_user(self, model, cut: CapacityCut):
-        """
-        Add a capacity cut as a user cut (fractional callback).
+        """Add a capacity cut as a user cut (fractional callback).
 
         User cuts strengthen the LP relaxation at fractional nodes but are not
         required for correctness.
+
+        Args:
+            model: The Gurobi model instance.
+            cut: The capacity cut object to add.
         """
         cut_edges = self.model.delta(cut.node_set)
         edge_vars = [self.x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self.x_vars]  # type: ignore[index]
@@ -629,11 +663,16 @@ class BranchAndCutSolver:
             model.cbCut(gp.quicksum(edge_vars) >= cut.rhs)
 
     def _separate_stochastic_capacity_cuts(self, model, x_vals: np.ndarray, y_vals: np.ndarray, is_integer: bool):
-        """
-        Separate Stochastic Capacity Inequalities (SIRP).
+        """Separate Stochastic Capacity Inequalities (SIRP).
 
         Evaluates scenarios to find subsets where expected demand frequently exceeds capacity,
         adding cuts that force additional vehicles or node shedding.
+
+        Args:
+            model: The Gurobi model instance.
+            x_vals: Current edge variable values.
+            y_vals: Current node variable values.
+            is_integer: Whether the current solution is integer (MIPSOL) or fractional (MIPNODE).
         """
         if not hasattr(self, "scenarios") or not self.scenarios:
             return
@@ -690,11 +729,16 @@ class BranchAndCutSolver:
                         self.stats["total_cuts"] += 1
 
     def _separate_multi_star_inequalities(self, model, x_vals: np.ndarray, y_vals: np.ndarray, is_integer: bool):
-        """
-        Separate Multi-star Inequalities (SIRP).
+        """Separate Multi-star Inequalities (SIRP).
 
         Strengthens the routing structure around subsets of correlated high-demand nodes
         across multiple stochastic scenarios.
+
+        Args:
+            model: The Gurobi model instance.
+            x_vals: Current edge variable values.
+            y_vals: Current node variable values.
+            is_integer: Whether the current solution is integer (MIPSOL) or fractional (MIPNODE).
         """
         if not hasattr(self, "scenarios") or not self.scenarios:
             return
@@ -737,11 +781,16 @@ class BranchAndCutSolver:
                             self.stats["total_cuts"] += 1
 
     def _separate_lot_sizing_inequalities(self, model, x_vals: np.ndarray, y_vals: np.ndarray, is_integer: bool):
-        """
-        Separate inequalities derived from Deterministic Lot-Sizing problems.
+        """Separate inequalities derived from Deterministic Lot-Sizing problems.
 
         Limits combinations of disjoint routes that consistently produce capacity failures
         in extreme scenarios by linking fractional routing capacity to continuous recourse.
+
+        Args:
+            model: The Gurobi model instance.
+            x_vals: Current edge variable values.
+            y_vals: Current node variable values.
+            is_integer: Whether the current solution is integer (MIPSOL) or fractional (MIPNODE).
         """
         if not hasattr(self, "q_vars") or not self.q_vars or not self.scenarios:
             return
@@ -797,7 +846,11 @@ class BranchAndCutSolver:
                         self.stats["total_cuts"] += 1
 
     def _set_start_solution(self, tour: List[int]):
-        """Provide a warm start solution to Gurobi."""
+        """Provide a warm start solution to Gurobi.
+
+        Args:
+            tour: List of node indices representing the initial tour.
+        """
         # Set x variables based on tour
         for i, j in self.model.edges:
             self.x_vars[(i, j)].Start = 0.0
@@ -817,9 +870,14 @@ class BranchAndCutSolver:
             self.y_vars[i].Start = 1.0 if i in visited_nodes else 0.0
 
     def _extract_solution(self) -> Tuple[List[List[int]], float]:
-        """
-        Extract the optimal routes from Gurobi solution.
+        """Extract the optimal routes from Gurobi solution.
+
         Handles multiple routes in the aggregate flow formulation.
+
+        Returns:
+            A tuple containing:
+                - routes: Optimized collection routes (list-of-lists).
+                - profit: Total net profit (Total Revenue - Total Cost).
         """
         assert self.gurobi_model is not None
         if self.gurobi_model.SolCount == 0:
@@ -885,10 +943,12 @@ class BranchAndCutSolver:
         return routes, profit
 
     def _pre_optimize_lagrangian(self) -> List[Set[int]]:  # noqa: C901
-        """
-        Root Node Strengthening via Lagrangian Relaxation.
+        """Root Node Strengthening via Lagrangian Relaxation.
 
         Refactored to extract violated Basic GSECs (1-tree cycles) for direct injection.
+
+        Returns:
+            List of unique violated node sets (cuts) discovered during relaxation.
         """
         if self.params.verbose:
             print("Strengthening Root Node via Lagrangian Relaxation...")
@@ -1001,8 +1061,8 @@ class BranchAndCutSolver:
         return unique_violated_sets
 
     def _find_k_tree_cycle(self, edges: List[Tuple[int, int]]) -> Optional[Set[int]]:
-        """
-        Find a cycle in a K-tree graph using an iterative stack-based DFS.
+        """Find a cycle in a K-tree graph using an iterative stack-based DFS.
+
         Replaces recursive implementation to prevent RecursionError on large graphs.
 
         Correctness note: each stack frame carries its own copy of the path from
@@ -1011,6 +1071,12 @@ class BranchAndCutSolver:
         and return it immediately. Globally-visited nodes are only skipped when
         they do not appear in the current path, preventing false negatives from
         cross-edges between separate DFS branches.
+
+        Args:
+            edges: List of edges (u, v) in the K-tree.
+
+        Returns:
+            A set of node indices forming the first cycle found, or None if acyclic.
         """
         adj: Dict[int, List[int]] = {}
         for u, v in edges:
@@ -1055,12 +1121,18 @@ class BranchAndCutSolver:
         return None
 
     def _solve_k_tree(self, costs: Dict[Tuple[int, int], float]) -> Tuple[List[Tuple[int, int]], float, List[Set[int]]]:
-        """
-        Solve Minimum Cost K-Tree subproblem (Fischetti et al. 1997).
+        """Solve Minimum Cost K-Tree subproblem (Fischetti et al. 1997).
+
         Generalized from 1-tree to handle fleet size K.
 
+        Args:
+            costs: Dictionary of modified edge costs (cost - multipliers).
+
         Returns:
-            Tuple of (edges, cost, all_components_from_kruskal).
+            A 3-tuple containing:
+                - k_tree_edges: List of edges selected for the K-tree.
+                - k_tree_cost: Total cost of the selected edges.
+                - history_components: List of all intermediate components formed by Kruskal's.
         """
         n = self.model.n_nodes
         # MST on nodes 1...n-1

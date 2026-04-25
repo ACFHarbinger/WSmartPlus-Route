@@ -1,5 +1,10 @@
-"""
-Parameter dataclasses for Scenario-Tree Extensive Form (ST-EF) solver.
+r"""Parameter dataclasses for Scenario-Tree Extensive Form (ST-EF) solver.
+
+Attributes:
+    STEFParams: Standardized parameters for the ST-EF solver.
+
+Example:
+    >>> params = STEFParams(num_days=5, num_realizations=2)
 """
 
 from dataclasses import dataclass
@@ -8,8 +13,20 @@ from typing import Any, Dict, Optional
 
 @dataclass
 class STEFParams:
-    """
-    Standardized parameters for the ST-EF solver.
+    r"""Standardized parameters for the ST-EF solver.
+
+    Attributes:
+        num_days (int): Depth of the scenario tree.
+        num_realizations (int): Branching factor at each node.
+        mean_increment (float): Average waste increment per day.
+        time_limit (float): Solver time limit in seconds.
+        mip_gap (float): Gurobi optimality gap.
+        waste_weight (float): Objective weight for collected waste.
+        cost_weight (float): Objective weight for travel cost.
+        overflow_penalty (float): Penalty per unit of overflow.
+        discount_factor (float): Future profit discount factor.
+        use_mtz (bool): Use MTZ subtour elimination constraints.
+        seed (Optional[int]): Random seed for tree generation.
     """
 
     num_days: int = 3
@@ -50,8 +67,10 @@ class STEFParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert parameters to a dictionary.
+        """Convert parameters to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary of parameter values.
         """
         return {
             "num_days": self.num_days,
