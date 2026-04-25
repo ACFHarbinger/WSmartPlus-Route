@@ -1,6 +1,13 @@
 """Registry for move acceptance criteria.
 
 Maintains a mapping of criterion identifiers to their respective classes.
+
+Attributes:
+    AcceptanceCriterionRegistry._registry: Internal mapping of identifiers to class types.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.base import AcceptanceCriterionRegistry
+    >>> criterion = AcceptanceCriterionRegistry.get("boltzmann_metropolis_criterion")
 """
 
 from typing import Callable, Dict, List, Optional, Type

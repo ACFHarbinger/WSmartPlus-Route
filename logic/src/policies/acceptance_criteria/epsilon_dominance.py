@@ -2,6 +2,17 @@
 
 Discretizes objective space into grid boxes to provide a finite archive of
 non-dominated solutions.
+
+Attributes:
+    EpsilonDominanceCriterion: The Epsilon-Dominance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.epsilon_dominance import EpsilonDominanceCriterion
+    >>> # Initialize for minimization problem with epsilon=1.0 for both objectives
+    >>> criterion = EpsilonDominanceCriterion(epsilon=1.0, maximization=False)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'archive_size': 1, 'epsilon': 1.0, 'maximization': False}
 """
 
 import math
@@ -104,9 +115,9 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
         """Determine whether to accept based on epsilon-dominance.
 
         Args:
-            current_obj (ObjectiveValue): Objective of current (not used, relies on archive).
-            candidate_obj (ObjectiveValue): Objective vector of the candidate.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -131,10 +142,10 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
         """Update the archive if the candidate was accepted.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         if not accepted:
             return

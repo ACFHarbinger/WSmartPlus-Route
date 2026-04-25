@@ -2,6 +2,17 @@
 
 Uses non-extensive entropy formulation for heavy-tailed acceptance
 probabilities to escape deep local minima.
+
+Attributes:
+    GeneralizedTsallisSA: The Generalized Tsallis SA criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing import GeneralizedTsallisSA
+    >>> # Initialize for minimization with q=1.5
+    >>> criterion = GeneralizedTsallisSA(q=1.5, p0=0.5, window_size=100)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=102.0)
+    False, {'accepted': False, 'delta': 2.0, 'temperature': 0.0, 'q': 1.5, 'sigma': 0.0, 'maximization': False}
 """
 
 import math
@@ -113,7 +124,7 @@ class GeneralizedTsallisSA(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -177,10 +188,10 @@ class GeneralizedTsallisSA(IAcceptanceCriterion):
         """Update stats and apply the cooling schedule.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

@@ -1,6 +1,16 @@
 """Non-Linear Great Deluge (NLGD) Acceptance Criterion.
 
 Implements a convex water-level decay for convergence in metaheuristic search.
+
+Attributes:
+    NonLinearGreatDeluge: The NLGD criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.non_linear_great_deluge import NonLinearGreatDeluge
+    >>> criterion = NonLinearGreatDeluge(t_max=1000, initial_tolerance=0.1, gap_epsilon=0.01, beta=5.0, maximization=False)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'delta': -2.0, 'water_level': 110.0, 'iteration': 0, 'progress': 0.0, 'maximization': False}
 """
 
 import math
@@ -86,7 +96,7 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         """Retrieve the best objective found so far.
 
         Args:
-            **kwargs (Any): Should contain 'f_best' if external tracking is used.
+            kwargs (Any): Should contain 'f_best' if external tracking is used.
 
         Returns:
             float: The best objective value.
@@ -97,10 +107,12 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
     ) -> Tuple[bool, AcceptanceMetrics]:
         """Determine whether to accept based on the non-linear water level.
 
+
+
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (may contain f_best).
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -140,10 +152,10 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         """Update the iteration counter and re-calculate the water level.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
+            current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (may contain f_best).
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

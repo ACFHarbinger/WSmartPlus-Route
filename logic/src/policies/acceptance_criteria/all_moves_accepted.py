@@ -1,6 +1,17 @@
 """All Moves Accepted (AMA) Criterion.
 
 Trivial criterion used for random walks or testing.
+
+Attributes:
+    AllMovesAccepted: Trivial acceptance criterion that unconditionally accepts
+        every candidate solution.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.all_moves_accepted import AllMovesAccepted
+    >>> criterion = AllMovesAccepted()
+    >>> criterion.setup(initial_objective=50.0)
+    >>> accepted, metrics = criterion.accept(current_obj=50.0, candidate_obj=30.0)
+    >>> assert accepted is True
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -37,14 +48,15 @@ class AllMovesAccepted(IAcceptanceCriterion):
         """Unconditionally accept the move.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the current solution.
-            candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            current_obj: Objective value of the current incumbent solution.
+            candidate_obj: Objective value of the proposed candidate solution.
+            kwargs: Additional context passed through from the search loop.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
                 - accepted (bool): Always True.
                 - metrics (AcceptanceMetrics): Performance metadata.
+
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
@@ -55,10 +67,10 @@ class AllMovesAccepted(IAcceptanceCriterion):
         """No-op update step.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
-            candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            current_obj: Objective value of the current incumbent solution.
+            candidate_obj: Objective value of the proposed candidate solution.
+            accepted: Whether the candidate was accepted in this iteration.
+            kwargs: Additional context passed through from the search loop.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

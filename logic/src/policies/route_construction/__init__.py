@@ -3,6 +3,12 @@
 This package contains various algorithms for constructing vehicle routes,
 ranging from classical heuristics to meta-heuristics and deep reinforcement
 learning models.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from . import acceptance_criteria as acceptance_criteria
