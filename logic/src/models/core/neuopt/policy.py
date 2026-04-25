@@ -5,6 +5,10 @@ Transformer encoder and pairwise decoder for iterative solution improvement.
 
 Attributes:
     NeuOptPolicy: Policy for guided iterative search in combinatorial spaces.
+
+Example:
+    >>> policy = NeuOptPolicy(embed_dim=128)
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -39,10 +43,10 @@ class NeuOptPolicy(ImprovementPolicy):
         """Initializes the NeuOpt policy.
 
         Args:
-            embed_dim: dimensionality of the latent representation.
-            num_heads: Parallel attention head count.
-            num_layers: Depth of the Transformer encoder stacks.
-            **kwargs: Extra parameters passed to the improvement base.
+            embed_dim: Latent dimension for all internal representations.
+            num_heads: Number of attention heads in the transformer layers.
+            num_layers: Depth of the Transformer encoder.
+            kwargs: Additional keyword arguments for the base policy.
         """
         super().__init__(env_name="tsp_kopt", embed_dim=embed_dim)
         self.encoder = NeuOptEncoder(embed_dim, num_heads, num_layers)

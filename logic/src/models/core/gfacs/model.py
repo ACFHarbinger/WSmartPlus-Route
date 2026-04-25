@@ -69,19 +69,19 @@ class GFACS(nn.Module):
         """Initializes the GFACS model.
 
         Args:
-            env: target RL4CO environment.
-            policy: Optional pre-defined policy instance.
-            baseline: baseline strategy (unused).
-            train_with_local_search: Whether to use LS rewards for training.
-            policy_kwargs: params for automated policy creation.
-            baseline_kwargs: params for baseline setup.
-            alpha_min: starting alpha schedule.
-            alpha_max: ending alpha schedule.
-            alpha_flat_epochs: initial plateau for alpha.
-            beta_min: starting beta schedule.
-            beta_max: ending beta schedule.
-            beta_flat_epochs: initial plateau for beta.
-            **kwargs: Unused extra parameters.
+            env: Environment managing states and rewards.
+            policy: Optional custom GFACS policy.
+            baseline: Baseline type identifier (e.g., "no", "rollout").
+            train_with_local_search: Whether to incorporate local search in training.
+            policy_kwargs: Hyper-parameters for the underlying policy.
+            baseline_kwargs: Configuration for the baseline model.
+            alpha_min: Starting weight for local search reward advantage.
+            alpha_max: Final weight for local search reward advantage.
+            alpha_flat_epochs: Epochs to hold alpha at alpha_min.
+            beta_min: Starting reward-to-likelihood scaling exponent.
+            beta_max: Final reward-to-likelihood scaling exponent.
+            beta_flat_epochs: Epochs to hold beta at beta_min.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
 
@@ -116,10 +116,10 @@ class GFACS(nn.Module):
         """Samples trajectories using the GFlowNet policy.
 
         Args:
-            td: Environment state.
-            env: Optional env override.
-            phase: Current execution phase.
-            **kwargs: Extra parameters for the policy.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            phase: Current execution phase ("train", "val", "test").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Policy results including actions and rewards.
@@ -129,7 +129,11 @@ class GFACS(nn.Module):
 
     @property
     def alpha(self) -> float:
-        """Scheduled weight for local-search reward inclusion."""
+        """Scheduled weight for local-search reward inclusion.
+
+        Returns:
+            float: Interpolated alpha value.
+        """
         if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
             return self.alpha_min
         return self.alpha_min + (self.alpha_max - self.alpha_min) * min(
@@ -139,7 +143,11 @@ class GFACS(nn.Module):
 
     @property
     def beta(self) -> float:
-        """Scheduled exponent for reward-to-flow mapping."""
+        """Scheduled exponent for reward-to-flow mapping.
+
+        Returns:
+            float: Interpolated beta value.
+        """
         if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
             return self.beta_min
         return self.beta_min + (self.beta_max - self.beta_min) * min(

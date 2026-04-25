@@ -4,6 +4,14 @@ This module implements the HVPL algorithm, a population-based meta-heuristic
 that mimics the competition and coaching dynamics of a professional sports
 league. It fuses constructionist capabilities (ACO) with improvement
 heuristics (ALNS) using a parallelized population management system on the GPU.
+
+Attributes:
+    VectorizedHVPL: High-performance population-based hybrid policy.
+
+Example:
+    >>> from logic.src.models.policies.hybrid_volleyball_premier_league import VectorizedHVPL
+    >>> policy = VectorizedHVPL(env_name="wcvrp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -58,17 +66,17 @@ class VectorizedHVPL(AutoregressivePolicy):
         """Initialize the HVPL policy.
 
         Args:
-            env_name: Problem environment identifier.
-            n_teams: Number of concurrent solutions in the pool.
-            max_iterations: Maximum cycle limit.
-            sub_rate: Crossover/replacement probability.
-            time_limit: Total timeout in seconds.
-            aco_iterations: Iterations for structural initialization.
-            alns_iterations: Coaching intensity per cycles.
-            device: Hardware target.
-            generator: Torch RNG instance.
-            rng: Python random module instance.
-            **kwargs: Additional hyperparameters.
+            env_name: Name of the environment identifier.
+            n_teams: Number of parallel teams (individuals) in the league.
+            max_iterations: Number of seasons (generations) to simulate.
+            sub_rate: Probability/ratio of replacing underperforming teams.
+            time_limit: Maximum execution time in seconds.
+            aco_iterations: Number of construction iterations for new teams.
+            alns_iterations: Number of refinement iterations in the coaching phase.
+            device: Computing device for tensor operations.
+            generator: Torch RNG generator for sampling.
+            rng: Python random instance for heuristics.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=env_name, device=device, generator=generator, rng=rng, **kwargs)
         self.n_teams = n_teams
@@ -120,14 +128,14 @@ class VectorizedHVPL(AutoregressivePolicy):
         """Execute the HVPL simulation loop.
 
         Args:
-            td: Problem state data.
-            env: Relevant environment instance.
-            strategy: Search strategy (ignored).
-            num_starts: Number of restarts (not applicable).
-            max_steps: Sequence length limit (ignored).
-            phase: Current execution phase ('train', 'val', or 'test').
-            return_actions: Whether to include action tensors.
-            **kwargs: Runtime overrides.
+            td: TensorDict containing instance data (locations, demands).
+            env: Optional environment for reward calculation.
+            strategy: Solver strategy (e.g., "greedy").
+            num_starts: Unused in HVPL.
+            max_steps: Maximum step constraint.
+            phase: Current phase ("train", "val", "test").
+            return_actions: Whether to return full action sequences.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Optimized results dictionary including:

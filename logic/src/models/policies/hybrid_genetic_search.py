@@ -4,6 +4,12 @@ This module implements the HGS algorithm for the Vehicle Routing Problem,
 following the principles of diversity-aware population management and
 intensified local search (Education). It is fully vectorized to allow
 parallel evolution of multiple batch instances on the GPU.
+
+Attributes:
+    VectorizedHGS: Vectorized version of the Hybrid Genetic Search algorithm.
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -58,6 +64,7 @@ class VectorizedHGS(PolicyVizMixin):
         seed: int = 42,
         generator: Optional[torch.Generator] = None,
         rng: Optional[random.Random] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the HGS solver.
 
@@ -71,6 +78,7 @@ class VectorizedHGS(PolicyVizMixin):
             seed: random seed for both CPU and GPU RNGs.
             generator: existing torch generator (optional).
             rng: existing python Random instance (optional).
+            kwargs: Additional keyword arguments.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes

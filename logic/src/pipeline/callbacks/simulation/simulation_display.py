@@ -1,5 +1,14 @@
 """
 Unified simulation display for WSmart-Route using Rich and Plotext.
+
+Attributes:
+    SimulationDisplayCallback: Callback to display a summary of the policies.
+
+Example:
+    >>> from logic.src.configs import Config
+    >>> from logic.src.pipeline.callbacks.simulation.simulation_display import SimulationDisplayCallback
+    >>> callback = SimulationDisplayCallback()
+    >>> callback.display(cfg)
 """
 
 from __future__ import annotations
@@ -40,6 +49,9 @@ class SimulationDisplayCallback:
     1. Overall simulation progress (samples * days)
     2. Policy-specific performance metrics (Averages)
     3. Historical progress chart (e.g., Profit/Overflows per day)
+
+    Attributes:
+        None
     """
 
     def __init__(
@@ -214,7 +226,11 @@ class SimulationDisplayCallback:
             self.live.update(self._render_layout())
 
     def _render_layout(self) -> Layout:
-        """Render the current state of the layout."""
+        """Render the current state of the layout.
+
+        Returns:
+            The rendered layout.
+        """
         elapsed = time.time() - self.start_time
         header_text = Text(
             f" WSmart-Route Simulation • {time.strftime('%H:%M:%S', time.gmtime(elapsed))} • {len(self.policies)} Policies • {self.n_samples} Samples ",
@@ -241,7 +257,11 @@ class SimulationDisplayCallback:
         return self.layout
 
     def _generate_chart(self) -> Panel:
-        """Generate plotext chart showing average metrics per day."""
+        """Generate plotext chart showing average metrics per day.
+
+        Returns:
+            The generated chart.
+        """
         plt.clf()
         plt.theme(self.theme)
 
@@ -278,7 +298,11 @@ class SimulationDisplayCallback:
         return Panel(chart_text, title="📈 Performance History", border_style="blue", expand=True)
 
     def _generate_metrics_table(self) -> Panel:
-        """Generate table showing aggregate metrics per policy."""
+        """Generate table showing aggregate metrics per policy.
+
+        Returns:
+            The generated metrics table.
+        """
         table = Table(show_header=True, header_style="bold magenta", expand=True, box=None, border_style="dim")
         table.add_column("Policy", style="cyan", no_wrap=True)
         table.add_column("Done", justify="right")

@@ -3,6 +3,13 @@
 This module provides a predictive selection strategy that marks bins for
 collection based on when they are expected to overflow, using current fill
 levels and accumulation rates to calculate a dynamic lookahead horizon.
+
+Attributes:
+    LookaheadSelector: Predictive selection policy looking ahead several days.
+
+Example:
+    >>> selector = LookaheadSelector(max_fill=1.0)
+    >>> mask = selector.select(fill_levels, rates)
 """
 
 from __future__ import annotations
@@ -20,6 +27,8 @@ class LookaheadSelector(VectorizedSelector):
     Selects bins that are predicted to overflow within a dynamic lookahead
     horizon. The horizon is determined by the earliest upcoming overflow among
     the currently full bins.
+    Attributes:
+        max_fill: Target maximum fill level before overflow.
     """
 
     def __init__(self, max_fill: float = 1.0) -> None:
@@ -40,10 +49,10 @@ class LookaheadSelector(VectorizedSelector):
         """Select bins predicted to overflow within dynamic horizon.
 
         Args:
-            fill_levels: Current fill levels [B, N] in [0, 1].
-            accumulation_rates: Daily fill rate [B, N] in [0, 1].
-            max_fill: Optional override for overflow threshold.
-            **kwargs: Extra parameters (ignored).
+            fill_levels: Current fill levels [B, N].
+            accumulation_rates: Mean daily waste generation per node [B, N].
+            max_fill: Override for overflow limit.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.

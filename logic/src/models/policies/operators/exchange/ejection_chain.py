@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the Ejection chain
 operator, a sophisticated fleet minimization heuristic that attempts to
 empty a route by ejecting its customers into other routes.
+
+Attributes:
+    vectorized_ejection_chain: Attempts to eliminate routes by ejecting their nodes into other routes.
+
+Example:
+    >>> from logic.src.models.policies.operators.exchange.ejection_chain import vectorized_ejection_chain
+    >>> tours = vectorized_ejection_chain(tours, dist_matrix, capacities, wastes, max_depth)
 """
 
 from __future__ import annotations

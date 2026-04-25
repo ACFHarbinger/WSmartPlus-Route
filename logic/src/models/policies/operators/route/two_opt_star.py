@@ -3,6 +3,14 @@
 This module provides a GPU-accelerated implementation of the 2-opt* heuristic,
 frequently referred to as a "Tail Swap", which improves multi-route solutions
 by exchanging the terminal segments of two different routes.
+
+Attributes:
+    vectorized_two_opt_star: Exchanges the 'tail' segments of two routes to
+        improve fleet-level efficiency.
+
+Example:
+    >>> from logic.src.models.policies.operators.route.two_opt_star import vectorized_two_opt_star
+    >>> optimized_tours = vectorized_two_opt_star(tours, dist_matrix)
 """
 
 from __future__ import annotations

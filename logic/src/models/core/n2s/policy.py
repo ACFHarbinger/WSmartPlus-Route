@@ -5,6 +5,10 @@ encoder and decoder for iterative improvement of combinatorial solutions.
 
 Attributes:
     N2SPolicy: Collaborative Transformer policy for neighborhood search.
+
+Example:
+    >>> policy = N2SPolicy(embed_dim=128, k_neighbors=20)
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -39,10 +43,10 @@ class N2SPolicy(ImprovementPolicy):
         """Initializes the N2S policy.
 
         Args:
-            embed_dim: Width of the latent feature space.
-            num_heads: count of attention heads for the internal subnets.
-            k_neighbors: number of local neighbors to consider per node.
-            **kwargs: Extra parameters passed to the improvement base.
+            embed_dim: Dimensionality of the node features.
+            num_heads: Number of attention heads.
+            k_neighbors: Number of candidate neighbors per node.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name="tsp_kopt", embed_dim=embed_dim)
         self.encoder = N2SEncoder(embed_dim, num_heads, k_neighbors)

@@ -60,14 +60,14 @@ class MatNetPolicy(AutoregressivePolicy):
         """Initializes the MatNetPolicy.
 
         Args:
-            embed_dim: Internal latent feature size.
-            hidden_dim: Hidden layer size for FFN/attention.
-            problem: domain problem definition.
-            num_layers: Depth of the matrix encoder stack.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            problem: Environment or problem logic wrapper.
+            num_layers: Number of transformer encoder layers.
             n_heads: Number of attention heads.
-            tanh_clipping: range value for logit normalization.
-            normalization: Type of normalization layer ('instance', 'batch').
-            **kwargs: Additional parameters for the MatNetDecoder.
+            tanh_clipping: Range for logit clipping.
+            normalization: Type of layer normalization.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=None)
         self.problem = problem
@@ -116,11 +116,11 @@ class MatNetPolicy(AutoregressivePolicy):
         encodes it into row/col latents, and construction is handled by the decoder.
 
         Args:
-            td: problem state container.
-            env: Optional environment for transition logic.
-            strategy: selection strategy.
-            num_starts: Number of construction attempts.
-            **kwargs: Extra parameters including 'cost_weights'.
+            td: TensorDict containing the cost matrix and problem data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "sampling").
+            num_starts: Number of parallel construction starts.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Construction results containing:

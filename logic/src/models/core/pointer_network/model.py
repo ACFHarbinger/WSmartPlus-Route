@@ -6,6 +6,10 @@ the input sequence, allowing it to handle variable-length sequences effectively.
 
 Attributes:
     PointerNetwork: Classic sequence-to-sequence pointer architecture.
+
+Example:
+    >>> model = PointerNetwork(embed_dim=128, hidden_dim=512, problem=tsp)
+    >>> cost, ll = model(inputs)
 """
 
 from __future__ import annotations
@@ -51,14 +55,14 @@ class PointerNetwork(nn.Module):
 
         Args:
             embed_dim: Dimensionality of latent embeddings.
-            hidden_dim: LSTM hidden state width.
-            problem: Optimization problem definition.
-            n_encode_layers: Unused (retained for API compatibility).
-            tanh_clipping: Logit clipping range.
-            mask_inner: Enable masking in attention glimpses.
-            mask_logits: Enable masking in final output logits.
-            normalization: Type of normalization.
-            **kwargs: Extra parameters.
+            hidden_dim: Dimensionality of LSTM hidden states.
+            problem: Environment managing rewards and problem constraints.
+            n_encode_layers: Number of encoder layers (defaults to 1).
+            tanh_clipping: Range for attention logit clipping.
+            mask_inner: Whether to mask glimpses during pointer calculation.
+            mask_logits: Whether to mask invalid actions in the output layer.
+            normalization: Type of normalization (e.g., "batch", "layer").
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.problem = problem

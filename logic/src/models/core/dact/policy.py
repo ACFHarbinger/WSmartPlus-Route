@@ -9,7 +9,7 @@ Attributes:
 
 Example:
     >>> from logic.src.models.core.dact.policy import DACTPolicy
-    >>> policy = DACTPolicy(env_name="tsp_kopt")
+    >>> policy = DACTPolicy(env_name="tsp_kopt", embed_dim=128)
 """
 
 from __future__ import annotations
@@ -45,11 +45,11 @@ class DACTPolicy(ImprovementPolicy):
         """Initializes the DACT policy.
 
         Args:
-            embed_dim: Width of the shared feature space.
-            num_layers: depth of the Transformer blocks.
-            num_heads: count of attention heads.
-            env_name: Identifier for the targeted optimization problem.
-            **kwargs: Extra parameters passed to sub-modules.
+            embed_dim: Dimensionality of latent embeddings.
+            num_layers: Number of transformer layers in the encoder.
+            num_heads: Number of attention heads.
+            env_name: Name of the environment identifier.
+            kwargs: Additional keyword arguments.
         """
         encoder = DACTEncoder(embed_dim, num_layers, num_heads, **kwargs)
         decoder = DACTDecoder(embed_dim, num_heads, **kwargs)

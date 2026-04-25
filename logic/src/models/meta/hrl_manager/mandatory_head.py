@@ -5,6 +5,9 @@ be collected in the current period based on local and spatial context.
 
 Attributes:
     MandatorySelectionHead: MLP-based binary categorical selection head.
+
+Example:
+    None
 """
 
 from __future__ import annotations

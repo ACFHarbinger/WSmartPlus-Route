@@ -3,6 +3,13 @@
 This module provides the implementation of the AutoregressivePolicy, which
 integrates an autoregressive encoder and decoder into a unified constructive
 policy architecture.
+
+Attributes:
+    AutoregressivePolicy: Base class for autoregressive policies.
+
+Example:
+    >>> policy = AutoregressivePolicy()
+    >>> reward, log_p, actions = policy(td, env)
 """
 
 from __future__ import annotations
@@ -44,13 +51,13 @@ class AutoregressivePolicy(ConstructivePolicy):
         """Initialize the AutoregressivePolicy.
 
         Args:
-            encoder: Instance of an AR encoder.
-            decoder: Instance of an AR decoder.
-            env_name: Name of the target environment.
-            embed_dim: Dimension of latent feature vectors.
-            seed: Random seed for initialization.
-            device: Operating device for tensor computation.
-            **kwargs: Additional parameters for base policy.
+            encoder: Optional problem state encoder.
+            decoder: Optional step-by-step action decoder.
+            env_name: Name of the RL4CO environment.
+            embed_dim: Internal dimensionality for the latent embeddings.
+            seed: Random seed for reproducibility.
+            device: Computing device for the neural network.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(
             encoder=encoder,
@@ -73,11 +80,11 @@ class AutoregressivePolicy(ConstructivePolicy):
         """Full forward pass: problem encoding followed by solution decoding.
 
         Args:
-            td: TensorDict containing the problem instance metadata.
-            env: Environment object for state transitions and reward calculation.
-            strategy: Decoding strategy (e.g., 'sampling', 'greedy').
-            num_starts: Number of parallel solution completions.
-            **kwargs: Additional control arguments for encoder/decoder.
+            td: TensorDict containing the current problem/environment state.
+            env: Environment object for reward calculation and masking.
+            strategy: Decoding strategy ("sampling", "greedy", etc.).
+            num_starts: Number of initial solutions to generate.
+            kwargs: Additional keyword arguments for the encoder/decoder.
 
         Returns:
             Dict[str, Any]: Policy outputs including:

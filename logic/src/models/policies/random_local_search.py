@@ -3,6 +3,13 @@
 This module provides an expert policy that performs stochastic local search by
 iteratively sampling and applying improvement operators from a configurable pool.
 Useful for generating expert trajectories during imitation learning.
+
+Attributes:
+    RandomLocalSearchPolicy: Expert policy using stochastic local search.
+
+Example:
+    >>> policy = RandomLocalSearchPolicy(env_name="vrpp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -53,14 +60,12 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         """Initialize the random local search policy.
 
         Args:
-            env_name: Name of the problem environment.
-            n_iterations: Number of search iterations (operator applications).
-            op_probs: Dictionary mapping operator names to selection probabilities.
-                Supported: 'two_opt', 'swap', 'relocate', 'two_opt_star',
-                'swap_star', 'three_opt'.
-            seed: Random seed for reproducibility.
-            device: Computation device.
-            **kwargs: Additional hyperparameters.
+            env_name: Name of the environment identifier.
+            n_iterations: Total number of operator applications.
+            op_probs: Optional dictionary mapping operator names to weights.
+            seed: Random seed for search reproducibility.
+            device: Computing device for tensor operations.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.n_iterations = n_iterations
@@ -106,14 +111,14 @@ class RandomLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         """Refine solutions using stochastic local search.
 
         Args:
-            td: Input state TensorDict.
-            env: The environment being solved.
-            strategy: Selection strategy (ignored).
-            num_starts: Dummy parameter for interface compliance.
-            max_steps: Maximum steps (ignored).
-            phase: Current execution context ('train', 'val', or 'test').
-            return_actions: Whether to include refined routes in output.
-            **kwargs: Extra parameters like 'initial_solution'.
+            td: TensorDict containing instance data (locations, demands).
+            env: Optional environment for reward calculation.
+            strategy: Solver strategy (e.g., "greedy").
+            num_starts: Unused in RLS.
+            max_steps: Maximum step constraint.
+            phase: Current phase ("train", "val", "test").
+            return_actions: Whether to return full action sequences.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results dictionary containing:

@@ -8,6 +8,10 @@ task into two phases:
 
 Attributes:
     HybridTwoStagePolicy: Combined neural-heuristic optimization model.
+
+Example:
+    >>> policy = HybridTwoStagePolicy(env_name="tsp")
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -88,14 +92,14 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         """Initializes the hybrid two-stage policy.
 
         Args:
-            env_name: Targeted optimization task identifier.
-            embed_dim: Internal feature width.
-            hidden_dim: Multi-layer perceptron width.
-            n_encode_layers: Context encoder depth.
-            n_heads: Count of attention heads.
-            refine_steps: Number of improvement passes to perform.
-            seed: random seed for stochastic actions.
-            **kwargs: Extra parameters for encoder/embeddings.
+            env_name: Name of the environment (e.g., "tsp", "wcvrp").
+            embed_dim: Dimension of node embeddings.
+            hidden_dim: MLP hidden layer dimension.
+            n_encode_layers: Number of Graph Attention Encoder layers.
+            n_heads: Number of attention heads in the GAT.
+            refine_steps: Number of refinement iterations to perform.
+            seed: Random seed for reproducibility.
+            kwargs: Additional keyword arguments for the encoder.
         """
         super().__init__(env_name=env_name, embed_dim=embed_dim)
 
@@ -177,24 +181,25 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
     def _initialize_tours(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
         strategy: str,
         embeddings: torch.Tensor,
+        env: Optional[RL4COEnvBase] = None,
         **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Stage 1: Generates a batch of initial solutions using hybrid solvers.
 
         Args:
-            td: Environment state.
-            env: Task dynamics.
-            strategy: selection mode ('greedy' or 'sample').
-            embeddings: Contextual node features.
-            **kwargs: Extra parameters for initialization algorithms.
+            td: TensorDict containing instance data.
+            strategy: Choice strategy ("greedy" or "sampling").
+            embeddings: Contextual node embeddings.
+            env: The problem environment.
+            kwargs: Additional keyword arguments for the initial solvers.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:
-                - tours: initial node sequences [B, N].
-                - init_choice_idx: algorithm category selected per instance [B].
+                - tours: Initial node sequences [B, N].
+                - init_choice_idx: Algorithm category selected per instance [B].
+
         """
         batch_size = td.size(0)
         device = td["locs"].device
@@ -248,23 +253,23 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
     def _apply_operator_step(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
         embeddings: torch.Tensor,
         current_tours: torch.Tensor,
         dist_matrix_all: torch.Tensor,
         removed_nodes_state: torch.Tensor,
         strategy: str,
+        env: Optional[RL4COEnvBase] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Stage 2 Step: Selects and executes a single improvement operator.
 
         Args:
             td: problem state.
-            env: problem dynamics.
             embeddings: graph features.
             current_tours: existing sequences [B, N_max].
             dist_matrix_all: pairwise distances [B, N, N].
             removed_nodes_state: buffer for partially destroyed solutions.
             strategy: selection mode.
+            env: problem dynamics.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -397,17 +402,17 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
     def forward(  # type: ignore[override]
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         strategy: str = "greedy",
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Main execution logic: Init -> iterative refinement.
 
         Args:
-            td: Problem instance.
-            env: Task transitions.
-            strategy: Choice mode ('greedy', 'sample').
-            **kwargs: Extra parameters.
+            td: TensorDict containing instance data.
+            env: The problem environment.
+            strategy: Selection strategy for both stages.
+            kwargs: Additional keyword arguments for the policies.
 
         Returns:
             Dict[str, Any]: Result map with final reward, actions, and audit data.
@@ -417,7 +422,8 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         embeddings = self.encoder(init_embeds)  # type: ignore[misc]
 
         # Phase 2: Solve via meta-algorithm (HGS/ALNS/ACO)
-        current_tours, init_choice_idx = self._initialize_tours(td, env, strategy, embeddings, **kwargs)
+        assert env is not None, "Environment must be provided for two-stage solving."
+        current_tours, init_choice_idx = self._initialize_tours(td, strategy, embeddings, env, **kwargs)
 
         # Phase 3: Selection and application of low-level heuristics
         dist_matrix_all = self._get_dist_matrix(td)
@@ -427,12 +433,12 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         for _step in range(self.refine_steps):
             current_tours, removed_nodes_state, step_log_p = self._apply_operator_step(
                 td,
-                env,
                 embeddings,
                 current_tours,
                 dist_matrix_all,
                 removed_nodes_state,
                 strategy,
+                env,
             )
             log_likelihood = log_likelihood + step_log_p
 
@@ -447,12 +453,26 @@ class HybridTwoStagePolicy(AutoregressivePolicy):
         }
 
     def _get_dist_matrix(self, td: TensorDict) -> torch.Tensor:
-        """Utility to calculate graph distance adjacency."""
+        """Utility to calculate graph distance adjacency.
+
+        Args:
+            td: TensorDict containing "locs".
+
+        Returns:
+            torch.Tensor: Pairwise distance matrix of shape [B, N, N].
+        """
         locs = td["locs"]
         return torch.cdist(locs, locs)
 
     def _get_random_tours(self, td: TensorDict) -> torch.Tensor:
-        """Utility for naive initial permutations (excluding the depot)."""
+        """Utility for naive initial permutations (excluding the depot).
+
+        Args:
+            td: TensorDict containing the problem context.
+
+        Returns:
+            torch.Tensor: Batch of random permutations [B, N-1].
+        """
         B, N, _ = td["locs"].shape
         perms = torch.stack([torch.randperm(N - 1, device=td.device) + 1 for _ in range(B)])
         return perms

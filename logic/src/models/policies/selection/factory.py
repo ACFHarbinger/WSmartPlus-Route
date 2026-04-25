@@ -2,6 +2,13 @@
 
 This module provides factory functions to create vectorized bin selection
 strategies from configuration objects or by explicit name.
+
+Attributes:
+    get_vectorized_selector: Function to instantiate selectors by name.
+    create_selector_from_config: Function to instantiate selectors from configuration.
+
+Example:
+    >>> selector = get_vectorized_selector("last_minute", threshold=0.8)
 """
 
 from __future__ import annotations
@@ -163,14 +170,8 @@ def get_vectorized_selector(name: str, **kwargs: Any) -> VectorizedSelector:
     """Create a vectorized selector by name.
 
     Args:
-        name: Selector name. Options:
-            - 'last_minute': Threshold-based reactive selection.
-            - 'regular': Periodic collection on scheduled days.
-            - 'lookahead': Predictive overflow-based selection.
-            - 'revenue': Revenue-based selection.
-            - 'service_level': Statistical overflow prediction.
-            - 'manager': Neural network-based selection (MandatoryManager).
-        **kwargs: Parameters passed to the selector constructor.
+        name: Name of the selection strategy.
+        kwargs: Strategy-specific parameters.
 
     Returns:
         VectorizedSelector: The instantiated selector.

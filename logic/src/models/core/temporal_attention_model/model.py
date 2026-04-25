@@ -81,15 +81,36 @@ class TemporalAttentionModel(AttentionModel):
         """Initializes the Temporal Attention Model.
 
         Args:
-            embed_dim: Node latent feature size.
-            hidden_dim: Subnet hidden size.
-            problem: Reference to the problem domain.
-            component_factory: Subnet instantiation factory.
-            dropout_rate: Probability for dropout layers.
-            temporal_horizon: Window size for historical waste data.
-            predictor_layers: Depth of the RNN predictor.
-            predictor_type: Type of RNN cell ('gru', 'lstm').
-            **kwargs: Additional parameters passed to AttentionModel.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            problem: Environment or problem logic wrapper.
+            component_factory: Factory for neural building blocks.
+            n_encode_layers: Number of transformer encoder layers.
+            n_encode_sublayers: Optional internal encoder depth.
+            n_decode_layers: Optional decoder layers (if not attention-based).
+            dropout_rate: Dropout probability for regularization.
+            aggregation: Aggregation mode for local features ("sum", "mean").
+            aggregation_graph: Aggregation mode for global features.
+            tanh_clipping: Range for logit clipping.
+            mask_inner: Whether to mask during attention computation.
+            mask_logits: Whether to mask before final softmax.
+            mask_graph: Whether to mask nodes in the global context.
+            norm_config: Configuration for layer normalization.
+            activation_config: Configuration for activation functions.
+            n_heads: Number of attention heads.
+            checkpoint_encoder: Whether to use gradient checkpointing.
+            shrink_size: Optional dimension reduction.
+            temporal_horizon: Window size for historical fill prediction.
+            predictor_layers: Number of layers in the recurrent predictor.
+            pomo_size: Size for POMO-style multi-start augmentation.
+            spatial_bias: Whether to inject spatial distance bias.
+            spatial_bias_scale: Magnitude of the spatial bias.
+            entropy_weight: Weight for entropy regularization.
+            connection_type: Type of skip connections ("residual", "dense").
+            hyper_expansion: Expansion factor for feed-forward layers.
+            decoder_type: Type of constructor ("attention", "pointer").
+            predictor_type: Recurrent unit type ("gru", "lstm").
+            kwargs: Additional keyword arguments.
         """
         super().__init__(
             embed_dim=embed_dim,
@@ -211,14 +232,14 @@ class TemporalAttentionModel(AttentionModel):
         """Constructs solutions while proactively anticipating future state.
 
         Args:
-            input: Instance data dictionary.
-            env: Environment object (passed as cost_weights in legacy calls).
-            strategy: selection strategy choice.
-            return_pi: whether to include action log-likelihoods.
-            pad: sequence padding flag.
-            mask: optional action validity mask.
-            expert_pi: target solution for imitation.
-            **kwargs: Extra parameters.
+            input: Dictionary containing problem instance data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "greedy").
+            return_pi: Whether to return action probabilities.
+            pad: Whether to pad sequences to uniform length.
+            mask: Optional node mask for specific constraints.
+            expert_pi: Optional teacher distribution for distillation.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Result container (see AttentionModel.forward).

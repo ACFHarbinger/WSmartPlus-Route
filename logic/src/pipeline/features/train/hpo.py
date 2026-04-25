@@ -13,6 +13,19 @@ When ``cfg.tracking.mlflow_enabled`` is ``True``, the HPO experiment is
 wrapped in an MLflow parent run so aggregate results (best config, best
 score, total wall-time) are visible in the MLflow UI alongside the
 per-trial data logged by each backend.
+
+Attributes:
+    _RAY_TUNE_METHODS: Methods that delegate to Ray Tune
+    objective: Objective function for HPO
+    _ray_tune_objective: Trainable passed to :class:`RayTuneHPO` — one epoch loop per trial
+    run_hpo: Run Hyperparameter Optimization
+    _run_hpo_via_zenml: Run HPO through the ZenML pipeline
+    _mlflow_hpo_run: Context manager to wrap the HPO session in an MLflow run
+
+Example:
+    >>> from logic.src.pipeline.features.train.hpo import run_hpo
+    >>> run_hpo(cfg)
+    123456.0
 """
 
 import contextlib
@@ -288,6 +301,12 @@ def _mlflow_hpo_run(
     block the HPO run.  Exceptions raised inside the ``with`` body are always
     propagated — only the *setup* phase is guarded.
 
+    Args:
+        enabled: Whether to enable MLflow tracking.
+        tracking_uri: MLflow tracking URI.
+        experiment_name: MLflow experiment name.
+        cfg: Root configuration object.
+
     Yields:
         The active ``mlflow.ActiveRun`` context, or ``None``.
     """
@@ -344,6 +363,9 @@ def _run_hpo_via_zenml(cfg: Config) -> float:
     """Dispatch HPO to the ZenML HPO pipeline.
 
     Called when ``cfg.tracking.zenml_enabled`` is ``True``.
+
+    Args:
+        cfg: Root configuration object.
 
     Returns:
         Best metric value found, or ``0.0`` on ZenML failure.

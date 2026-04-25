@@ -3,6 +3,13 @@
 This module provides the abstract base class for encoders used in
 autoregressive models, transforming problem instances into initial latent
 representations.
+
+Attributes:
+    AutoregressiveEncoder: Base class for autoregressive encoders.
+
+Example:
+    >>> encoder = AutoregressiveEncoder()
+    >>> embeddings = encoder(td)
 """
 
 from __future__ import annotations
@@ -29,8 +36,8 @@ class AutoregressiveEncoder(nn.Module, ABC):
         """Initialize the AutoregressiveEncoder.
 
         Args:
-            embed_dim: Internal dimensionality for encoding features.
-            **kwargs: Additional parameters passed to the parent Module.
+            embed_dim: Internal dimensionality for the latent embeddings.
+            kwargs: Additional keyword arguments passed to the parent nn.Module.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -44,12 +51,13 @@ class AutoregressiveEncoder(nn.Module, ABC):
         """Compute initial embeddings for the problem instance.
 
         Args:
-            td: TensorDict containing the problem instance metadata.
-            **kwargs: Additional control parameters for encoding.
+            td: TensorDict containing the current problem/environment state.
+            kwargs: Control parameters for the encoder forward pass.
 
         Returns:
             Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
                 Encodings representing the problem state, either as a single
                 tensor or a tuple of feature tensors.
+
         """
         raise NotImplementedError

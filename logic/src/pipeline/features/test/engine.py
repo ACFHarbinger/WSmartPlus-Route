@@ -1,5 +1,22 @@
-"""
-Simulation Test Runner.
+"""Run WSR Simulator Tests.
+
+Attributes:
+    run_wsr_simulator_test: Main entry point for the WSmart+ Route simulator test engine.
+    _validate_sim_config: Validate and normalize ``cfg.sim`` fields in place.
+    _resolve_data_size: Resolve the available data size for the given area and requested size.
+    _expand_data_distribution: Expand the data distribution field.
+    _check_data_availability: Verify that the dataset files exist.
+    _resolve_dataset: Infer the dataset filename based on the area and other parameters.
+    _ensure_directories: Ensure that all required directories exist, creating them if necessary.
+    _log_sim_params: Log simulation parameters to WSTracker.
+    _log_policy_metrics: Create and log the expanded policy metrics dictionary.
+    _extract_policy_name: Extract the base policy name from an expanded configuration.
+    _create_variant_metrics: Create a structured metrics dictionary for a specific policy variant.
+    _run_sim_via_zenml: Rerun simulation via ZenML.
+
+Example:
+    >>> from logic.src.pipeline.features.test import run_wsr_simulator_test
+    >>> run_wsr_simulator_test(config)
 """
 
 import contextlib
@@ -138,7 +155,11 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
 
 
 def _validate_sim_config(cfg: Config) -> None:
-    """Validate and normalize ``cfg.sim`` fields in place."""
+    """Validate and normalize ``cfg.sim`` fields in place.
+
+    Args:
+        cfg: Config.
+    """
     sim = cfg.sim
 
     assert sim.days >= 1, "Must run the simulation for 1 or more days"
@@ -171,7 +192,14 @@ def _validate_sim_config(cfg: Config) -> None:
 
 
 def _resolve_data_size(cfg: Config) -> int:
-    """Resolve the available data size for the given area and requested size."""
+    """Resolve the available data size for the given area and requested size.
+
+    Args:
+        cfg: Config.
+
+    Returns:
+        Available data size.
+    """
     sim = cfg.sim
     load_ds = cfg.load_dataset
 
@@ -200,7 +228,11 @@ def _resolve_data_size(cfg: Config) -> int:
 
 
 def _ensure_directories(cfg: Config) -> None:
-    """Ensure all required output and checkpoint directories exist."""
+    """Ensure all required output and checkpoint directories exist.
+
+    Args:
+        cfg: Config.
+    """
     sim = cfg.sim
     try:
         parent_dir = os.path.join(
@@ -294,6 +326,9 @@ def _run_sim_via_zenml(cfg: Config) -> None:
 
     Called when ``cfg.tracking.zenml_enabled`` is ``True`` and no external
     sinks were injected (i.e. the call originates from the CLI).
+
+    Args:
+        cfg: Config.
     """
     tracking = getattr(cfg, "tracking", None)
     mlflow_uri = str(getattr(tracking, "mlflow_tracking_uri", "mlruns"))

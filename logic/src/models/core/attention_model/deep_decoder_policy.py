@@ -58,15 +58,15 @@ class DeepDecoderPolicy(AutoregressivePolicy):
         """Initializes the DeepDecoderPolicy.
 
         Args:
-            env_name: Name of the target environment.
-            embed_dim: Latent vector dimensionality.
-            hidden_dim: Hidden size for FFN and attention sublayers.
-            n_encode_layers: Number of transformer encoder blocks.
-            n_decode_layers: Number of transformer decoder blocks.
-            n_heads: Parallel attention head count.
-            normalization: Type of feature normalization to apply.
-            dropout_rate: Probability for internal dropout layers.
-            **kwargs: Additional parameters for components.
+            env_name: Name of the environment identifier.
+            embed_dim: Dimensionality of node features.
+            hidden_dim: Dimensionality of hidden layers.
+            n_encode_layers: Number of Transformer encoder layers.
+            n_decode_layers: Number of Transformer decoder layers.
+            n_heads: Number of attention heads.
+            normalization: Type of normalization ("batch", "layer", "instance").
+            dropout_rate: Dropout probability.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=env_name, embed_dim=embed_dim)
 
@@ -95,7 +95,7 @@ class DeepDecoderPolicy(AutoregressivePolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
@@ -104,12 +104,12 @@ class DeepDecoderPolicy(AutoregressivePolicy):
         """Executes the deep constructive decoding pass.
 
         Args:
-            td: Environment state container.
-            env: RL environment object.
-            strategy: Action selection tactic ('greedy', 'sampling').
-            num_starts: Construction start count.
-            actions: Tour sequence for teacher forcing/evaluation.
-            **kwargs: Additional control arguments.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "greedy", "sampling").
+            num_starts: Number of parallel construction starts.
+            actions: Optional pre-selected actions for teacher forcing.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Policy outputs including rewards, log-probs, and actions.
@@ -135,6 +135,7 @@ class DeepDecoderPolicy(AutoregressivePolicy):
         step_idx = 0
 
         while not td["done"].all():
+            assert env is not None, "Environment must be provided for step-wise construction."
             assert self.env_name is not None, "env_name must be set"
             from logic.src.utils.data import TensorDictStateWrapper
 

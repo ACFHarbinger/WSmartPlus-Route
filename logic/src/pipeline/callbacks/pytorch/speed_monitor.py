@@ -1,4 +1,12 @@
-"""Speed monitoring callback for Lightning."""
+"""Speed monitoring callback for Lightning.
+
+Attributes:
+    SpeedMonitor: Callback to monitor training speed.
+
+Example:
+    >>> from logic.src.pipeline.callbacks.pytorch.speed_monitor import SpeedMonitor
+    >>> trainer = L.Trainer(callbacks=[SpeedMonitor()])
+"""
 
 import time
 from typing import Optional
@@ -13,6 +21,13 @@ class SpeedMonitor(Callback):
     """
     Monitor the speed of each step and each epoch.
     Logs intra-step (forward/backward) and inter-step (data loading) times.
+
+    Attributes:
+        _snap_intra_step_time: Timestamp of intra-step measurement start.
+        _snap_inter_step_time: Timestamp of inter-step measurement start.
+        _snap_epoch_time: Timestamp of epoch measurement start.
+        _log_stats: AttributeDict containing logging flags.
+        verbose: Whether to print timing info to console.
     """
 
     def __init__(
@@ -45,21 +60,41 @@ class SpeedMonitor(Callback):
         self._snap_epoch_time: Optional[float] = None
 
     def on_train_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
-        """Reset epoch time snapshot at training start."""
+        """Reset epoch time snapshot at training start.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         self._snap_epoch_time = None
 
     def on_train_epoch_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
-        """Reset timing snapshots and capture epoch start time."""
+        """Reset timing snapshots and capture epoch start time.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         self._snap_intra_step_time = None
         self._snap_inter_step_time = None
         self._snap_epoch_time = time.time()
 
     def on_validation_epoch_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
-        """Reset inter-step time snapshot for validation."""
+        """Reset inter-step time snapshot for validation.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         self._snap_inter_step_time = None
 
     def on_test_epoch_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
-        """Reset inter-step time snapshot for testing."""
+        """Reset inter-step time snapshot for testing.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         self._snap_inter_step_time = None
 
     @rank_zero_only
@@ -69,7 +104,13 @@ class SpeedMonitor(Callback):
         *unused_args,
         **unused_kwargs,
     ) -> None:
-        """Capture intra-step start time and log inter-step time."""
+        """Capture intra-step start time and log inter-step time.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            unused_args: Unused arguments.
+            unused_kwargs: Unused keyword arguments.
+        """
         if self._log_stats.intra_step_time:
             self._snap_intra_step_time = time.time()
 
@@ -92,7 +133,14 @@ class SpeedMonitor(Callback):
         *unused_args,
         **unused_kwargs,
     ) -> None:
-        """Capture inter-step start time and log intra-step time."""
+        """Capture inter-step start time and log intra-step time.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+            unused_args: Unused arguments.
+            unused_kwargs: Unused keyword arguments.
+        """
         if self._log_stats.inter_step_time:
             self._snap_inter_step_time = time.time()
 
@@ -115,7 +163,12 @@ class SpeedMonitor(Callback):
         trainer: L.Trainer,
         pl_module: L.LightningModule,
     ) -> None:
-        """Log epoch duration at end of training epoch."""
+        """Log epoch duration at end of training epoch.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         logs: dict[str, float] = {}
         if self._log_stats.epoch_time and self._snap_epoch_time:
             logs["time/epoch_s"] = time.time() - self._snap_epoch_time
@@ -123,13 +176,13 @@ class SpeedMonitor(Callback):
             trainer.logger.log_metrics(logs, step=trainer.global_step)
 
     @staticmethod
-    def _should_log(trainer) -> bool:
-        """should log.
+    def _should_log(trainer: L.Trainer) -> bool:
+        """Determine whether to log based on current step and logging frequency.
 
         Args:
-            trainer (Any): Description of trainer.
+            trainer: The PyTorch Lightning trainer instance.
 
         Returns:
-            Any: Description of return value.
+            bool: True if logging should occur, False otherwise.
         """
         return (trainer.global_step + 1) % trainer.log_every_n_steps == 0 or trainer.should_stop

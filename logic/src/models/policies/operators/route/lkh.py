@@ -10,6 +10,13 @@ Key features:
 - Sequential 2-opt and 3-opt moves.
 - Double bridge kicks for perturbation.
 - Lexicographic optimization (penalty, cost).
+
+Attributes:
+    vectorized_lkh: Local search across a batch of tours.
+
+Example:
+    >>> from logic.src.models.policies.operators.route.lkh import vectorized_lkh
+    >>> optimized_tours = vectorized_lkh(tours, dist_matrix, capacities, wastes, max_iterations, max_candidates, use_3opt, perturbation_interval, generator)
 """
 
 from __future__ import annotations

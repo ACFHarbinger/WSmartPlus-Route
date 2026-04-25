@@ -11,6 +11,17 @@ three-step ZenML pipeline:
 The pipeline is invoked from
 :func:`~logic.src.pipeline.features.eval._run_eval_via_zenml`
 when ``cfg.tracking.zenml_enabled`` is ``True``.
+
+Attributes:
+    _ZENML_AVAILABLE: Whether ZenML is available.
+    prepare_eval_config: Step to prepare evaluation config.
+    run_eval_step: Step to run evaluation.
+    log_eval_summary: Step to log evaluation summary.
+    _eval_pipeline: The evaluation pipeline.
+
+Example:
+    >>> config = Config()
+    >>> eval_pipeline(config)
 """
 
 from __future__ import annotations
@@ -45,7 +56,14 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def prepare_eval_config(config_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Pass-through: makes the serialised config a ZenML artifact."""
+        """Pass-through: makes the serialised config a ZenML artifact.
+
+        Args:
+            config_dict: Configuration dict.
+
+        Returns:
+            Configuration dict.
+        """
         return config_dict
 
     @step(experiment_tracker="mlflow_tracker")  # type: ignore[misc]
@@ -56,6 +74,12 @@ if _ZENML_AVAILABLE:
         run before entering this step and end it on exit.  A
         :class:`~logic.src.tracking.integrations.zenml_bridge.ZenMLBridge`
         is attached to the WSTracker run so metrics/params are dual-written.
+
+        Args:
+            config_dict: Configuration dict.
+
+        Returns:
+            Status string.
         """
         cfg = OmegaConf.structured(Config)
         cfg = OmegaConf.merge(cfg, OmegaConf.create(config_dict))
@@ -68,7 +92,14 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def log_eval_summary(status: str) -> str:
-        """Record evaluation completion as a ZenML artifact."""
+        """Record evaluation completion as a ZenML artifact.
+
+        Args:
+            status: Status string.
+
+        Returns:
+            Status string.
+        """
         logger.info(f"Evaluation pipeline {status}")
         return status
 
@@ -78,7 +109,14 @@ if _ZENML_AVAILABLE:
 
     @zenml_pipeline(name="wsmart_route_evaluation")  # type: ignore[misc]
     def _eval_pipeline(config_dict: Dict[str, Any]) -> str:
-        """Three-step evaluation pipeline."""
+        """Three-step evaluation pipeline.
+
+        Args:
+            config_dict: Configuration dict.
+
+        Returns:
+            Status string.
+        """
         cfg_art = prepare_eval_config(config_dict)
         status = run_eval_step(cfg_art)
         return log_eval_summary(status)

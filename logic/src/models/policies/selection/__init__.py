@@ -15,6 +15,9 @@ Attributes:
     ManagerSelector: Neural network-based selection (MandatoryManager).
     get_vectorized_selector: Factory function for easy instantiation by name.
     create_selector_from_config: Factory for configuration-driven instantiation.
+
+Example:
+    None
 """
 
 from __future__ import annotations

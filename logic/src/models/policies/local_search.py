@@ -12,6 +12,9 @@ Attributes:
     vectorized_two_opt_star: Inter-route tail swap.
     vectorized_swap_star: Inter-route node exchange with re-insertion optimization.
     vectorized_three_opt: Intra-route 3-opt moves.
+
+Example:
+    None
 """
 
 from __future__ import annotations

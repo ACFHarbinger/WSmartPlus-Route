@@ -52,10 +52,10 @@ class DACTDecoder(ImprovementDecoder):
         """Initializes the DACT decoder.
 
         Args:
-            embed_dim: Width of the embedding space.
-            num_heads: count of attention heads.
-            seed: RNG seed for stochastic actions.
-            **kwargs: Extra parameters (e.g., 'device').
+            embed_dim: Dimensionality of latent embeddings.
+            num_heads: Number of attention heads.
+            seed: Random seed for action sampling.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim)
         self.num_heads = num_heads
@@ -70,7 +70,11 @@ class DACTDecoder(ImprovementDecoder):
 
     @property
     def device(self) -> torch.device:
-        """Determines the current hardware placement of the model."""
+        """Determines the current hardware placement of the model.
+
+        Returns:
+            torch.device: Current placement of the model parameters.
+        """
         return next(self.parameters()).device
 
     def __getstate__(self) -> Dict[str, Any]:
@@ -107,10 +111,10 @@ class DACTDecoder(ImprovementDecoder):
         """Predicts a node pair for an improvement operator.
 
         Args:
-            td: Environment state.
-            embeddings: Encoded node features [B, N, D].
-            env: Targeted optimization environment.
-            **kwargs: Execution flags like 'strategy' ('greedy' or 'sample').
+            td: TensorDict containing problem instance data.
+            embeddings: Contextual node features or feature tuple.
+            env: Environment managing problem physics.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:

@@ -6,6 +6,9 @@ current performance metrics.
 
 Attributes:
     HyperNetwork: Meta-model for time-variant weight adjustment.
+
+Example:
+    None
 """
 
 from __future__ import annotations

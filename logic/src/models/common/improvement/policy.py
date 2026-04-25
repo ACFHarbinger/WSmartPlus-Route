@@ -3,6 +3,15 @@
 This module provides the implementation of the `ImprovementPolicy`, which
 recursively applies local search moves or refinement actions to improve
 an initial solution.
+
+Attributes:
+    ImprovementPolicy: Base class for improvement policies.
+
+Example:
+    >>> encoder = ImprovementEncoder(embed_dim=128)
+    >>> decoder = ImprovementDecoder(embed_dim=128)
+    >>> policy = ImprovementPolicy(encoder, decoder, env_name="tsp_kopt")
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -52,14 +61,16 @@ class ImprovementPolicy(nn.Module, ABC):
     ) -> None:
         """Initialize the ImprovementPolicy.
 
+
+
         Args:
-            encoder: Encoder instance for the current state.
-            decoder: Decoder instance for predicting refinement moves.
-            env_name: Environment identifier.
-            embed_dim: Internal latent feature dimensionality.
-            seed: Initial random seed.
-            device: Computing device ('cpu', 'cuda').
-            **kwargs: Additional parameters for base policy.
+            encoder: Encoder module for problem/solution state.
+            decoder: Decoder module for move selection.
+            env_name: Optional environment identifier for refinement.
+            embed_dim: Dimensionality of latent embeddings.
+            seed: Random seed for reproducibility.
+            device: Target computing device.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.encoder = encoder
@@ -112,15 +123,17 @@ class ImprovementPolicy(nn.Module, ABC):
         collecting the log-likelihood of each decision and updating the solution
         in the provided or default environment.
 
+
+
         Args:
-            td: TensorDict containing instance features and current tour.
-            env: Environment object (defaults to `env_name`-based lookup).
-            strategy: Move selection strategy (e.g., 'greedy', 'sampling').
-            num_starts: Number of parallel search attempts from local minima.
-            max_steps: Termination step count for the improvement loop.
-            phase: Current execution phase (train/val/test).
-            return_actions: Whether to return the sequence of moves.
-            **kwargs: Additional control arguments for encoder/decoder.
+            td: TensorDict containing problem instance and current solution.
+            env: Refinement environment managing local search moves.
+            strategy: Move selection strategy (e.g., "greedy", "sampling").
+            num_starts: Number of parallel trajectories per instance.
+            max_steps: Maximum number of improvement iterations.
+            phase: Current phase ("train", "val", "test").
+            return_actions: Whether to include the move history in output.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results including:

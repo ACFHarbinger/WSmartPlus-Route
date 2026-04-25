@@ -7,6 +7,10 @@ diversity through KL-divergence regularization.
 
 Attributes:
     MDAM: Diverse multi-policy training wrapper.
+
+Example:
+    >>> model = MDAM(env=vrpp_env, kl_weight=0.01)
+    >>> out = model(td)
 """
 
 from __future__ import annotations
@@ -136,10 +140,10 @@ class MDAM(nn.Module):
         """Routes execution to the underlying MDAM policy.
 
         Args:
-            td: problem state container.
-            env: Environment reference.
-            phase: Current execution mode.
-            **kwargs: Extra parameters.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            phase: Current execution phase ("train", "val", "test").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Multi-path construction results.

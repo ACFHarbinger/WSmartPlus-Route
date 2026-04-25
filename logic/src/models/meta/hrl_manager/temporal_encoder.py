@@ -5,6 +5,9 @@ level data using Recurrent Neural Networks to identify fill-rate trends.
 
 Attributes:
     TemporalEncoder: RNN-based history decoder.
+
+Example:
+    None
 """
 
 from __future__ import annotations

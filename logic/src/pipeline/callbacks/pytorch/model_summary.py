@@ -1,5 +1,17 @@
 """
 Enhanced model summary callback for WSmart-Route.
+
+Prints a Rich table at training start listing the environment, algorithm,
+policy, encoder, decoder, baseline, mandatory selector, and expert policy
+with parameter counts for each component.
+
+Attributes:
+    ModelSummaryCallback: Callback that renders the architecture summary table.
+
+Example:
+    >>> from logic.src.pipeline.callbacks.pytorch.model_summary import ModelSummaryCallback
+    >>> import pytorch_lightning as pl
+    >>> trainer = pl.Trainer(callbacks=[ModelSummaryCallback()])
 """
 
 from __future__ import annotations
@@ -15,17 +27,33 @@ class ModelSummaryCallback(Callback):
     """
     Callback to print a detailed summary of the model architecture,
     including encoder, decoder, and mandatory selection details.
+
+    Attributes:
+        trainer (pl.Trainer): The PyTorch Lightning trainer instance.
+        pl_module (pl.LightningModule): The LightningModule being trained.
     """
 
     def on_train_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        """Print summary when training starts."""
+        """Print summary when training starts.
+
+        Args:
+            trainer: PyTorch Lightning trainer instance.
+            pl_module: The LightningModule being trained.
+        """
         if not trainer.is_global_zero:
             return
 
         self._print_summary(pl_module)
 
     def _print_summary(self, model: pl.LightningModule) -> None:
-        """Extract information and print the table."""
+        """Extract information and print the table.
+
+        Args:
+            model: The LightningModule whose architecture will be summarised.
+
+        Returns:
+            None
+        """
         console = Console()
         table = Table(
             show_header=True,

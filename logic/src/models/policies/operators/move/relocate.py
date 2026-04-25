@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the Relocate operator,
 which improves tours by moving a node from its current position and
 re-inserting it at a more cost-effective location.
+
+Attributes:
+    vectorized_relocate: Relocates a node within a tour to minimize distance.
+
+Example:
+    >>> from logic.src.models.policies.operators.move.relocate import vectorized_relocate
+    >>> optimized_tours = vectorized_relocate(tours, dist_matrix)
 """
 
 from __future__ import annotations

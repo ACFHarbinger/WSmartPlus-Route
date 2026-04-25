@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the Slack Induction by
 String Removal (SISR) heuristic, which minimizes routing costs by removing
 contiguous sequences (strings) of nodes to create large spatial gaps.
+
+Attributes:
+    vectorized_string_removal: Removes a contiguous sequence of nodes from the tours based on a geometric distribution.
+
+Example:
+    >>> from logic.src.models.policies.operators.destroy.string_removal import vectorized_string_removal
+    >>> tours, removed_nodes = vectorized_string_removal(tours, n_remove, max_string_len, avg_string_len)
 """
 
 from __future__ import annotations

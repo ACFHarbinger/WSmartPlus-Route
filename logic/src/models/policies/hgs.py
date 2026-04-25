@@ -3,6 +3,13 @@
 This module provides a policy wrapper for the Vectorized Hybrid Genetic Search
 (HGS) algorithm, allowing it to be used as an expert policy within the RL4CO
 framework for imitation learning or benchmarking.
+
+Attributes:
+    VectorizedHGS: Hybrid Genetic Search policy wrapper.
+
+Example:
+    >>> policy = VectorizedHGS(env_name="wcvrp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -54,17 +61,17 @@ class VectorizedHGS(AutoregressivePolicy):
         """Initialize the HGS policy wrapper.
 
         Args:
-            env_name: Name of the environment.
-            time_limit: Maximum allowed execution time in seconds.
-            population_size: Number of individuals in the genetic population.
-            n_generations: Number of evolution generations.
-            elite_size: Number of top individuals kept for the next generation.
-            max_vehicles: Limit on the number of vehicles (0 for unlimited).
-            crossover_rate: Probability of performing crossover.
-            max_iterations: Local search iteration limit within HGS.
+            env_name: Name of the environment identifier.
+            time_limit: Maximum search time in seconds.
+            population_size: Size of the genetic population.
+            n_generations: Number of generations to evolve.
+            elite_size: Number of elite individuals to preserve.
+            max_vehicles: Fleet size limit (0 for unlimited).
+            crossover_rate: Rate at which crossover is performed.
+            max_iterations: Local search iteration limit.
             seed: Random seed for reproducibility.
-            device: Computation device.
-            **kwargs: Extra arguments for AutoregressivePolicy.
+            device: Computing device for operations.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.time_limit = time_limit
@@ -89,14 +96,14 @@ class VectorizedHGS(AutoregressivePolicy):
         """Solve instances in the batch using vectorized HGS.
 
         Args:
-            td: Input state TensorDict.
-            env: The environment being solved.
-            strategy: Search strategy (ignored).
-            num_starts: Number of starts (ignored).
-            max_steps: Maximum steps (ignored).
-            phase: Current execution phase ('train' or 'test').
-            return_actions: Whether to include refined routes in output.
-            **kwargs: Extra parameters.
+            td: TensorDict containing instance data.
+            env: Optional environment for reward calculation.
+            strategy: Solver strategy (e.g., "greedy").
+            num_starts: Unused in HGS.
+            max_steps: Maximum step constraint.
+            phase: Current phase ("train", "val", "test").
+            return_actions: Whether to return full action sequences.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results dictionary containing:

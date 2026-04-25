@@ -3,6 +3,15 @@
 This module provides a GPU-accelerated implementation of the Or-opt operator,
 which improves tours by relocating clusters of consecutive nodes (typically 1-3)
 to more efficient positions across routes.
+
+Attributes:
+    vectorized_or_opt: Systematically evaluates the relocation of node
+    sequences of length 'k' to every possible insertion point in the tour,
+    utilizing GPU parallelism to find the global best move per tour per iteration.
+
+Example:
+    >>> from logic.src.models.policies.operators.exchange.or_opt import vectorized_or_opt
+    >>> optimized_tours = vectorized_or_opt(tours, dist_matrix, capacities, wastes, chain_lengths, max_iterations)
 """
 
 from __future__ import annotations

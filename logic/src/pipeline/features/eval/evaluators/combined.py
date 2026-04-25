@@ -1,4 +1,13 @@
-"""Combined multi-start and augmentation evaluation implementation."""
+"""Combined multi-start and augmentation evaluation implementation.
+
+Attributes:
+    MultiStartAugmentEval: Evaluates a policy using multi-start and augmentation.
+
+Example:
+    >>> from logic.src.pipeline.features.eval.evaluators import MultiStartAugmentEval
+    >>> evaluator = MultiStartAugmentEval(config)
+    >>> evaluator.evaluate()
+"""
 
 from __future__ import annotations
 
@@ -15,7 +24,14 @@ from logic.src.utils.functions import move_to
 
 
 class MultiStartAugmentEval(EvalBase):
-    """Combined Evaluation with multiple starts and data augmentation."""
+    """Combined Evaluation with multiple starts and data augmentation.
+
+    Attributes:
+        env: The environment to evaluate on.
+        num_augment: Number of augmentations to perform.
+        num_starts: Number of starts for multi-start search.
+        progress: Whether to show progress bar.
+    """
 
     def __init__(
         self, env: Any, num_augment: int = 8, num_starts: Optional[int] = None, progress: bool = True, **kwargs

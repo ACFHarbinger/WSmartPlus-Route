@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the Cross-exchange
 operator, which improves tours by swapping segments of arbitrary length
 between two different routes while preserving internal node order.
+
+Attributes:
+    vectorized_cross_exchange: Swaps segments between two routes to improve fleet-level efficiency.
+
+Example:
+    >>> from logic.src.models.policies.operators.exchange.cross_exchange import vectorized_cross_exchange
+    >>> optimized_tours = vectorized_cross_exchange(tours, dist_matrix)
 """
 
 from __future__ import annotations

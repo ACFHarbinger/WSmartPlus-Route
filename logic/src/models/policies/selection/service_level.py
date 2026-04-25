@@ -3,6 +3,13 @@
 This module provides a statistical selection strategy that predicts overflow
 probabilities using mean accumulation rates and standard deviations, marking
 bins for collection based on a specified confidence level.
+
+Attributes:
+    ServiceLevelSelector: Statistical overflow prediction policy.
+
+Example:
+    >>> selector = ServiceLevelSelector(confidence_factor=1.5)
+    >>> mask = selector.select(fill_levels, rates, stds)
 """
 
 from __future__ import annotations
@@ -20,6 +27,10 @@ class ServiceLevelSelector(VectorizedSelector):
     Uses mean accumulation rates and their standard deviations to predict the
     likelihood of overflow. A bin is selected if its predicted peak fill level
     (mean + confidence * std) exceeds the overflow threshold.
+
+    Attributes:
+        confidence_factor: Safety factor (z-score) for overflow risk.
+        max_fill: Target maximum fill level before overflow.
     """
 
     def __init__(self, confidence_factor: float = 1.0, max_fill: float = 1.0) -> None:
@@ -48,12 +59,12 @@ class ServiceLevelSelector(VectorizedSelector):
             predicted_fill = current + rate + (confidence * std) >= max_fill
 
         Args:
-            fill_levels: Current fill levels [B, N] in [0, 1].
-            accumulation_rates: Mean daily fill rate [B, N].
-            std_deviations: Standard deviation of fill rate [B, N].
-            confidence_factor: Optional override for confidence multiplier.
-            max_fill: Optional override for overflow threshold.
-            **kwargs: Extra parameters (ignored).
+            fill_levels: Current fill levels [B, N].
+            accumulation_rates: Mean daily waste generation per node [B, N].
+            std_deviations: Standard deviation of daily generation [B, N].
+            confidence_factor: Override for risk-aversion factor.
+            max_fill: Override for overflow limit.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.

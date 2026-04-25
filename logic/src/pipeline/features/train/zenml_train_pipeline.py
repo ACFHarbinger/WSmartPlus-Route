@@ -13,6 +13,16 @@ artifact-cached:
 The pipeline is invoked from
 :func:`~logic.src.pipeline.features.train.engine._run_training_via_zenml`
 when ``cfg.tracking.zenml_enabled`` is ``True``.
+
+Attributes:
+    _ZENML_AVAILABLE: Whether ZenML is available
+    prepare_training_config: Prepare training config for ZenML
+    run_training_step: Run training step for ZenML
+    log_training_summary: Log training summary for ZenML
+    _training_pipeline: ZenML training pipeline
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -57,7 +67,14 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def prepare_training_config(config_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Pass-through: makes the serialised config a ZenML artifact."""
+        """Pass-through: makes the serialised config a ZenML artifact.
+
+        Args:
+            config_dict: Serialised Hydra config.
+
+        Returns:
+            Serialised Hydra config.
+        """
         return config_dict
 
     @step(experiment_tracker="mlflow_tracker")  # type: ignore[misc]
@@ -68,6 +85,12 @@ if _ZENML_AVAILABLE:
         run before entering this step and end it on exit.  A
         :class:`~logic.src.tracking.integrations.zenml_bridge.ZenMLBridge`
         is attached to the WSTracker run so metrics/params are dual-written.
+
+        Args:
+            config_dict: Serialised Hydra config.
+
+        Returns:
+            Best validation reward.
         """
         cfg = OmegaConf.structured(Config)
         cfg = OmegaConf.merge(cfg, OmegaConf.create(config_dict))
@@ -79,7 +102,14 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def log_training_summary(val_reward: float) -> float:
-        """Record the best validation reward as a ZenML artifact."""
+        """Record the best validation reward as a ZenML artifact.
+
+        Args:
+            val_reward: Description of val_reward.
+
+        Returns:
+            Description of return value.
+        """
         logger.info(f"Training complete — best val_reward: {val_reward:.4f}")
         return val_reward
 
@@ -89,7 +119,14 @@ if _ZENML_AVAILABLE:
 
     @zenml_pipeline(name="wsmart_route_training")  # type: ignore[misc]
     def _training_pipeline(config_dict: Dict[str, Any]) -> float:
-        """Three-step training pipeline."""
+        """Three-step training pipeline.
+
+        Args:
+            config_dict: Serialised Hydra config.
+
+        Returns:
+            Best validation reward.
+        """
         cfg_art = prepare_training_config(config_dict)
         val_reward = run_training_step(cfg_art)
         return log_training_summary(val_reward)
@@ -101,7 +138,14 @@ if _ZENML_AVAILABLE:
 
 
 def training_pipeline(cfg: Any) -> float:
-    """Serialise *cfg* and launch the ZenML training pipeline."""
+    """Serialise *cfg* and launch the ZenML training pipeline.
+
+    Args:
+        cfg: Root configuration object.
+
+    Returns:
+        Best validation reward.
+    """
     if not _ZENML_AVAILABLE:
         raise ImportError("zenml is not installed — cannot run ZenML training pipeline")
 

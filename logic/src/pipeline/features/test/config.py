@@ -1,5 +1,19 @@
 """
 Configuration loader for Test Engine.
+
+Attributes:
+    expand_policy_configs: Expands policy names into full configuration paths and variants.
+    _resolve_policy_cfg_path: Resolve the YAML configuration path for a policy.
+    _extract_variants: Extract policy variants from its configuration.
+    _find_inner_config: Find the list of configurations/variants within a policy config.
+    _parse_inner_components: Parse the inner components (MS and PP) from a policy configuration.
+    _apply_ms_override: Apply the multi-start (MS) override to a policy configuration.
+    _clean_id: Clean an identifier string by removing a prefix and replacing underscores with hyphens.
+
+Example:
+    >>> from logic.src.pipeline.features.test.config import expand_policy_configs
+    >>> config = Config()
+    >>> expand_policy_configs(config)
 """
 
 import copy
@@ -79,7 +93,14 @@ def expand_policy_configs(cfg: Config) -> None:
 
 
 def _resolve_policy_cfg_path(pol_name: str) -> str:
-    """Resolve the YAML configuration path for a policy."""
+    """Resolve the YAML configuration path for a policy.
+
+    Args:
+        pol_name: Policy name.
+
+    Returns:
+        Configuration file path.
+    """
     base_dir = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies")
 
     # Try direct mapping first
@@ -117,7 +138,15 @@ def _resolve_policy_cfg_path(pol_name: str) -> str:
 
 
 def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str, Any]], Any]:
-    """Extract policy variants from its configuration."""
+    """Extract policy variants from its configuration.
+
+    Args:
+        pol_name: Policy name.
+        cfg_path: Configuration file path.
+
+    Returns:
+        Tuple of (variants, variant_name).
+    """
     if not cfg_path:
         return [("", "", None)], None
 
@@ -159,7 +188,14 @@ def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str
 
 
 def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
-    """Find the list of configurations/variants within a policy config."""
+    """Find the list of configurations/variants within a policy config.
+
+    Args:
+        pol_cfg: Policy configuration object.
+
+    Returns:
+        Tuple of (inner_config, variant_name).
+    """
     pol_cfg_obj: object = pol_cfg
     if isinstance(pol_cfg_obj, ITraversable) or hasattr(pol_cfg_obj, "items"):
         pol_cfg_dict = cast(Dict[str, Any], pol_cfg_obj)
@@ -187,7 +223,14 @@ def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
 def _parse_inner_components(
     inner_cfg: Any,
 ) -> Tuple[List[Any], List[Any], int]:
-    """Extract mandatory and route improvement lists from inner config."""
+    """Extract mandatory and route improvement lists from inner config.
+
+    Args:
+        inner_cfg: Inner configuration object.
+
+    Returns:
+        Tuple of (mandatory_list, route_improvement_list, match_index).
+    """
     ms_list: List[Any] = []
     pp_list: List[Any] = []
     match_idx = -1
@@ -203,7 +246,13 @@ def _parse_inner_components(
 
 
 def _apply_ms_override(var_cfg: Any, match_idx: int, ms_item: str) -> None:
-    """Apply a mandatory override to a deep-copied config."""
+    """Apply a mandatory override to a deep-copied config.
+
+    Args:
+        var_cfg: Deep-copied policy configuration object.
+        match_idx: Index of the configuration to modify.
+        ms_item: Mandatory list item to apply.
+    """
     var_inner, _ = _find_inner_config(var_cfg)
     if var_inner and 0 <= match_idx < len(var_inner):
         item = var_inner[match_idx]
@@ -213,7 +262,15 @@ def _apply_ms_override(var_cfg: Any, match_idx: int, ms_item: str) -> None:
 
 
 def _clean_id(path_or_str: Any, prefix: str) -> str:
-    """Clean a component ID from a path or string."""
+    """Clean a component ID from a path or string.
+
+    Args:
+        path_or_str: Path or string to clean.
+        prefix: Prefix to remove.
+
+    Returns:
+        Cleaned identifier.
+    """
     if not isinstance(path_or_str, str):
         return ""
     name = os.path.basename(path_or_str)
