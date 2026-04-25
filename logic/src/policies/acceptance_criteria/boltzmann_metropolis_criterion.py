@@ -2,6 +2,16 @@
 
 Implements the classic Simulated Annealing acceptance logic with a geometric
 cooling schedule.
+
+Attributes:
+    BoltzmannAcceptance: The BMC acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.boltzmann_metropolis_criterion import BoltzmannAcceptance
+    >>> criterion = BoltzmannAcceptance(initial_temp=1000.0, alpha=0.995, seed=42)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'delta': -2.0, 'temperature': 1000.0}
 """
 
 import math
@@ -56,7 +66,7 @@ class BoltzmannAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -82,10 +92,10 @@ class BoltzmannAcceptance(IAcceptanceCriterion):
         """Apply geometric cooling to the temperature.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
+            current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

@@ -2,6 +2,15 @@
 
 Stochastic criterion inspired by ACO transition rules, preferring candidates
 with higher relative fitness.
+
+Attributes:
+    ProbabilisticTransitionAcceptance: The Probabilistic Transition criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.probabilistic_transition import ProbabilisticTransitionAcceptance
+    >>> criterion = ProbabilisticTransitionAcceptance(alpha=1.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    False, {'accepted': False, 'delta': -2.0, 'alpha': 1.0}
 """
 
 import math
@@ -57,7 +66,7 @@ class ProbabilisticTransitionAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -84,10 +93,10 @@ class ProbabilisticTransitionAcceptance(IAcceptanceCriterion):
         """No-op update step.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

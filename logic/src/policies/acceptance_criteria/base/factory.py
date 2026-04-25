@@ -2,8 +2,15 @@
 
 Provides a centralized mechanism to instantiate registered criteria by name.
 
+Attributes:
+    AcceptanceCriterionFactory: Factory for creating move acceptance criteria.
+
 Example:
     >>> from logic.src.policies.acceptance_criteria.base import AcceptanceCriterionFactory
+    >>> factory = AcceptanceCriterionFactory()
+    >>> criterion = factory.create("boltzmann_metropolis_criterion", p0=0.5, window_size=100, alpha=0.95)
+    >>> criterion.accept(100, 98)
+    True, {'accepted': True, 'delta': -2, 'temperature': 0.0, 'sigma': 0.0, 'window_len': 0}
 """
 
 from typing import Any, Dict, Optional, Union
@@ -78,10 +85,9 @@ class AcceptanceCriterionFactory:
         """Instantiate an acceptance criterion.
 
         Args:
-            name (str): Identifier for the criterion (e.g., 'bmc').
-            config (Optional[Union[Dict[str, Any], Any]]): Configuration parameters.
-                Can be a dict or a dataclass instance. Defaults to None.
-            **kwargs (Any): Fallback parameters if config is not comprehensive.
+            name (str): Name of the acceptance criterion.
+            config (Optional[Union[Dict[str, Any], Any]]): Configuration for the acceptance criterion.
+            kwargs (Any): Additional keyword arguments for the acceptance criterion.
 
         Returns:
             IAcceptanceCriterion: The instantiated acceptance criterion.

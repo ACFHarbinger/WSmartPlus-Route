@@ -2,6 +2,16 @@
 
 Deterministic criterion that uses a 'demon' credit budget to autorize worsening
 moves.
+
+Attributes:
+    DemonAlgorithm: The Demon Algorithm acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.demon_algorithm import DemonAlgorithm
+    >>> criterion = DemonAlgorithm(warm_up_steps=5, maximization=False)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'delta': -2.0, 'demon_credit': 0.0, 'warmed_up': False, 'maximization': False}
 """
 
 from typing import Any, Dict, List, Tuple, cast
@@ -64,7 +74,7 @@ class DemonAlgorithm(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -113,10 +123,10 @@ class DemonAlgorithm(IAcceptanceCriterion):
         """Update the demon credit based on the transition result.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

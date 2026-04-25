@@ -2,6 +2,17 @@
 
 Accepts candidates that surpass the best objective found so far, regardless
 of other criteria.
+
+Attributes:
+    AspirationCriterion: Memory-overriding acceptance criterion that accepts
+        only global-best-improving candidates.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.aspiration_criterion import AspirationCriterion
+    >>> criterion = AspirationCriterion()
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=95.0, candidate_obj=105.0)
+    >>> assert accepted is True
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -42,14 +53,15 @@ class AspirationCriterion(IAcceptanceCriterion):
         """Accept if the candidate surpasses the global best objective.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the current solution.
-            candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            current_obj: Objective value of the current incumbent solution.
+            candidate_obj: Objective value of the proposed candidate solution.
+            kwargs: Additional context passed through from the search loop.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
                 - accepted (bool): True if candidate_obj > global_best.
                 - metrics (AcceptanceMetrics): Performance metadata.
+
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
@@ -63,11 +75,13 @@ class AspirationCriterion(IAcceptanceCriterion):
     def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
         """Update the global best objective if a better solution was accepted.
 
+
+
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj: Description of current_obj.
+            candidate_obj: Description of candidate_obj.
+            accepted: Description of accepted.
+            kwargs: Description of kwargs.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

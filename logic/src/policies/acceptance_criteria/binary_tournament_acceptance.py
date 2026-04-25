@@ -2,6 +2,16 @@
 
 Stochastic criterion based on a competition between the current and candidate
 solutions.
+
+Attributes:
+    BinaryTournamentAcceptance: The BTA acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.binary_tournament_acceptance import BinaryTournamentAcceptance
+    >>> criterion = BinaryTournamentAcceptance(p=0.8)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    False, {'accepted': False, 'delta': -2.0, 'tournament_probability': 0.8}
 """
 
 import random
@@ -54,12 +64,13 @@ class BinaryTournamentAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
                 - accepted (bool): True if candidate wins the tournament.
                 - metrics (AcceptanceMetrics): Performance metadata.
+
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
@@ -87,10 +98,10 @@ class BinaryTournamentAcceptance(IAcceptanceCriterion):
         """No-op update step.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

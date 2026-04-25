@@ -2,6 +2,17 @@
 
 Stochastic acceptance logic that boosts the acceptance probability after a
 threshold number of consecutive rejections to prevent stagnation.
+
+Attributes:
+    EMCQAcceptance: The EMCQAcceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.exponential_monte_carlo_counter import EMCQAcceptance
+    >>> # Initialize for minimization with baseline p=0.1 and boosted p=0.5
+    >>> criterion = EMCQAcceptance(p=0.1, p_boost=0.5, q_threshold=100)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=102.0)
+    False, {'accepted': False, 'delta': 2.0, 'rejection_counter': 0, 'q_threshold': 100, 'p_active': 0.1, 'maximization': False}
 """
 
 import random
@@ -88,7 +99,7 @@ class EMCQAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -131,10 +142,10 @@ class EMCQAcceptance(IAcceptanceCriterion):
         """Update the rejection counter.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

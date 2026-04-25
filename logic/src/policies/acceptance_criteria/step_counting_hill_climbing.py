@@ -1,6 +1,16 @@
 """Step Counting Hill Climbing (SCHC) Criterion.
 
 Discrete memory-based criterion that updates the acceptance bound periodically.
+
+Attributes:
+    StepCountingHillClimbing: The Step Counting Hill Climbing (SCHC) acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.step_counting_hill_climbing import StepCountingHillClimbing
+    >>> criterion = StepCountingHillClimbing(step_size=10)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'delta': -2.0, 'bound': 100.0, 'steps_until_update': 10}
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -53,7 +63,7 @@ class StepCountingHillClimbing(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -75,10 +85,10 @@ class StepCountingHillClimbing(IAcceptanceCriterion):
         """Increment the counter and update the bound if step_size is reached.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
+            current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

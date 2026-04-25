@@ -1,6 +1,17 @@
 """Great Deluge (GD) Acceptance Criterion.
 
 Deterministic acceptance algorithm based on a rising 'water level' threshold.
+
+Attributes:
+    GreatDelugeAcceptance: The GD criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.great_deluge import GreatDelugeAcceptance
+    >>> # Initialize for maximization with 10% target improvement over 1000 iterations
+    >>> criterion = GreatDelugeAcceptance(target_fitness_multiplier=1.1, max_iterations=1000)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=105.0)
+    True, {'accepted': True, 'delta': 5.0, 'water_level': 100.0, 'rain_speed': 0.01}
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -63,7 +74,7 @@ class GreatDelugeAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -84,10 +95,10 @@ class GreatDelugeAcceptance(IAcceptanceCriterion):
         """Increment the water level by the rain speed.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
+            current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

@@ -2,6 +2,20 @@
 
 Aggregates multiple move acceptance criteria into a single decision using
 various logical rules (AND, OR, Voting).
+
+Attributes:
+    EnsembleAcceptance: The EMA acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.ensemble_move_acceptance import EnsembleAcceptance
+    >>> from logic.src.policies.acceptance_criteria.boltzmann_metropolis_criterion import BoltzmannAcceptance
+    >>> # Initialize sub-criteria
+    >>> bm_crit = BoltzmannAcceptance(initial_temp=1000.0, alpha=0.99)
+    >>> # Create ensemble with G-VOT rule
+    >>> criterion = EnsembleAcceptance(criteria=[bm_crit], rule="G-VOT")
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'delta': -2.0}
 """
 
 from typing import Any, Dict, List, Tuple, cast
@@ -58,7 +72,7 @@ class EnsembleAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -91,10 +105,10 @@ class EnsembleAcceptance(IAcceptanceCriterion):
         """Advance the internal states of all sub-criteria.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
