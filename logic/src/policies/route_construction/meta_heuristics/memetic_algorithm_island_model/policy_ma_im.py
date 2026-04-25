@@ -1,5 +1,16 @@
 """
 Memetic Algorithm with Island Model (MA-IM) Policy Adapter.
+
+Attributes:
+    MemeticAlgorithmIslandModelConfig (Type): Configuration schema for the MA-IM solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.ma_im import MemeticAlgorithmIslandModelConfig
+    >>> config = MemeticAlgorithmIslandModelConfig(n_islands=4)
+    >>> policy = MemeticAlgorithmIslandModelPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -18,16 +29,36 @@ from .solver import MemeticAlgorithmIslandModelSolver
 class MemeticAlgorithmIslandModelPolicy(BaseRoutingPolicy):
     """
     Memetic Algorithm Island Model policy class.
+
+    Attributes:
+        solver (MemeticAlgorithmIslandModelSolver): Internal solver instance.
+        params (MemeticAlgorithmIslandModelParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[MemeticAlgorithmIslandModelConfig, Dict[str, Any]]] = None):
+        """Initializes the MA-IM policy.
+
+        Args:
+            config (Optional[Union[MemeticAlgorithmIslandModelConfig, Dict[str, Any]]]):
+                Configuration source for the Memetic Algorithm Island Model.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for MA-IM.
+
+        Returns:
+            Optional[Type]: The MemeticAlgorithmIslandModelConfig class.
+        """
         return MemeticAlgorithmIslandModelConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the MA-IM policy.
+
+        Returns:
+            str: The registry key 'ma_im'.
+        """
         return "ma_im"
 
     def _run_solver(
@@ -64,7 +95,7 @@ class MemeticAlgorithmIslandModelPolicy(BaseRoutingPolicy):
                 MA-IM parameters (n_islands, island_size, max_generations).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

@@ -9,8 +9,10 @@ import numpy as np
 
 try:
     import gurobipy as gp  # noqa: F401  (imported for availability check only)
+
     from .gurobi_master import GurobiMasterProblem
     from .gurobi_subproblem import GurobiVRPSubproblem
+
     _GUROBI_AVAILABLE = True
 except ImportError:
     _GUROBI_AVAILABLE = False
@@ -210,10 +212,7 @@ class TemporalBendersCoordinator:
             )
 
         if not _GUROBI_AVAILABLE:
-            raise RuntimeError(
-                "gurobipy is not installed or licensed.  "
-                "Install with: pip install gurobipy"
-            )
+            raise RuntimeError("gurobipy is not installed or licensed.  Install with: pip install gurobipy")
 
         n_bins = int(dist_matrix.shape[0]) - 1  # dist_matrix is (n+1) × (n+1)
         return self._solve_gurobi(dist_matrix, n_bins, **kwargs)
@@ -340,8 +339,7 @@ class TemporalBendersCoordinator:
 
             else:
                 logger.warning(
-                    "Benders reached iteration limit (%d) without convergence "
-                    "(final gap=%.2e).",
+                    "Benders reached iteration limit (%d) without convergence (final gap=%.2e).",
                     self.max_iterations,
                     (upper_bound - lower_bound) / max(1.0, abs(upper_bound)),
                 )
@@ -402,9 +400,7 @@ class TemporalBendersCoordinator:
             if not scenarios:
                 day_plans.append([[0]])
                 # Trivial empty cut for days with no scenarios
-                iter_cuts.append(
-                    {"day": day, "scenario": "agg", "constant": 0.0, "coefficients": {}}
-                )
+                iter_cuts.append({"day": day, "scenario": "agg", "constant": 0.0, "coefficients": {}})
                 continue
 
             z_bar_day = z_bar.get(day, {})
@@ -424,15 +420,11 @@ class TemporalBendersCoordinator:
                 p = float(scenario.probability)
 
                 # Per-scenario prizes (preferred) or aggregate fallback
-                prizes = self._get_scenario_prizes(
-                    scenario, scenario_weighted_prizes, days_remaining
-                )
+                prizes = self._get_scenario_prizes(scenario, scenario_weighted_prizes, days_remaining)
 
                 # Bin fill levels as capacity loads
                 loads: Optional[np.ndarray] = (
-                    np.asarray(scenario.wastes, dtype=float)
-                    if hasattr(scenario, "wastes")
-                    else None
+                    np.asarray(scenario.wastes, dtype=float) if hasattr(scenario, "wastes") else None
                 )
 
                 # ── Subproblem solve for (day d, scenario ξ) ─────────
@@ -502,9 +494,7 @@ class TemporalBendersCoordinator:
                 days_remaining=days_remaining,
             )
         except Exception as exc:
-            logger.debug(
-                "Per-scenario prize computation failed (%s); using aggregate.", exc
-            )
+            logger.debug("Per-scenario prize computation failed (%s); using aggregate.", exc)
             return fallback_prizes
 
     # ------------------------------------------------------------------ #

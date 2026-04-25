@@ -44,8 +44,8 @@ from .search_context import (
     SelectionMetrics,
     merge_context,
 )
-from .solution_context import SolutionContext
 from .selection_context import SelectionContext
+from .solution_context import SolutionContext
 
 __all__ = [
     "SearchContext",

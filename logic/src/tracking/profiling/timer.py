@@ -370,10 +370,27 @@ def profile_function(
     """
 
     def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+        """Internal decorator that wraps the target function to add profiling.
+
+        Args:
+            fn (Callable): The function to be timed and logged.
+
+        Returns:
+            Callable: The decorated function with timing logic injected.
+        """
         metric_name = name or fn.__name__
 
         @functools.wraps(fn)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Execution wrapper that times the call and forwards metrics to WSTracker.
+
+            Args:
+                *args: Variable length argument list for the original function.
+                **kwargs: Arbitrary keyword arguments for the original function.
+
+            Returns:
+                Any: The result returned by the original function `fn`.
+            """
             with profile_block(metric_name, log_metric=log_metric, prefix=prefix):
                 return fn(*args, **kwargs)
 

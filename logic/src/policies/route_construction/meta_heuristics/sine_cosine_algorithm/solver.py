@@ -7,7 +7,15 @@ parameter `a` which decays linearly from `a_max` to 0 over the run.  The
 final continuous vector is binarised via a sigmoid transfer function and
 decoded to a discrete routing solution via the Largest Rank Value (LRV) rule.
 
-Reference:
+Attributes:
+    SCASolver (Type): Core solver class for Sine Cosine Algorithm.
+    SCAParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = SCASolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
+References:
     Mirjalili, S. "SCA: A Sine Cosine Algorithm for solving
     optimization problems.", 2016, Knowledge-Based Systems.
 """
@@ -33,6 +41,15 @@ from .params import SCAParams
 class SCASolver:
     """
     Sine Cosine Algorithm solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per kg traveled.
+        params (SCAParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -45,6 +62,18 @@ class SCASolver:
         params: SCAParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """
+        Initialize the Sine Cosine Algorithm solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per kg traveled.
+            params (SCAParams): Algorithm-specific parameters.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -82,7 +111,7 @@ class SCASolver:
         Run SCA and return the best solution found.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

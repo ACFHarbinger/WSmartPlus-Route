@@ -3,6 +3,17 @@ FA Policy Adapter.
 
 Adapts the Discrete Firefly Algorithm (FA) solver to the agnostic
 BaseRoutingPolicy interface.
+
+Attributes:
+    FAConfig (Type): Configuration schema for the FA solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.fa import FAConfig
+    >>> config = FAConfig(pop_size=20)
+    >>> policy = FAPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -23,16 +34,36 @@ class FAPolicy(BaseRoutingPolicy):
     FA policy class.
 
     Visits bins using the Discrete Firefly Algorithm.
+
+    Attributes:
+        solver (FASolver): Internal solver instance.
+        params (FAParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[FAConfig, Dict[str, Any]]] = None):
+        """Initializes the FA policy.
+
+        Args:
+            config (Optional[Union[FAConfig, Dict[str, Any]]]): Configuration
+                source for the Discrete Firefly Algorithm.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for FA.
+
+        Returns:
+            Optional[Type]: The FAConfig class.
+        """
         return FAConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the FA policy.
+
+        Returns:
+            str: The registry key 'fa'.
+        """
         return "fa"
 
     def _run_solver(
@@ -71,7 +102,7 @@ class FAPolicy(BaseRoutingPolicy):
                 FA parameters (pop_size, beta0, gamma, alpha_profit).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

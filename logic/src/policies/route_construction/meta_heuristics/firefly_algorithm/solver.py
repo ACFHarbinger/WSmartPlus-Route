@@ -6,7 +6,15 @@ with swap distance (number of non-matching edges) and replacing real-valued
 position updates with node-extraction / guided-insertion movements governed
 by a three-term favourability score.
 
-Reference:
+Attributes:
+    FASolver (Type): Core solver class for Firefly Algorithm.
+    FAParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = FASolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
+References:
     Ai, T. J., & Kachitvichyanukul, V. "A particle swarm optimization for
     the vehicle routing problem with simultaneous pickup and delivery", 2009.
     Sayadi, M. K., Ramezanian, R., & Ghaffari-Nasab, N. "A discrete firefly
@@ -37,6 +45,15 @@ from logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.par
 class FASolver:
     """
     Discrete Firefly Algorithm solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per kg traveled.
+        params (FAParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -49,6 +66,17 @@ class FASolver:
         params: FAParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the Discrete Firefly Algorithm solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (FAParams): Algorithm-specific parameters (beta0, gamma).
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -86,7 +114,7 @@ class FASolver:
         Run the Discrete Firefly Algorithm.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

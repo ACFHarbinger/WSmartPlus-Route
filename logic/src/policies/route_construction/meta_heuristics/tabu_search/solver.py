@@ -61,6 +61,17 @@ class TSSolver:
         params: TSParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the Tabu Search solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (TSParams): Algorithm-specific parameters.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -878,6 +889,15 @@ class TSLSAdapter:
     """Adapter for HGS-style operators to work with TSSolver."""
 
     def __init__(self, routes, dist_matrix, wastes, capacity, cost_unit):
+        """Initializes the Tabu Search Local Search adapter.
+
+        Args:
+            routes (List[List[int]]): Initial routes.
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            cost_unit (float): Cost per km traveled.
+        """
         self.routes = routes
         self.d = dist_matrix
         self.waste = wastes

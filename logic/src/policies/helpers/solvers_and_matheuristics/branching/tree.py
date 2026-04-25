@@ -55,6 +55,18 @@ class BranchAndBoundTree:
     minimize the number of nodes explored before proving optimality. This
     is particularly effective for VRPP where the root LP gap is often
     small (~1-3%), allowing for early pruning.
+
+    Attributes:
+        max_nodes (int): Maximum number of nodes to explore.
+        strategy (str): Branching strategy ('divergence_spatial', 'edge', 'ryan_foster').
+        search_strategy (str): Tree search strategy ('best_first', 'depth_first').
+        v_model (Optional[VRPPModel]): The underlying VRPP or Master problem model.
+        node_coords (Optional[np.ndarray]): Spatial coordinates for divergence branching.
+        nodes_explored (int): Counter for explored nodes.
+        nodes_pruned (int): Counter for pruned nodes.
+        best_integer_solution (Optional[float]): Objective value of the best incumbent.
+        best_integer_node (Optional[BranchNode]): Node where the incumbent was found.
+        open_nodes (List[FrontierItem]): Priority queue or LIFO list of open nodes.
     """
 
     def __init__(
@@ -324,12 +336,15 @@ class BranchAndBoundTree:
     # ------------------------------------------------------------------
 
     def get_statistics(self) -> Dict[str, Any]:
-        """
-        Return a snapshot of tree-search statistics.
+        """Returns a snapshot of tree-search statistics.
 
         This method aggregates global search metadata, including the current
         best upper bound (from open nodes) and the best integer lower bound
         found so far.
+
+        Returns:
+            Dict[str, Any]: Statistics including explored nodes, pruned nodes,
+                best bound, and incumbent value.
         """
         best_bound: Optional[float] = None
         if self.open_nodes:

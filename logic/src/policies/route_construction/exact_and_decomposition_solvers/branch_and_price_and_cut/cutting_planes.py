@@ -83,9 +83,10 @@ class CuttingPlaneEngine(ABC):
 
     @property
     def engines(self) -> List["CuttingPlaneEngine"]:
-        """
-        Return the list of sub-engines if this is a composite engine.
-        Returns an empty list for simple engines.
+        """Returns the list of sub-engines if this is a composite engine.
+
+        Returns:
+            List[CuttingPlaneEngine]: A list of child engines, or an empty list if not composite.
         """
         return []
 
@@ -250,6 +251,11 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
         return added_cuts
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'rcc'.
+        """
         return "rcc"
 
 
@@ -295,9 +301,24 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
     """
 
     def __init__(self, v_model: VRPPModel):
+        """Initializes the Subset-Row Cut separation engine.
+
+        Args:
+            v_model (VRPPModel): VRPP model for node indexing and route tracking.
+        """
         self.v_model = v_model
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+        """Identifies violated 3-Subset-Row Inequalities (SRIs) using structural heuristics.
+
+        Args:
+            master (VRPPMasterProblem): Master problem instance with current fractional solution.
+            max_cuts (int): Maximum number of SRI cuts to add in this separation round.
+            **kwargs: Additional parameters, such as cut_orthogonality_threshold.
+
+        Returns:
+            int: The number of SRI cuts successfully added to the master problem.
+        """
         if master.model is None or len(master.routes) < 2:
             return 0
 
@@ -415,6 +436,11 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         return True
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'sri'.
+        """
         return "sri"
 
 
@@ -545,6 +571,11 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
         return added_cuts
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'edge_clique'.
+        """
         return "edge_clique"
 
 
@@ -582,6 +613,12 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
     """
 
     def __init__(self, v_model: VRPPModel, sep_engine: SeparationEngine):
+        """Initializes the Knapsack Cover separation engine.
+
+        Args:
+            v_model (VRPPModel): VRPP model for node and fleet data.
+            sep_engine (SeparationEngine): Shared separation utilities.
+        """
         self.v_model = v_model
         self.sep_engine = sep_engine
 
@@ -624,6 +661,11 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
         return 0
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'cover'.
+        """
         return "cover"
 
 
@@ -640,6 +682,16 @@ class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
         return self._engines
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+        """Runs separation algorithms for all sub-engines in sequence.
+
+        Args:
+            master (VRPPMasterProblem): Master problem instance.
+            max_cuts (int): Total maximum cuts to add (split among sub-engines).
+            **kwargs: Forwarded to sub-engines.
+
+        Returns:
+            int: Total number of cuts added by all sub-engines.
+        """
         per_engine = max(1, max_cuts // len(self.engines))
         total_added = 0
         for engine in self.engines:
@@ -665,6 +717,12 @@ class BasicFleetCoverEngine(CuttingPlaneEngine):
     """
 
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
+        """Initializes the Basic Fleet Cover engine.
+
+        Args:
+            v_model (VRPPModel): VRPP model for fleet limits.
+            epsilon (float): Violation threshold for cut generation.
+        """
         self.v_model = v_model
         self.epsilon = epsilon
 
@@ -731,6 +789,11 @@ class BasicFleetCoverEngine(CuttingPlaneEngine):
         return added
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'fleet_cover'.
+        """
         return "fleet_cover"
 
 
@@ -765,6 +828,12 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
     """
 
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
+        """Initializes the node-visit LCI engine.
+
+        Args:
+            v_model (VRPPModel): VRPP model for node demands.
+            epsilon (float): Violation threshold for cut generation.
+        """
         self.v_model = v_model
         self.epsilon = epsilon
 
@@ -859,6 +928,11 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
         return added
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'physical_lci'.
+        """
         return "physical_lci"
 
 
@@ -1017,6 +1091,11 @@ class SaturatedArcLCIEngine(CuttingPlaneEngine):
         return added
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'saturated_arc_lci'.
+        """
         return "saturated_arc_lci"
 
 

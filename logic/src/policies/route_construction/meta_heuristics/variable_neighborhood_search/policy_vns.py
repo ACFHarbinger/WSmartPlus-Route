@@ -2,6 +2,17 @@
 VNS (Variable Neighborhood Search) Policy Adapter.
 
 Adapts the VNS solver to the agnostic BaseRoutingPolicy interface.
+
+Attributes:
+    VNSConfig (Type): Configuration schema for the VNS solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.vns import VNSConfig
+    >>> config = VNSConfig(k_max=5)
+    >>> policy = VNSPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -32,16 +43,37 @@ class VNSPolicy(BaseRoutingPolicy):
     neighborhoods (N_1 ... N_{k_max}) with a local search descent between
     each shaking step.  An improvement resets k to 1; exhausting all
     k_max structures completes one outer iteration.
+
+    Attributes:
+        solver (VNSSolver): Internal solver instance.
+        params (VNSParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[VNSConfig, Dict[str, Any]]] = None):
+        """
+        Initialize the VNS Policy.
+
+        Args:
+            config (Optional[Union[VNSConfig, Dict[str, Any]]]): Configuration for the solver.
+                If None, default parameters will be used.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for VNS.
+
+        Returns:
+            Optional[Type]: The VNSConfig class.
+        """
         return VNSConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the VNS policy.
+
+        Returns:
+            str: The registry key 'vns'.
+        """
         return "vns"
 
     def _run_solver(
@@ -82,7 +114,7 @@ class VNSPolicy(BaseRoutingPolicy):
                 VNS parameters (k_max, max_iterations, local_search_iterations).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

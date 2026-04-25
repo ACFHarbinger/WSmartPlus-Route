@@ -59,7 +59,14 @@ class EdgeBranchingConstraint:
         return edge_present if self.must_use else not edge_present
 
     def _edge_in_route(self, nodes: List[int]) -> bool:
-        """Check whether arc (u, v) appears consecutively in the full path."""
+        """Checks whether arc (u, v) appears consecutively in the full path.
+
+        Args:
+            nodes (List[int]): Internal customer nodes of the route.
+
+        Returns:
+            bool: True if the arc exists in the sequence.
+        """
         full_path = [0] + nodes + [0]
         return any(full_path[i] == self.u and full_path[i + 1] == self.v for i in range(len(full_path) - 1))
 
@@ -136,6 +143,12 @@ class FleetSizeBranchingConstraint:
     """Constraint on the total number of vehicles used (sum of route lambdas)."""
 
     def __init__(self, limit: int, is_upper: bool) -> None:
+        """Initializes a fleet size branching constraint.
+
+        Args:
+            limit (int): Fleet size limit K.
+            is_upper (bool): True for ≤ limit (floor), False for ≥ limit (ceil).
+        """
         self.limit = limit
         self.is_upper = is_upper
 
@@ -152,6 +165,12 @@ class NodeVisitationBranchingConstraint:
     """Constraint on the visitation frequency of a specific optional node."""
 
     def __init__(self, node: int, forced: bool) -> None:
+        """Initializes a node visitation branching constraint.
+
+        Args:
+            node (int): Index of the optional customer node.
+            forced (bool): True to force visitation (v_i = 1), False to forbid it (v_i = 0).
+        """
         self.node = node
         self.forced = forced
 

@@ -80,35 +80,106 @@ class MasterProblemSupport(Protocol):
     enable_dual_smoothing: bool
 
     # Core Methods
-    def build_model(self, initial_routes: Optional[List[Route]] = None) -> None: ...
+    def build_model(self, initial_routes: Optional[List[Route]] = None) -> None:
+        """Constructs the initial Gurobi model for the RMP.
 
-    def solve_lp_relaxation(self) -> Tuple[float, Dict[int, float]]: ...
+        Args:
+            initial_routes (Optional[List[Route]]): Optional list of starting routes.
+        """
+        ...
 
-    def _handle_infeasibility(self) -> Tuple[float, Dict[int, float]]: ...
+    def solve_lp_relaxation(self) -> Tuple[float, Dict[int, float]]:
+        """Solves the LP relaxation of the RMP and returns the duals.
 
-    def _extract_duals(self) -> None: ...
+        Returns:
+            Tuple[float, Dict[int, float]]: (Objective value, dual variables dictionary).
+        """
+        ...
 
-    def _apply_dual_smoothing(self) -> None: ...
+    def _handle_infeasibility(self) -> Tuple[float, Dict[int, float]]:
+        """Handles RMP infeasibility using Farkas duals or artificial variables.
 
-    def solve_ip(self) -> Tuple[float, List[Route]]: ...
+        Returns:
+            Tuple[float, Dict[int, float]]: (Infeasibility cost, Farkas duals dictionary).
+        """
+        ...
 
-    def add_route(self, route: Route) -> None: ...
+    def _extract_duals(self) -> None:
+        """Extracts dual values from the solved LP into internal registries."""
+        ...
+
+    def _apply_dual_smoothing(self) -> None:
+        """Applies exponential smoothing to dual values to stabilize column generation."""
+        ...
+
+    def solve_ip(self) -> Tuple[float, List[Route]]:
+        """Solves the RMP as an Integer Program.
+
+        Returns:
+            Tuple[float, List[Route]]: (IP objective value, list of selected routes).
+        """
+        ...
+
+    def add_route(self, route: Route) -> None:
+        """Adds a new route (column) to the RMP.
+
+        Args:
+            route (Route): The route to add.
+        """
+        ...
 
     def _add_column_to_model(self, route: Route) -> None: ...
 
     def _wire_route_into_active_cuts(self, route: Route, var: Any) -> None: ...
 
-    def purge_useless_columns(self, tolerance: float = -0.1) -> int: ...
+    def purge_useless_columns(self, tolerance: float = -0.1) -> int:
+        """Removes columns with high reduced costs to keep the RMP compact.
 
-    def get_reduced_cost_coefficients(self) -> Dict[str, Any]: ...
+        Args:
+            tolerance (float): Reduced cost threshold for deletion.
 
-    def get_node_visitation(self) -> Dict[int, float]: ...
+        Returns:
+            int: Number of columns purged.
+        """
+        ...
 
-    def get_edge_usage(self, only_elementary: bool = False) -> Dict[Tuple[int, int], float]: ...
+    def get_reduced_cost_coefficients(self) -> Dict[str, Any]:
+        """Calculates coefficients for pricing subproblems.
+
+        Returns:
+            Dict[str, Any]: Mapping of dual components (nodes, cuts) to their values.
+        """
+        ...
+
+    def get_node_visitation(self) -> Dict[int, float]:
+        """Calculates node visitation probabilities (y_i) from fractional route values.
+
+        Returns:
+            Dict[int, float]: Mapping of node index to visitation probability.
+        """
+        ...
+
+    def get_edge_usage(self, only_elementary: bool = False) -> Dict[Tuple[int, int], float]:
+        """Calculates edge usage frequencies (x_ij) from fractional route values.
+
+        Args:
+            only_elementary (bool): Whether to only consider elementary routes.
+
+        Returns:
+            Dict[Tuple[int, int], float]: Mapping of (u, v) edge to usage value.
+        """
+        ...
 
     def save_basis(self) -> Optional[Tuple[List[int], List[int]]]: ...
 
-    def restore_basis(self, vbasis: List[int], cbasis: List[int]) -> None: ...
+    def restore_basis(self, vbasis: List[int], cbasis: List[int]) -> None:
+        """Restores the RMP basis from saved status arrays.
+
+        Args:
+            vbasis (List[int]): Variable basis statuses.
+            cbasis (List[int]): Constraint basis statuses.
+        """
+        ...
 
     # Problem-support methods
     def sift_global_column_pool(
@@ -178,7 +249,13 @@ class MasterProblemSupport(Protocol):
 
     def _count_crossings(self: MasterProblemSupport, route: Route, node_set: FrozenSet[int]) -> int: ...
 
-    def remove_local_cuts(self: MasterProblemSupport) -> int: ...
+    def remove_local_cuts(self) -> int:
+        """Removes local cuts from the Gurobi model (used during B&B backtrack).
+
+        Returns:
+            int: Number of cuts removed.
+        """
+        ...
 
     def find_and_add_violated_rcc(
         self,
@@ -187,7 +264,16 @@ class MasterProblemSupport(Protocol):
         max_cuts: int = 5,
     ) -> int: ...
 
-    def _find_customer_components(self, arc_flow: Dict[Tuple[int, int], float]) -> List[Set[int]]: ...
+    def _find_customer_components(self, arc_flow: Dict[Tuple[int, int], float]) -> List[Set[int]]:
+        """Identifies connected components of customers in the fractional support graph.
+
+        Args:
+            arc_flow (Dict[Tuple[int, int], float]): Arc flows x_ij.
+
+        Returns:
+            List[Set[int]]: List of node sets representing connected components.
+        """
+        ...
 
 
 class VRPPMasterProblemSupportMixin:
@@ -287,9 +373,17 @@ class VRPPMasterProblemSupportMixin:
         return added
 
     def calculate_reduced_cost(self: MasterProblemSupport, route: Route, dual_values: Dict[str, Any]) -> float:
-        """
-        Helper to calculate reduced cost of a route using current duals.
-        Correctly accounts for node coverage, fleet limit, and all active cuts.
+        """Calculates the reduced cost of a route using current dual values.
+
+        Accounting for node coverage duals, vehicle limit duals, and all active cuts
+        (RCC, SRI, Edge Clique, LCI).
+
+        Args:
+            route (Route): The route to evaluate.
+            dual_values (Dict[str, Any]): Dictionary of dual components.
+
+        Returns:
+            float: The calculated reduced cost.
         """
         node_duals = dual_values.get("node_duals", {})
 

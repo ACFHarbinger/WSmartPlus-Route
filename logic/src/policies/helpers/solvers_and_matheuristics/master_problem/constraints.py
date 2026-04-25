@@ -357,7 +357,15 @@ class VRPPMasterProblemConstraintsMixin:
         return True
 
     def _count_crossings(self: MasterProblemSupport, route: Route, node_set: FrozenSet[int]) -> int:
-        """Count how many times a route crosses the boundary δ(S)."""
+        """Counts how many times a route crosses the boundary δ(S).
+
+        Args:
+            route (Route): The route to check.
+            node_set (FrozenSet[int]): The node set S.
+
+        Returns:
+            int: Number of times the route enters/leaves S.
+        """
         crossings = 0
         path_nodes = [0] + route.nodes + [0]
         for i in range(len(path_nodes) - 1):

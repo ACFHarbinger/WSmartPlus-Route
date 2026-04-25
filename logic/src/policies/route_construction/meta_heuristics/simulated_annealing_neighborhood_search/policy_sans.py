@@ -49,7 +49,11 @@ class SANSPolicy(BaseRoutingPolicy):
         return SANSConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for SANS."""
+        """Returns the configuration key for the SANS policy.
+
+        Returns:
+            str: The registry key 'sans'.
+        """
         return "sans"
 
     def _run_solver(

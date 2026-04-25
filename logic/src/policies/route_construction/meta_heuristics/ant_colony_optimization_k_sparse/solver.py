@@ -54,17 +54,16 @@ class KSparseACOSolver:
         params: KSACOParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize the K-Sparse ACO solver.
+        """Initializes the K-Sparse Ant Colony Optimization solver.
 
         Args:
-            dist_matrix: NxN distance matrix.
-            wastes: Dictionary of node wastes {node_idx: waste}.
-            capacity: Maximum vehicle capacity.
-            R: Revenue multiplier.
-            C: Cost multiplier.
-            params: ACO hyperparameters.
-            mandatory_nodes: List of mandatory node indices.
+            dist_matrix (np.ndarray): NxN distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue multiplier for waste collected.
+            C (float): Cost multiplier for distance traveled.
+            params (KSACOParams): Algorithm-specific hyperparameters.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes

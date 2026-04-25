@@ -26,8 +26,8 @@ Entry point: :class:`policy.CALMPolicy`.
 
 from .params import (
     BanditParams,
-    DualBoundParams,
     CALMParams,
+    DualBoundParams,
     LagrangianParams,
     LookaheadParams,
     RegretParams,

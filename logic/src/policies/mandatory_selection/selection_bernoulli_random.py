@@ -44,7 +44,7 @@ class BernoulliRandomSelection(IMandatorySelectionStrategy):
     """Independent Bernoulli trial selection strategy.
 
     Each eligible bin i is independently mandated with probability p:
-    X_i ~ Bernoulli(p). The ``threshold`` parameter is interpreted as the 
+    X_i ~ Bernoulli(p). The ``threshold`` parameter is interpreted as the
     selection probability p and is clipped to [0, 1].
 
     Attributes:
@@ -60,7 +60,7 @@ class BernoulliRandomSelection(IMandatorySelectionStrategy):
         eligible for the trial, not just rejected by it), so the effective
         population for the Binomial distribution is the eligible subset.
 
-        This mechanism ensures that bins with insufficient capacity or 
+        This mechanism ensures that bins with insufficient capacity or
         fill levels are strictly excluded from the stochastic process.
 
         Args:

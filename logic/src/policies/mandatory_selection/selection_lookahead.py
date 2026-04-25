@@ -146,7 +146,7 @@ class LookaheadSelection(IMandatorySelectionStrategy):
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """Select bins based on lookahead logic.
 
-        Identifies bins that require immediate collection and predicts future 
+        Identifies bins that require immediate collection and predicts future
         overflows to bundle collections optimally.
 
         Args:

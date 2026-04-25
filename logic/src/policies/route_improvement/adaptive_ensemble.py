@@ -13,8 +13,8 @@ Example:
     >>> best_tour, metrics = improver.process(tour, distance_matrix=dm)
 """
 
-from typing import Any, List, Tuple
 import random
+from typing import Any, List, Tuple
 
 from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import ImprovementMetrics

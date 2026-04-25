@@ -116,6 +116,12 @@ class AdaptiveRouteConstructorOrchestrator(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Any = None) -> None:
+        """Initializes the ARCO orchestrator.
+
+        Args:
+            config (Any, optional): Configuration dictionary or Hydra config object.
+                If None, default ARCOParams are used.
+        """
         super().__init__(config)
         self.constructors: List[IRouteConstructor] = []
         self._constructor_names: List[str] = []

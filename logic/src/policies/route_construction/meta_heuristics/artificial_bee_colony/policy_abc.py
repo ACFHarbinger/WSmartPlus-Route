@@ -3,6 +3,17 @@ ABC Policy Adapter.
 
 Adapts the Artificial Bee Colony (ABC) solver to the agnostic
 BaseRoutingPolicy interface.
+
+Attributes:
+    ABCConfig (Type): Configuration schema for the ABC solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.abc import ABCConfig
+    >>> config = ABCConfig(n_sources=20)
+    >>> policy = ABCPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -23,16 +34,36 @@ class ABCPolicy(BaseRoutingPolicy):
     ABC policy class.
 
     Visits bins using the Artificial Bee Colony algorithm.
+
+    Attributes:
+        solver (ABCSolver): Internal solver instance.
+        params (ABCParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[ABCConfig, Dict[str, Any]]] = None):
+        """Initializes the ABC policy.
+
+        Args:
+            config (Optional[Union[ABCConfig, Dict[str, Any]]]): Configuration
+                source for the Artificial Bee Colony.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for ABC.
+
+        Returns:
+            Optional[Type]: The ABCConfig class.
+        """
         return ABCConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the ABC policy.
+
+        Returns:
+            str: The registry key 'abc'.
+        """
         return "abc"
 
     def _run_solver(
@@ -72,7 +103,7 @@ class ABCPolicy(BaseRoutingPolicy):
                 ABC parameters (n_sources, limit, iterations).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

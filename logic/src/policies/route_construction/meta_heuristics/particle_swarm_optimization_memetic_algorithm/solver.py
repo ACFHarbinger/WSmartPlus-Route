@@ -7,6 +7,14 @@ periodic memetic step applies worst-removal + greedy-insertion local
 search to each particle, analogous to the genetic operators described in
 the survey.
 
+Attributes:
+    PSOMAsSolver (Type): Core solver class for PSOMA.
+    PSOMAParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = PSOMAsSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
 Reference:
     Liu, B., Wang, L., Jin, Y., & Huang, D. (2006).
     "An Effective PSO-Based Memetic Algorithm for TSP"
@@ -38,6 +46,15 @@ from .particle import PSOMAParticle
 class PSOMAsSolver:
     """
     PSOMA solver for VRPP — PSO with memetic local-search steps.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per km traveled.
+        params (PSOMAParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -50,6 +67,17 @@ class PSOMAsSolver:
         params: PSOMAParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the PSOMA solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (PSOMAParams): Algorithm-specific parameters.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -88,7 +116,7 @@ class PSOMAsSolver:
         Run PSOMA optimisation.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

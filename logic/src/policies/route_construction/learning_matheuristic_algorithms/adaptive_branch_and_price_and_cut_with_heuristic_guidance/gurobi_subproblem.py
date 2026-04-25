@@ -10,8 +10,8 @@ generation.
 import logging
 from typing import Dict, List, Optional, Tuple
 
-import numpy as np
 import gurobipy as gp
+import numpy as np
 from gurobipy import GRB
 
 logger = logging.getLogger(__name__)
@@ -153,9 +153,7 @@ class GurobiVRPSubproblem:
         if relax:
             return self._solve_lp(z_bar_day, prizes, dist_matrix, loads, eligible)
         else:
-            return self._solve_mip_with_dual_recovery(
-                z_bar_day, prizes, dist_matrix, loads, eligible
-            )
+            return self._solve_mip_with_dual_recovery(z_bar_day, prizes, dist_matrix, loads, eligible)
 
     # ------------------------------------------------------------------ #
     # LP Relaxation                                                         #
@@ -190,15 +188,12 @@ class GurobiVRPSubproblem:
 
         # Objective: max prize revenue − routing cost
         prize_terms = gp.quicksum(prizes.get(i, 0.0) * y[i] for i in eligible)
-        cost_terms = self.cost_per_unit * gp.quicksum(
-            float(dist_matrix[i, j]) * x[i, j] for i, j in arcs
-        )
+        cost_terms = self.cost_per_unit * gp.quicksum(float(dist_matrix[i, j]) * x[i, j] for i, j in arcs)
         model.setObjective(prize_terms - cost_terms, GRB.MAXIMIZE)
 
         # (1) Assignment constraints — source of Benders cut duals
         assign_constrs: Dict[int, gp.Constr] = {
-            i: model.addConstr(y[i] <= float(z_bar_day.get(i, 0)), name=f"assign_{i}")
-            for i in eligible
+            i: model.addConstr(y[i] <= float(z_bar_day.get(i, 0)), name=f"assign_{i}") for i in eligible
         }
 
         # (2) Out-flow conservation
@@ -282,7 +277,6 @@ class GurobiVRPSubproblem:
         sub_nodes = [0] + eligible
         n_sub = len(eligible)
         arcs = [(i, j) for i in sub_nodes for j in sub_nodes if i != j]
-        bin_arcs = [(i, j) for i in eligible for j in sub_nodes if i != j]
 
         # ── Step 1: MIP solve ─────────────────────────────────────────
         mip = gp.Model("VRP_Sub_MIP")
@@ -303,9 +297,7 @@ class GurobiVRPSubproblem:
 
         # Objective
         prize_obj = gp.quicksum(prizes.get(i, 0.0) * y_mip[i] for i in eligible)
-        cost_obj = self.cost_per_unit * gp.quicksum(
-            float(dist_matrix[i, j]) * x_mip[i, j] for i, j in arcs
-        )
+        cost_obj = self.cost_per_unit * gp.quicksum(float(dist_matrix[i, j]) * x_mip[i, j] for i, j in arcs)
         mip.setObjective(prize_obj - cost_obj, GRB.MAXIMIZE)
 
         # Assignment (z̄ upper bound)
@@ -374,8 +366,7 @@ class GurobiVRPSubproblem:
 
         # Assignment constraints (these are the ones we want duals for)
         assign_constrs_lp: Dict[int, gp.Constr] = {
-            i: lp_fix.addConstr(y_lp[i] <= float(z_bar_day.get(i, 0)), name=f"assign_{i}")
-            for i in eligible
+            i: lp_fix.addConstr(y_lp[i] <= float(z_bar_day.get(i, 0)), name=f"assign_{i}") for i in eligible
         }
 
         lp_fix.setObjective(
@@ -399,9 +390,7 @@ class GurobiVRPSubproblem:
     # Route Reconstruction                                                 #
     # ------------------------------------------------------------------ #
 
-    def _nearest_neighbour_route(
-        self, visited: List[int], dist_matrix: np.ndarray
-    ) -> List[int]:
+    def _nearest_neighbour_route(self, visited: List[int], dist_matrix: np.ndarray) -> List[int]:
         """
         Build a feasible tour over ``visited`` using nearest-neighbour
         insertion starting from the depot (node 0).

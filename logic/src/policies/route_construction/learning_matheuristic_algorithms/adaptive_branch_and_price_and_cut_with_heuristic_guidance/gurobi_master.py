@@ -7,6 +7,7 @@ surrogate variables θ_d that are progressively tightened by Benders optimality
 cuts delivered from the routing subproblems.
 """
 
+import contextlib
 import logging
 from typing import Dict, List, Optional
 
@@ -178,11 +179,7 @@ class GurobiMasterProblem:
         coeffs: Dict = cut.get("coefficients", {})
 
         if coeffs:
-            expr = gp.quicksum(
-                float(coeffs[i]) * self.z[i, d]
-                for i in coeffs
-                if 1 <= i <= self.n_bins
-            )
+            expr = gp.quicksum(float(coeffs[i]) * self.z[i, d] for i in coeffs if 1 <= i <= self.n_bins)
             self.model.addConstr(
                 self.theta[d] >= constant + expr,
                 name=f"cut_{self._cut_count}",
@@ -214,11 +211,7 @@ class GurobiMasterProblem:
             coeffs: Dict = cut.get("coefficients", {})
 
             if coeffs:
-                expr = gp.quicksum(
-                    float(coeffs[i]) * self.z[i, d]
-                    for i in coeffs
-                    if 1 <= i <= self.n_bins
-                )
+                expr = gp.quicksum(float(coeffs[i]) * self.z[i, d] for i in coeffs if 1 <= i <= self.n_bins)
                 self.model.addConstr(
                     self.theta[d] >= constant + expr,
                     name=f"cut_{self._cut_count}",
@@ -249,21 +242,15 @@ class GurobiMasterProblem:
         status = self.model.Status
 
         if status == GRB.INFEASIBLE:
-            logger.error(
-                "Master MIP is infeasible. "
-                "Check that frequency constraints allow a feasible assignment."
-            )
+            logger.error("Master MIP is infeasible. Check that frequency constraints allow a feasible assignment.")
             return None
 
         if status == GRB.TIME_LIMIT:
             if self.model.SolCount == 0:
-                logger.warning(
-                    "Master MIP hit time limit with no feasible solution found."
-                )
+                logger.warning("Master MIP hit time limit with no feasible solution found.")
                 return None
             logger.warning(
-                "Master MIP hit time limit; returning best feasible solution "
-                "(gap=%.2f%%).",
+                "Master MIP hit time limit; returning best feasible solution (gap=%.2f%%).",
                 100.0 * self.model.MIPGap,
             )
 
@@ -272,11 +259,7 @@ class GurobiMasterProblem:
             return None
 
         z_bar: Dict[int, Dict[int, int]] = {
-            d: {
-                i: (1 if self.z[i, d].X > 0.5 else 0)
-                for i in range(1, self.n_bins + 1)
-            }
-            for d in range(self.horizon)
+            d: {i: (1 if self.z[i, d].X > 0.5 else 0) for i in range(1, self.n_bins + 1)} for d in range(self.horizon)
         }
         return z_bar
 
@@ -312,7 +295,5 @@ class GurobiMasterProblem:
 
     def dispose(self) -> None:
         """Free Gurobi model and associated environment resources."""
-        try:
+        with contextlib.suppress(Exception):
             self.model.dispose()
-        except Exception:
-            pass

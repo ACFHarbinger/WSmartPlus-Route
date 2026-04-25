@@ -7,6 +7,14 @@ with hash-based cycle detection: when configuration hashes repeat,
 the tabu tenure is increased to amplify diversification; during long
 non-cycling periods, tenure contracts for intensive exploitation.
 
+Attributes:
+    RTSSolver (Type): Core solver class for RTS.
+    RTSParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = RTSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
 Reference:
     Battiti, R., & Tecchiolli, G. "The Reactive Tabu Search", 1994.
 """
@@ -40,6 +48,15 @@ from .params import RTSParams
 class RTSSolver:
     """
     Reactive Tabu Search solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per km traveled.
+        params (RTSParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -52,6 +69,17 @@ class RTSSolver:
         params: RTSParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the Reactive Tabu Search solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (RTSParams): Algorithm-specific parameters.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -82,7 +110,7 @@ class RTSSolver:
         Run Reactive Tabu Search.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

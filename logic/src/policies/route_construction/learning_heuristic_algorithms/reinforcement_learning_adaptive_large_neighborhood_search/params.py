@@ -52,86 +52,106 @@ class RLALNSParams:
 
     @property
     def alpha(self) -> float:
+        """Learning rate for TD agents."""
         return self.rl_config.td_learning.alpha
 
     @property
     def gamma(self) -> float:
+        """Discount factor for TD agents."""
         return self.rl_config.td_learning.gamma
 
     @property
     def epsilon(self) -> float:
+        """Exploration probability for TD agents."""
         return self.rl_config.td_learning.epsilon
 
     @property
     def ucb_c(self) -> float:
+        """UCB exploration parameter."""
         return self.rl_config.bandit.c
 
     @property
     def reward_new_global_best(self) -> float:
+        """Reward for finding a new global best solution."""
         return self.rl_config.reward.best_reward
 
     @property
     def reward_improved_current(self) -> float:
+        """Reward for improving the current solution."""
         return self.rl_config.reward.local_reward
 
     @property
     def reward_accepted_worse(self) -> float:
+        """Reward for accepting a worsening solution (SA)."""
         return self.rl_config.reward.accepted_reward
 
     @property
     def reward_rejected(self) -> float:
+        """Penalty/reward for a rejected solution."""
         return self.rl_config.reward.rejected_reward
 
     @property
     def adaptive_rewards(self) -> bool:
+        """Whether rewards are scaled dynamically."""
         return self.rl_config.reward.adaptive_rewards
 
     @property
     def normalize_rewards(self) -> bool:
+        """Whether to normalize rewards across operators."""
         return self.rl_config.reward.normalize_rewards
 
     @property
     def epsilon_decay(self) -> float:
+        """Decay factor for epsilon exploration."""
         if self.rl_config.agent_type == "td_learning":
             return self.rl_config.td_learning.epsilon_decay
         return self.rl_config.bandit.epsilon_decay
 
     @property
     def epsilon_min(self) -> float:
+        """Minimum value for epsilon exploration."""
         if self.rl_config.agent_type == "td_learning":
             return self.rl_config.td_learning.epsilon_min
         return self.rl_config.bandit.epsilon_min
 
     @property
     def ucb_gamma(self) -> float:
+        """Discount factor for Discounted UCB."""
         return self.rl_config.bandit.gamma
 
     @property
     def ucb_window_size(self) -> int:
+        """Sliding window size for SW-UCB."""
         return self.rl_config.bandit.window_size
 
     @property
     def ts_alpha_prior(self) -> float:
+        """Alpha prior for Thompson Sampling."""
         return self.rl_config.bandit.alpha_prior
 
     @property
     def ts_beta_prior(self) -> float:
+        """Beta prior for Thompson Sampling."""
         return self.rl_config.bandit.beta_prior
 
     @property
     def exp3_gamma(self) -> float:
+        """Learning rate for EXP3 agents."""
         return self.rl_config.bandit.gamma
 
     @property
     def progress_thresholds(self) -> list[float]:
+        """Thresholds for classifying search progress."""
         return self.rl_config.features.progress_thresholds
 
     @property
     def stagnation_thresholds(self) -> list[int]:
+        """Thresholds for classifying search stagnation."""
         return self.rl_config.features.stagnation_thresholds
 
     @property
     def diversity_thresholds(self) -> list[float]:
+        """Thresholds for classifying population diversity."""
         return self.rl_config.features.diversity_thresholds
 
     @classmethod

@@ -36,7 +36,17 @@ from .params import DualBoundParams, LagrangianParams
 
 
 class DualBoundTracker(ABC):
-    """Abstract interface."""
+    """
+    Abstract interface for dual-bound tracking.
+
+    Implementations of this interface are responsible for:
+    - Tracking the best-so-far Lagrangian lower bound.
+    - Aggregating per-period subgradients (e.g., via EMA or bundle method).
+    - Suggesting adaptive step sizes for multiplier updates.
+
+    Attributes:
+        None
+    """
 
     @abstractmethod
     def submit(
@@ -91,6 +101,17 @@ class EMADualBoundTracker(DualBoundTracker):
     The EMA is ONLY updated for period t when the associated RS tour quality
     ratio is <= `ema_quality_threshold`.  This implements the refinement
     agreed during planning.
+
+    Attributes:
+        params: Dual bound parameters
+        lag_params: Lagrangian parameters
+        n_bins: Number of bins
+        horizon: Horizon
+        _ema: Per-period EMA of the subgradient
+        _has_observation: Whether the EMA has been observed for each period
+        _best_lagrangian: Running best Lagrangian value
+        _period_contribs: Lagrangian value contributions from each period
+        _lock: Lock for thread safety
     """
 
     def __init__(
@@ -197,6 +218,15 @@ class EMADualBoundTracker(DualBoundTracker):
 
 @dataclass
 class BundleEntry:
+    """
+    Bundle entry for the proximal bundle method.
+
+    Attributes:
+        lambdas: Lagrangian multipliers at the time of evaluation.
+        subgrad: Subgradient of the Lagrangian at `lambdas`.
+        value: Lagrangian dual value at `lambdas`.
+    """
+
     lambdas: np.ndarray  # (N*T,) flattened
     subgrad: np.ndarray  # (N*T,) flattened
     value: float  # Lagrangian dual value at `lambdas`
@@ -221,6 +251,18 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
 
     We solve this with `gurobipy` if available (the codebase already depends
     on Gurobi), falling back to a dense numpy KKT solve if not.
+
+    Attributes:
+        params: Dual bound parameters
+        lag_params: Lagrangian parameters
+        n_bins: Number of bins
+        horizon: Horizon
+        dim: Dimension of the Lagrangian multipliers
+        _bundle: Bundle of Lagrangian subgradients and values
+        _lambda_center: Center of the proximal term
+        _best_value: Best Lagrangian dual value found so far
+        _proximal_weight: Weight for the proximal term
+        _lock: Lock for thread safety
     """
 
     def __init__(

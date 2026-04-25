@@ -230,6 +230,15 @@ def condense_to_packages(graph: Dict[str, Set[str]], depth: int) -> Tuple[Dict[s
     """
 
     def pkg(module: str) -> str:
+        """
+        Convert a module name to its package prefix.
+
+        Args:
+            module (str): Module name.
+
+        Returns:
+            str: Package prefix.
+        """
         return ".".join(module.split(".")[:depth])
 
     node_to_pkg: Dict[str, str] = {m: pkg(m) for m in graph}
@@ -279,6 +288,15 @@ def generate_html(
     if depth > 0:
 
         def pkg(m: str) -> str:
+            """
+            Convert a module name to its package prefix.
+
+            Args:
+                m (str): Module name.
+
+            Returns:
+                str: Package prefix.
+            """
             return ".".join(m.split(".")[:depth])
 
         violation_set = {(pkg(s), pkg(t)) for s, t in violation_edges}
