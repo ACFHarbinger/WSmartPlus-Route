@@ -54,17 +54,20 @@ def find_routes(
     engine="pyvrp",  # Added engine param
     recorder: Optional[PolicyStateRecorder] = None,
 ):
-    """
+    """Solve CVRP using PyVRP or OR-Tools.
+
     Args:
-        dist_mat (np.ndarray): Full distance matrix (N x N)
-        wastes (np.ndarray): waste for each node (0-indexed, depot waste = 0)
-        max_caps (int): Vehicle capacity limit
-        to_collect (list/array): Node IDs to visit (1-based indexing)
-        n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
-        coords (pd.DataFrame, optional): Node coordinates (unused in PyVRP variant)
-        depot (int): Depot node ID. Default: 0
-        time_limit (float): Maximum time in seconds for the solver
-        seed (int): Random seed for reproducibility. Default: 42
+        dist_mat: Distance matrix.
+        wastes: Waste demands.
+        max_caps: Vehicle capacity.
+        to_collect: Nodes to collect.
+        n_vehicles: Number of vehicles.
+        coords: Coordinates of nodes.
+        depot: Depot node.
+        time_limit: Time limit for solving.
+        seed: Random seed.
+        engine: Solver engine to use (pyvrp or ortools).
+        recorder: Policy state recorder.
 
     Returns:
         List[int]: Flattened tour with depot separators. Format: [0, route1..., 0, route2..., 0]
@@ -155,15 +158,17 @@ def find_routes_ortools(
     with PATH_CHEAPEST_ARC initialization and GUIDED_LOCAL_SEARCH.
 
     Args:
-        dist_mat (np.ndarray): Full distance matrix (N x N)
-        wastes (np.ndarray): waste for each node (0-indexed)
-        max_caps (int): Vehicle capacity limit
-        to_collect (list/array): Node IDs to visit (1-based indexing)
-        n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
-        coords (pd.DataFrame, optional): Node coordinates (unused)
-        depot (int): Depot node ID. Default: 0
-        time_limit (float): Maximum time in seconds for the solver
-        seed (int): Random seed for reproducibility. Default: 42
+        dist_mat: Distance matrix.
+        wastes: Waste demands.
+        max_caps: Vehicle capacity.
+        to_collect: Nodes to collect.
+        n_vehicles: Number of vehicles.
+        coords: Coordinates of nodes.
+        depot: Depot node.
+        time_limit: Time limit for solving.
+        seed: Random seed.
+        recorder: Policy state recorder.
+
     Returns:
         List[int]: Flattened tour with depot separators
     """

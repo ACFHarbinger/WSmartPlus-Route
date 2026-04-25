@@ -1,5 +1,15 @@
 """
 SRC (Sequential Route Constructor) — Meta-Constructor for Routing.
+
+Attributes:
+    SequentialRouteConstructor: Sequential Route Constructor (SRC).
+    SRCParams: Parameters for the Sequential Route Constructor (SRC).
+
+Example:
+    >>> from logic.src.policies.route_construction.other_algorithms.sequential_route_constructor import SequentialRouteConstructor, SRCParams
+    >>> params = SRCParams()
+    >>> src = SequentialRouteConstructor(config=params)
+    >>> src.execute(mandatory=[1, 2, 3], bins=bins_object, distance_matrix=distance_matrix)
 """
 
 from __future__ import annotations
@@ -52,6 +62,12 @@ class SequentialRouteConstructor(BaseRoutingPolicy):
     state propagation and incremental improvement.
 
     Registry key: ``"src"``
+
+    Attributes:
+        constructors: List of IRouteConstructor objects.
+        _initialized: Whether the constructors have been initialized.
+        config: Configuration object for the Sequential Route Constructor.
+        params: Parameters for the Sequential Route Constructor.
     """
 
     def __init__(self, config: Any = None):
@@ -73,12 +89,22 @@ class SequentialRouteConstructor(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls):
+        """Return the config class for SRC.
+
+        Returns:
+            Optional[Type]: The config class for the Sequential Route Constructor.
+        """
         from logic.src.configs.policies.src import SRCConfig
 
         return SRCConfig
 
     @classmethod
     def _get_config_key(cls) -> str:
+        """Get the config key for the Sequential Route Constructor.
+
+        Returns:
+            str: The config key for the Sequential Route Constructor.
+        """
         return "src"
 
     def _initialize_constructors(self) -> None:
@@ -115,7 +141,7 @@ class SequentialRouteConstructor(BaseRoutingPolicy):
         initial construction followed by classical meta-heuristics for refinement.
 
         Args:
-            **kwargs: Context dictionary containing:
+            kwargs: Context dictionary containing:
                 - tour (Optional[Union[List[int], List[List[int]]]]): Initial
                   tour to refine.
                 - search_context (Optional[SearchContext]): Context for tracking
@@ -177,5 +203,22 @@ class SequentialRouteConstructor(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used as execute() is overridden directly."""
+        """Not used as execute() is overridden directly.
+
+        Args:
+            sub_dist_matrix: Sub-distance matrix.
+            sub_wastes: Sub-wastes.
+            capacity: Capacity.
+            revenue: Revenue.
+            cost_unit: Cost unit.
+            values: Values.
+            mandatory_nodes: Mandatory nodes.
+            kwargs: Keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Tuple of:
+                - List[List[int]]: Collection of routes.
+                - float: Total travel cost.
+                - float: Total profit.
+        """
         return [], 0.0, 0.0

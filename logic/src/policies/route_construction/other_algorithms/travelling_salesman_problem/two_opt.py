@@ -1,5 +1,15 @@
 """
 Internal implementation of Iterative 2-opt for TSP.
+
+Attributes:
+    solve_tsp_2opt: Solve TSP via iterative 2-opt.
+
+Example:
+    >>> from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem import solve_tsp_2opt
+    >>> dist_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+    >>> nodes = [1, 2]
+    >>> solve_tsp_2opt(dist_matrix, nodes)
+    [0, 1, 2, 0]
 """
 
 from typing import List
@@ -10,6 +20,15 @@ import numpy as np
 def solve_tsp_2opt(dist_matrix: np.ndarray, nodes: List[int], depot: int = 0, max_iterations: int = 1000) -> List[int]:
     """
     Solve TSP via iterative 2-opt.
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix.
+        nodes (List[int]): List of nodes to visit.
+        depot (int): Depot node.
+        max_iterations (int): Maximum number of iterations.
+
+    Returns:
+        List[int]: Tour starting and ending at depot.
     """
     if not nodes:
         return [depot]
