@@ -46,7 +46,14 @@ sequential search requires direct manipulation of position arrays, which is
 incompatible with the operator's route-list interface. Segment reversals are
 performed with in-place slice reversal on the position-indexed tour array.
 
-References
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan import solve_lk
+    >>> tour, cost = solve_lk(dist_matrix)
+
+References:
 ----------
 Lin, S., & Kernighan, B. W. (1973). An effective heuristic algorithm for the
   travelling-salesman problem. Operations Research, 21(2), 498–516.
@@ -130,12 +137,28 @@ def _apply_2opt_positions(
 
 
 def _succ(p: int, n: int) -> int:
-    """Position of the successor (wraps around)."""
+    """Position of the successor (wraps around).
+
+    Args:
+        p: Current position.
+        n: Total number of nodes.
+
+    Returns:
+        int: Successor position.
+    """
     return (p + 1) % n
 
 
 def _pred(p: int, n: int) -> int:
-    """Position of the predecessor (wraps around)."""
+    """Position of the predecessor (wraps around).
+
+    Args:
+        p: Current position.
+        n: Total number of nodes.
+
+    Returns:
+        int: Predecessor position.
+    """
     return (p - 1) % n
 
 
@@ -178,8 +201,8 @@ def _lk_search(  # noqa: C901
         max_depth:  Maximum sequential search depth (2..5).
 
     Returns:
-        (new_open_tour, new_pos, new_cost) if an improving move was found;
-        ``None`` otherwise.
+        Optional[Tuple[List[int], np.ndarray, float]]: (new_open_tour, new_pos, new_cost)
+        if an improving move was found; ``None`` otherwise.
     """
     p1 = int(pos[t1])
     # Try both tour-adjacencies of t1 as the first removed edge
@@ -299,7 +322,8 @@ def _lk_extend(  # noqa: C901
         added:     Set of added edges (as (min, max) node pairs).
 
     Returns:
-        (new_tour, new_pos, new_cost) if an improving tour was found; else None.
+        Optional[Tuple[List[int], np.ndarray, float]]: (new_tour, new_pos, new_cost)
+        if an improving tour was found; else None.
     """
     ref_cost = get_cost(tour + [tour[0]], d)
 
@@ -465,19 +489,21 @@ def solve_lk(
     nearest-neighbour candidate lists.
 
     Args:
-        distance_matrix: (n × n) symmetric cost matrix.
-        initial_tour:    Optional starting tour (closed). Nearest-neighbour
-                         is used when not provided.
-        max_iterations:  Maximum ILS perturbation restarts.
-        max_depth:       Maximum sequential search depth (2–5). Higher values
-                         find better solutions but scale as O(n · k^{depth-1}).
-        n_candidates:    α-nearest-neighbour candidate list size per node.
-        recorder:        Optional recorder for telemetry.
-        np_rng:          NumPy Generator (seeded from ``seed`` if not provided).
-        seed:            Alternative seed (overridden by ``np_rng`` if given).
+        distance_matrix (np.ndarray): (n × n) symmetric cost matrix.
+        initial_tour (Optional[List[int]]): Optional starting tour (closed).
+            Nearest-neighbour is used when not provided.
+        max_iterations (int): Maximum ILS perturbation restarts.
+        max_depth (int): Maximum sequential search depth (2–5). Higher values
+            find better solutions but scale as O(n · k^{depth-1}).
+        n_candidates (int): α-nearest-neighbour candidate list size per node.
+        recorder (Optional[PolicyStateRecorder]): Optional recorder for telemetry.
+        np_rng (Optional[np.random.Generator]): NumPy Generator (seeded from
+            ``seed`` if not provided).
+        seed (Optional[int]): Alternative seed (overridden by ``np_rng`` if given).
 
     Returns:
-        (best_tour, best_cost) — closed node sequence and its total length.
+        Tuple[List[int], float]: (best_tour, best_cost) — closed node sequence and
+            its total length.
     """
     n = len(distance_matrix)
     if n < 3:

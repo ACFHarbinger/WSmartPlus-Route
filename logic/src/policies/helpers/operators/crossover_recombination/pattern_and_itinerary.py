@@ -1,5 +1,15 @@
 """
 Pattern and Itinerary Crossover (PAIX).
+
+Attributes:
+    pattern_and_itinerary_crossover: Pattern and Itinerary Crossover.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+    >>> operator = pattern_and_itinerary_crossover(
+    ...    Individual(giant_tour=[1, 2, 3, 4]),
+    ...    Individual(giant_tour=[4, 3, 2, 1]),
+    ... )
 """
 
 import random
@@ -18,6 +28,15 @@ def pattern_and_itinerary_crossover(parent_a: Individual, parent_b: Individual, 
     1. Inherits patterns p_i from Parent A or Parent B randomly.
     2. Builds giant tours using Order Crossover (OX) applied to the parents' giant tours,
        filtering nodes to respect the inherited pattern.
+
+    Args:
+        parent_a (Individual): First parent individual.
+        parent_b (Individual): Second parent individual.
+        T (int): Number of time steps (days).
+        N (int): Number of nodes.
+
+    Returns:
+        Individual: Child individual.
     """
     # 1. Pattern Inheritance
     child_patterns = np.zeros(N, dtype=int)

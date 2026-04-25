@@ -165,6 +165,19 @@ def _de_mutate(
     3. Inject a fraction F of those differentials into the base chromosome
        using OX1 splicing.
     4. Decode and return the mutant routes.
+
+    Args:
+        target: The target solution to mutate.
+        base: The base vector solution (r1 or best).
+        donor2: Second donor for computing the differential.
+        donor3: Third donor for computing the differential.
+        F: Differential weight controlling the fraction rebuilt from differentials.
+        capacity: Vehicle capacity constraint.
+        wastes: Node demands (dict or 1-D array).
+        rng: Random number generator.
+
+    Returns:
+        List[List[int]]: The mutated solution.
     """
     target_chrom, _ = _encode(target)
     base_chrom, n_v = _encode(base)
@@ -237,6 +250,14 @@ def _de_mutate(
 
 
 def _encode(routes: List[List[int]]) -> Tuple[List[int], int]:
+    """Encode routes as flat chromosome with -1 depot separators.
+
+    Args:
+        routes: List of routes to encode.
+
+    Returns:
+        Tuple of (flat chromosome, number of vehicles).
+    """
     chromosome: List[int] = []
     for i, route in enumerate(routes):
         chromosome.extend(route)
@@ -246,16 +267,42 @@ def _encode(routes: List[List[int]]) -> Tuple[List[int], int]:
 
 
 def _copy_solution(sol: List[List[int]]) -> List[List[int]]:
+    """Return a deep copy of the solution.
+
+    Args:
+        sol: Solution to copy.
+
+    Returns:
+        List[List[int]]: A new copy of the solution.
+    """
     return [r[:] for r in sol]
 
 
 def _get_demand(wastes: Union[Dict[int, float], np.ndarray], node: int) -> float:
+    """Return the demand for a given node.
+
+    Args:
+        wastes: Node demands as a dict or numpy array.
+        node: The node ID to look up.
+
+    Returns:
+        Demand value as a float.
+    """
     if isinstance(wastes, dict):
         return wastes.get(node, 0.0)
     return float(wastes[node]) if node < len(wastes) else 0.0
 
 
 def _total_cost(routes: List[List[int]], dist: np.ndarray) -> float:
+    """Compute total travel cost for a solution.
+
+    Args:
+        routes: Solution as list of routes.
+        dist: Distance matrix with depot at index 0.
+
+    Returns:
+        Total travel cost as a float.
+    """
     total = 0.0
     for route in routes:
         if not route:
@@ -275,8 +322,18 @@ def _split_into_routes(
 ) -> List[List[int]]:
     """
     Greedily assign the flat node sequence to routes respecting capacity.
+
     If the flat sequence contains more nodes than fit in n_vehicles routes,
     additional routes are opened.
+
+    Args:
+        nodes: Flat list of customer node IDs.
+        n_vehicles: Target number of vehicles (routes).
+        capacity: Maximum vehicle load.
+        wastes: Node demands (dict or 1-D array).
+
+    Returns:
+        List[List[int]]: Decoded routes.
     """
     routes: List[List[int]] = []
     current: List[int] = []

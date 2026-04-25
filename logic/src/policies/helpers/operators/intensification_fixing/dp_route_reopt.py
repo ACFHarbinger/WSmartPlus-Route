@@ -1,5 +1,4 @@
-"""
-Dynamic-Programming Route Re-optimisation Operator.
+"""Dynamic-Programming Route Re-optimisation Operator.
 
 Extracts each route in isolation and solves the Travelling Salesman Problem
 (TSP) on its customer nodes exactly using the Held-Karp dynamic programming
@@ -12,7 +11,7 @@ therefore guaranteed to be preserved.  Only the *within-route* sequencing
 is improved.
 
 Algorithm (Held-Karp):
-    State  dp[mask][v] — minimum travel cost to visit exactly the nodes
+    State  dp[mask][v] -- minimum travel cost to visit exactly the nodes
     in bitmask *mask*, starting from the depot (node 0), ending at node *v*.
 
     Transition  dp[mask | (1<<j)][j] = min(dp[mask][v] + d[v, j])
@@ -22,15 +21,18 @@ Algorithm (Held-Karp):
 
     Answer      min_v( dp[full_mask][v] + d[v, 0] ).
 
-    Complexity  O(2^n · n²) time, O(2^n · n) space.
+    Complexity  O(2^n * n^2) time, O(2^n * n) space.
 
-    Practical limit — the DP is tractable for n ≤ ~20 customers per route.
+    Practical limit -- the DP is tractable for n <= ~20 customers per route.
     Routes with more customers are returned unchanged (set *max_nodes* to
     control the cutoff).
 
 For VRPP problems the CVRP and VRPP variants are identical: revenue depends
 only on which customers are visited (unchanged here), so the improvement
 objective reduces to pure distance minimisation on each route.
+
+Attributes:
+    None
 
 Reference:
     Held, M., & Karp, R. M. (1962). "A dynamic programming approach to

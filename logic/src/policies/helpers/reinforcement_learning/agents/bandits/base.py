@@ -1,5 +1,15 @@
-"""
-Base Bandit Module.
+"""Base Bandit Module.
+
+This module defines the abstract base class for Multi-Armed Bandit (MAB) agents,
+providing core functionality for statistics tracking, state persistence, and
+incremental updates.
+
+Attributes:
+    BanditAgent: Abstract base class for all bandit agents.
+
+Example:
+    >>> from logic.src.policies.helpers.reinforcement_learning.agents.bandits.base import BanditAgent
+    >>> # Note: BanditAgent is abstract and cannot be instantiated directly.
 """
 
 import pickle
@@ -59,12 +69,20 @@ class BanditAgent(RLAgent, ABC):
         self.values = np.zeros(self.n_arms)
 
     def save(self, path: str) -> None:
-        """Save the agent's state to a file using pickle."""
+        """Save the agent's state to a file using pickle.
+
+        Args:
+            path: The file path to save the state to.
+        """
         with open(path, "wb") as f:
             pickle.dump(self.__dict__, f)
 
     def load(self, path: str) -> None:
-        """Load the agent's state from a file."""
+        """Load the agent's state from a file.
+
+        Args:
+            path: The file path to load the state from.
+        """
         with open(path, "rb") as f:
             state = pickle.load(f)
         self.__dict__.update(state)

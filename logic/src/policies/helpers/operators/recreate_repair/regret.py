@@ -47,6 +47,7 @@ def regret_2_insertion(
         wastes: waste look-up.
         capacity: Vehicle capacity.
         mandatory_nodes: Optional list of mandatory node indices.
+        expand_pool: If True, all unvisited nodes are candidates.
         noise: Random noise level for cost calculation.
 
     Returns:
@@ -265,7 +266,24 @@ def _get_insertion_options_with_profit(
     noise: float,
     max_dist: float,
 ) -> List[Tuple[float, int, int]]:
-    """Helper to calculate insertion options for a node with profit logic."""
+    """Helper to calculate insertion options for a node with profit logic.
+
+    Args:
+        node: Node index.
+        routes: List of routes.
+        loads: Current route loads.
+        dist_matrix: Distance matrix.
+        wastes: Node demands.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        is_mandatory: Mandatory status.
+        noise: Random noise level.
+        max_dist: Max distance (unused).
+
+    Returns:
+        List[Tuple[float, int, int]]: List of (profit, route_idx, position).
+    """
     node_waste = wastes.get(node, 0)
     revenue = node_waste * R
     node_options = []
@@ -316,10 +334,24 @@ def regret_2_profit_insertion(
     expand_pool: bool = False,
     noise: float = 0.0,
 ) -> List[List[int]]:
-    """
-    Insert removed nodes based on the regret-2 criterion maximizing profit.
+    """Insert removed nodes based on the regret-2 criterion maximizing profit.
 
     Wrapper around regret_k_profit_insertion with k=2.
+
+    Args:
+        routes: List of routes.
+        removed_nodes: List of unassigned node indices.
+        dist_matrix: Distance matrix.
+        wastes: waste look-up.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: List of mandatory node indices.
+        expand_pool: If True, consider all unvisited nodes.
+        noise: Random noise level.
+
+    Returns:
+        List[List[int]]: Updated routes.
     """
     return regret_k_profit_insertion(
         routes,
@@ -367,6 +399,7 @@ def regret_k_profit_insertion(  # noqa: C901
         C: Cost multiplier.
         k: Regret degree.
         mandatory_nodes: List of mandatory node indices.
+        expand_pool: If True, consider all unvisited nodes.
         noise: Random noise level for cost calculation.
 
     Returns:
@@ -556,7 +589,21 @@ def regret_3_insertion(
     expand_pool: bool = True,
     noise: float = 0.0,
 ) -> List[List[int]]:
-    """Convenience wrapper for regret-3 insertion."""
+    """Convenience wrapper for regret-3 insertion.
+
+    Args:
+        routes: Partial routes.
+        removed_nodes: Nodes to be re-inserted.
+        dist_matrix: Distance matrix.
+        wastes: waste look-up.
+        capacity: Vehicle capacity.
+        mandatory_nodes: Optional list of mandatory node indices.
+        expand_pool: If True, all unvisited nodes are candidates.
+        noise: Random noise level.
+
+    Returns:
+        List[List[int]]: New routes after insertion.
+    """
     return regret_k_insertion(
         routes,
         removed_nodes,
@@ -580,7 +627,21 @@ def regret_4_insertion(
     expand_pool: bool = True,
     noise: float = 0.0,
 ) -> List[List[int]]:
-    """Convenience wrapper for regret-4 insertion."""
+    """Convenience wrapper for regret-4 insertion.
+
+    Args:
+        routes: Partial routes.
+        removed_nodes: Nodes to be re-inserted.
+        dist_matrix: Distance matrix.
+        wastes: waste look-up.
+        capacity: Vehicle capacity.
+        mandatory_nodes: Optional list of mandatory node indices.
+        expand_pool: If True, all unvisited nodes are candidates.
+        noise: Random noise level.
+
+    Returns:
+        List[List[int]]: New routes after insertion.
+    """
     return regret_k_insertion(
         routes,
         removed_nodes,
@@ -606,7 +667,23 @@ def regret_3_profit_insertion(
     expand_pool: bool = False,
     noise: float = 0.0,
 ) -> List[List[int]]:
-    """Convenience wrapper for regret-3 profit-aware insertion."""
+    """Convenience wrapper for regret-3 profit-aware insertion.
+
+    Args:
+        routes: List of routes.
+        removed_nodes: List of unassigned node indices.
+        dist_matrix: Distance matrix.
+        wastes: waste look-up.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: List of mandatory node indices.
+        expand_pool: If True, consider all unvisited nodes.
+        noise: Random noise level.
+
+    Returns:
+        List[List[int]]: Updated routes.
+    """
     return regret_k_profit_insertion(
         routes,
         removed_nodes,
@@ -634,7 +711,23 @@ def regret_4_profit_insertion(
     expand_pool: bool = False,
     noise: float = 0.0,
 ) -> List[List[int]]:
-    """Convenience wrapper for regret-4 profit-aware insertion."""
+    """Convenience wrapper for regret-4 profit-aware insertion.
+
+    Args:
+        routes: List of routes.
+        removed_nodes: List of unassigned node indices.
+        dist_matrix: Distance matrix.
+        wastes: waste look-up.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: List of mandatory node indices.
+        expand_pool: If True, consider all unvisited nodes.
+        noise: Random noise level.
+
+    Returns:
+        List[List[int]]: Updated routes.
+    """
     return regret_k_profit_insertion(
         routes,
         removed_nodes,

@@ -103,6 +103,15 @@ def inversion_mutation_profit(
 
 
 def _get_demand(wastes: Union[Dict[int, float], np.ndarray], node: int) -> float:
+    """Return the demand for a given node.
+
+    Args:
+        wastes: Node demands as a dict or numpy array.
+        node: The node ID to look up.
+
+    Returns:
+        Demand value as a float.
+    """
     if isinstance(wastes, dict):
         return wastes.get(node, 0.0)
     return float(wastes[node]) if node < len(wastes) else 0.0

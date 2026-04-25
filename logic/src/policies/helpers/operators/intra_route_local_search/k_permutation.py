@@ -91,7 +91,17 @@ def three_permutation(ls: Any, r_idx: int, start_pos: int) -> bool:
 
 
 def _subseq_cost(d, prev_node: int, seq: List[int], next_node: int) -> float:
-    """Compute total edge cost of prev → seq[0] → ... → seq[-1] → next."""
+    """Compute total edge cost of prev → seq[0] → ... → seq[-1] → next.
+
+    Args:
+        d: Distance matrix (2-D array-like indexed by node id).
+        prev_node: Node immediately before the sequence.
+        seq: Ordered list of nodes in the sub-sequence.
+        next_node: Node immediately after the sequence.
+
+    Returns:
+        float: Total edge cost of prev_node → seq[0] → … → seq[-1] → next_node.
+    """
     if not seq:
         return d[prev_node, next_node]
     cost = d[prev_node, seq[0]]

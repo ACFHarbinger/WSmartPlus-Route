@@ -1,5 +1,20 @@
 """
 Cross-exchange operator for intra-route local search.
+
+Implements the intra-route CROSS-exchange operator that swaps two
+non-overlapping segments within a single randomly chosen route.
+
+Attributes:
+    apply_intra_route_cross_exchange: Swap two non-overlapping segments
+        within a randomly selected route.
+
+Example:
+    >>> import random
+    >>> from logic.src.policies.helpers.operators.intra_route_local_search.cross_exchange import (
+    ...     apply_intra_route_cross_exchange,
+    ... )
+    >>> rng = random.Random(42)
+    >>> new_routes = apply_intra_route_cross_exchange(routes, rng)
 """
 
 import copy
@@ -12,6 +27,14 @@ def apply_intra_route_cross_exchange(routes: List[List[int]], rng: random.Random
     Applies the Intra-Route CROSS-exchange operator.
     Randomly selects a route, selects two non-overlapping segments, and swaps them.
     Segment lengths are chosen randomly between 1 and 3.
+
+    Args:
+        routes: Current routing solution (list of node sequences, depot excluded).
+        rng: Random number generator used for route and index selection.
+
+    Returns:
+        List[List[int]]: Deep copy of routes with one intra-route segment swap applied,
+        or an unchanged deep copy if no valid route is found.
     """
     valid_routes = [i for i, r in enumerate(routes) if len(r) >= 4]
 

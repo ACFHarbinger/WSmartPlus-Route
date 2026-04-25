@@ -3,6 +3,13 @@ Type III Unstringing Operator.
 
 Removes node V_i and reconnects the route involving V_j and V_k where k > j.
 This is the correct Type III implementation (formerly II).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iii import apply_type_iii_us
+    >>> new_route = apply_type_iii_us(route, i, j, k)
 """
 
 from typing import Dict, List, Tuple
@@ -23,13 +30,13 @@ def apply_type_iii_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     Reconnects sequence: V_{i-1} -> V_k...V_{j+1} -> V_j...V_{i+1} -> V_{k+1}...
 
     Args:
-        route: The tour as a list of node IDs.
-        i: Index of node V_i to remove.
-        j: Index of node V_j (neighbor of V_{i+1}).
-        k: Index of node V_k (neighbor of V_{i-1}), where k > j relative to i.
+        route (List[int]): The tour as a list of node IDs.
+        i (int): Index of node V_i to remove.
+        j (int): Index of node V_j (neighbor of V_{i+1}).
+        k (int): Index of node V_k (neighbor of V_{i-1}), where k > j relative to i.
 
     Returns:
-        The modified tour.
+        List[int]: The modified tour.
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 
@@ -89,14 +96,17 @@ def apply_type_iii_us_profit(
     Apply Type III Unstringing and return profit delta.
 
     Args:
-        route: The tour as a list of node IDs.
-        i, j, k: Indices as defined in apply_type_iii_us.
-        dist_matrix: Distance matrix.
-        wastes: Waste levels.
-        R, C: Revenue and cost multipliers.
+        route (List[int]): The tour as a list of node IDs.
+        i (int): Index of node V_i.
+        j (int): Index of node V_j.
+        k (int): Index of node V_k.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste levels.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
 
     Returns:
-        (new_route, delta_profit)
+        Tuple[List[int], float]: (new_route, delta_profit)
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 

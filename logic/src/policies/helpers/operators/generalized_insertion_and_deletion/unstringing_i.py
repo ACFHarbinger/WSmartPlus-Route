@@ -2,6 +2,13 @@
 Type I Unstringing Operator.
 
 Removes node V_i and reconnects the route by reversing two sub-tours.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i import apply_type_i_us
+    >>> new_route = apply_type_i_us(route, i, j, k)
 """
 
 from typing import Dict, List, Tuple
@@ -24,13 +31,13 @@ def apply_type_i_us(route: List[int], i: int, j: int, k: int) -> List[int]:
     Reverses sub-tours (V_{i+1}...V_k) and (V_{k+1}...V_j).
 
     Args:
-        route: The tour as a list of node IDs.
-        i: Index of node to remove.
-        j: Index of node V_j such that the arc (V_j, V_{j+1}) is broken.
-        k: Index of node V_k such that the arc (V_k, V_{k+1}) is broken.
+        route (List[int]): The tour as a list of node IDs.
+        i (int): Index of node to remove.
+        j (int): Index of node V_j such that the arc (V_j, V_{j+1}) is broken.
+        k (int): Index of node V_k such that the arc (V_k, V_{k+1}) is broken.
 
     Returns:
-        New route with V_i removed and segments reconnected.
+        List[int]: New route with V_i removed and segments reconnected.
     """
     # Defensive copy logic for route input
     n, is_closed, work_route, n_work = _extract_working_route(route)
@@ -101,14 +108,17 @@ def apply_type_i_us_profit(
     Apply Type I Unstringing move and return profit delta.
 
     Args:
-        route: The tour as a list of node IDs.
-        i, j, k: Indices as defined in apply_type_i_us.
-        dist_matrix: Distance matrix.
-        wastes: Waste levels.
-        R, C: Revenue and cost multipliers.
+        route (List[int]): The tour as a list of node IDs.
+        i (int): Index of node V_i to remove.
+        j (int): Index of node V_j.
+        k (int): Index of node V_k.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste levels.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
 
     Returns:
-        (new_route, delta_profit)
+        Tuple[List[int], float]: (new_route, delta_profit)
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 

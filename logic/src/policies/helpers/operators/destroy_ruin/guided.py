@@ -1,5 +1,4 @@
-"""
-Guided Removal Operator Module for G-LNS.
+"""Guided Removal Operator Module for G-LNS.
 
 This module implements the penalized removal heuristic, which targets nodes
 involved in highly penalized edges as defined by Guided Large Neighborhood
@@ -7,6 +6,13 @@ Search (G-LNS). This helps the search explicitly break away from local
 optima by removing features that the G-LNS mechanism has identified as
 undesirable. This operator serves as the G-LNS equivalent of Fast Local
 Search (FLS).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.destroy_ruin.guided import penalized_removal
+    >>> routes, removed = penalized_removal(routes, n_remove=5, penalties=penalty_matrix)
 
 Reference:
     Voudouris, C., & Tsang, E. "Guided Local Search and Its

@@ -1,8 +1,14 @@
-"""
-State feature extraction for Reinforcement Learning in VRP policies.
+"""State feature extraction for Reinforcement Learning in VRP policies.
 
-Provides utilities to convert complex optimization states into
-normalized feature vectors and discrete state indices.
+This module provides utilities to convert complex optimization states into
+normalized feature vectors and discrete state indices for RL agents.
+
+Attributes:
+    StateFeatureExtractor: Class for extracting search state features and discretizing states.
+
+Example:
+    >>> extractor = StateFeatureExtractor()
+    >>> features = extractor.extract_features(routes, dist_matrix, wastes, ...)
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -19,6 +25,11 @@ class StateFeatureExtractor:
     - Solution quality (objective gap, improvement rate)
     - Solution topology (route variance, capacity utilization)
     - Stagnation metrics (iterations without improvement)
+
+    Attributes:
+        progress_thresholds: Thresholds for search progress bins.
+        stagnation_thresholds: Thresholds for stagnation count bins.
+        diversity_thresholds: Thresholds for diversity metric bins.
     """
 
     def __init__(
@@ -116,7 +127,17 @@ class StateFeatureExtractor:
         stagnation_count: int,
         diversity: float,
     ) -> Tuple[int, int, int]:
-        """Discretize continuous state into bins for tabular RL."""
+        """Discretize continuous state into bins for tabular RL.
+
+        Args:
+            iteration: Current iteration number.
+            max_iterations: Maximum allowed iterations.
+            stagnation_count: Number of iterations since last improvement.
+            diversity: Current solution diversity metric.
+
+        Returns:
+            Tuple of discretized indices (phase, stagnation, diversity).
+        """
         progress = iteration / max(max_iterations, 1)
 
         # Phase (0, 1, 2)

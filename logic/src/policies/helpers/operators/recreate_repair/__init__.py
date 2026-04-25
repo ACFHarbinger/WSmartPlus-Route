@@ -5,10 +5,13 @@ This package contains operator implementations for repairing (re-inserting nodes
 partial solutions. Includes greedy, regret-based, savings-based, deep, and
 branch-and-bound heuristics.
 
+Attributes:
+    None
+
 Example:
-    >>> from logic.src.policies.helpers.operators.repair import greedy_insertion
+    >>> from logic.src.policies.helpers.operators.recreate_repair import greedy_insertion
     >>> routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
-    >>> from logic.src.policies.helpers.operators.repair import bb_insertion
+    >>> from logic.src.policies.helpers.operators.recreate_repair import bb_insertion
     >>> routes = bb_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 

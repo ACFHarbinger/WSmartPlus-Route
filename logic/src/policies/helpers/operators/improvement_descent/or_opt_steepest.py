@@ -1,5 +1,4 @@
-"""
-Steepest-Descent Or-opt Intensification Operator.
+"""Steepest-Descent Or-opt Intensification Operator.
 
 Or-opt relocates contiguous chains of 1, 2, or 3 nodes to better positions
 within or across routes.  The steepest-descent variant evaluates every feasible
@@ -15,8 +14,11 @@ nodes does not change.  Revenue is therefore unchanged, making the CVRP and
 VRPP stopping conditions equivalent: improving moves reduce distance cost by
 more than an epsilon threshold (scaled by C for unit consistency).
 
-The complexity per iteration is O(m² · n²) where m is the number of routes
+The complexity per iteration is O(m^2 * n^2) where m is the number of routes
 and n is the average route length.  The algorithm converges quickly in practice.
+
+Attributes:
+    None
 
 Reference:
     Or, I. (1976). "Traveling Salesman-Type Combinatorial Problems and Their

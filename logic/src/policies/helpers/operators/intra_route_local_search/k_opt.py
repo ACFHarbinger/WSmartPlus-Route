@@ -228,6 +228,8 @@ def move_kopt_intra(
         p_v: Position of v in the route.
         k: Number of edges to remove (≥ 2). Defaults to 2.
         rng: Random number generator, required when ``k >= 3``.
+        exclude_depot: If True, moves that would place the depot-adjacent
+            edges in the middle of a segment are rejected.
 
     Returns:
         bool: True if an improving move was applied, False otherwise.
@@ -261,6 +263,18 @@ def _apply_2opt(ls, u: int, v: int, r_u: int, p_u: int, p_v: int, exclude_depot:
     2-opt: reverse the segment between p_u+1 and p_v (inclusive).
 
     Only applies the move if it reduces total cost.
+
+    Args:
+        ls: LocalSearch instance with routes and distance matrix.
+        u: First break-point node.
+        v: Second break-point node.
+        r_u: Route index containing both u and v.
+        p_u: Position of u in the route.
+        p_v: Position of v in the route.
+        exclude_depot: If True, skip moves where p_v is the last position.
+
+    Returns:
+        bool: True if the 2-opt reversal was applied; False otherwise.
     """
     if p_u >= p_v:
         return False
@@ -291,6 +305,20 @@ def _apply_3opt(
 
     Randomly selects a third cut point and evaluates four reconnection
     patterns. Applies the best improving move if found.
+
+    Args:
+        ls: LocalSearch instance with routes and distance matrix.
+        u: First break-point node.
+        v: Second break-point node.
+        r_u: Route index.
+        p_u: Position of u in the route.
+        p_v: Position of v in the route.
+        rng: Random number generator used to sample the third cut point.
+        n_attempts: Number of random third-cut-point attempts.
+        exclude_depot: If True, skip moves where the last route position is a cut.
+
+    Returns:
+        bool: True if an improving 3-opt move was applied; False otherwise.
     """
     route = ls.routes[r_u]
     if len(route) < 4:
@@ -364,6 +392,11 @@ def _apply_kopt(
         k: Number of edges to remove (>= 4).
         rng: Random number generator.
         n_attempts: Number of random cut-point sampling attempts.
+        exclude_depot: If True, skip configurations where the tail segment
+            is empty (depot-adjacent move).
+
+    Returns:
+        bool: True if an improving k-opt move was applied; False otherwise.
     """
     route = ls.routes[r_u]
     # A k-opt move on a route needs at least k + 1 nodes
@@ -398,7 +431,19 @@ def _apply_kopt(
 
 
 def _sample_cuts(n: int, p_u: int, p_v: int, k: int, rng: Random) -> Optional[List[int]]:
-    """Sample k-2 additional cut points around p_u and p_v."""
+    """Sample k-2 additional cut points around p_u and p_v.
+
+    Args:
+        n: Route length (number of nodes).
+        p_u: First fixed cut position.
+        p_v: Second fixed cut position.
+        k: Total number of cuts desired (>= 2).
+        rng: Random number generator.
+
+    Returns:
+        Optional[List[int]]: Sorted list of k cut positions, or None if there
+        are not enough available positions.
+    """
     extra_needed = k - 2
     forbidden = {p_u, p_v}
     for p in (p_u, p_v):
@@ -416,7 +461,17 @@ def _sample_cuts(n: int, p_u: int, p_v: int, k: int, rng: Random) -> Optional[Li
 
 
 def _get_segments(route: List[int], cuts: List[int]) -> Tuple[List[int], List[List[int]], List[int]]:
-    """Slice the route into head, middle segments, and tail."""
+    """Slice the route into head, middle segments, and tail.
+
+    Args:
+        route: The full route node sequence.
+        cuts: Sorted list of k cut positions (0-indexed).
+
+    Returns:
+        Tuple of (head, middle_segments, tail) where head is the fixed prefix,
+        tail is the fixed suffix, and middle_segments is the list of permutable
+        segments between consecutive cut points.
+    """
     segments: List[List[int]] = []
     segments.append(route[: cuts[0] + 1])
     for ci in range(len(cuts) - 1):
@@ -428,7 +483,20 @@ def _get_segments(route: List[int], cuts: List[int]) -> Tuple[List[int], List[Li
 def _find_best_config(
     ls, head: List[int], middle: List[List[int]], tail: List[int], original_cost: float, exclude_depot: bool = False
 ) -> Tuple[float, Optional[Tuple[Tuple[int, ...], Tuple[bool, ...]]]]:
-    """Enumerate all permutations and orientations to find best gain."""
+    """Enumerate all permutations and orientations to find best gain.
+
+    Args:
+        ls: LocalSearch instance with distance matrix.
+        head: Fixed head segment.
+        middle: List of permutable middle segments.
+        tail: Fixed tail segment.
+        original_cost: Inter-segment edge cost of the current configuration.
+        exclude_depot: Passed through to :func:`_connection_cost`.
+
+    Returns:
+        Tuple of (best_gain, best_config) where best_config is
+        (permutation_tuple, reversal_tuple), or (0.0, None) if no improvement.
+    """
     best_gain = 0.0
     best_config = None
     n_middle = len(middle)
@@ -460,7 +528,16 @@ def _apply_config(
     tail: List[int],
     config: Tuple[Tuple[int, ...], Tuple[bool, ...]],
 ) -> None:
-    """Apply the selected configuration to the route."""
+    """Apply the selected configuration to the route.
+
+    Args:
+        route: The route list to overwrite in-place.
+        head: Fixed head segment.
+        middle: List of middle segments in their original order.
+        tail: Fixed tail segment.
+        config: Tuple of (permutation, reversals) produced by
+            :func:`_find_best_config`.
+    """
     perm, reversals = config
     new_route: List[int] = list(head)
     for idx, seg_idx in enumerate(perm):
@@ -487,9 +564,11 @@ def _connection_cost(
         head: Head segment (fixed).
         middle: List of middle segments in their current order.
         tail: Tail segment (fixed).
+        exclude_depot: If True, skip cost terms where a segment boundary
+            involves an empty segment (depot sentinel).
 
     Returns:
-        Sum of inter-segment edge costs.
+        float: Sum of inter-segment edge costs.
     """
     cost = 0.0
     all_segs = [head] + middle + [tail]

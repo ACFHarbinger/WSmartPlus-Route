@@ -34,6 +34,11 @@ Registry
 functions for use in ALNS / ILS operator pools.  CVRP operators are keyed
 directly; VRPP operators carry a ``_PROFIT`` suffix.
 
+Attributes:
+    IMPROVEMENT_OPERATORS (Dict[str, Callable]): Registry mapping operator
+        names to their corresponding steepest-descent functions.
+    IMPROVEMENT_NAMES (List[str]): Sorted list of operator names.
+
 Example:
     >>> from logic.src.policies.helpers.operators.improvement import (
     ...     two_opt_steepest, or_opt_steepest, node_exchange_steepest

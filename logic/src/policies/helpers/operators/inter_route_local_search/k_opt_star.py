@@ -142,6 +142,10 @@ def _extract_route_parts(
     """
     Split each route at its cut point into head and tail.
 
+    Args:
+        ls: LocalSearch instance with routes, distance matrix, and load cache.
+        cuts: List of (node, route_index, position) cut points, one per route.
+
     Returns:
         Tuple of (heads, tails, head_loads, tail_loads, original_connection_cost).
     """
@@ -182,6 +186,15 @@ def _find_best_tail_permutation(
 ) -> Tuple[float, Optional[Tuple[int, ...]]]:
     """
     Enumerate non-identity permutations of tails and return the best.
+
+    Args:
+        ls: LocalSearch instance with distance matrix and capacity Q.
+        cuts: List of (node, route_index, position) cut points.
+        heads: Head segments for each cut route (fixed prefix).
+        tails: Tail segments for each cut route (permutable suffix).
+        head_loads: Cumulative load of each head segment.
+        tail_loads: Cumulative load of each tail segment.
+        original_cost: Sum of cut-edge costs in the current solution.
 
     Returns:
         Tuple of (best_gain, best_permutation) or (0.0, None) if none improves.
@@ -227,7 +240,15 @@ def _apply_tail_permutation(
     tails: List[List[int]],
     perm: Tuple[int, ...],
 ) -> None:
-    """Reassemble routes using the permuted tail assignment and update state."""
+    """Reassemble routes using the permuted tail assignment and update state.
+
+    Args:
+        ls: LocalSearch instance whose routes are mutated in-place.
+        cuts: List of (node, route_index, position) cut points.
+        heads: Head segments for each cut route.
+        tails: Tail segments in their original order.
+        perm: Permutation index tuple; route i receives tails[perm[i]].
+    """
     affected = set()
     for i, (_, r_idx, _) in enumerate(cuts):
         ls.routes[r_idx] = heads[i] + tails[perm[i]]

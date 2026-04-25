@@ -1,11 +1,18 @@
-"""
-Master Problem Model for VRPP Branch-and-Price-and-Cut.
+r"""Master Problem Model for VRPP Branch-and-Price-and-Cut.
 
 Implements the Set Partitioning Problem (SPP) formulation where each column
 represents a feasible route. The master problem selects routes to maximize
 total collected profit across a finite fleet.
 
 Theoretical Basis: Barnhart et al. (1998).
+
+Attributes:
+    VRPPMasterProblem: Main solver class for the master problem.
+
+Example:
+    >>> master = VRPPMasterProblem(n_nodes=10, mandatory_nodes={1, 2}, cost_matrix=dist,
+    ...                           wastes=w, capacity=100.0, revenue_per_kg=1.0, cost_per_km=0.1)
+    >>> master.solve_lp_relaxation()
 """
 
 from __future__ import annotations
@@ -92,6 +99,9 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         dual_node_coverage (Dict[int, float]): Dual values for node constraints.
         dual_vehicle_limit (float): Dual value for fleet limit.
         phase (int): Optimization phase (1: Feasibility, 2: Optimality).
+
+    Example:
+        >>> master = VRPPMasterProblem(10, {1}, dist, w, 100.0, 1.0, 0.1)
     """
 
     def __init__(
@@ -378,8 +388,8 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             self._apply_dual_smoothing()
 
     def _apply_dual_smoothing(self) -> None:
-        """
-        Apply Exponential Dual Smoothing to stabilize CG price signals.
+        """Apply Exponential Dual Smoothing to stabilize CG price signals.
+
         pi_smoothed = alpha * pi_current + (1 - alpha) * pi_prev
 
         WARNING: Smoothing modifies self.dual_node_coverage in-place.
@@ -389,8 +399,10 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         - CG convergence (added == 0) does not prove LP optimality.
         Only enable this flag when running in heuristic (non-exact) mode.
 
-        Reference: Wentges (1997), Guyenne et al. (1994).
+        Reference:
+            Wentges (1997), Guyenne et al. (1994).
         """
+
         alpha = self.dual_smoothing_alpha
         for node, val in self.dual_node_coverage.items():
             prev = self.prev_dual_node_coverage.get(node, val)
@@ -402,23 +414,21 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self.prev_dual_vehicle_limit = self.dual_vehicle_limit
 
     def solve_ip(self) -> Tuple[float, List[Route]]:
-        """
-        Solve the integer programme at the current B&B node.
+        """Solve the integer programme at the current B&B node.
 
         Re-imposes binary integrality on all λ variables and calls Gurobi's
-        MIP solver.  Artificial variables are left continuous (they will be
-        forced to zero by the Big-M penalty if any feasible integer solution
-        exists).
+        MIP solver.
 
         Returns:
-            Tuple of:
-                obj_value       – IP objective value.
-                selected_routes – Routes with λ_k = 1 in the optimal solution.
+            Tuple containing:
+                - IP objective value.
+                - List of routes selected in the optimal solution (λ_k = 1).
 
         Raises:
             ValueError: If build_model() has not been called.
             RuntimeError: If the MIP solve fails.
         """
+
         if self.model is None:
             raise ValueError("Model not built.")
         if self.model.NumVars == 0:
@@ -441,16 +451,16 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             self.model.update()
 
     def add_route(self, route: Route) -> None:
-        """
-        Add a route (column) to the master problem.
+        """Add a route (column) to the master problem.
 
         If the Gurobi model has already been built, the column is inserted
-        into the live model immediately.  Otherwise it is buffered in
+        into the live model immediately. Otherwise it is buffered in
         self.routes and will be included when build_model() is called.
 
         Args:
             route: Route to insert as a new λ variable.
         """
+
         self.routes.append(route)
         if self.model is not None:
             self._add_column_to_model(route)
@@ -486,17 +496,18 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self._wire_route_into_active_cuts(route, var)
         self.model.update()
 
-    def _wire_route_into_active_cuts(self, route: Route, var: Any) -> None:
-        """Calculates the exact coefficient of the new route for every active cutting plane.
+    def _wire_route_into_active_cuts(self, route: Route, var: gp.Var) -> None:
+        """Calculate the exact coefficient of the new route for every active cut.
 
         Guarantees that newly priced columns strictly respect previously separated inequalities.
         This ensures that columns added after some cuts have been discovered correctly
         participate in those cuts, maintaining LP relaxation validity.
 
         Args:
-            route (Route): The new route to inject.
-            var (gp.Var): The Gurobi variable associated with the route.
+            route: The new route to inject.
+            var: The Gurobi variable associated with the route.
         """
+
         if self.model is None:
             return
 
@@ -548,8 +559,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
                 self.model.chgCoeff(constr, var, 1.0)
 
     def purge_useless_columns(self, tolerance: float = -0.1) -> int:
-        """
-        Remove non-basic columns with significantly negative reduced cost.
+        """Remove non-basic columns with significantly negative reduced cost.
 
         In a maximization LP, non-basic columns have RC <= 0. If a column is
         not in the basis and its reduced cost is highly negative, it is
@@ -563,6 +573,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         Returns:
             Number of columns purged from the Gurobi model.
         """
+
         if not self.column_deletion_enabled or self.model is None or self.model.Status != GRB.OPTIMAL:
             return 0
 
@@ -587,8 +598,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         return len(to_remove)
 
     def get_reduced_cost_coefficients(self) -> Dict[str, Any]:
-        """
-        Return the dual-value coefficients used by the pricing subproblem.
+        """Return the dual-value coefficients used by the pricing subproblem.
 
         Sign Convention & Maximization:
             The VRPP is formulated as a maximization problem. Under Gurobi's
@@ -599,8 +609,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             - For <= constraints (e.g. SRI, Vehicle Limit), Pi is non-negative; we use +Pi.
 
         Returns:
-            Dictionary mapping node ID (int) → dual value, plus the key
-            "vehicle_limit" → vehicle-limit dual if a fleet cap is active.
+            Dictionary mapping node ID (int) -> dual value, plus keys for cut duals.
         """
         node_duals: Dict[Union[int, str, frozenset[int], Tuple[int, int]], float] = {
             k: v for k, v in self.dual_node_coverage.items()
@@ -619,16 +628,15 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         }
 
     def get_node_visitation(self) -> Dict[int, float]:
-        """
-        Aggregate fractional node-visitation values from the current LP solution.
+        """Aggregate fractional node-visitation values from the current LP solution.
 
         For each node i, returns Σ_{k: i ∈ route_k} λ_k, i.e. the total
         fractional "coverage" of that node across all selected routes.
 
         Returns:
-            Mapping from node ID to aggregated λ coverage, or empty dict if
-            the model has not been solved yet.
+            Mapping from node ID to aggregated λ coverage.
         """
+
         if self.model is None:
             return {}
         try:
@@ -642,8 +650,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             return {}
 
     def get_edge_usage(self, only_elementary: bool = False) -> Dict[Tuple[int, int], float]:
-        """
-        Aggregate fractional edge visitation values from current LP solution.
+        """Aggregate fractional edge visitation values from current LP solution.
 
         For an edge (i, j), returns Σ_{k: (i,j) ∈ route_k} λ_k.
         Edges are returned as canonical sorted tuples (min, max).
@@ -653,12 +660,8 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
 
         Returns:
             Mapping from (u, v) -> fractional visitation sum.
-
-        Note:
-            Exact separation engines (e.g., Rounded Capacity Cuts) mathematically
-            require flow conservation on a support graph of elementary routes.
-            This filter prevents cyclic ng-routes from breaking max-flow separation.
         """
+
         if self.model is None:
             return {}
 
@@ -683,13 +686,12 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             return {}
 
     def save_basis(self) -> Optional[Tuple[List[int], List[int]]]:
-        """
-        Save the basis (VBasis, CBasis) for variables and constraints.
+        """Save the basis (VBasis, CBasis) for variables and constraints.
 
         Returns:
-            Tuple of (variable_basis, constraint_basis) lists, or None if model
-            is not optimal or not initialized.
+            Tuple of (variable_basis, constraint_basis) lists, or None if failed.
         """
+
         if self.model is None or self.model.Status != GRB.OPTIMAL:
             return None
         try:
@@ -700,8 +702,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             return None
 
     def restore_basis(self, vbasis: List[int], cbasis: List[int]) -> None:
-        """
-        Restore the basis to warm-start the simplex algorithm.
+        """Restore the basis to warm-start the simplex algorithm.
 
         This robust version handles partial restorations in case of
         column-pool size mismatches across B&B nodes.
@@ -710,6 +711,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             vbasis: Variable basis list.
             cbasis: Constraint basis list.
         """
+
         if self.model is None or vbasis is None or cbasis is None:
             return
 

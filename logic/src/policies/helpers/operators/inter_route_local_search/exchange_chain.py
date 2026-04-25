@@ -25,7 +25,17 @@ from typing import Any, List
 
 
 def _chain_edge_cost(d, prev_node: int, chain: List[int], next_node: int) -> float:
-    """Cost of edges: prev → chain[0] → … → chain[-1] → next."""
+    """Cost of edges: prev → chain[0] → … → chain[-1] → next.
+
+    Args:
+        d: Distance matrix (2-D array-like indexed by node id).
+        prev_node: Node immediately before the chain.
+        chain: Ordered list of nodes in the chain (may be empty).
+        next_node: Node immediately after the chain.
+
+    Returns:
+        float: Total edge cost of prev_node → chain[0] → … → chain[-1] → next_node.
+    """
     if not chain:
         return d[prev_node, next_node]
     cost = d[prev_node, chain[0]]

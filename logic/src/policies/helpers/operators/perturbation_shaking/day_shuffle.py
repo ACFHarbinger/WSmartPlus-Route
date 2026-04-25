@@ -1,5 +1,12 @@
 """
 Day-shuffle perturbation: randomly reassign a subset of bins to other days.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.perturbation_shaking.day_shuffle import day_shuffle
+    >>> new_plan, earliest_day = day_shuffle(plan, problem, rng, k=3)
 """
 
 from typing import List, Tuple

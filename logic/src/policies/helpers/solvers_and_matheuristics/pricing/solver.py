@@ -1,5 +1,4 @@
-r"""
-RCSPP Pricing Subproblem Solver.
+"""RCSPP Pricing Subproblem Solver.
 
 Solves the Resource-Constrained Shortest Path Problem (RCSPP) to identify
 profitable columns (routes) for the BPC Master Problem.
@@ -13,6 +12,14 @@ These algorithmic choices fundamentally expand the DP state space by requiring a
 resource dimensions (e.g., tracking SRI parity constraints). To mitigate this explosion
 and maintain tractability, we rely heavily on the ng-route relaxation framework,
 balancing bounding strength with computational viability for the VRPP.
+
+Attributes:
+    RCSPPSolver: Main solver class for the pricing subproblem.
+
+Example:
+    >>> solver = RCSPPSolver(n_nodes=10, cost_matrix=dist, wastes=w, capacity=100.0,
+    ...                     revenue_per_kg=1.0, cost_per_km=0.1)
+    >>> routes = solver.solve(duals={})
 """
 
 from __future__ import annotations
@@ -39,8 +46,20 @@ _LCICoverItem = Tuple[FrozenSet[int], Dict[int, float], float, Optional[Tuple[in
 
 
 class RCSPPSolver:
-    """
-    Exact / ng-relaxed solver for the Resource-Constrained Shortest Path Problem.
+    """Exact / ng-relaxed solver for the Resource-Constrained Shortest Path Problem.
+
+    Attributes:
+        n_nodes (int): Number of customer nodes.
+        cost_matrix (np.ndarray): Distance/cost matrix.
+        wastes (Dict[int, float]): Node waste amounts.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue per kg.
+        C (float): Cost per km.
+        ng_neighborhoods (Dict[int, Set[int]]): Memory structure for ng-routes.
+        labels_generated (int): Statistics counter.
+
+    Example:
+        >>> solver = RCSPPSolver(10, dist, w, 100.0, 1.0, 0.1)
     """
 
     def __init__(
@@ -111,7 +130,11 @@ class RCSPPSolver:
         self._sorted_neighbors: Dict[int, List[int]] = self._precompute_sorted_neighbors()
 
     def _precompute_sorted_neighbors(self) -> Dict[int, List[int]]:
-        """Precompute distance-sorted neighbor lists for all nodes."""
+        """Precompute distance-sorted neighbor lists for all nodes.
+
+        Returns:
+            Dictionary mapping node ID to a list of other node IDs sorted by distance.
+        """
         result: Dict[int, List[int]] = {}
         for i in range(self.n_nodes + 1):
             dists = [(self.cost_matrix[i, j], j) for j in range(self.n_nodes + 1) if j != i]
@@ -120,8 +143,14 @@ class RCSPPSolver:
         return result
 
     def _compute_ng_neighborhoods(self) -> Dict[int, Set[int]]:
+        """Compute the initial ng-neighborhoods based on distance.
+
+        Returns:
+            Dictionary mapping node ID to its closest k-1 neighbors.
+        """
         customer_nodes = list(range(1, self.n_nodes + 1))
         k = min(self.ng_neighborhood_size, len(customer_nodes))
+
         neighborhoods: Dict[int, Set[int]] = {}
         for i in customer_nodes:
             distances = sorted((self.cost_matrix[i, j], j) for j in customer_nodes if j != i)
@@ -132,15 +161,33 @@ class RCSPPSolver:
         return neighborhoods
 
     def save_ng_snapshot(self) -> Dict[int, Set[int]]:
-        """Return a deep copy of the current ng-neighborhoods."""
+        """Return a deep copy of the current ng-neighborhoods.
+
+        Returns:
+            A mapping of node IDs to their current ng-neighbor sets.
+        """
+
         return {k: set(v) for k, v in self.ng_neighborhoods.items()}
 
     def restore_ng_snapshot(self, snapshot: Dict[int, Set[int]]) -> None:
-        """Restore ng-neighborhoods from a previously saved snapshot."""
+        """Restore ng-neighborhoods from a previously saved snapshot.
+
+        Args:
+            snapshot: A previously saved mapping of node IDs to neighbor sets.
+        """
+
         self.ng_neighborhoods = {k: set(v) for k, v in snapshot.items()}
 
     def enforce_elementarity(self, nodes: List[int]) -> int:
-        """Dynamically expand ng-sets to enforce strict elementarity on fractional paths."""
+        """Dynamically expand ng-sets to enforce strict elementarity on fractional paths.
+
+        Args:
+            nodes: List of node IDs whose occurrence in ng-sets should be enforced.
+
+        Returns:
+            The total number of new neighbor relations added across all nodes.
+        """
+
         added_count = 0
         nodes_to_enforce = [n for n in nodes if n != self.depot]
         if not nodes_to_enforce:
@@ -306,10 +353,16 @@ class RCSPPSolver:
         routes.sort(key=lambda x: x.reduced_cost, reverse=True)  # type: ignore[arg-type,return-value]
         return routes[:max_routes]
 
-    def _compute_completion_bounds(self):  # noqa: C901
+    def _compute_completion_bounds(self) -> None:  # noqa: C901
+        """Compute backward bounds used to aggressively prune DP states.
+
+        Calculates the maximum possible reduced cost from each node to the depot,
+        incorporating duals and penalties for cut violations.
+
+        Returns:
+            None. Updates self.bounds_to and self.bounds_from.
         """
-        Compute backward bounds used to aggressively prune DP states.
-        """
+
         # Incorporate RCC duals into completion bounds for tighter pruning.
         # RCC duals are arc-crossing penalties with a clear per-edge interpretation.
         self.bounds_to = np.zeros(self.n_nodes + 1)
@@ -373,7 +426,23 @@ class RCSPPSolver:
             if not changed:
                 break
 
-    def _preprocess_constraints(self, constraints: List[Any]):
+    def _preprocess_constraints(
+        self, constraints: List[Any]
+    ) -> Tuple[FrozenSet[Tuple[int, int]], Dict[int, int], Dict[int, int], Set[Tuple[int, int]], Set[Tuple[int, int]]]:
+        """Convert generic branching constraints into efficient lookup structures.
+
+        Args:
+            constraints: List of active branching constraints from the B&B tree.
+
+        Returns:
+            A tuple containing:
+                - forbidden_arcs: Set of (u, v) pairs that cannot be used.
+                - req_succ: Mapping of u to its required successor v.
+                - req_pred: Mapping of v to its required predecessor u.
+                - rf_separate: Set of Ryan-Foster node pairs that must be separate.
+                - rf_together: Set of Ryan-Foster node pairs that must be together.
+        """
+
         forbidden: Set[Tuple[int, int]] = set()
         req_succ: Dict[int, int] = {}
         req_pred: Dict[int, int] = {}
@@ -410,7 +479,27 @@ class RCSPPSolver:
         lci_cover_items: List[_LCICoverItem],
         exact_mode: bool = False,
     ) -> List[Route]:
-        """Forward label-correcting algorithm (priority-queue order)."""
+        """Forward label-correcting algorithm using a priority queue.
+
+        Args:
+            max_routes: Maximum number of routes to return.
+            forbidden_arcs: Arcs forbidden by branching.
+            required_successors: Successors required by branching.
+            required_predecessors: Predecessors required by branching.
+            rf_separate: Ryan-Foster separate conflicts.
+            rf_together: Ryan-Foster together requirements.
+            rcc_duals: Duals for capacity cuts.
+            active_sri_subsets: List of active SRI subsets.
+            sri_dual_values: Duals for active SRIs.
+            node_to_sri: Mapping from node to SRI indices it belongs to.
+            edge_clique_duals: Duals for edge clique cuts.
+            lci_cover_items: Items for LCI dual penalties.
+            exact_mode: If True, uses all neighbors.
+
+        Returns:
+            List of profitable routes found.
+        """
+
         use_ng = self.use_ng_routes
         initial_sri = tuple([0] * len(active_sri_subsets))
 
@@ -527,16 +616,31 @@ class RCSPPSolver:
         return routes
 
     def _get_neighbors(self, node: int, limit: int) -> List[int]:
-        """
-        Return the nearest neighbors for a given node.
+        """Return the nearest neighbors for a given node.
 
         Used to artificially bound the RCSPP transition state-space during
         heuristic pricing passes by limiting expansions to the closest
         candidates (e.g., limit=20).
+
+        Args:
+            node: Source node ID.
+            limit: Maximum number of neighbors to return.
+
+        Returns:
+            List of nearest neighbor node IDs.
         """
+
         return self._sorted_neighbors[node][:limit]
 
     def _extend_to_depot(self, label: Label) -> Optional[Label]:
+        """Extend a label from its current node back to the depot.
+
+        Args:
+            label: Current label at a customer node.
+
+        Returns:
+            Completed label at the depot, or None if infeasible.
+        """
         edge_cost = (self.cost_matrix[label.node, self.depot] * self.C) if not self.is_farkas else 0.0
 
         # RCC crossing penalty for the depot-return arc.
@@ -567,7 +671,15 @@ class RCSPPSolver:
         )
 
     def _compute_route_details(self, nodes: List[int]) -> Route:
-        """Compute cost/revenue/load for a customer-only node list (no depot bookends)."""
+        """Compute cost/revenue/load for a customer-only node list.
+
+        Args:
+            nodes: Ordered list of customer nodes visited (no depot bookends).
+
+        Returns:
+            Route object with computed distance-based costs and profits.
+        """
+
         cost = 0.0
         prev = self.depot
         for n in nodes:
@@ -595,6 +707,23 @@ class RCSPPSolver:
         edge_clique_duals: Dict[Tuple[int, int], float],
         lci_cover_items: List[_LCICoverItem],
     ) -> Optional[Label]:
+        """Extend a label along an arc to a new node.
+
+        Args:
+            label: Starting label.
+            next_node: Target node to extend to.
+            forbidden: Forbidden arcs by branching.
+            rcc_duals: Duals for capacity cuts.
+            active_sri: Active SRI subsets.
+            sri_duals: Duals for SRIs.
+            node_to_sri: Node-to-SRI index mapping.
+            edge_clique_duals: Duals for edge clique cuts.
+            lci_cover_items: Items for LCI dual penalties.
+
+        Returns:
+            New label at next_node, or None if infeasible/pruned.
+        """
+
         if (label.node, next_node) in forbidden:
             return None
 

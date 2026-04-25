@@ -43,21 +43,27 @@ def deep_insertion(
     mandatory_nodes: Optional[List[int]] = None,
     expand_pool: bool = False,
 ) -> List[List[int]]:
-    """
-    Deep insertion: cost-delta minus capacity-utility scoring.
+    """Insert removed nodes using cost-delta minus capacity-utility scoring.
+
+    Each position is scored as ``cost_delta - alpha * residual_capacity_utility``
+    where ``residual_capacity_utility = (capacity - load - node_demand) / capacity``.
+    Nodes are processed in order (mandatory first) and inserted at the position
+    with the lowest composite score.
 
     Args:
-        routes: Partial routes.
-        removed_nodes: List of unassigned node indices.
-        dist_matrix: Distance matrix.
-        wastes: Waste/demand look-up per node.
-        capacity: Vehicle capacity.
-        alpha: Weight for residual capacity penalty (>= 0).
-        mandatory_nodes: List of nodes that must be inserted.
-        expand_pool: If True, evaluates all unvisited nodes.
+        routes: Partial routes; list of customer node sequences (depot excluded).
+        removed_nodes: Customer node indices to be re-inserted.
+        dist_matrix: Square distance matrix where index 0 is the depot.
+        wastes: Mapping from node index to waste demand volume.
+        capacity: Maximum load per vehicle route.
+        alpha: Non-negative weight applied to the residual capacity utility term.
+            At alpha=0 this degrades to standard greedy cheapest insertion.
+        mandatory_nodes: Node indices that must be inserted regardless of cost.
+        expand_pool: If True, the candidate set is expanded to include all
+            unvisited nodes in the problem, not just ``removed_nodes``.
 
     Returns:
-        Updated routes with nodes inserted.
+        List[List[int]]: Updated routes with all insertable nodes placed.
 
     Note:
         Deep Insertion (Archetti et al. 2014 adaptation):
@@ -156,6 +162,7 @@ def deep_profit_insertion(
         C: Cost multiplier.
         alpha: Weight for residual capacity bonus (>= 0).
         mandatory_nodes: List of mandatory node indices.
+        expand_pool: Whether to consider all unvisited nodes or just `removed_nodes`.
 
     Returns:
         List[List[int]]: Updated routes.

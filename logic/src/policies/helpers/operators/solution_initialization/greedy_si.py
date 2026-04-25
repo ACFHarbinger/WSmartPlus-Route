@@ -3,6 +3,13 @@ Greedy Initialization Module.
 
 Creates an initial constructive solution for the VRPP using greedy insertion,
 enforcing strict economic termination to drop unprofitable opportunistic nodes.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
+    >>> routes = build_greedy_routes(dist_matrix, wastes, capacity, R, C)
 """
 
 import random
@@ -26,7 +33,23 @@ def _greedy_profit_insertion(
     mandatory_nodes_set: set[int],
     rng: random.Random,
 ) -> List[List[int]]:
-    """Internal greedy profit-driven insertion for initialization."""
+    """
+    Internal greedy profit-driven insertion for initialization.
+
+    Args:
+        routes (List[List[int]]): Current routes.
+        unvisited_optional (List[int]): Optional nodes not yet visited.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Node wastes.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        mandatory_nodes_set (set[int]): Nodes that must be visited.
+        rng (random.Random): Random generator.
+
+    Returns:
+        List[List[int]]: Modified routes.
+    """
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
 
     # Reinsert in random order to increase diversity
@@ -101,13 +124,13 @@ def build_greedy_routes(
     Create an initial solution using a simple greedy heuristic.
 
     Args:
-        dist_matrix: Distance matrix.
-        wastes: Waste dictionary mapping node ID to waste volume.
-        capacity: Vehicle capacity.
-        R: Revenue per unit.
-        C: Cost per distance unit.
-        mandatory_nodes: List of nodes that MUST be visited.
-        rng: Random number generator.
+        dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+        wastes (Dict[int, float]): Waste dictionary mapping node ID to waste volume.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue per unit.
+        C (float): Cost per distance unit.
+        mandatory_nodes (Optional[List[int]]): List of nodes that MUST be visited.
+        rng (Optional[random.Random]): Random number generator.
 
     Returns:
         List[List[int]]: Initial routing solution.

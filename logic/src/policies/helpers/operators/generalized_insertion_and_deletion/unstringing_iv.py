@@ -2,6 +2,13 @@
 Type IV Unstringing Operator.
 
 Most complex US operator involving four neighbor nodes and multiple reversals.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv import apply_type_iv_us
+    >>> new_route = apply_type_iv_us(route, i, j, k, l)
 """
 
 from typing import Dict, List, Tuple
@@ -36,12 +43,14 @@ def apply_type_iv_us(route: List[int], i: int, j: int, k: int, l: int) -> List[i
     S_B_rev = (V_{l-1}...V_j)    [Reverse of V_j...V_{l-1}]
 
     Args:
-        route: The tour.
-        i: Index of V_i.
-        j, k, l: Indices of nodes V_j, V_k, V_l.
+        route (List[int]): The tour.
+        i (int): Index of V_i.
+        j (int): Index of node V_j.
+        k (int): Index of node V_k.
+        l (int): Index of node V_l.
 
     Returns:
-        Modified tour.
+        List[int]: Modified tour.
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 
@@ -101,14 +110,18 @@ def apply_type_iv_us_profit(
     Apply Type IV Unstringing and return profit delta.
 
     Args:
-        route: The tour.
-        i, j, k, l: Indices as defined in apply_type_iv_us.
-        dist_matrix: Distance matrix.
-        wastes: Waste levels.
-        R, C: Revenue and cost multipliers.
+        route (List[int]): The tour.
+        i (int): Index of V_i.
+        j (int): Index of node V_j.
+        k (int): Index of node V_k.
+        l (int): Index of node V_l.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste levels.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
 
     Returns:
-        (new_route, delta_profit)
+        Tuple[List[int], float]: (new_route, delta_profit)
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 

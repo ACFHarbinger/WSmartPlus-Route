@@ -1,5 +1,12 @@
-"""
-LinUCB Bandit Module.
+"""LinUCB Bandit Module.
+
+Implements the Linear Upper Confidence Bound algorithm for contextual bandits.
+
+Attributes:
+    LinUCBAgent: Agent that uses disjoint linear models for action selection.
+
+Example:
+    >>> agent = LinUCBAgent(n_arms=10, feature_dim=5)
 """
 
 import contextlib
@@ -11,11 +18,17 @@ from .base import ContextualBanditAgent
 
 
 class LinUCBAgent(ContextualBanditAgent):
-    """
-    Linear Upper Confidence Bound (LinUCB) agent.
+    """Linear Upper Confidence Bound (LinUCB) agent.
 
     Maintains a linear model per arm for expected rewards given context.
     Algorithm: LinUCB with Disjoint Linear Models.
+
+    Attributes:
+        alpha (float): Exploration parameter.
+        A (List[np.ndarray]): Per-arm precision matrices (A_a = x*x.T + I).
+        b (List[np.ndarray]): Per-arm weighted reward vectors (b_a = reward * x).
+        A_inv (List[np.ndarray]): Cached inverses of precision matrices.
+        _cache_valid (List[bool]): Flags indicating if A_inv cache is fresh.
 
     References:
         Li, L., Chu, W., Langford, J., & Schapire, R. E. (2010).

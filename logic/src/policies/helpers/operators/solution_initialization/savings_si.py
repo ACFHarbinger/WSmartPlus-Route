@@ -1,6 +1,13 @@
 """
 Clarke-Wright Savings Algorithm for VRPP initialization.
 
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.solution_initialization.savings_si import build_savings_routes
+    >>> routes = build_savings_routes(dist_matrix, wastes, capacity, R, C)
+
 Reference:
     Clarke, G., & Wright, J. W. (1964). Scheduling of vehicles from a central
     depot to a number of delivery points. Operations Research, 12(4), 568-581.
@@ -16,7 +23,16 @@ from logic.src.utils.policy.routes import (
 
 
 def _compute_savings(eligible: List[int], dist_matrix: np.ndarray) -> List[Tuple[float, int, int]]:
-    """Compute and sort all positive savings pairs."""
+    """
+    Compute and sort all positive savings pairs.
+
+    Args:
+        eligible (List[int]): List of eligible nodes.
+        dist_matrix (np.ndarray): Distance matrix.
+
+    Returns:
+        List[Tuple[float, int, int]]: Sorted list of (saving, node_i, node_j).
+    """
     savings = []
     for idx, i in enumerate(eligible):
         for j in eligible[idx + 1 :]:
@@ -36,7 +52,21 @@ def _try_merge(
     load_of: Dict[int, float],
     capacity: float,
 ) -> bool:
-    """Attempt to merge routes containing i and j. Returns True if merged."""
+    """
+    Attempt to merge routes containing i and j.
+
+    Args:
+        s (float): Savings value.
+        i (int): First node.
+        j (int): Second node.
+        route_of (Dict[int, List[int]]): Node to route mapping.
+        route_key (Dict[int, int]): Node to route identifier mapping.
+        load_of (Dict[int, float]): Route identifier to load mapping.
+        capacity (float): Vehicle capacity.
+
+    Returns:
+        bool: True if merged, False otherwise.
+    """
     ki, kj = route_key[i], route_key[j]
     if ki == kj:
         return False
@@ -77,6 +107,17 @@ def build_savings_routes(
 ) -> List[List[int]]:
     """
     Build routes using the Clarke-Wright Savings Algorithm.
+
+    Args:
+        dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+        wastes (Dict[int, float]): {node_id → fill level}.
+        capacity (float): Vehicle capacity Q.
+        R (float): Revenue per unit waste.
+        C (float): Cost per unit distance.
+        mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+
+    Returns:
+        List[List[int]]: List of routes (depot excluded).
     """
     mandatory_set = set(mandatory_nodes or [])
     nodes = list(range(1, len(dist_matrix)))

@@ -1,5 +1,15 @@
-"""
-Epsilon Greedy Bandit Module.
+"""Epsilon Greedy Bandit Module.
+
+This module implements the Epsilon-Greedy bandit algorithm, which balances
+exploration and exploitation by selecting a random arm with probability epsilon.
+
+Attributes:
+    EpsilonGreedyBandit: Bandit agent using the Epsilon-Greedy policy.
+
+Example:
+    >>> from logic.src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy import EpsilonGreedyBandit
+    >>> agent = EpsilonGreedyBandit(n_arms=3, epsilon=0.1)
+    >>> action = agent.select_action(state=None, rng=agent.rng)
 """
 
 from typing import Any, Dict, Optional
@@ -16,6 +26,11 @@ class EpsilonGreedyBandit(BanditAgent):
     Balances exploration and exploitation by selecting a random arm with
     probability 'epsilon' and the best known arm with probability '1 - epsilon'.
     Supports dynamic epsilon decay to favor exploitation as search progresses.
+
+    Attributes:
+        epsilon: Current exploration probability.
+        epsilon_decay: Multiplicative factor for reducing epsilon.
+        epsilon_min: Minimum allowable exploration probability.
     """
 
     def __init__(

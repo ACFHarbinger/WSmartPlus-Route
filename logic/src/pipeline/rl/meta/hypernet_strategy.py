@@ -30,7 +30,7 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
     The hypernetwork observes performance metrics and time context (day)
     to generate optimal cost weights for the current situation.
 
-    Args:
+    Attributes:
         cost_weight_keys (list[str]): Keys for the cost weights.
         device (Any): Device to run the hypernetwork on.
         optimizer (HyperNetworkOptimizer): The underlying optimizer logic.

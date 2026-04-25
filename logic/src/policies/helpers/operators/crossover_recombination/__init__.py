@@ -30,8 +30,15 @@ This module implements seven advanced crossover operators for VRP genetic algori
    - GPX operating on decoded routes with profit packing
 
 Reference:
-    Vidal et al., "A hybrid genetic algorithm for multidepot and periodic VRP", 2012.
-    Nagata & Bräysy, "Edge assembly-based memetic algorithm", 2009.
+   Vidal et al., "A hybrid genetic algorithm for multidepot and periodic VRP", 2012.
+   Nagata & Bräysy, "Edge assembly-based memetic algorithm", 2009.
+
+Attributes:
+   CROSSOVER_OPERATORS (dict): A dictionary of all crossover operators.
+   CROSSOVER_NAMES (list): A list of all crossover operator names.
+
+Example:
+   None.
 """
 
 from .edge_recombination import capacity_aware_erx, edge_recombination_crossover

@@ -1,5 +1,14 @@
-"""
-Branch-and-Bound tree management for VRPP.
+"""Branch-and-Bound tree management for VRPP.
+
+This module provides the orchestrator for the Branch-and-Bound search process,
+managing node selection, pruning, and branching strategy dispatch.
+
+Attributes:
+    BranchAndBoundTree: Main class for managing the B&B search tree.
+
+Example:
+    >>> tree = BranchAndBoundTree(v_model, strategy="ryan_foster")
+    >>> tree.solve()
 """
 
 from __future__ import annotations
@@ -132,12 +141,36 @@ class BranchAndBoundTree:
         self.root = BranchNode()
         self.add_node(self.root)
 
+    def _get_coords_from_model(self, v_model: VRPPModel) -> Optional[np.ndarray]:
+        """Extract node coordinates from the model.
+
+        Args:
+            v_model: The VRPP model instance.
+
+        Returns:
+            Coordinates as an array or None.
+        """
+        if not hasattr(v_model, "node_coords"):
+            return None
+        node_coords = v_model.node_coords
+        if isinstance(node_coords, dict):
+            coords_arr = np.zeros((len(node_coords) + 1, 2))
+            for i, (x, y) in node_coords.items():
+                coords_arr[i] = [x, y]
+            return coords_arr
+        return node_coords
+
     # ------------------------------------------------------------------
     # Frontier Management
     # ------------------------------------------------------------------
 
     def add_node(self, node: BranchNode) -> None:
-        """Enqueue a new open node to the frontier."""
+        """Enqueue a new open node to the frontier.
+
+        Args:
+            node: The BranchNode to add to the frontier.
+        """
+
         if self.search_strategy in ("best_first", "best-first"):
             # Maximize LP bound, but heapq is a min-heap, so we negate the bound.
             priority = -(node.lp_bound if node.lp_bound is not None else 1e9)
@@ -167,7 +200,12 @@ class BranchAndBoundTree:
             return self.open_nodes.pop()  # type: ignore[return-value]
 
     def is_empty(self) -> bool:
-        """Return True when no open nodes remain in the frontier."""
+        """Return True when no open nodes remain in the frontier.
+
+        Returns:
+            bool: True if the frontier is empty, False otherwise.
+        """
+
         return len(self.open_nodes) == 0
 
     # ------------------------------------------------------------------
@@ -242,9 +280,17 @@ class BranchAndBoundTree:
     def find_strong_branching_candidates(
         self, routes: List["Route"], route_values: Dict[int, float], max_candidates: int = 5
     ) -> List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
-        """
-        Task 11 (SOTA): Identify top branching candidates for lookahead eval.
+        """Identify top branching candidates for lookahead evaluation.
+
         Uses Spatial Divergence strength as the primary heuristic.
+
+        Args:
+            routes: Column pool.
+            route_values: Fractional LP solution {route_index: λ_k}.
+            max_candidates: Maximum number of candidates to return.
+
+        Returns:
+            List of branching candidates (divergence node, arc sets, score).
         """
         candidates = []
         n_nodes = self.v_model.n_nodes - 1 if self.v_model and hasattr(self.v_model, "n_nodes") else 0
@@ -282,12 +328,14 @@ class BranchAndBoundTree:
             node: The fractional B&B node to branch from.
             routes: All routes in the master problem at this node.
             route_values: Current LP solution {route_index: λ_k}.
+            mandatory_nodes: Set of mandatory nodes needing exact partitioning.
+            strong_candidate: Optional pre-selected branching candidate.
 
         Returns:
-            ``(left_child, right_child)`` if a branching decision was found,
-            or ``None`` if the solution is already integer (no fractional
-            variable / arc found).
+            (left_child, right_child) if a branching decision was found,
+            or None if the solution is already integer.
         """
+
         # 1. Strong Branching candidate override
         if strong_candidate:
             d, arcs1, arcs2, _ = strong_candidate

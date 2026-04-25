@@ -1,5 +1,4 @@
-"""
-Pricing package for Branch-and-Price-and-Cut.
+"""Pricing package for Branch-and-Price-and-Cut.
 
 Solves the Resource-Constrained Shortest Path Problem (RCSPP) to identify
 profitable columns (routes) for the BPC Master Problem.
@@ -13,6 +12,14 @@ These algorithmic choices fundamentally expand the DP state space by requiring a
 resource dimensions (e.g., tracking SRI parity constraints). To mitigate this explosion
 and maintain tractability, we rely heavily on the ng-route relaxation framework,
 balancing bounding strength with computational viability for the VRPP.
+
+Attributes:
+    Label: Dynamic programming state for the RCSPP solver.
+    RCSPPSolver: Main solver class for the pricing subproblem.
+
+Example:
+    >>> solver = RCSPPSolver(v_model)
+    >>> routes = solver.solve(duals={})
 """
 
 from __future__ import annotations

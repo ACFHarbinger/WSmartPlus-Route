@@ -1,5 +1,4 @@
-"""
-Uncapacitated Orienteering Problem (OP) inner solver for Lagrangian Relaxation.
+r"""Uncapacitated Orienteering Problem (OP) inner solver for Lagrangian Relaxation.
 
 When the capacity constraint Σ_{i∈A_d} w_i ≤ Q is relaxed with multiplier λ ≥ 0,
 the modified revenue per customer i becomes:
@@ -20,6 +19,12 @@ the Gurobi model small. The full Lagrangian bound is then:
 References:
     Dantzig, G., Fulkerson, R., & Johnson, S. (1954). "Solution of a large-scale
     traveling-salesman problem". Journal of Operations Research, 2(4), 393-410.
+
+Attributes:
+    solve_uncapacitated_op: Exact Gurobi solver for the uncapacitated OP at a fixed λ.
+
+Example:
+    >>> visited, obj, dist = solve_uncapacitated_op(dm, w, lam=0.5, R=1.0, C=0.1)
 """
 
 from typing import Dict, List, Optional, Set, Tuple
@@ -39,7 +44,15 @@ def _op_dfj_callback(model: gp.Model, where: int) -> None:
     Triggered at integer solutions (MIPSOL). Detects connected components that
     do not contain the depot (node 0) and injects a cut forcing at least one
     outgoing edge from each subtour component.
+
+    Args:
+        model: Gurobi model instance.
+        where: Callback location code.
+
+    Returns:
+        None.
     """
+
     if where != GRB.Callback.MIPSOL:
         return
 

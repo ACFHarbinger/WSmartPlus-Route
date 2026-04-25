@@ -1,5 +1,20 @@
-"""
-Constraint addition and management mixin for VRPPMasterProblem.
+r"""
+Master problem support mixin for Vehicle Routing Problem with Profit Maximization (VRPP).
+
+This module provides helper methods for the VRPP master problem, including:
+- Constraint addition and management (coverage, capacity, SRI, SEC, RCC, LCI).
+- Route pool management (adding, removing, merging routes).
+- Phase control (Phase 1: feasibility, Phase 2: optimality).
+- Reduced cost calculation with support for all cut types.
+- Artificial variable detection (Phase 1 infeasibility).
+
+Attributes:
+    MasterProblemSupport: Structural protocol for master problem implementations.
+    VRPPMasterProblemSupportMixin: Helper methods for column pooling and sifting.
+
+Example:
+    >>> support = MasterProblemSupport()
+    >>> rc = support.calculate_reduced_cost(route, duals)
 """
 
 from __future__ import annotations
@@ -23,6 +38,34 @@ logger = logging.getLogger(__name__)
 class MasterProblemSupport(Protocol):
     """
     Structural interface defining the requirements for a VRPP Master Problem.
+
+    Attributes:
+        n_nodes: Number of nodes in the problem.
+        mandatory_nodes: Set of mandatory nodes.
+        optional_nodes: Set of optional nodes.
+        cost_matrix: Matrix of travel costs between nodes.
+        wastes: Dictionary of wastes for each node.
+        capacity: Capacity of each vehicle.
+        R: Maximum distance each vehicle can travel.
+        C: Cost of using each vehicle.
+        vehicle_limit: Maximum number of vehicles that can be used.
+        global_cut_pool: Pool of active cuts.
+        BIG_M: Large constant for big-M constraints.
+        model: Gurobi model for the master problem.
+        routes: List of routes.
+        lambda_vars: List of lambda variables corresponding to the routes.
+        dual_node_coverage: Dictionary of dual values for node coverage constraints.
+        dual_vehicle_limit: Dual value for vehicle limit constraint.
+        global_column_pool: Pool of candidate routes.
+        phase: Phase of the algorithm (1 for feasibility, 2 for optimality).
+        active_src_cuts: Dictionary of active subset-row inequality (SRC) cuts.
+        active_sec_cuts: Dictionary of active subset-edge clique (SEC) cuts.
+        active_sec_cuts_local: Dictionary of local SEC cuts.
+        active_rcc_cuts: Dictionary of active restricted cut cover (RCC) cuts.
+        active_capacity_cuts: Dictionary of active capacity cuts.
+        active_lci_cuts: Dictionary of active lifted cover inequality (LCI) cuts.
+        active_lci_node_alphas: Dictionary of node alphas for LCI cuts.
+        active_lci_arcs: Dictionary of arcs for LCI cuts.
     """
 
     n_nodes: int
@@ -128,9 +171,22 @@ class MasterProblemSupport(Protocol):
         """
         ...
 
-    def _add_column_to_model(self, route: Route) -> None: ...
+    def _add_column_to_model(self, route: Route) -> None:
+        """Internal helper to add a route variable to the Gurobi model.
 
-    def _wire_route_into_active_cuts(self, route: Route, var: Any) -> None: ...
+        Args:
+            route: The route to add.
+        """
+        ...
+
+    def _wire_route_into_active_cuts(self, route: Route, var: Any) -> None:
+        """Connects a route variable to all relevant active cut constraints.
+
+        Args:
+            route: The route representation.
+            var: The Gurobi variable for the route.
+        """
+        ...
 
     def purge_useless_columns(self, tolerance: float = -0.1) -> int:
         """Removes columns with high reduced costs to keep the RMP compact.
@@ -376,7 +432,17 @@ class MasterProblemSupport(Protocol):
         """
         ...
 
-    def _count_crossings(self: MasterProblemSupport, route: Route, node_set: FrozenSet[int]) -> int: ...
+    def _count_crossings(self: MasterProblemSupport, route: Route, node_set: FrozenSet[int]) -> int:
+        """Counts how many times a route enters/exits a given node set.
+
+        Args:
+            route: The route to analyze.
+            node_set: The set of nodes to check crossings for.
+
+        Returns:
+            Number of crossings (entries/exits).
+        """
+        ...
 
     def remove_local_cuts(self) -> int:
         """Removes local cuts from the Gurobi model (used during B&B backtrack).
@@ -417,9 +483,14 @@ class MasterProblemSupport(Protocol):
 
 
 class VRPPMasterProblemSupportMixin:
-    """
-    Mixin containing methods that support the master problem.
-    This helps reduce the size of the main model.py file.
+    """Mixin containing methods that support the master problem.
+
+    This helps reduce the size of the main model.py file by encapsulating
+    utility methods for column management and reduced cost calculation.
+
+    Attributes:
+        global_column_pool: Pool of candidate routes.
+        routes: List of routes in the current model.
     """
 
     def sift_global_column_pool(
@@ -433,23 +504,22 @@ class VRPPMasterProblemSupportMixin:
         branching_constraints: Optional[List["AnyBranchingConstraint"]] = None,
         rc_tolerance: float = 1e-5,
     ) -> int:
-        """
-        Scan the global pool for profitable columns under current duals and branching.
+        """Scan the global pool for profitable columns under current duals and branching.
 
         Args:
             node_duals: Base duals from coverage and vehicle limits.
             rcc_duals: Current Root-Capacity Cut duals.
             sri_duals: Current Subset-Row Inequality duals.
             edge_clique_duals: Current Edge Clique cut duals.
-            lci_duals: Current Lifted Cover Inequality duals (γ per cover set S).
+            lci_duals: Current Lifted Cover Inequality duals.
             lci_node_alphas: Per-node lifting coefficients for LCI pricing adjustment.
             branching_constraints: List of active B&B branching constraints.
-            rc_tolerance: Numerical threshold to prevent injection of mathematically
-                         insignificant columns (epsilon deadlock).
+            rc_tolerance: Threshold to prevent injection of insignificant columns.
 
         Returns:
             Number of routes re-activated and added to the RMP.
         """
+
         if not self.global_column_pool:
             return 0
 
@@ -585,19 +655,18 @@ class VRPPMasterProblemSupportMixin:
         return rc
 
     def set_phase(self: MasterProblemSupport, phase: int) -> None:
-        """
-        Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).
+        """Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).
 
         Phase 1: All route objectives are set to 0.0 so the LP has no inherent
-            bias.  Gurobi will find the RMP infeasible (no Big-M artificials),
-            and the Farkas dual ray guides pricing toward columns that restore
-            coverage of mandatory nodes.
+            bias. Gurobi will find the RMP infeasible, and the Farkas dual ray
+            guides pricing toward columns that restore coverage.
         Phase 2: Route objectives are restored to their profit values so the LP
-            maximises total profit (standard column generation).
+            maximises total profit.
 
         Args:
-            phase: 1 or 2.
+            phase: 1 (Feasibility) or 2 (Optimality).
         """
+
         if self.model is None:
             return
 
@@ -619,10 +688,17 @@ class VRPPMasterProblemSupportMixin:
         self.model.update()
 
     def deduplicate_column_pool(self: MasterProblemSupport, tol: float = 1e-6) -> int:
-        """
-        Prune mathematically equivalent routes from the global column pool.
+        """Prune mathematically equivalent routes from the global column pool.
+
         Uses MD5 content hashes of node sequences for O(1) deduplication.
+
+        Args:
+            tol: Numerical tolerance for profit comparison.
+
+        Returns:
+            Number of redundant routes removed.
         """
+
         if not self.global_column_pool:
             return 0
 
@@ -651,19 +727,15 @@ class VRPPMasterProblemSupportMixin:
         return initial_count - len(unique_pool)
 
     def has_artificial_variables_active(self: MasterProblemSupport, tol: float = 1e-6) -> bool:
-        """
-        Check whether any artificial variable is non-zero in the current solution.
-
-        A non-zero α_i after solving the IP indicates that node i cannot be
-        covered by the current column pool under the active branching constraints,
-        so the B&B node should be declared infeasible and pruned.
+        """Check whether any artificial variable is non-zero in current solution.
 
         Args:
             tol: Threshold below which a variable value is considered zero.
 
         Returns:
-            True if at least one α_i > tol, indicating infeasibility.
+            True if at least one artificial variable is active.
         """
+
         # artificial_vars have been removed; infeasibility is now signalled
         # by GRB.INFEASIBLE status directly.
         if self.model is None:

@@ -3,6 +3,13 @@ Type II Unstringing Operator.
 
 Involves three neighbor nodes (V_j, V_k, V_l) and complex reversals.
 This is the correct Type II implementation (formerly III).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_ii import apply_type_ii_us
+    >>> new_route = apply_type_ii_us(route, i, j, k, l)
 """
 
 from typing import Dict, List, Tuple
@@ -36,12 +43,14 @@ def apply_type_ii_us(route: List[int], i: int, j: int, k: int, l: int) -> List[i
     Inserts arcs: (V_{i-1}, V_k), (V_{i+1}, V_j), (V_{k+1}, V_l), (V_{j+1}, V_{l+1})
 
     Args:
-        route: The tour.
-        i: Index of V_i.
-        j, k, l: Indices of neighbor nodes conforming to the Type II topology.
+        route (List[int]): The tour.
+        i (int): Index of V_i.
+        j (int): Index of neighbor node j.
+        k (int): Index of neighbor node k.
+        l (int): Index of neighbor node l.
 
     Returns:
-        Modified tour.
+        List[int]: Modified tour.
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 
@@ -101,15 +110,18 @@ def apply_type_ii_us_profit(
     Apply Type II Unstringing and return profit delta.
 
     Args:
-        route: The tour.
-        i: Index of V_i.
-        j, k, l: Indices as defined in apply_type_ii_us.
-        dist_matrix: Distance matrix.
-        wastes: Waste levels.
-        R, C: Revenue and cost multipliers.
+        route (List[int]): The tour.
+        i (int): Index of V_i.
+        j (int): Index of neighbor node j.
+        k (int): Index of neighbor node k.
+        l (int): Index of neighbor node l.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste levels.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
 
     Returns:
-        (new_route, delta_profit)
+        Tuple[List[int], float]: (new_route, delta_profit)
     """
     n = len(route)
     is_closed = n > 1 and route[0] == route[-1]

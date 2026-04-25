@@ -51,7 +51,14 @@ Heavy computation is delegated to:
 - :func:`_double_bridge_kick` (from ``_tour_construction.py``) for pure ILS
   restarts when population diversity collapses.
 
-References
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two import solve_lkh
+    >>> tour, cost = solve_lkh(dist_matrix)
+
+References:
 ----------
 Helsgaun, K. (2009). General k-opt submoves for the Lin-Kernighan-Helsgaun
   TSP heuristic. Mathematical Programming Computation, 1(2-3), 119–163.
@@ -103,15 +110,30 @@ class TourPopulation:
       exceeds ``diversity_threshold * n`` (i.e., it is sufficiently novel).
     - When the population is full and the new tour is accepted, the worst
       member is evicted.
+
+    Attributes:
+        max_size (int): Maximum population size.
+        diversity_threshold (float): Minimum fractional Hamming distance.
+        members (List[Tuple[List[int], float]]): (tour, cost) pairs.
+        edge_sets (List[Set[Tuple[int, int]]]): Sorted-pair edge sets.
+        best_tour (List[int]): Best solution found.
+        best_cost (float): Best cost found.
+
+    Example:
+        >>> pop = TourPopulation(max_size=10)
+        >>> pop.try_insert(tour, cost)
     """
 
     def __init__(self, max_size: int = 10, diversity_threshold: float = 0.05):
         """
         Args:
-            max_size:            Maximum population size.
-            diversity_threshold: Minimum fractional Hamming distance (0..1)
-                                 from all existing members for a new tour to be
-                                 accepted on diversity grounds.
+            max_size (int): Maximum population size.
+            diversity_threshold (float): Minimum fractional Hamming distance (0..1)
+                from all existing members for a new tour to be accepted on
+                diversity grounds.
+
+        Returns:
+            None
         """
         self.max_size = max_size
         self.diversity_threshold = diversity_threshold
@@ -126,7 +148,15 @@ class TourPopulation:
 
     @staticmethod
     def _to_edge_set(tour: List[int]) -> Set[Tuple[int, int]]:
-        """Convert a closed tour to a frozenset of sorted (i,j) edge pairs."""
+        """
+        Convert a closed tour to a set of sorted (i,j) edge pairs.
+
+        Args:
+            tour (List[int]): Closed tour node sequence.
+
+        Returns:
+            Set[Tuple[int, int]]: Set of edges, where each edge is a sorted tuple.
+        """
         es: Set[Tuple[int, int]] = set()
         for k in range(len(tour) - 1):
             a, b = tour[k], tour[k + 1]
@@ -139,6 +169,13 @@ class TourPopulation:
 
         Hamming(T1, T2) / n ∈ [0, 1], where Hamming counts edges in the
         symmetric difference.
+
+        Args:
+            es_new (Set[Tuple[int, int]]): Edge set of the new tour.
+            n (int): Number of nodes in the problem instance.
+
+        Returns:
+            float: Minimum fractional Hamming distance to current population.
         """
         if not self.edge_sets:
             return 1.0
@@ -158,11 +195,11 @@ class TourPopulation:
         Attempt to insert a new tour into the population.
 
         Args:
-            tour: Closed node sequence.
-            cost: Tour length (raw, unpenalized).
+            tour (List[int]): Closed node sequence.
+            cost (float): Tour length (raw, unpenalized).
 
         Returns:
-            True if the tour was inserted; False otherwise.
+            bool: True if the tour was inserted; False otherwise.
         """
         n = len(tour) - 1
         es_new = self._to_edge_set(tour)
@@ -203,11 +240,11 @@ class TourPopulation:
           edge-Hamming distance, encouraging structural diversity in offspring.
 
         Args:
-            rng:       NumPy Generator.
-            n_parents: Number of parents to sample.
+            rng (np.random.Generator): NumPy Generator.
+            n_parents (int): Number of parents to sample.
 
         Returns:
-            List of (tour, cost) pairs.
+            List[Tuple[List[int], float]]: List of (tour, cost) pairs.
         """
         if len(self.members) <= n_parents:
             return list(self.members)
@@ -248,12 +285,20 @@ class TourPopulation:
 
     @property
     def size(self) -> int:
-        """Current number of members in the population."""
+        """Current number of members in the population.
+
+        Returns:
+            int: Population size.
+        """
         return len(self.members)
 
     @property
     def diversity(self) -> float:
-        """Mean pairwise fractional Hamming distance across population."""
+        """Mean pairwise fractional Hamming distance across population.
+
+        Returns:
+            float: Population diversity.
+        """
         if len(self.members) < 2:
             return 1.0
         n = len(self.members[0][0]) - 1
@@ -302,16 +347,16 @@ def ipt_crossover(  # noqa: C901
     of Helsgaun (2009, Section 3).
 
     Args:
-        parent1:          First parent (closed tour, starts and ends at 0).
-        parent2:          Second parent (closed tour, starts and ends at 0).
-        distance_matrix:  (n x n) raw cost matrix.
-        candidates:       α-candidate lists (penalized, from run_subgradient).
-        stdlib_rng:       stdlib Random for perturbation.
-        max_k:            k-opt depth for gap-filling local search.
-        max_gap_iter:     Maximum improvement passes for each gap.
+        parent1 (List[int]): First parent (closed tour, starts and ends at 0).
+        parent2 (List[int]): Second parent (closed tour, starts and ends at 0).
+        distance_matrix (np.ndarray): (n x n) raw cost matrix.
+        candidates (Dict[int, List[int]]): α-candidate lists (penalized).
+        stdlib_rng (Random): Random number generator.
+        max_k (int): k-opt depth for gap-filling local search.
+        max_gap_iter (int): Maximum improvement passes for each gap.
 
     Returns:
-        (offspring_tour, offspring_cost).
+        Tuple[List[int], float]: (offspring_tour, offspring_cost).
     """
     n = len(parent1) - 1  # number of real nodes
 
@@ -433,17 +478,31 @@ def ipt_crossover(  # noqa: C901
         offspring_path = offspring_path[:-1]
 
     def nearest_free(current: int, free: Set[int]) -> int:
-        """Return the nearest free node to `current`."""
+        """
+        Return the nearest free node to `current`.
+
+        Args:
+            current (int): Current node index.
+            free (Set[int]): Set of available free nodes.
+
+        Returns:
+            int: Index of the nearest free node.
+        """
         return min(free, key=lambda v: distance_matrix[current, v])
 
     def nearest_chain_endpoint(current: int, chains_left: List[List[int]]) -> Tuple[int, int, bool]:
         """
         Find the closest chain endpoint to `current`.
 
-        Returns (chain_idx, end_which, reversed):
-          - chain_idx: index in chains_left
-          - end_which: 0 = connect to chain[0], 1 = connect to chain[-1]
-          - reversed:  whether to traverse the chain in reverse
+        Args:
+            current (int): Current node index.
+            chains_left (List[List[int]]): List of remaining backbone chains.
+
+        Returns:
+            Tuple[int, int, bool]: (chain_idx, end_which, reversed)
+                - chain_idx: index in chains_left
+                - end_which: 0 = connect to chain[0], 1 = connect to chain[-1]
+                - reversed:  whether to traverse the chain in reverse
         """
         best_dist = float("inf")
         best = (0, 0, False)
@@ -581,26 +640,26 @@ def solve_lkh2(  # noqa: C901
         d. Update the global best.
 
     Args:
-        distance_matrix:               (n × n) raw symmetric cost matrix.
-        initial_tour:                  Optional starting tour.
-        max_iterations:                Total iteration budget (crossover + ILS).
-        max_k:                         k-opt depth (2–5).
-        n_candidates:                  Candidate list size per node.
-        population_size:               Size of the tour population.
-        diversity_threshold:           Minimum fractional Hamming distance for
-                                       diversity-driven population insertion.
-        crossover_prob:                Probability of applying IPT crossover
-                                       vs. pure ILS double-bridge restart.
-        sg_max_iter:                   Subgradient iteration budget.
-        sg_mu_init:                    Initial Polyak step multiplier.
-        sg_patience:                   μ-halving patience.
-        local_search_iter_per_offspring: k-opt passes per new solution.
-        recorder:                      Optional telemetry recorder.
-        np_rng:                        NumPy Generator.
-        seed:                          Alternative seed.
+        distance_matrix (np.ndarray): (n × n) raw symmetric cost matrix.
+        initial_tour (Optional[List[int]]): Optional starting tour.
+        max_iterations (int): Total iteration budget (crossover + ILS).
+        max_k (int): k-opt depth (2–5).
+        n_candidates (int): Candidate list size per node.
+        population_size (int): Size of the tour population.
+        diversity_threshold (float): Minimum fractional Hamming distance for
+            diversity-driven population insertion.
+        crossover_prob (float): Probability of applying IPT crossover vs. pure
+            ILS double-bridge restart.
+        sg_max_iter (int): Subgradient iteration budget.
+        sg_mu_init (float): Initial Polyak step multiplier.
+        sg_patience (int): μ-halving patience.
+        local_search_iter_per_offspring (int): k-opt passes per new solution.
+        recorder (Optional[PolicyStateRecorder]): Optional telemetry recorder.
+        np_rng (Optional[np.random.Generator]): NumPy Generator.
+        seed (Optional[int]): Alternative seed.
 
     Returns:
-        (best_tour, best_cost, hk_lower_bound).
+        Tuple[List[int], float, float]: (best_tour, best_cost, hk_bound).
     """
     n = len(distance_matrix)
     if n < 3:
@@ -766,7 +825,17 @@ def solve_lkh(
     Thin wrapper for :func:`solve_lkh2` matching the two-return interface
     of ``lin_kernighan_helsgaun.solve_lkh`` and ``lkh1.solve_lkh``.
 
-    Returns (best_tour, best_cost) without the Held-Karp bound.
+    Args:
+        distance_matrix (np.ndarray): (n × n) symmetric cost matrix.
+        initial_tour (Optional[List[int]]): Optional starting tour (closed).
+        max_iterations (int): Maximum LKH-2 main loop iterations.
+        max_k (int): Maximum k-opt move size (3, 4, or 5).
+        recorder (Optional[PolicyStateRecorder]): Optional telemetry recorder.
+        np_rng (Optional[np.random.Generator]): NumPy Generator.
+        seed (Optional[int]): Alternative seed.
+
+    Returns:
+        Tuple[List[int], float]: (best_tour, best_cost) without the Held-Karp bound.
     """
     tour, cost, _ = solve_lkh2(
         distance_matrix,

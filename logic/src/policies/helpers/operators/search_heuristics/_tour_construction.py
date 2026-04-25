@@ -51,15 +51,17 @@ Dependencies
 - :class:`TourAdapter` from ``._tour_adapter`` to wrap tours for operator calls.
 - :func:`double_bridge` from the shared perturbation operator package.
 
-Typical usage
--------------
->>> from logic.src.policies.helpers.operators.heuristics._tour_construction import (
-...     _initialize_tour, _double_bridge_kick, _2opt_gain, _3opt_gains
-... )
->>> tour = _initialize_tour(dist, initial_tour=None)
->>> gain = _2opt_gain(t1, t2, t3, t4, dist)
->>> if gain > 1e-6:
-...     tour = _double_bridge_kick(tour, dist, rng)
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics._tour_construction import (
+    ...     _initialize_tour, _double_bridge_kick, _2opt_gain, _3opt_gains
+    ... )
+    >>> tour = _initialize_tour(dist, initial_tour=None)
+    >>> gain = _2opt_gain(t1, t2, t3, t4, dist)
+    >>> if gain > 1e-6:
+    ...     tour = _double_bridge_kick(tour, dist, rng)
 """
 
 from __future__ import annotations
@@ -232,6 +234,16 @@ def _2opt_gain(
     Gain = c(t1,t2) + c(t3,t4) − c(t1,t3) − c(t2,t4).
 
     A positive gain means the 2-opt move strictly reduces tour length.
+
+    Args:
+        t1 (int): First node of first edge.
+        t2 (int): Second node of first edge.
+        t3 (int): First node of second edge.
+        t4 (int): Second node of second edge.
+        d (np.ndarray): Distance matrix.
+
+    Returns:
+        float: Calculated gain.
     """
     return d[t1, t2] + d[t3, t4] - d[t1, t3] - d[t2, t4]
 
@@ -255,6 +267,18 @@ def _3opt_gains(
     ``move_kopt_intra`` (k=3).
 
     Gain > 0 means an improving move for that case.
+
+    Args:
+        t1 (int): First node of first edge.
+        t2 (int): Second node of first edge.
+        t3 (int): First node of second edge.
+        t4 (int): Second node of second edge.
+        t5 (int): First node of third edge.
+        t6 (int): Second node of third edge.
+        d (np.ndarray): Distance matrix.
+
+    Returns:
+        List[float]: Gains for cases 0-6.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6]
     return [
@@ -292,6 +316,20 @@ def _4opt_gains(
     Removes edges (t1,t2), (t3,t4), (t5,t6), (t7,t8).
 
     Returns a list of three gain values (indices 0–2).
+
+    Args:
+        t1 (int): First node of first edge.
+        t2 (int): Second node of first edge.
+        t3 (int): First node of second edge.
+        t4 (int): Second node of second edge.
+        t5 (int): First node of third edge.
+        t6 (int): Second node of third edge.
+        t7 (int): First node of fourth edge.
+        t8 (int): Second node of fourth edge.
+        d (np.ndarray): Distance matrix.
+
+    Returns:
+        List[float]: Gains for cases 0-2.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8]
     return [
@@ -323,6 +361,22 @@ def _5opt_gains(
     Removes edges (t1,t2), (t3,t4), (t5,t6), (t7,t8), (t9,t10).
 
     Returns a list of five gain values (indices 0–4).
+
+    Args:
+        t1 (int): First node of first edge.
+        t2 (int): Second node of first edge.
+        t3 (int): First node of second edge.
+        t4 (int): Second node of second edge.
+        t5 (int): First node of third edge.
+        t6 (int): Second node of third edge.
+        t7 (int): First node of fourth edge.
+        t8 (int): Second node of fourth edge.
+        t9 (int): First node of fifth edge.
+        t10 (int): Second node of fifth edge.
+        d (np.ndarray): Distance matrix.
+
+    Returns:
+        List[float]: Gains for cases 0-4.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8] + d[t9, t10]
     return [

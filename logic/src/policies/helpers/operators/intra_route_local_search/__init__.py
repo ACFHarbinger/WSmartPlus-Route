@@ -3,6 +3,27 @@ Intra-route Local Search Operators.
 
 This package contains operators that perform moves within a single route,
 or moves where the source and destination may be the same or different routes.
+
+Attributes:
+    move_relocate: Relocate a single node to another position.
+    move_swap: Swap two nodes within or between routes.
+    move_2opt_intra: 2-opt intra-route edge reversal.
+    move_3opt_intra: 3-opt intra-route triple-edge reconnection.
+    move_kopt_intra: General k-opt intra-route operator.
+    move_or_opt: Or-opt chain relocation within a route.
+    or_opt_route: Or-opt applied to a plain route list.
+    three_opt_route: 3-opt applied to a plain route list.
+    two_opt_route: 2-opt applied to a plain route list.
+    k_permutation: Re-order k consecutive nodes to find a cheaper arrangement.
+    three_permutation: 3-permutation convenience wrapper.
+    relocate_chain: Relocate a chain of consecutive nodes.
+    apply_intra_route_cross_exchange: Intra-route CROSS-exchange segment swap.
+
+Example:
+    >>> from logic.src.policies.helpers.operators.intra_route_local_search import (
+    ...     move_2opt_intra, move_relocate, move_or_opt,
+    ... )
+    >>> improved = move_2opt_intra(ls, u=3, v=7, r_u=0, p_u=2, r_v=0, p_v=5)
 """
 
 from .cross_exchange import apply_intra_route_cross_exchange
