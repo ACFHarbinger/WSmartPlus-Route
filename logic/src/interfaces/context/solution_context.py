@@ -191,6 +191,9 @@ class SolutionContext:
 
         Produces [0, r1_n1, r1_n2, ..., 0, r2_n1, ...., 0] suitable for
         passing back to the simulator's single-tour interface.
+
+        Returns:
+            List[int]: Flattened tour
         """
         flat = [0]
         for route in self.routes:

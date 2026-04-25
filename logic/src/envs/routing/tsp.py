@@ -1,8 +1,20 @@
 """
-TSP Environment implementation.
+TSP Environment — Traveling Salesman Problem.
 
-Standard Traveling Salesman Problem (TSP) where the agent must visit all nodes
-exactly once and return to the depot while minimizing the total distance traveled.
+The agent must visit all nodes exactly once and return to the depot
+while minimising the total distance traveled.  The depot is prepended
+to the customer locations so that index 0 always refers to the depot.
+
+Reward: -(total tour length)
+Done:   all nodes visited and agent back at depot
+
+Attributes:
+    TSPEnv: RL4CO environment for the Traveling Salesman Problem.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("tsp", num_loc=20)
+    >>> td = env.reset(batch_size=[4])
 """
 
 from __future__ import annotations
@@ -18,9 +30,17 @@ from logic.src.envs.generators import TSPGenerator
 
 class TSPEnv(RL4COEnvBase):
     """
-    Traveling Salesman Problem Environment.
-    The agent must visit all nodes exactly once and return to the depot
-    while minimizing the total distance traveled.
+    Traveling Salesman Problem (TSP) environment.
+
+    The depot (index 0) is the starting and finishing city.  All other
+    nodes are customers that must be visited exactly once.  The policy
+    selects the next unvisited customer at each step; when all customers
+    have been visited, only the depot is a valid action.
+
+    Attributes:
+        NAME: Environment identifier string ``"tsp"``.
+        name: Alias for NAME used by the registry.
+        node_dim: Node feature dimension — 2 for (x, y) coordinates.
     """
 
     NAME = "tsp"
@@ -34,7 +54,14 @@ class TSPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
-        """Initialize TSPEnv."""
+        """Initialize TSPEnv.
+
+        Args:
+            generator: Pre-built TSPGenerator; created from generator_params if None.
+            generator_params: Keyword arguments forwarded to TSPGenerator constructor.
+            device: Torch device for tensor placement.
+            kwargs: Additional arguments forwarded to RL4COEnvBase.
+        """
         generator_params = generator_params or kwargs
         if generator is None:
             generator = TSPGenerator(**generator_params, device=device)
@@ -42,7 +69,17 @@ class TSPEnv(RL4COEnvBase):
         super().__init__(generator, generator_params, device, **kwargs)
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialize TSP state."""
+        """Initialize TSP state.
+
+        Args:
+            td: TensorDict produced by the generator, containing ``locs``
+                (customer coordinates) and ``depot`` tensors.
+
+        Returns:
+            TensorDict: Initialised state with ``current_node``, ``visited``,
+                ``tour``, ``tour_length``, ``first_node``, ``reward``,
+                ``terminated``, and ``truncated`` fields.
+        """
         if self.generator is None:
             raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
         device = td.device
@@ -67,7 +104,17 @@ class TSPEnv(RL4COEnvBase):
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
-        """Execute action and update state."""
+        """Execute action and update state.
+
+        Args:
+            td: Current TensorDict state containing ``action``, ``current_node``,
+                ``depot``, ``locs``, ``visited``, ``tour``, and ``tour_length``.
+
+        Returns:
+            TensorDict: Updated state with incremented ``tour_length``, updated
+                ``visited`` mask, ``current_node`` set to the selected action,
+                and the action appended to ``tour``.
+        """
         action = td["action"]
         current = td["current_node"].squeeze(-1)
 
@@ -95,7 +142,16 @@ class TSPEnv(RL4COEnvBase):
         return td
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
-        """Can visit any unvisited node. Return to depot only when all nodes visited."""
+        """Can visit any unvisited node. Return to depot only when all nodes visited.
+
+        Args:
+            td: Current state containing ``visited`` and ``current_node`` fields.
+
+        Returns:
+            torch.Tensor: Boolean mask of shape ``(batch, num_nodes + 1)`` where
+                ``True`` marks a valid action.  Depot (index 0) is valid only
+                when all customers have been visited.
+        """
         mask = ~td["visited"].clone()
 
         # If all nodes visited (except depot), depot is the only valid action
@@ -110,12 +166,30 @@ class TSPEnv(RL4COEnvBase):
         return mask
 
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Reward is negative total tour length."""
+        """Reward is negative total tour length.
+
+        Args:
+            td: Final state TensorDict containing ``tour_length``.
+            actions: Unused; reward is derived from the accumulated ``tour_length``.
+
+        Returns:
+            torch.Tensor: Scalar reward per batch element, equal to
+                ``-tour_length``, shape ``(batch,)``.
+        """
         # actions is unused here as reward is state-based (tour_length)
         return -td["tour_length"]
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Done when all nodes visited and back at depot."""
+        """Done when all nodes visited and back at depot.
+
+        Args:
+            td: Current state containing ``visited`` (all nodes) and
+                ``current_node`` tensors.
+
+        Returns:
+            torch.Tensor: Boolean tensor of shape ``(batch,)``; ``True`` when
+                all nodes have been visited and the agent is back at the depot.
+        """
         all_visited = td["visited"].all(dim=-1)
         current_is_depot = td["current_node"].squeeze(-1) == 0
         done = all_visited & current_is_depot

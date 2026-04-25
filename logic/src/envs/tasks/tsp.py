@@ -1,5 +1,20 @@
 """
 TSP problem definition for offline evaluation.
+
+Attributes:
+    TSP: Traveling Salesman Problem (TSP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.tsp import TSP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+    ...     "depot": torch.tensor([0.0]),
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 0]]])
+    >>> length, cost_dict, _ = TSP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([2.0])
 """
 
 from __future__ import annotations
@@ -21,6 +36,9 @@ class TSP(BaseProblem):
 
     Cost computation supports both Euclidean (``locs`` key) and
     pre-computed distance matrix inputs.
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "tsp"
@@ -60,7 +78,15 @@ class TSP(BaseProblem):
 
     @staticmethod
     def _cost_from_locs(pi: torch.Tensor, locs: torch.Tensor) -> torch.Tensor:
-        """Compute Euclidean tour length including the closing edge."""
+        """Compute Euclidean tour length including the closing edge.
+
+        Args:
+            pi: Description of pi.
+            locs: Description of locs.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         # pi: (B, N), locs: (B, N, 2)
         visited = locs.gather(1, pi.unsqueeze(-1).expand(*pi.shape, locs.shape[-1]))
         # Closing edge: last node → first node
@@ -69,7 +95,15 @@ class TSP(BaseProblem):
 
     @staticmethod
     def _cost_from_matrix(pi: torch.Tensor, mat: torch.Tensor) -> torch.Tensor:
-        """Compute tour length from a (possibly asymmetric) cost matrix."""
+        """Compute tour length from a (possibly asymmetric) cost matrix.
+
+        Args:
+            pi: Description of pi.
+            mat: Description of mat.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         B, N = pi.shape
         if mat.dim() == 2:
             mat = mat.unsqueeze(0).expand(B, -1, -1)

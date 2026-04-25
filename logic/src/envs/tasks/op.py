@@ -1,5 +1,22 @@
 """
 OP problem definition for offline evaluation.
+
+Attributes:
+    OP: Orienteering Problem (OP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.op import OP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+    ...     "prize": torch.tensor([[0.0, 10.0]]),
+    ...     "time_limit": torch.tensor([10.0]),
+    ...     "depot": torch.tensor([0.0]),
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 0]]])
+    >>> length, cost_dict, _ = OP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([-2.0])
 """
 
 from __future__ import annotations
@@ -17,6 +34,9 @@ class OP(BaseProblem):
 
     Reward = total collected prize (maximisation).
     Returned as negative cost for minimisation frameworks.
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "op"

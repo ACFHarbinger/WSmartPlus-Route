@@ -1,7 +1,7 @@
 """scwcvrp.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    SCWCVRP: Stochastic Capacitated WCVRP task, extending WCVRP with uncertainty modeling.
 
 Example:
     >>> import scwcvrp
@@ -11,6 +11,10 @@ from .wcvrp import WCVRP
 
 
 class SCWCVRP(WCVRP):
-    """Selective Capacitated WCVRP."""
+    """Selective Capacitated WCVRP.
+
+    Attributes:
+        NAME: Environment name identifier.
+    """
 
     NAME = "scwcvrp"

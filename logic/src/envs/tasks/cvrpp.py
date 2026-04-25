@@ -1,7 +1,7 @@
 """cvrpp.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    CVRPP: Capacitated VRPP task inheriting prize-collection and capacity logic from VRPP.
 
 Example:
     >>> import cvrpp
@@ -16,6 +16,9 @@ class CVRPP(VRPP):
     """
     Capacitated VRPP.
     Includes vehicle capacity constraints.
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "cvrpp"

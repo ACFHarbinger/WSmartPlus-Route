@@ -3,6 +3,22 @@ CVRP problem generator.
 
 Generates Capacitated Vehicle Routing Problem instances following the
 benchmark conventions of Kool et al. (2019).
+
+Attributes:
+    CAPACITIES: dict[int, float]: Vehicle capacity table from Kool et al. (2019), Hottung et al. (2022), Kim et al. (2023)
+    CVRPGenerator: Generator for the Capacitated Vehicle Routing Problem (CVRP).
+        Produces instances with:
+        - locs             : [*B, num_loc, 2]  — customer coordinates
+        - depot            : [*B, 2]           — depot coordinate
+        - demand           : [*B, num_loc]     — normalised demand in (0, 1]
+        - vehicle_capacity : [*B]              — vehicle capacity (normalised to 1.0)
+
+    Example:
+        >>> from src.envs.generators import get_generator
+        >>> generator = get_generator("cvrp", num_loc=20)
+        >>> problem = generator.generate()
+        >>> problem
+        <ProblemInstance: ...>
 """
 
 from __future__ import annotations
@@ -42,6 +58,14 @@ class CVRPGenerator(Generator):
     - depot            : [*B, 2]           — depot coordinate
     - demand           : [*B, num_loc]     — normalised demand in (0, 1]
     - vehicle_capacity : [*B]              — vehicle capacity (normalised to 1.0)
+
+    Attributes:
+        min_demand: Minimum demand (integer, before normalisation).
+        max_demand: Maximum demand (integer, before normalisation).
+        vehicle_capacity: Normalised vehicle capacity.
+        capacity: Raw capacity used for normalisation.
+        depot_type: Depot placement ("center", "corner", "random").
+
     """
 
     def __init__(
@@ -63,6 +87,8 @@ class CVRPGenerator(Generator):
         """
         Initialise CVRPGenerator.
 
+
+
         Args:
             num_loc: Number of customer locations (excluding depot).
             min_loc: Lower bound for node coordinates.
@@ -77,7 +103,7 @@ class CVRPGenerator(Generator):
             device: Target device.
             rng: Optional numpy RNG.
             generator: Optional torch RNG.
-            **kwargs: Forwarded to Generator base.
+            kwargs: Forwarded to Generator base.
         """
         super().__init__(
             num_loc=num_loc,
@@ -100,7 +126,18 @@ class CVRPGenerator(Generator):
         self.capacity = capacity
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
-        """Generate a batch of CVRP instances."""
+        """Generate a batch of CVRP instances.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with:
+                locs: [*B, num_loc, 2]  — customer coordinates
+                depot: [*B, 2]           — depot coordinate
+                demand: [*B, num_loc]     — normalised demand in (0, 1]
+                vehicle_capacity: [*B]              — vehicle capacity (normalised to 1.0)
+        """
         locs = self._generate_locations(batch_size)
         depot = self._generate_depot(batch_size)
 
@@ -128,7 +165,14 @@ class CVRPGenerator(Generator):
         )
 
     def _generate_depot(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate depot location."""
+        """Generate depot location.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            Depot location.
+        """
         if self.depot_type == "center":
             center = (self.max_loc + self.min_loc) / 2.0
             return torch.full((*batch_size, 2), center, device=self.device, dtype=torch.float32)

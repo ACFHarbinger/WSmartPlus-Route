@@ -3,6 +3,27 @@ Environment module for WSmart-Route.
 
 This module provides RL4CO-style environment abstractions for
 combinatorial optimization problems.
+
+Attributes:
+    WCVRPGenerator: Generator for Waste Collection VRP instances.
+    VRPPGenerator: Generator for VRP with Profits instances.
+    Generator: Abstract base class for all instance generators.
+    IRPGenerator: Generator for Inventory Routing Problem instances.
+    ATSPGenerator: Generator for Asymmetric TSP instances.
+    CVRPGenerator: Generator for Capacitated VRP instances.
+    OPGenerator: Generator for Orienteering Problem instances.
+    PCTSPGenerator: Generator for Prize-Collecting TSP instances.
+    PDPGenerator: Generator for Pickup and Delivery Problem instances.
+    ThOPGenerator: Generator for Thief Orienteering Problem instances.
+    RL4COEnvBase: Abstract base class for all routing environments.
+    ImprovementEnvBase: Base class for improvement-based routing environments.
+    ENV_REGISTRY: Mapping of problem name strings to their environment classes.
+    get_env: Factory function that instantiates an environment by name.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("vrpp", num_loc=50)
+    >>> td = env.reset()
 """
 
 from logic.src.envs.base.base import RL4COEnvBase
@@ -63,7 +84,7 @@ def get_env(name: str, **kwargs) -> RL4COEnvBase:
 
     Args:
         name: Environment name (vrpp, cvrpp, wcvrp, irp, atsp, cvrp, op, etc.)
-        **kwargs: Environment configuration parameters.
+        kwargs: Environment configuration parameters.
 
     Returns:
         Initialized environment instance.

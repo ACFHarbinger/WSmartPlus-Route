@@ -7,6 +7,28 @@ Evaluates a complete ThOP solution given as a sequence of actions:
 
 The evaluation simulates the speed-degraded travel and returns the total
 profit together with feasibility metrics (time used, weight used).
+
+Attributes:
+    ThOP: Thief Orienteering Problem (ThOP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.thop import ThOP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+    ...     "item_weights": torch.tensor([[0.0, 1.0]]),
+    ...     "item_profits": torch.tensor([[0.0, 10.0]]),
+    ...     "item_city": torch.tensor([[0.0, 1.0]]),
+    ...     "capacity": torch.tensor([1.0]),
+    ...     "max_time": torch.tensor([10.0]),
+    ...     "v_max": torch.tensor([1.0]),
+    ...     "v_min": torch.tensor([0.1]),
+    ...     "depot": torch.tensor([0.0]),
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 0]]])
+    >>> length, cost_dict, _ = ThOP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([-2.0])
 """
 
 from __future__ import annotations
@@ -33,6 +55,9 @@ class ThOP(BaseProblem):
     Objective: maximise total item profit subject to
       * total travel time ≤ T_max (time budget), and
       * total carried weight ≤ W (knapsack capacity).
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "thop"

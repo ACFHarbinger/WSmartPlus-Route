@@ -4,6 +4,21 @@ IRP problem generator.
 Generates deterministic multi-period Inventory Routing Problem instances.
 Each instance specifies node locations, per-node demands, holding costs,
 initial inventories, inventory capacities, and a vehicle capacity.
+
+Attributes:
+    IRPGenerator: IRPGenerator class.
+
+Example:
+    >>> from logic.src.envs.generators import IRPGenerator
+    >>> generator = IRPGenerator(num_loc=20, num_periods=5)
+    >>> instance = generator.generate()
+    >>> instance
+    TensorDict({
+        'locs': TensorDict(
+            # ... customer locations (shape: [*B, 20, 2]) ...
+        )
+        # ... other fields ...
+    })
 """
 
 from __future__ import annotations
@@ -42,6 +57,19 @@ class IRPGenerator(Generator):
 
     The planning horizon T = num_periods is stored as an integer attribute and is
     shared across the batch (all instances in one batch have the same T).
+
+    Attributes:
+        num_periods: Planning horizon T.
+        vehicle_capacity: Vehicle capacity Q (normalised).
+        min_demand: Minimum per-period demand rate.
+        max_demand: Maximum per-period demand rate.
+        demand_distribution: Demand distribution strategy.
+        min_holding_cost: Minimum unit holding cost.
+        max_holding_cost: Maximum unit holding cost.
+        min_init_inventory: Minimum initial inventory fraction.
+        max_init_inventory: Maximum initial inventory fraction.
+        node_inventory_capacity: Node inventory capacity C_i.
+        depot_type: Depot placement strategy.
     """
 
     def __init__(
@@ -69,6 +97,8 @@ class IRPGenerator(Generator):
         """
         Initialise IRPGenerator.
 
+
+
         Args:
             num_loc: Number of customer locations (excluding depot).
             num_periods: Planning horizon T (number of delivery periods).
@@ -88,7 +118,7 @@ class IRPGenerator(Generator):
             device: Target device for generated tensors.
             rng: Optional numpy RNG.
             generator: Optional torch RNG.
-            **kwargs: Forwarded to Generator base.
+            kwargs: Forwarded to Generator base.
         """
         super().__init__(num_loc, min_loc, max_loc, loc_distribution, device, rng, generator, **kwargs)
 
@@ -109,7 +139,22 @@ class IRPGenerator(Generator):
     # ------------------------------------------------------------------
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
-        """Generate a batch of IRP instances."""
+        """Generate a batch of IRP instances.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with:
+                locs: [*B, num_loc, 2]           — customer coordinates
+                depot: [*B, 2]                    — depot coordinate
+                demands: [*B, num_loc]            — per-period demand rates d_i
+                holding_costs: [*B, num_loc]      — unit holding costs h_i
+                initial_inventory: [*B, num_loc]  — initial inventories I_{i,0}
+                inventory_capacity: [*B, num_loc] — node capacities C_i
+                vehicle_capacity: [*B]           — vehicle capacity Q
+                num_periods: int                  — planning horizon T
+        """
         locs = self._generate_locations(batch_size)
         depot = self._generate_depot(batch_size)
         demands = self._generate_demands(batch_size)
@@ -147,7 +192,14 @@ class IRPGenerator(Generator):
     # ------------------------------------------------------------------
 
     def _generate_depot(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate depot location."""
+        """Generate depot location.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            Depot location.
+        """
         if self.depot_type == "center":
             center = (self.max_loc + self.min_loc) / 2.0
             return torch.full((*batch_size, 2), center, device=self.device, dtype=torch.float32)
@@ -159,7 +211,14 @@ class IRPGenerator(Generator):
             raise ValueError(f"Unknown depot_type '{self.depot_type}'. Choose: center, corner, random.")
 
     def _generate_demands(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate per-node daily demand rates d_i (constant across periods)."""
+        """Generate per-node daily demand rates d_i (constant across periods).
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            Per-node daily demand rates.
+        """
         if self.demand_distribution == "uniform":
             d = (
                 torch.rand(*batch_size, self.num_loc, device=self.device, generator=self.generator)
@@ -173,7 +232,14 @@ class IRPGenerator(Generator):
         return d.clamp(max=self.node_inventory_capacity)
 
     def _generate_holding_costs(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate per-node unit holding costs h_i."""
+        """Generate per-node unit holding costs h_i.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            Holding costs for each node.
+        """
         return (
             torch.rand(*batch_size, self.num_loc, device=self.device, generator=self.generator)
             * (self.max_holding_cost - self.min_holding_cost)
@@ -181,7 +247,14 @@ class IRPGenerator(Generator):
         )
 
     def _generate_initial_inventory(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate initial inventory I_{i,0} as a fraction of C_i."""
+        """Generate initial inventory I_{i,0} as a fraction of C_i.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            Initial inventory for each node.
+        """
         frac = (
             torch.rand(*batch_size, self.num_loc, device=self.device, generator=self.generator)
             * (self.max_init_inventory - self.min_init_inventory)

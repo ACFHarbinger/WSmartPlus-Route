@@ -7,6 +7,14 @@ end at the depot; not all customers need to be visited.
 
 Reward: sum of prizes collected
 Done:   agent returns to depot (action = 0, step > 0)
+
+Attributes:
+    OPEnv: OP environment.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("op", num_loc=50)
+    >>> td = env.reset()
 """
 
 from __future__ import annotations
@@ -32,6 +40,11 @@ class OPEnv(RL4COEnvBase):
     The ``max_length`` budget is enforced via the action mask: a customer
     is only selectable if the agent can reach it AND return to the depot
     within the remaining budget.
+
+    Attributes:
+        NAME: Name of the environment.
+        name: Name of the environment.
+        node_dim: Node feature dimension (x, y coordinates only → 2).
     """
 
     NAME: str = "op"
@@ -45,7 +58,19 @@ class OPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
-        """Initialize the OP environment."""
+        """Initialize the OP environment.
+
+        Args:
+            generator: Pre-built OPGenerator instance.  A new one is created
+                from *generator_params* if not supplied.
+            generator_params: Keyword arguments forwarded to OPGenerator when
+                *generator* is None.
+            device: Torch device string or object.
+            kwargs: Additional keyword arguments forwarded to the base class.
+
+        Returns:
+            None
+        """
         generator_params = generator_params or {}
         if generator is None:
             generator = OPGenerator(**generator_params, device=device)
@@ -56,7 +81,14 @@ class OPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialise OP episode state."""
+        """Initialise OP episode state.
+
+        Args:
+            td: Input TensorDict containing graph structure and node properties.
+
+        Returns:
+            TensorDict: Initialized OP state with per-episode mutable fields.
+        """
         if "visited" in td.keys():
             return td
 
@@ -106,10 +138,25 @@ class OPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """Execute one step in the environment.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            TensorDict: Updated TensorDict with new state and reward information.
+        """
         return OpsMixin._step(self, td)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
-        """Execute one OP routing action: move, collect prize, update length."""
+        """Execute one OP routing action: move, collect prize, update length.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            TensorDict: Updated TensorDict with new state and reward information.
+        """
         action = td["action"]
         if action.dim() > 1:
             action = action.squeeze(-1)
@@ -140,7 +187,14 @@ class OPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Done when the agent returns to the depot after at least one move."""
+        """Done when the agent returns to the depot after at least one move.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            BoolTensor [*B] — True for completed episodes.
+        """
         current = td["current_node"].squeeze(-1)
         step = td["i"].squeeze(-1) if td["i"].dim() > 1 else td["i"]
         return (current == 0) & (step > 0)
@@ -153,6 +207,12 @@ class OPEnv(RL4COEnvBase):
           (c) can be reached and depot reached after without exceeding budget.
 
         Depot (index 0) is always valid.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            BoolTensor [*B, num_nodes] — True indicates a selectable action.
         """
         current = td["current_node"].squeeze(-1)
         current_loc = td["locs"].gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
@@ -172,5 +232,13 @@ class OPEnv(RL4COEnvBase):
         return mask
 
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Reward is the total collected prize."""
+        """Reward is the total collected prize.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+            actions: Action sequence (unused in this implementation).
+
+        Returns:
+            Tensor [*B] — scalar reward per batch instance.
+        """
         return td["current_total_prize"]

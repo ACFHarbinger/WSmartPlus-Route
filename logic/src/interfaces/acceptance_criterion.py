@@ -54,6 +54,9 @@ class IAcceptanceCriterion(ABC):
 
     Implementations MUST NOT store mutable state that changes during
     ``accept()`` itself.  State advances exclusively via ``step()``.
+
+    Attributes:
+        None
     """
 
     @abstractmethod

@@ -1,7 +1,7 @@
 """wcvrp.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    WCVRP: Waste Collection VRP task definition for offline route evaluation.
 
 Example:
     >>> import wcvrp
@@ -15,7 +15,11 @@ from logic.src.envs.tasks.base import BaseProblem
 class WCVRP(BaseProblem):
     """
     Waste Collection VRP (WCVRP).
+
     Objective: Minimize Overflow + TourLength - CollectedWaste.
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "wcvrp"

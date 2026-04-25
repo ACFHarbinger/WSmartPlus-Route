@@ -52,7 +52,7 @@ class IPolicy(Protocol):
             env: Environment
             strategy: Sampling strategy
             num_starts: Number of starts
-            **kwargs: Additional keyword arguments
+            kwargs: Additional keyword arguments
 
         Returns:
             Union[TensorDict, Dict[str, Any]]: TensorDict or dict containing the output data

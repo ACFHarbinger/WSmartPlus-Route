@@ -1,5 +1,27 @@
 """
 VRPP problem generator.
+
+Attributes:
+    VRPPGenerator: VRPPGenerator class.
+
+Example:
+    >>> from logic.src.envs.generators import VRPPGenerator
+    >>> generator = VRPPGenerator(num_loc=50)
+    >>> instance = generator.generate()
+    >>> instance
+    TensorDict(
+        {
+            'locs': TensorDict(
+                # ... customer locations (shape: [*B, 50, 2]) ...
+            ),
+            'depot': TensorDict(
+                # ... depot location (shape: [*B, 2]) ...
+            ),
+            'waste': TensorDict(
+                # ... waste at each location (shape: [*B, 50]) ...
+            )
+        }
+    )
 """
 
 from __future__ import annotations
@@ -25,6 +47,18 @@ class VRPPGenerator(Generator):
     - Waste values for visiting each location
     - Vehicle capacity
     - Maximum route length
+
+    Attributes:
+        num_loc: Number of customer locations.
+        min_loc: Lower bound for node coordinates.
+        max_loc: Upper bound for node coordinates.
+        loc_distribution: Spatial distribution strategy.
+        min_waste: Minimum waste value.
+        max_waste: Maximum waste value.
+        waste_distribution: Waste value distribution strategy.
+        capacity: Vehicle capacity.
+        max_length: Maximum route length.
+        depot_type: Depot placement strategy.
     """
 
     def __init__(
@@ -65,7 +99,7 @@ class VRPPGenerator(Generator):
             data_dir: Directory for grid data.
             indices: Indices for grid generation.
             generator: Generator for random number generation.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(num_loc, min_loc, max_loc, loc_distribution, device, generator, **kwargs)
 
@@ -87,7 +121,20 @@ class VRPPGenerator(Generator):
             pass
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
-        """Generate VRPP instances."""
+        """Generate VRPP instances.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with:
+                locs: [*B, num_loc, 2]     — customer locations
+                depot: [*B, 2]              — depot location
+                waste: [*B, num_loc]        — waste at each location
+                capacity: [*B]               — vehicle capacity
+                max_waste: [*B]             — max waste per vehicle
+                max_length: [*B]            — max route length
+        """
         # Generate locations
         locs = self._generate_locations(batch_size)
 
@@ -120,7 +167,14 @@ class VRPPGenerator(Generator):
         )
 
     def _generate_depot(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate depot location based on depot_type."""
+        """Generate depot location based on depot_type.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with depot location (shape: [*B, 2]).
+        """
         if self.depot_type == "center":
             center = (self.max_loc + self.min_loc) / 2
             return torch.full((*batch_size, 2), center, device=self.device)
@@ -132,7 +186,14 @@ class VRPPGenerator(Generator):
             raise ValueError(f"Unknown depot type: {self.depot_type}")
 
     def _generate_waste(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate waste values."""
+        """Generate waste values.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with waste values (shape: [*B, num_loc]).
+        """
         # Use common utility for consistency
         from logic.src.data.generators.waste import generate_waste
 

@@ -61,7 +61,7 @@ class IRouteImprovement(ABC):
 
         Args:
             tour: Initial tour (list of bin IDs including depot ``0``s).
-            **kwargs: Context dictionary containing at minimum
+            kwargs: Context dictionary containing at minimum
                 ``distance_matrix``.  May contain ``wastes``, ``capacity``,
                 ``R``, ``C``, ``seed``, and other solver-specific keys.
 
@@ -70,4 +70,5 @@ class IRouteImprovement(ABC):
                 - ``refined_tour``: The best tour found.
                 - ``metrics``: Telemetry for this improvement pass, suitable
                   for merging into ``SearchContext.improvement_metrics``.
+
         """

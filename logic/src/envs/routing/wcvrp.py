@@ -3,6 +3,14 @@ WCVRP Environment implementation.
 
 Waste Collection Vehicle Routing Problem: Collect waste from bins
 while respecting vehicle capacity constraints.
+
+Attributes:
+    WCVRPEnv: Class definition of WCVRP Env.
+
+Example:
+    >>> from logic.src.envs.generators import WCVRPGenerator
+    >>> generator = WCVRPGenerator(num_nodes=10, generator_params={"num_nodes": 10})
+    >>> env = WCVRPEnv(generator)
 """
 
 from __future__ import annotations
@@ -23,6 +31,9 @@ class WCVRPEnv(RL4COEnvBase):
 
     The agent must collect waste from bins before they overflow,
     while minimizing travel cost and respecting vehicle capacity.
+
+    Attributes:
+        WCVRPEnv: Class definition of WCVRP Env.
     """
 
     NAME = "wcvrp"
@@ -43,6 +54,8 @@ class WCVRPEnv(RL4COEnvBase):
         """
         Initialize WCVRPEnv.
 
+
+
         Args:
             generator: Problem instance generator.
             generator_params: Parameters for generator initialization.
@@ -52,7 +65,7 @@ class WCVRPEnv(RL4COEnvBase):
             revenue_kg: Optional revenue per kg (overrides waste_weight).
             cost_km: Optional cost per kg (overrides cost_weight).
             device: Device for torch tensors ('cpu' or 'cuda').
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         generator_params = generator_params or kwargs
         if generator is None:
@@ -245,6 +258,14 @@ class WCVRPEnv(RL4COEnvBase):
         return tensordict
 
     def _step(self, tensordict: TensorDict) -> TensorDict:
+        """Step through environment with OpsMixin.
+
+        Args:
+            tensordict: TensorDict containing the state.
+
+        Returns:
+            TensorDict: The next state.
+        """
         return OpsMixin._step(self, tensordict)
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
@@ -325,6 +346,8 @@ class WCVRPEnv(RL4COEnvBase):
 
         Efficient routing (low cost, high collection) = high reward.
 
+
+
         Args:
             tensordict (TensorDict): Current state containing:
                 - total_collected (Tensor): Total waste collected, shape (batch,)
@@ -335,9 +358,11 @@ class WCVRPEnv(RL4COEnvBase):
                 - visited (BoolTensor): Visit status, shape (batch, num_nodes)
                 - waste (Tensor): Bin fill levels, shape (batch, num_nodes) or (batch, N)
                 - max_waste (Tensor): Maximum bin capacity, shape (batch,) or (batch, N)
+            actions (Optional[torch.Tensor]): Actions taken (optional, not used in this reward calculation).
 
         Returns:
-            Tensor: Reward tensor, shape (batch,)
+            torch.Tensor: Reward tensor, shape (batch,)
+
         """
         collection = tensordict["total_collected"]
         cost = tensordict["tour_length"]

@@ -9,6 +9,32 @@ item selection and tour cost.
 
 Reference: Chagas & Wagner (2020), "Ants can Orienteer a Thief in their
            Robbery" – Oper. Res. Lett. 48(6), 708–714.
+
+Attributes:
+    ThOPGenerator: ThOPGenerator class.
+
+Example:
+    >>> from logic.src.envs.generators import ThOPGenerator
+    >>> generator = ThOPGenerator(num_loc=20)
+    >>> instance = generator.generate()
+    >>> instance
+    TensorDict({
+        'locs': TensorDict(
+            # ... thief locations (shape: [*B, 20, 2]) ...
+        ),
+        'item_weights': TensorDict(
+            # ... item weights (shape: [*B, 60]) ...
+        ),
+        'item_profits': TensorDict(
+            # ... item profits (shape: [*B, 60]) ...
+        ),
+        'capacity': TensorDict(
+            # ... knapsack capacity (shape: [*B]) ...
+        ),
+        'max_time': TensorDict(
+            # ... time budget (shape: [*B]) ...
+        )
+    })
 """
 
 from __future__ import annotations
@@ -48,6 +74,22 @@ class ThOPGenerator(Generator):
     ``max_time``     : ``[*B]``                 time budget T
     ``v_max``        : ``[*B]``                 maximum travel speed
     ``v_min``        : ``[*B]``                 minimum travel speed (at W = capacity)
+
+    Attributes:
+        num_loc: Number of customer locations.
+        num_items_per_city: Number of items per city.
+        min_loc: Lower bound for node coordinates.
+        max_loc: Upper bound for node coordinates.
+        loc_distribution: Spatial distribution strategy.
+        min_weight: Minimum item weight.
+        max_weight: Maximum item weight.
+        min_profit: Minimum item profit.
+        max_profit: Maximum item profit.
+        capacity: Knapsack weight capacity.
+        max_time: Time budget.
+        v_max: Maximum travel speed.
+        v_min: Minimum travel speed.
+        depot_type: Depot placement strategy.
     """
 
     def __init__(
@@ -98,7 +140,7 @@ class ThOPGenerator(Generator):
             device: Target torch device.
             rng: Optional numpy random generator.
             generator: Optional torch random generator.
-            **kwargs: Forwarded to Generator base class.
+            kwargs: Forwarded to Generator base class.
         """
         super().__init__(
             num_loc=num_loc,
@@ -135,7 +177,22 @@ class ThOPGenerator(Generator):
     # ------------------------------------------------------------------
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
-        """Generate a batch of ThOP instances."""
+        """Generate a batch of ThOP instances.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with:
+                locs: [*B, num_loc, 2]     — city coordinates (depot at 0)
+                item_weights: [*B, num_items]  — item weights
+                item_profits: [*B, num_items]  — item profits
+                item_city: [*B, num_items]     — city index for each item
+                capacity: [*B]               — knapsack capacity
+                max_time: [*B]               — time budget
+                v_max: [*B]                   — maximum travel speed
+                v_min: [*B]                   — minimum travel speed
+        """
         # City coordinates
         locs = self._generate_locations(batch_size)  # [*B, num_loc, 2]
         depot = self._generate_depot(batch_size)  # [*B, 2]
@@ -183,7 +240,14 @@ class ThOPGenerator(Generator):
         )
 
     def _generate_depot(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate the depot location according to ``depot_type``."""
+        """Generate the depot location according to ``depot_type``.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with depot location (shape: [*B, 2]).
+        """
         if self.depot_type == "center":
             center = (self.max_loc + self.min_loc) / 2.0
             return torch.full((*batch_size, 2), center, device=self.device, dtype=torch.float32)
