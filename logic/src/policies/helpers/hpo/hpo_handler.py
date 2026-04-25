@@ -1,5 +1,19 @@
 """
-Core handler for simulation policy hyperparameter optimization using Hydra and Optuna.
+Core handler for simulation policy hyperparameter optimization (HPO).
+
+This module implements the Optuna objective function for simulation policies,
+including parameter sampling, simulation execution, and metric calculation.
+It supports multi-process parallel optimization and integrates with the
+MLflow tracking system.
+
+Functions:
+    objective: The objective function passed to Optuna for trial evaluation.
+    run_hpo_sim: Orchestrates the parallel HPO process.
+
+Example:
+    >>> # from logic.src.policies.helpers.hpo import run_hpo_sim
+    >>> # best_metric = run_hpo_sim(cfg)
+    >>> # print(f"Best metric: {best_metric}")
 """
 
 import multiprocessing as mp
@@ -30,13 +44,13 @@ def objective(trial: optuna.Trial, base_cfg: Config, data_size: int, lock: Any) 
     runs simulations, and returns the metric to maximize.
 
     Args:
-        trial: The Optuna trial object.
-        base_cfg: The base configuration to copy and mutate.
-        data_size: Number of available bins for the selected area.
-        lock: Multiprocessing lock for repository access.
+        trial (optuna.Trial): The Optuna trial object for parameter sampling.
+        base_cfg (Config): The base configuration to copy and mutate for this trial.
+        data_size (int): Number of available bins for the selected area.
+        lock (Any): Multiprocessing lock to prevent race conditions during repository access.
 
     Returns:
-        The performance metric value (higher = better).
+        float: The performance metric value achieved in this trial (higher is better).
     """
     hpo_sim = base_cfg.hpo_sim
     search_space = hpo_sim.search_space
@@ -136,10 +150,10 @@ def run_hpo_sim(cfg: Config) -> float:
     """Run Hyperparameter Optimization for simulation policies.
 
     Args:
-        cfg: Root application configuration.
+        cfg (Config): Root application configuration containing HPO settings.
 
     Returns:
-        Best metric value found across all trials.
+        float: Best metric value found across all completed optimization trials.
     """
     sim = cfg.sim
     hpo_sim = cfg.hpo_sim

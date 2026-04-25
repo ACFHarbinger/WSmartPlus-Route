@@ -1,5 +1,12 @@
 """
 Simulator adapter for the POPMUSIC matheuristic.
+
+Attributes:
+    POPMUSICPolicy: Adapter for the POPMUSIC (Partial Optimization Metaheuristic Under Special Intensification Conditions) matheuristic.
+
+Example:
+    >>> popmusic = POPMUSICPolicy()
+    >>> routes, cost, profit, info = popmusic.run_solver(dist_matrix, wastes, capacity, revenue, cost_unit, values, mandatory_nodes)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -35,6 +42,9 @@ class POPMUSICPolicy(BaseRoutingPolicy):
 
     The adapter handles the conversion from the simulator's global state to the
     localized part-optimization context.
+
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -48,9 +58,19 @@ class POPMUSICPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Get the configuration class for this policy.
+
+        Returns:
+            The configuration class.
+        """
         return POPMUSICConfig
 
     def _get_config_key(self) -> str:
+        """Get the configuration key for this policy.
+
+        Returns:
+            The configuration key.
+        """
         return "popmusic"
 
     def _run_solver(
@@ -75,30 +95,33 @@ class POPMUSICPolicy(BaseRoutingPolicy):
         re-merged into the global solution, and the search continues until
         local optimality is achieved across all potential centroids.
 
-         Args:
-             sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                 sub-problem nodes.
-             sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                 current bin inventory levels.
-             capacity (float): Maximum vehicle collection capacity.
-             revenue (float): Revenue obtained per kilogram of waste collected.
-             cost_unit (float): Monetary cost incurred per kilometer traveled.
-             values (Dict[str, Any]): Merged configuration dictionary containing
-                 POPMUSIC settings, sub-problem sizes, and base solver choices.
-             mandatory_nodes (List[int]): Local indices of bins that MUST be
-                 collected in this period.
-             **kwargs: Additional context, including:
-                 - coords (np.ndarray): Spatial coordinates for clustering.
-                 - search_context (Optional[SearchContext]): Context for tracking
-                   recursive solver statistics.
-                 - multi_day_context (Optional[MultiDayContext]): Context for
-                   inter-day state propagation.
 
-         Returns:
-             Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                 - routes: Optimized collection routes (list-of-lists, local indices).
-                 - profit: Total calculated net profit (Total Revenue - Total Cost).
-                 - cost: Total travel cost calculated by the solver.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                POPMUSIC settings, sub-problem sizes, and base solver choices.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            kwargs: Additional context, including:
+                - coords (np.ndarray): Spatial coordinates for clustering.
+                - search_context (Optional[SearchContext]): Context for tracking
+                    recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                    inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+
         """
         # 1. Initialize parameters
         params = POPMUSICParams.from_config(self.config)

@@ -1,5 +1,14 @@
 """
 Configuration parameters for the Relaxation Enforced Neighborhood Search (RENS).
+
+Attributes:
+    RENSParams: The RENS parameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.params import RENSParams
+    >>> params = RENSParams.from_config({"time_limit": 600.0})
+    >>> print(params.time_limit)
+    600.0
 """
 
 from __future__ import annotations
@@ -27,7 +36,14 @@ class RENSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> RENSParams:
-        """Create RENSParams from a configuration object or dictionary."""
+        """Create RENSParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            RENSParams: RENS parameters.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -39,5 +55,9 @@ class RENSParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert RENSParams to a dictionary."""
+        """Convert RENSParams to a dictionary.
+
+        Returns:
+            Dict[str, Any]: RENS parameters as dictionary.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

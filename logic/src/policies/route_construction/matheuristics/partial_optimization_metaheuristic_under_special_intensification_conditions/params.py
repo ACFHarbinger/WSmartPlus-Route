@@ -1,5 +1,11 @@
 """
 Configuration parameters for the POPMUSIC matheuristic.
+
+Attributes:
+    POPMUSICParams (dataclass): Configuration parameters for POPMUSIC.
+
+Example:
+    >>> params = POPMUSICParams.from_config(config)
 """
 
 from __future__ import annotations
@@ -43,7 +49,14 @@ class POPMUSICParams:
 
     @classmethod
     def from_config(cls, config: Any) -> POPMUSICParams:
-        """Create POPMUSICParams from a configuration object or dictionary."""
+        """Create POPMUSICParams from a configuration object or dictionary.
+
+        Args:
+            config (Any): Configuration object.
+
+        Returns:
+            POPMUSICParams: Instance of POPMUSICParams.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -63,5 +76,9 @@ class POPMUSICParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert POPMUSICParams to a dictionary."""
+        """Convert POPMUSICParams to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing POPMUSICParams.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

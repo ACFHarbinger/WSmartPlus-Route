@@ -1,5 +1,22 @@
 """
 Configuration parameters for the Local Branching (LB) policy.
+
+Attributes:
+    LBParams (LBParams): Implementation of the LB policy parameters.
+
+Example:
+    >>> params = LBParams(
+    ...     k=10,
+    ...     max_iterations=100,
+    ...     time_limit=60.0,
+    ...     time_limit_per_iteration=10.0,
+    ...     node_limit_per_iteration=1000,
+    ...     mip_gap=0.01,
+    ...     seed=42,
+    ...     engine="gurobi",
+    ...     framework="ortools",
+    ... )
+    >>> print(params)
 """
 
 from __future__ import annotations
@@ -35,7 +52,14 @@ class LBParams:
 
     @classmethod
     def from_config(cls, config: Any) -> LBParams:
-        """Create LBParams from a configuration object or dictionary."""
+        """Create LBParams from a configuration object or dictionary.
+
+        Args:
+            config (Any): Configuration object or dictionary.
+
+        Returns:
+            LBParams: Configuration parameters for the Local Branching (LB) policy.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -50,5 +74,9 @@ class LBParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert Params to a dictionary."""
+        """Convert Params to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary of LBParams.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

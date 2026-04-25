@@ -1,5 +1,14 @@
 """
 Configuration parameters for the Relax-and-Fix-and-Optimize (RFO) matheuristic.
+
+Attributes:
+    RFOParams: The RFO parameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params import RFOParams
+    >>> rfo_params = RFOParams()
+    >>> rfo_params.to_dict()
+    {'window_size': 3, 'step_size': 2, 'mip_time': 60.0, 'mip_gap': 0.01}
 """
 
 from __future__ import annotations
@@ -27,7 +36,14 @@ class RFOParams:
 
     @classmethod
     def from_config(cls, config: Any) -> RFOParams:
-        """Create RFOParams from a configuration object or dictionary."""
+        """Create RFOParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            RFOParams: RFO parameters.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -39,5 +55,9 @@ class RFOParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert RFOParams to a dictionary for backend compatibility."""
+        """Convert RFOParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: RFO parameters as dictionary.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

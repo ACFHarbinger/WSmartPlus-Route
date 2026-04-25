@@ -19,6 +19,23 @@ Reference:
     Hansen, P., Mladenović, N., & Urošević, D. (2006).
     "Variable neighborhood search and local branching".
     Computers & Operations Research.
+
+Attributes:
+    GUROBI_AVAILABLE (bool): Whether Gurobi is available.
+    run_lb_vns_gurobi: Function to solve the VRPP using LB-VNS.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search import (
+    ...     run_lb_vns_gurobi,
+    ... )
+    >>> run_lb_vns_gurobi(
+    ...     dist_matrix=dist_matrix,
+    ...     wastes=wastes,
+    ...     capacity=capacity,
+    ...     R=revenue,
+    ...     C=cost_unit,
+    ...     mandatory_nodes=mandatory_nodes,
+    ... )
 """
 
 import time
@@ -64,6 +81,20 @@ def _shake_solution_gurobi(
 
     Following Hanafi et al. (2010) and Hansen et al. (2006), the shaking step
     aims to find a feasible solution s' such that delta(s, s') = k.
+
+    Args:
+        model: The Gurobi model.
+        x: Dictionary of decision variables for edges.
+        y: Dictionary of decision variables for depot.
+        incumbent_x: Dictionary of incumbent values for edges.
+        incumbent_y: Dictionary of incumbent values for depot.
+        k: Hamming distance.
+        seed: Random seed.
+
+    Returns:
+        Tuple[Optional[Dict[Tuple[int, int], float]], Optional[Dict[int, float]]]:
+            - x: Description of x.
+            - y: Description of y.
     """
     # 1. Save original objective
     orig_obj = model.getObjective()
@@ -144,6 +175,8 @@ def run_lb_vns_gurobi(
         The underlying model is a Prize-Collecting VRP / VRP with Profits,
         implemented using MTZ (Miller-Tucker-Zemlin) subtour elimination constraints.
 
+
+
     Args:
         dist_matrix (np.ndarray): Symmetric distance matrix between all nodes.
         wastes (Dict[int, float]): Dictionary mapping node indices to profits.
@@ -151,15 +184,10 @@ def run_lb_vns_gurobi(
         R (float): Revenue multiplier for node collection.
         C (float): Cost multiplier for distance traveled.
         mandatory_nodes (List[int]): Nodes that MUST be included in the tour.
-        k_min (int): Minimum Hamming distance for early search stages.
-        k_max (int): Maximum Hamming distance (exploration ceiling).
-        k_step (int): Increment for 'k' when no improvement is found.
-        time_limit (float): Overall wall-clock budget for the search.
-        time_limit_per_lb (float): Time budget for each Local Branching call.
-        max_lb_iterations (int): Loop limit for internal Local Branching.
         mip_gap (float): Optimality gap for sub-problem termination.
         seed (int): Global seed for randomization.
         env (Optional[gp.Env]): Shared Gurobi environment to reduce startup overhead.
+        params (Optional[LBVNSParams]): LB-VNS parameters.
 
     Returns:
         Tuple[List[int], float, float]:

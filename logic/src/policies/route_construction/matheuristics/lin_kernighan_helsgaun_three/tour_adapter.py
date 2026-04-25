@@ -35,18 +35,20 @@ TourAdapter._updated
     Boolean flag set to ``True`` the first time ``_update_map`` is called,
     allowing callers to detect whether an operator applied a move.
 
-Typical usage
--------------
->>> from logic.src.policies.helpers.operators.heuristics._tour_adapter import TourAdapter
->>> adapter = TourAdapter(tour, distance_matrix)
->>> applied = move_kopt_intra(adapter, u=u, v=v, r_u=0, p_u=i, r_v=0, p_v=j, k=2)
->>> if applied:
-...     tour = adapter.to_closed_tour()
+Attributes:
+    TourAdapter: Adapter for LKH-3 tours.
+
+Example:
+    >>> from logic.src.policies.helpers.operators.heuristics._tour_adapter import TourAdapter
+    >>> adapter = TourAdapter(tour, distance_matrix)
+    >>> applied = move_kopt_intra(adapter, u=u, v=v, r_u=0, p_u=i, r_v=0, p_v=j, k=2)
+    >>> if applied:
+    >>>     tour = adapter.to_closed_tour()
 """
 
 from __future__ import annotations
 
-from typing import List
+from typing import Any, List
 
 import numpy as np
 
@@ -71,6 +73,12 @@ class TourAdapter:
     ``routes[0]``, exposes the distance matrix and a unit cost scale, and
     records whether ``_update_map`` was invoked so callers can detect that a
     move was applied.
+
+    Attributes:
+        routes: The route list.
+        d: The distance matrix.
+        C: The cost scale factor.
+        _updated: Whether the route was mutated by an operator.
     """
 
     def __init__(self, tour: List[int], distance_matrix: np.ndarray) -> None:
@@ -89,12 +97,20 @@ class TourAdapter:
         self.C: float = 1.0
         self._updated: bool = False
 
-    def _update_map(self, route_set) -> None:  # noqa: ANN001
-        """Record that the route was mutated by an operator."""
+    def _update_map(self, route_set: Any) -> None:
+        """Record that the route was mutated by an operator.
+
+        Args:
+            route_set: A set of nodes of a route.
+        """
         self._updated = True
 
     def to_closed_tour(self) -> List[int]:
-        """Return the current route as a closed tour (first node repeated at end)."""
+        """Return the current route as a closed tour (first node repeated at end).
+
+        Returns:
+            Closed tour (first node repeated at end).
+        """
         route = self.routes[0]
         if not route:
             return []

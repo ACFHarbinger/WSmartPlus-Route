@@ -1,5 +1,21 @@
 """
 Simulator adapter for the Local Branching (LB) matheuristic.
+
+Attributes:
+    LocalBranchingPolicy (LocalBranchingPolicy): Implementation of the LB matheuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.local_branching import LocalBranchingPolicy
+    >>> policy = LocalBranchingPolicy()
+    >>> solution = policy.solve(
+    ...     dist_matrix=dist_matrix,
+    ...     wastes=wastes,
+    ...     capacity=capacity,
+    ...     R=revenue,
+    ...     C=cost_unit,
+    ...     mandatory_nodes=mandatory_nodes,
+    ... )
+    >>> print(solution["tour"])
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -89,7 +105,21 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - LB requires specialized execute()."""
+        """Not used - LB requires specialized execute().
+
+        Args:
+            sub_dist_matrix: Description of sub_dist_matrix.
+            sub_wastes: Description of sub_wastes.
+            capacity: Description of capacity.
+            revenue: Description of revenue.
+            cost_unit: Description of cost_unit.
+            values: Description of values.
+            mandatory_nodes: Description of mandatory_nodes.
+            kwargs: Description of kwargs.
+
+        Returns:
+            Description of return value.
+        """
         return [], 0.0, 0.0
 
     def execute(
@@ -107,6 +137,7 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
         This implementation uses Gurobi for the iterative neighborhood solves.
 
         Args:
+            kwargs: Description of kwargs.
             **kwargs: Context for matheuristic execution, including:
                 - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
                 - wastes (Dict[int, float]): Bin inventory levels.
@@ -127,6 +158,8 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
                 - obj_val: Net calculated profit (Revenue - Cost).
                 - Optional[SearchContext]: Updated search context.
                 - Optional[MultiDayContext]: Updated multi-period context.
+        Args:
+            kwargs: Description of kwargs.
         """
         # 1. Initialize type-safe Params
         params = LBParams.from_config(self._config or kwargs.get("config", {}).get("lb", {}))

@@ -1,5 +1,18 @@
 """
-Base classes for simulation policy HPO.
+Base classes for simulation policy Hyperparameter Optimization (HPO).
+
+Includes an abstract base class for defining HPO strategies and a concrete
+implementation for finding the best performing policy from the pool.
+
+Classes:
+    PolicyHPOBase: Abstract base class for HPO strategies.
+    FullPolicyHPO: Concrete HPO implementation that trains and evaluates all policies.
+
+Example:
+    >>> # from logic.src.policies.helpers.hpo import FullPolicyHPO
+    >>> # hpo = FullPolicyHPO(cfg)
+    >>> # best_metric = hpo.run(n_trials=50)
+    >>> # print(f"Best metric: {best_metric}")
 """
 
 from abc import ABC, abstractmethod
@@ -11,13 +24,19 @@ from logic.src.configs import Config
 
 
 class PolicyHPOBase(ABC):
-    """Abstract base class for simulation policy Hyperparameter Optimization."""
+    """Abstract base class for simulation policy Hyperparameter Optimization.
+
+    Attributes:
+        cfg (Config): Root application configuration.
+        best_params (Optional[Dict[str, Any]]): Best parameters found during HPO.
+        best_value (float): Best objective value achieved.
+    """
 
     def __init__(self, cfg: Config):
         """Initialize PolicyHPO.
 
         Args:
-            cfg: Root application configuration.
+            cfg (Config): Root application configuration.
         """
         self.cfg = cfg
         self.best_params: Optional[Dict[str, Any]] = None
@@ -28,10 +47,10 @@ class PolicyHPOBase(ABC):
         """Run the HPO process.
 
         Args:
-            n_trials: Number of optimization trials.
+            n_trials (int): Number of optimization trials to perform.
 
         Returns:
-            The best metric value found.
+            float: The best metric value found across all trials.
         """
         pass
 
@@ -39,8 +58,8 @@ class PolicyHPOBase(ABC):
         """Apply sampled parameters to the config.
 
         Args:
-            cfg: Config object to mutate.
-            params: Dictionary of sampled parameters.
+            cfg (Config): Config object to mutate with new parameters.
+            params (Dict[str, Any]): Dictionary mapping dot-separated paths to values.
         """
         for key, value in params.items():
             # Support nested keys like 'sim.full_policies.0.alns.max_iterations'
@@ -71,12 +90,12 @@ class PolicyHPOBase(ABC):
         """Suggest a parameter based on its specification.
 
         Args:
-            trial: Optuna trial object.
-            name: Name of the parameter.
-            spec: Specification dictionary (type, low, high, choices, etc.).
+            trial (optuna.Trial): Optuna trial object for parameter sampling.
+            name (str): Name of the parameter to suggest.
+            spec (Dict[str, Any]): Specification dictionary (type, low, high, choices, etc.).
 
         Returns:
-            The suggested parameter value.
+            Any: The suggested parameter value of the appropriate type.
         """
         p_type = spec.get("type")
         if p_type == "float":

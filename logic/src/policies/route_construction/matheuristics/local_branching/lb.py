@@ -4,6 +4,21 @@ Local Branching (LB) matheuristic solver for VRPP.
 Reference:
     Fischetti, M., & Lodi, A. (2003). "Local Branching".
     Mathematical Programming.
+
+Attributes:
+    GUROBI_AVAILABLE (bool): Whether Gurobi is available.
+    run_local_branching_gurobi: Function to run the Local Branching algorithm.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.local_branching import run_local_branching_gurobi
+    >>> run_local_branching_gurobi(
+    ...     dist_matrix=np.array([[0, 1, 2], [1, 0, 1], [2, 1, 0]]),
+    ...     wastes={1: 10, 2: 20},
+    ...     capacity=30,
+    ...     R=1.0,
+    ...     C=1.0,
+    ...     mandatory_nodes=[1, 2],
+    ... )
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -42,6 +57,17 @@ def _add_local_branching_constraint(
     sum_{j in B0} x_j + sum_{j in B1} (1 - x_j) <= k
     where B0 is the set of binary variables that are 0 in the incumbent,
     and B1 is the set of binary variables that are 1 in the incumbent.
+
+    Args:
+        model (gp.Model): The Gurobi model.
+        x (Dict[Tuple[int, int], gp.Var]): Edge variables.
+        y (Dict[int, gp.Var]): Node selection variables.
+        incumbent_x (Dict[Tuple[int, int], float]): Incumbent edge values.
+        incumbent_y (Dict[int, float]): Incumbent node values.
+        k (int): Neighborhood size.
+
+    Returns:
+        gp.Constr: Local branching constraint.
     """
     lhs = gp.LinExpr()
 
@@ -85,6 +111,26 @@ def run_local_branching_gurobi(
 ) -> Tuple[List[int], float, float]:
     """
     Solve VRPP using Local Branching (LB).
+
+    Args:
+        dist_matrix (np.ndarray): Symmetric distance matrix for all nodes.
+        wastes (Dict[int, float]): Waste collected at each customer node.
+        capacity (float): Capacity of each vehicle.
+        R (float): Revenue per unit of waste.
+        C (float): Cost per unit of distance.
+        mandatory_nodes (List[int]): Nodes that must be visited.
+        k (int): Initial neighborhood size for local branching.
+        max_iterations (int): Maximum number of iterations.
+        time_limit (float): Total time limit for the algorithm.
+        time_limit_per_iteration (float): Time limit for each iteration.
+        mip_limit_nodes (int): Node limit for the MIP solver.
+        mip_gap (float): Gap tolerance for the MIP solver.
+        seed (int): Random seed for reproducibility.
+        env (Optional[gp.Env]): Gurobi environment.
+        recorder (Optional[PolicyStateRecorder]): Recorder for logging policy state.
+
+    Returns:
+        Tuple[List[int], float, float]: Tuple of (best_tour, best_cost, best_revenue).
     """
     model = gp.Model("LB_VRPP", env=env) if env else gp.Model("LB_VRPP")
     model.setParam("OutputFlag", 0)

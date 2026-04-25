@@ -54,7 +54,10 @@ Dependencies
 - :func:`move_kopt_intra` from the shared intra-route operator package
 - :func:`get_exact_penalty_delta` from ``load_tracker`` for O(L) penalty queries
 
-Typical usage
+Attributes:
+    None
+
+Example:
 -------------
 >>> from logic.src.policies.lin_kernighan_helsgaun_three.tour_improvement import (
 ...     _apply_kopt_via_operator,
@@ -122,16 +125,21 @@ def _try_2opt_move(
        d. Lexicographic gate: accept if ΔP<0 OR (ΔP≈0 AND ΔC>0)
        e. ONLY IF gate passes: construct tour and verify
 
+
+
     Args:
-        curr_tour: Current closed tour.
-        i: Position of t1 in the open route.
-        t1, t2: Endpoints of the edge being considered for removal.
-        candidates: α-nearest-neighbour lists.
-        distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters (None for TSP).
-        rng: Random number generator (unused, kept for interface compatibility).
-        n_original: Original graph size (for augmented dummy depot mode).
-        load_state: Optional LoadState for penalty calculation.
+        curr_tour: Description of curr_tour.
+        i: Description of i.
+        t1: Description of t1.
+        t2: Description of t2.
+        candidates: Description of candidates.
+        distance_matrix: Description of distance_matrix.
+        waste: Description of waste.
+        capacity: Description of capacity.
+        rng: Description of rng.
+        n_original: Description of n_original.
+        load_state: Description of load_state.
+        pos: Description of pos.
 
     Returns:
         (new_tour, penalty, cost, improved, j) where j is the position of t3.
@@ -140,6 +148,7 @@ def _try_2opt_move(
     Complexity:
         - Per candidate: O(1) distance lookup + O(L) penalty check
         - Tour construction: O(N) only when gate passes
+
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -260,15 +269,23 @@ def _try_3opt_move(
     they may find improving moves that were missed due to α-nearest neighbor
     filtering in the preceding _try_2opt_move search.
 
+
+
     Args:
-        curr_tour: Current closed tour.
-        i, j: Break-point positions of the first two cuts in the open route.
-        t1..t4: Node pairs for the two existing broken edges.
-        distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters.
-        rng: Random number generator (unused, kept for interface compatibility).
-        n_original: Original graph size (for augmented dummy depot mode).
-        load_state: Optional LoadState for penalty calculation.
+        curr_tour: The current tour.
+        i: The index of the first cut position.
+        j: The index of the second cut position.
+        t1: The first node.
+        t2: The second node.
+        t3: The third node.
+        t4: The fourth node.
+        distance_matrix: Distance matrix.
+        waste: Waste.
+        capacity: Capacity.
+        rng: Random number generator.
+        n_original: Number of original nodes.
+        load_state: Load state.
+        pos: Position of nodes.
 
     Returns:
         (new_tour, penalty, cost, improved) tuple.
@@ -399,14 +416,23 @@ def _try_4opt_move(
     5. Verify with full (penalty, cost) evaluation
 
     Args:
-        curr_tour: Current closed tour.
-        i, j, k: Break-point positions of the first three cuts.
-        t1..t6: Node pairs for the three existing broken edges.
-        distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters.
-        rng: Random number generator (unused, kept for interface compatibility).
-        n_original: Original graph size (for augmented dummy depot mode).
-        load_state: Optional LoadState for penalty calculation.
+        curr_tour: The current tour.
+        i: The index of the first cut position.
+        j: The index of the second cut position.
+        k: The index of the third cut position.
+        t1: The first node.
+        t2: The second node.
+        t3: The third node.
+        t4: The fourth node.
+        t5: The fifth node.
+        t6: The sixth node.
+        distance_matrix: Distance matrix.
+        waste: Waste.
+        capacity: Capacity.
+        rng: Random number generator.
+        n_original: Number of original nodes.
+        load_state: Load state.
+        pos: Position of nodes.
 
     Returns:
         (new_tour, penalty, cost, improved) tuple.
@@ -549,14 +575,26 @@ def _try_5opt_move(
         - Overall: O(N^5) amortized (same asymptotic as before, more thorough)
 
     Args:
-        curr_tour: Current closed tour.
-        i, j, k, l: Break-point positions of the first four cuts.
-        t1..t8: Node pairs for the four existing broken edges.
-        distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters.
-        rng: Random number generator (unused, kept for interface compatibility).
-        n_original: Original graph size (for augmented dummy depot mode).
-        load_state: Optional LoadState for penalty calculation.
+        curr_tour: The current tour.
+        i: The index of the first cut position.
+        j: The index of the second cut position.
+        k: The index of the third cut position.
+        l: The index of the fourth cut position.
+        t1: The first node.
+        t2: The second node.
+        t3: The third node.
+        t4: The fourth node.
+        t5: The fifth node.
+        t6: The sixth node.
+        t7: The seventh node.
+        t8: The eighth node.
+        distance_matrix: Distance matrix.
+        waste: Waste.
+        capacity: Capacity.
+        rng: Random number generator.
+        n_original: Number of original nodes.
+        load_state: Load state.
+        pos: Position of nodes.
 
     Returns:
         (new_tour, penalty, cost, improved) tuple.
@@ -765,6 +803,22 @@ def _try_oropt_move(
     """
     Or-opt move: Relocate a segment of 1, 2, or 3 nodes.
     Relocates the segment [tour[i+1]...tour[i+len]] to follow node t_dest.
+    Args:
+        curr_tour: The current tour.
+        t1: The first node.
+        i: The index of the first cut position.
+        candidates: Candidates.
+        distance_matrix: Distance matrix.
+        waste: Waste.
+        capacity: Capacity.
+        rng: Random number generator.
+        n_original: Number of original nodes.
+        load_state: Load state.
+        pos: Position of nodes.
+
+    Returns:
+        (new_tour, penalty, cost, improved) tuple.
+        Returns (None, 0.0, 0.0, False) if no improving move found.
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -855,6 +909,25 @@ def _dynamic_kopt_search(
     1. Positive-G Pruning: Prunes if G_partial - cost(added_edge) <= 0.
     2. Sequential branching: t_{2k+2} is the unique non-backtracking neighbor of t_{2k+1}.
     3. Efficiency: Uses the O(1) pos lookup array passed from the driver.
+
+    Args:
+        curr_tour: The current tour.
+        i: The index of the first cut position.
+        t1: The first node.
+        t2: The second node.
+        candidates: Candidates.
+        distance_matrix: Distance matrix.
+        waste: Waste.
+        capacity: Capacity.
+        rng: Random number generator.
+        n_original: Number of original nodes.
+        load_state: Load state.
+        max_k: Maximum k value.
+        pos: Position of nodes.
+
+    Returns:
+        (new_tour, penalty, cost, improved) tuple.
+        Returns (None, 0.0, 0.0, False) if no improving move found.
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -944,7 +1017,23 @@ def _verify_and_construct(
     curr_c: float,
     pos: Optional[np.ndarray] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool]:
-    """Helper to verify k-opt closure and build resulting tour."""
+    """Helper to verify k-opt closure and build resulting tour.
+
+    Args:
+        curr_tour: The current tour.
+        t_list: Sequence of k-opt points.
+        d: Distance matrix.
+        waste: Waste.
+        capacity: Capacity.
+        n_original: Number of original nodes.
+        curr_p: Current penalty.
+        curr_c: Current cost.
+        pos: Position of nodes.
+
+    Returns:
+        (new_tour, penalty, cost, improved) tuple.
+        Returns (None, 0.0, 0.0, False) if no improving move found.
+    """
     k = len(t_list) // 2
     if k < 2:
         return None, 0.0, 0.0, False

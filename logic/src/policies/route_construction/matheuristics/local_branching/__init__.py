@@ -10,6 +10,12 @@ Key Feature:
     The use of linear 'Hamming distance' constraints to define and explore
     regions near high-quality known solutions without having to solve the
     global problem to optimality in one step.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from .policy_lb import LocalBranchingPolicy

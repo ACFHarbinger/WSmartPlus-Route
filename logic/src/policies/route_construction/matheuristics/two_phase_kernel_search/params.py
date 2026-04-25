@@ -1,5 +1,14 @@
 """
 Configuration parameters for the Two-Phase Kernel Search (TPKS) matheuristic.
+
+Attributes:
+    TPKSParams: The Two-Phase Kernel Search parameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.two_phase_kernel_search.params import TPKSParams
+    >>> params = TPKSParams.from_config({"time_limit": 600.0})
+    >>> print(params.time_limit)
+    600.0
 """
 
 from __future__ import annotations

@@ -1,5 +1,11 @@
 """
 Two-Phase Kernel Search Solver.
+
+Attributes:
+    _PhaseIStats
+
+Example:
+    None
 """
 
 import time
@@ -34,6 +40,12 @@ class _PhaseIStats:
 
     Used by Phase II to rank variables better than a fresh LP relaxation,
     since Phase I already explored the feasible region.
+
+    Attributes:
+        var_frequency (Dict[gp.Var, float]): Frequency of variable usage.
+        var_obj_contribution (Dict[gp.Var, float]): Objective contribution of variable.
+        phase1_best_obj (float): Best objective value in Phase I.
+        phase1_used_vars (Set[gp.Var]): Variables used in Phase I.
     """
 
     var_frequency: Dict[gp.Var, float] = field(default_factory=dict)
@@ -84,6 +96,19 @@ def _run_phase1(  # noqa: C901
        calling `_dfj_subtour_elimination_callback` for each bucket solve.
        Promote variables to the kernel if they appear in improving solutions.
        Continue recording frequency statistics.
+
+    Args:
+        model (gp.Model): The Gurobi model.
+        x (Dict): Dictionary of variables.
+        y (Dict): Dictionary of variables.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Wastes.
+        capacity (float): Capacity.
+        R (float): R.
+        C (float): C.
+        mandatory_nodes (List[int]): Mandatory nodes.
+        params (TPKSParams): Parameters.
+        phase1_time (float): Phase 1 time limit.
 
     Returns:
         _PhaseIStats populated with frequency/contribution data and the
@@ -203,6 +228,12 @@ def _build_phase2_kernel(
     The top `initial_kernel_size` variables (union with `phase1_used_vars`)
     form the Phase II kernel. The remainder are sorted into buckets.
 
+    Args:
+        x (Dict): Dictionary of variables.
+        y (Dict): Dictionary of variables.
+        stats (_PhaseIStats): Statistics from Phase I.
+        params (TPKSParams): Parameters.
+
     Returns:
         (phase2_kernel_vars, phase2_remaining_vars)
     """
@@ -247,6 +278,17 @@ def run_tpks_gurobi(
 ) -> Tuple[List[int], float, float]:
     """
     Solve VRPP using Two-Phase Kernel Search (TPKS).
+
+    Args:
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Wastes.
+        capacity (float): Capacity.
+        R (float): R.
+        C (float): C.
+        mandatory_nodes (List[int]): Mandatory nodes.
+        params (TPKSParams): Parameters.
+        env (Optional[gp.Env]): Gurobi environment.
+        recorder (Optional[PolicyStateRecorder]): Policy state recorder.
 
     Returns:
         (tour, obj_val, routing_cost) — same contract as run_kernel_search_gurobi.
