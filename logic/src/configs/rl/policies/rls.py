@@ -1,5 +1,22 @@
 """
 RLS (Random Local Search) configuration.
+
+Attributes:
+    RLSConfig: Configuration for RLS algorithm.
+
+Example:
+    rls_config = RLSConfig(
+        n_iterations=100,
+        op_probs={
+            "two_opt": 0.25,
+            "swap": 0.15,
+            "relocate": 0.15,
+            "two_opt_star": 0.2,
+            "swap_star": 0.15,
+            "three_opt": 0.1,
+        },
+        time_limit=30.0,
+    )
 """
 
 from dataclasses import dataclass, field

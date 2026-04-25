@@ -1,5 +1,14 @@
 """
 GIHH (Hyper-Heuristic with Two Guidance Indicators) configuration.
+
+Attributes:
+    GIHHConfig: Configuration for the GIHH (Hyper-Heuristic with Two Guidance Indicators) policy.
+
+Example:
+    >>> from configs.policies.gihh import GIHHConfig
+    >>> config = GIHHConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass

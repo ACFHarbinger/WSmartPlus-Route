@@ -1,5 +1,13 @@
 """
 ILS-RVND-SP (Iterated Local Search - Randomized Variable Neighborhood Descent - Set Partitioning) configuration dataclasses.
+Attributes:
+    ILSRVNDSPConfig: Configuration for the ILS-RVND-SP algorithm.
+
+Example:
+    >>> from configs.policies.ils_rvnd_sp import ILSRVNDSPConfig
+    >>> config = ILSRVNDSPConfig()
+    >>> config.time_limit
+    120.0
 """
 
 from dataclasses import dataclass, field
@@ -12,7 +20,33 @@ from .abc import ABCConfig
 
 @dataclass
 class ILSRVNDSPConfig(ABCConfig):
-    """Configuration for the ILS-RVND-SP algorithm."""
+    """Configuration for the ILS-RVND-SP algorithm.
+
+    Attributes:
+        max_restarts (int): Maximum number of restarts for ILS.
+        max_iter_ils (int): Maximum number of iterations for ILS.
+        perturbation_strength (int): Strength of perturbation.
+        use_set_partitioning (bool): Whether to use Set Partitioning.
+        mip_time_limit (float): Time limit for MIP solver.
+        sp_mip_gap (float): Gap tolerance for MIP solver.
+        N (int): Parameter N.
+        A (float): Parameter A.
+        MaxIter_a (int): Maximum iterations for phase a.
+        MaxIter_b (int): Maximum iterations for phase b.
+        MaxIterILS_b (int): Maximum iterations for ILS in phase b.
+        TDev_a (float): Temperature deviation for phase a.
+        TDev_b (float): Temperature deviation for phase b.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        time_limit (float): Time limit for the algorithm.
+        seed (Optional[int]): Seed for the random number generator.
+        engine (str): Solver engine to use.
+        framework (str): Framework for the algorithm.
+        local_search_iterations (int): Number of local search iterations.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+        route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.
+        acceptance_criterion (AcceptanceConfig): Acceptance criterion configuration.
+    """
 
     # ILS Phase parameters
     max_restarts: int = 10
@@ -37,7 +71,7 @@ class ILSRVNDSPConfig(ABCConfig):
     vrpp: bool = True
     profit_aware_operators: bool = False
     time_limit: float = 120.0
-    seed: int = 42
+    seed: Optional[int] = None
     engine: str = "gurobi"
     framework: str = "ortools"
     local_search_iterations: int = 500

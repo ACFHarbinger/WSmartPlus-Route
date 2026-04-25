@@ -1,5 +1,14 @@
 """
 Benders (Integer L-Shaped) policy configuration.
+
+Attributes:
+    IntegerLShapedBendersConfig: Configuration for the Integer L-Shaped (Benders Decomposition) policy.
+
+Example:
+    >>> from configs.policies.ils_bd import IntegerLShapedBendersConfig
+    >>> config = IntegerLShapedBendersConfig()
+    >>> config.time_limit
+    300.0
 """
 
 from dataclasses import dataclass

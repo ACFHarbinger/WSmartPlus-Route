@@ -1,5 +1,14 @@
 """
 ABC (Artificial Bee Colony) configuration for Hydra.
+
+Attributes:
+    ABCConfig: ABC policy configuration.
+
+Example:
+    >>> from logic.src.configs.policies import ABCConfig
+    >>> config = ABCConfig()
+    >>> print(config)
+    ABCConfig(n_sources=20, limit=10, max_iterations=200, n_removal=1, local_search_iterations=500, time_limit=60.0, seed=None, vrpp=True, profit_aware_operators=False, mandatory_selection=[], route_improvement=[])
 """
 
 from dataclasses import dataclass, field

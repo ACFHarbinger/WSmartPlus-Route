@@ -1,4 +1,35 @@
-"""Configuration for the Scenario-Tree Extensive Form policy."""
+"""
+Configuration for the Scenario-Tree Extensive Form policy.
+
+Attributes:
+    ScenarioTreeExtensiveFormConfig: Configuration for the Scenario-Tree Extensive Form (ST-EF) policy.
+
+Example:
+    >>> from configs.policies.st_ef import ScenarioTreeExtensiveFormConfig
+    >>> config = ScenarioTreeExtensiveFormConfig()
+    >>> config.num_days
+    3
+    >>> config.num_realizations
+    3
+    >>> config.mean_increment
+    0.2
+    >>> config.time_limit
+    300.0
+    >>> config.mip_gap
+    0.05
+    >>> config.waste_weight
+    1.0
+    >>> config.cost_weight
+    1.0
+    >>> config.overflow_penalty
+    10.0
+    >>> config.discount_factor
+    0.95
+    >>> config.use_mtz
+    True
+    >>> config.seed
+    42
+"""
 
 from dataclasses import dataclass
 from typing import Optional
@@ -8,6 +39,19 @@ from typing import Optional
 class ScenarioTreeExtensiveFormConfig:
     """
     Configuration for the Scenario-Tree Extensive Form policy.
+
+    Attributes:
+        num_days: Planning horizon in days.
+        num_realizations: Number of discrete joint realizations per day.
+        mean_increment: Mean fractional increment per day (0.0 to 1.0).
+        time_limit: Maximum solve time in seconds.
+        mip_gap: Target optimality gap (e.g., 0.05 for 5%).
+        waste_weight: Weight for the waste component in the objective.
+        cost_weight: Weight for the cost component in the objective.
+        overflow_penalty: Penalty cost for overflowing capacity.
+        discount_factor: Discount factor for future expected rewards.
+        use_mtz: Whether to use MTZ constraints (True) or lazy SEC separation (False).
+        seed: Random seed for scenario generation.
     """
 
     # Planning horizon (number of days to look ahead)

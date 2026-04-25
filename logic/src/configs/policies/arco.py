@@ -1,5 +1,14 @@
 """
 ARCO (Adaptive Route Constructor Orchestrator) configuration dataclass.
+
+Attributes:
+    ARCOConfig: Attributes for ARCO configuration.
+
+Example:
+    >>> from configs.policies.arco import ARCOConfig
+    >>> config = ARCOConfig()
+    >>> config.time_limit
+    120.0
 """
 
 from dataclasses import dataclass, field

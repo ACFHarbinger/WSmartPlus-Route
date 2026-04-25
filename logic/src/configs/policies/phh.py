@@ -1,5 +1,24 @@
 """
 Configuration for the Population Hyper-Heuristic (PHH).
+
+Attributes:
+    PHHConfig: Configuration for the Population Hyper-Heuristic (PHH) policy.
+
+Example:
+    >>> from configs.policies.phh import PHHConfig
+    >>> config = PHHConfig()
+    >>> config.pop_size
+    10
+    >>> config.gens
+    20
+    >>> config.seed
+    42
+    >>> config.vrpp
+    True
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
 """
 
 from dataclasses import dataclass

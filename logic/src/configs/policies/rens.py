@@ -1,5 +1,16 @@
 """
 Relaxation Enforced Neighborhood Search (RENS) configuration.
+
+Attributes:
+    RENSConfig: Configuration for the RENS matheuristic.
+
+Example:
+    >>> from configs.policies.rens import RENSConfig
+    >>> config = RENSConfig()
+    >>> config.time_limit
+    60.0
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass

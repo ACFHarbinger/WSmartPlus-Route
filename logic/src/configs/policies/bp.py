@@ -1,5 +1,14 @@
 """
 BP (Branch-and-Price) configuration.
+
+Attributes:
+    BPConfig: Attributes for BP configuration.
+
+Example:
+    >>> from configs.policies.bp import BPConfig
+    >>> config = BPConfig()
+    >>> config.time_limit
+    300.0
 """
 
 from dataclasses import dataclass

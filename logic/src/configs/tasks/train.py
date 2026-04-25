@@ -1,5 +1,23 @@
 """
 Train Config module.
+
+Attributes:
+    TrainConfig: Configuration for model training.
+
+Example:
+    train_config = TrainConfig(
+        n_epochs=100,
+        batch_size=256,
+        train_data_size=100000,
+        val_data_size=10000,
+        val_dataset="val.pkl",
+        num_workers=4,
+        data_distribution="gaussian",
+        graph=GraphConfig(),
+        reward=ObjectiveConfig(),
+        decoding=DecodingConfig(),
+        policy=NeuralAgentConfig(),
+    )
 """
 
 from dataclasses import dataclass, field

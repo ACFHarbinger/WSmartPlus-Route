@@ -1,5 +1,37 @@
 """
 Sim Config module.
+Attributes:
+    SimConfig: Configuration for simulation pipeline.
+
+Example:
+    sim_config = SimConfig(
+        policies=["alns", "hgs", "sans", "aco_ks", "aco_hh", "pso", "psoma", "swc_tcf", "na"],
+        full_policies=["alns", "hgs", "sans", "aco_ks", "aco_hh", "pso", "psoma", "swc_tcf", "na"],
+        data_distribution="gamma1",
+        problem="vrpp",
+        days=31,
+        seed=42,
+        output_dir="output",
+        checkpoint_dir="temp",
+        checkpoint_days=0,
+        n_samples=1,
+        resume=False,
+        cpu_cores=0,
+        n_vehicles=1,
+        noise_mean=0.0,
+        noise_variance=0.0,
+        cache_regular=True,
+        no_cuda=False,
+        server_run=False,
+        env_file="vars.env",
+        gplic_file=None,
+        symkey_name=None,
+        gapik_file=None,
+        stats_filepath=None,
+        data_dir=None,
+        policy_configs={},  # To be populated by expand_policy_configs
+        config_path={},  # To be populated by expand_policy_configs
+    )
 """
 
 from dataclasses import dataclass, field

@@ -37,6 +37,19 @@ These configs are used in:
    - Switches between expert and learned policy
 3. **Route Improvement**: logic/src/pipeline/rl/features/route_improvement.py
    - Refines neural solutions with classical algorithms
+
+Attributes:
+    ACOConfig: Configuration for ACO algorithm.
+    AHVPLConfig: Configuration for AHVPL algorithm.
+    ALNSConfig: Configuration for ALNS algorithm.
+    HGSConfig: Configuration for HGS algorithm.
+    HGSALNSConfig: Configuration for HGSALNS algorithm.
+    HVPLConfig: Configuration for HVPL algorithm.
+    ILSConfig: Configuration for ILS algorithm.
+    RLSConfig: Configuration for RLS algorithm.
+
+Example:
+    None
 """
 
 from .aco import ACOConfig

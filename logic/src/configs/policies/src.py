@@ -1,5 +1,20 @@
 """
 SRC (Sequential Route Constructor) configuration dataclass.
+
+Attributes:
+    constructors: List of route constructor names to run in sequence.
+    time_limit: Maximum wall-clock time (seconds) for the entire sequence.
+    seed: Random seed for reproducibility.
+
+Example:
+    >>> from configs.policies.src import SRCConfig
+    >>> config = SRCConfig()
+    >>> config.constructors
+    ['tsp', 'nn']
+    >>> config.time_limit
+    60.0
+    >>> config.seed
+    42
 """
 
 from dataclasses import dataclass, field

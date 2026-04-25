@@ -1,5 +1,14 @@
 """
 LCA (League Championship Algorithm) configuration for Hydra.
+
+Attributes:
+    LCAConfig: Configuration for the League Championship Algorithm policy.
+
+Example:
+    >>> from configs.policies.lca import LCAConfig
+    >>> config = LCAConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field

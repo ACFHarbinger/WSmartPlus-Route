@@ -1,5 +1,22 @@
 """
 HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration for expert policy training.
+
+Attributes:
+    HGSALNSConfig: Configuration for HGS-ALNS algorithm.
+
+Example:
+    hgs_alns_config = HGSALNSConfig(
+        time_limit=60.0,
+        mu=50,
+        nb_elite=10,
+        mutation_rate=0.2,
+        alns_education_iterations=50,
+        n_generations=100,
+        max_vehicles=0,
+        engine="custom",
+        mandatory_selection=[],
+        route_improvement=[],
+    )
 """
 
 from dataclasses import dataclass

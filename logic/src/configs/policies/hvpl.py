@@ -5,6 +5,15 @@ Reference:
     Sun, S., Ma, L., Liu, Y., & Wang, L. (2023). "Volleyball premier league
     algorithm with ACO and ALNS for simultaneous pickup–delivery location
     routing problem."
+
+Attributes:
+    HVPLConfig: Configuration for the HVPL policy.
+
+Example:
+    >>> from configs.policies.hvpl import HVPLConfig
+    >>> config = HVPLConfig()
+    >>> config.time_limit
+    300.0
 """
 
 from dataclasses import dataclass, field
@@ -23,6 +32,19 @@ class HVPLConfig:
         - ACO: Intelligent population initialization (Phase 1)
         - VPL + HGS: Population evolution with genetic operators (Phase 2)
         - ALNS: Deep local search refinement (Phase 3)
+
+    Attributes:
+        n_teams (int): Number of teams for VPL.
+        max_iterations (int): Maximum number of iterations.
+        substitution_rate (float): Rate of substitution operator.
+        crossover_rate (float): Rate of crossover operator.
+        mutation_rate (float): Rate of mutation operator.
+        elite_size (int): Number of elite individuals.
+        aco_init_iterations (int): Number of ACO iterations for initialization.
+        time_limit (float): Time limit in seconds.
+        seed (Optional[int]): Seed for the random number generator.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+        route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.
     """
 
     # VPL Population Parameters

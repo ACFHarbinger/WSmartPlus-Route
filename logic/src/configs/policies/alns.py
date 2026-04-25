@@ -1,5 +1,14 @@
 """
 ALNS (Adaptive Large Neighborhood Search) configuration.
+
+Attributes:
+    ALNSConfig: Attributes for ALNS configuration.
+
+Example:
+    >>> from configs.policies.alns import ALNSConfig
+    >>> config = ALNSConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field

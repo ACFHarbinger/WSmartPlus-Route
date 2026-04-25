@@ -1,4 +1,14 @@
-"""Tracking configuration dataclass for WSmart-Route."""
+"""Tracking configuration dataclass for WSmart-Route.
+
+Attributes:
+    TrackingConfig: Tracking configuration dataclass for WSmart-Route.
+
+Example:
+    >>> from logic.src.configs.tracking import TrackingConfig
+    >>> config = TrackingConfig()
+    >>> print(config)
+    TrackingConfig(name='', project_name=None, use_mlflow=False, use_tensorboard=False, use_wandb=True)
+"""
 
 import os
 from dataclasses import dataclass

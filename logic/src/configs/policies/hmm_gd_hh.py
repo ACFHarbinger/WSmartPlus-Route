@@ -1,5 +1,14 @@
 """
 HMM-GD (Hidden Markov Model + Great Deluge) configuration for Hydra.
+
+Attributes:
+    HMMGDHHConfig: Configuration for the HMM-GD (Hidden Markov Model + Great Deluge) policy.
+
+Example:
+    >>> from configs.policies.hmm_gd_hh import HMMGDHHConfig
+    >>> config = HMMGDHHConfig()
+    >>> config.max_iterations
+    500
 """
 
 from dataclasses import dataclass, field

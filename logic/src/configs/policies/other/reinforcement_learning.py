@@ -3,6 +3,34 @@ Reinforcement Learning Configuration module.
 
 Defines unified configuration dataclasses for reinforcement learning agents,
 reward shaping, and feature extraction components used across optimization policies.
+
+Attributes:
+    BanditConfig: Configuration for Multi-Armed Bandit (MAB) agents.
+    TDLearningConfig: Configuration for Temporal Difference (TD) learning agents.
+    LinUCBConfig: Configuration for Contextual Multi-Armed Bandits (LinUCB).
+    EvolutionaryCMABConfig: Configuration for Contextual MABs used in evolutionary algorithms (e.g., crossover).
+    RewardShapingConfig: Configuration for search outcome reward shaping.
+    FeatureExtractorConfig: Configuration for state feature extraction and discretization.
+    ContextFeatureExtractorConfig: Configuration for Context Feature Extractor (CFE).
+    GPCMABConfig: Configuration for Gaussian Process Combinatorial Multi-Armed Bandits.
+    RLAlgorithmConfig: Unified configuration for RL-based operator selection.
+    MultiPolicyRLConfig: Configuration for multi-policy RL aggregation.
+
+Example:
+    bandit_config = BanditConfig(
+        algorithm="ucb1",
+        epsilon=0.1,
+        epsilon_decay=0.999,
+        epsilon_min=0.01,
+        c=2.0,
+        temperature=1.0,
+        alpha_prior=1.0,
+        beta_prior=1.0,
+        gamma=0.95,
+        window_size=100,
+        history_size=50,
+        seed=None,
+    )
 """
 
 from dataclasses import dataclass, field

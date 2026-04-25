@@ -1,5 +1,14 @@
 """
 BC (Branch-and-Cut) configuration.
+
+Attributes:
+    BCConfig: Attributes for BC configuration.
+
+Example:
+    >>> from configs.policies.bc import BCConfig
+    >>> config = BCConfig()
+    >>> config.time_limit
+    300.0
 """
 
 from dataclasses import dataclass

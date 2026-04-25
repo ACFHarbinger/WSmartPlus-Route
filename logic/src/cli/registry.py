@@ -21,6 +21,9 @@ from logic.src.cli.ts_parser import add_test_suite_args
 def get_parser() -> ConfigsParser:
     """
     Creates and returns the main ConfigsParser with all subcommands registered.
+
+    Returns:
+        The main ConfigsParser with all subcommands registered.
     """
     parser = ConfigsParser(description="WSmart+ Route Unified CLI Framework")
     parser.add_argument("--profile", action="store_true", help="Enable function-level execution profiling")

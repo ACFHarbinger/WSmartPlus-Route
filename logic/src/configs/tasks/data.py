@@ -1,5 +1,27 @@
 """
 Data Config module.
+
+Attributes:
+    DataConfig: Configuration for data generation.
+
+Example:
+    data_config = DataConfig(
+        name="test",
+        filename="test.pkl",
+        data_dir="datasets",
+        problem="vrpp",
+        mu=[10.0, 10.0],
+        sigma=0.6,
+        data_distributions=["gaussian"],
+        num_locs=[50],
+        penalty_factor=3.0,
+        overwrite=False,
+        seed=42,
+        n_epochs=1,
+        epoch_start=0,
+        dataset_type="train",
+        graphs=[GraphConfig()],
+    )
 """
 
 from dataclasses import dataclass, field

@@ -1,5 +1,14 @@
 """
 HH-ACO (Hyper-Heuristic Ant Colony Optimization) configuration.
+
+Attributes:
+    HyperHeuristicACOConfig: Attributes for HH-ACO configuration.
+
+Example:
+    >>> from configs.policies.aco_hh import HyperHeuristicACOConfig
+    >>> config = HyperHeuristicACOConfig()
+    >>> config.n_ants
+    20
 """
 
 from dataclasses import dataclass, field

@@ -33,7 +33,12 @@ from .base import (
 def parse_params() -> Tuple[Union[str, Tuple[str, str]], Dict[str, Any]]:
     """
     Parses arguments, determines the command, and performs necessary validation.
-    Returns: (command, validated_opts) where 'command' might be a tuple (comm, inner_comm)
+
+    Args:
+        None
+
+    Returns:
+        (command, validated_opts) where 'command' might be a tuple (comm, inner_comm).
     """
     parser = get_parser()
 

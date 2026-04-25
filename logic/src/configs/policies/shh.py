@@ -1,5 +1,22 @@
 """
 Configuration for the Selection Hyper-Heuristic (SHH).
+
+Attributes:
+    SHHConfig: Configuration for the Selection Hyper-Heuristic (SHH) policy.
+
+Example:
+    >>> from configs.policies.shh import SHHConfig
+    >>> config = SHHConfig()
+    >>> config.iters
+    200
+    >>> config.history_len
+    10
+    >>> config.vrpp
+    True
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
 """
 
 from dataclasses import dataclass

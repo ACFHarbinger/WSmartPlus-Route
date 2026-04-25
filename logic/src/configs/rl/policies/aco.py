@@ -1,5 +1,27 @@
 """
 ACO (Ant Colony Optimization) configuration for expert policy training.
+
+Attributes:
+    ACOConfig: Configuration for ACO algorithm.
+
+Example:
+    aco_config = ACOConfig(
+        n_ants=20,
+        alpha=1.0,
+        beta=2.0,
+        rho=0.1,
+        tau_0=1.0,
+        tau_min=0.01,
+        tau_max=10.0,
+        max_iterations=50,
+        time_limit=30.0,
+        q0=0.9,
+        k_sparse=15,
+        sequence_length=5,
+        local_search=True,
+        elitist_weight=1.0,
+        operators=["swap", "2opt_intra", "relocate", "swap_star", "perturb"],
+    )
 """
 
 from dataclasses import dataclass, field

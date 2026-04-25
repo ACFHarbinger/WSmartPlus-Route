@@ -1,5 +1,14 @@
 """
 KS-ACO (K-Sparse Ant Colony Optimization) configuration.
+
+Attributes:
+    KSparseACOConfig: Attributes for KS-ACO configuration.
+
+Example:
+    >>> from configs.policies.aco_ks import KSparseACOConfig
+    >>> config = KSparseACOConfig()
+    >>> config.n_ants
+    20
 """
 
 from dataclasses import dataclass

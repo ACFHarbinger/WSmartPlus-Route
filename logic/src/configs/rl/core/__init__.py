@@ -1,5 +1,18 @@
 """
 RL algorithm configuration sub-package.
+
+Attributes:
+    PPOConfig: Configuration for PPO algorithm.
+    SAPOConfig: Configuration for SAPO algorithm.
+    GRPOConfig: Configuration for GRPO algorithm.
+    POMOConfig: Configuration for POMO algorithm.
+    SymNCOConfig: Configuration for SymNCO algorithm.
+    ImitationConfig: Configuration for Imitation algorithm.
+    GDPOConfig: Configuration for GDPO algorithm.
+    AdaptiveImitationConfig: Configuration for Adaptive Imitation algorithm.
+
+Example:
+    None
 """
 
 from .adaptive_imitation import AdaptiveImitationConfig
