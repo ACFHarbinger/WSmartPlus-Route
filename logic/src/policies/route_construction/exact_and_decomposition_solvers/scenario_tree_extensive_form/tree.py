@@ -1,8 +1,15 @@
-"""
-Scenario tree construction for stochastic optimization.
+r"""Scenario tree construction for stochastic optimization.
 
 Defines the tree structure and construction logic for multi-stage
 stochastic programming where uncertainty is modeled as discrete scenarios.
+
+Attributes:
+    ScenarioNode: A single stage in the scenario tree.
+    ScenarioTree: Container and generator for the branching scenario structure.
+
+Example:
+    >>> tree = ScenarioTree(num_days=3, num_realizations=2, customers=[1, 2, 3], mean_increment=0.1)
+    >>> root = tree.get_root()
 """
 
 from dataclasses import dataclass, field
@@ -13,7 +20,16 @@ import numpy as np
 
 @dataclass
 class ScenarioNode:
-    """A node in the scenario tree."""
+    r"""A node in the scenario tree.
+
+    Attributes:
+        id (int): Unique node identifier.
+        day (int): Time period/depth index.
+        probability (float): Path probability to this node.
+        realization (Dict[int, float]): Demand increments relative to parent.
+        parent_id (Optional[int]): ID of the parent node.
+        children_ids (List[int]): IDs of the child nodes.
+    """
 
     id: int
     day: int
@@ -25,8 +41,16 @@ class ScenarioNode:
 
 
 class ScenarioTree:
-    """
-    Constructs and manages a branching scenario tree for multi-day stochastic optimization.
+    r"""Constructs and manages a branching scenario tree for multi-day stochastic optimization.
+
+    Attributes:
+        num_days (int): Depth of the tree.
+        num_realizations (int): Branching factor.
+        customers (List[int]): Customer indices.
+        mean_increment (float): Average increment per stage.
+        seed (Optional[int]): Random seed.
+        rng (np.random.Generator): Random number generator.
+        nodes (Dict[int, ScenarioNode]): Map of all tree nodes by ID.
     """
 
     def __init__(
@@ -105,7 +129,14 @@ class ScenarioTree:
             current_layer = next_layer
 
     def get_nodes_by_day(self, day: int) -> List[ScenarioNode]:
-        """Return all nodes at a specific day."""
+        """Return all nodes at a specific day.
+
+        Args:
+            day (int): The depth/day index to query.
+
+        Returns:
+            List[ScenarioNode]: All nodes at the specified depth.
+        """
         return [n for n in self.nodes.values() if n.day == day]
 
     def get_root(self) -> ScenarioNode:

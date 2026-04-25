@@ -1,34 +1,25 @@
-r"""
-Integer L-Shaped Method (Benders Decomposition) policy package.
+"""Integer L-Shaped Method (Benders Decomposition) policy package.
 
 Implements the Laporte & Louveaux (1993) Integer L-Shaped Method for solving the
 Stochastic Inventory Routing Problem (SIRP / SCWCVRP) as a Two-Stage Stochastic
 Integer Program.
-
-Public API
-----------
-``run_ils``
-    Canonical solver entry point.  Instantiates VRPPModel and ILS engine,
-    executes the Benders outer loop, and returns the best feasible routing.
-
-Key Classes
------------
-``IntegerLShapedEngine``
-    Benders outer loop coordinator.
-``MasterProblem``
-    Gurobi MILP master problem with SEC lazy callbacks and Benders cut management.
-``RecourseEvaluator``
-    Analytical expected recourse Q̄(ŷ) and Benders cut generator.
-``ScenarioGenerator``
-    SAA scenario generation via Gamma-distributed fill-level perturbation.
-``ILSBDParams``
-    Typed configuration dataclass.
 
 References
 ----------
 Laporte, G., & Louveaux, F. V. (1993). "The integer L-shaped method for
 stochastic integer programs with complete recourse". Operations Research
 Letters, 13(3), 133-142.
+
+Attributes:
+    IntegerLShapedEngine (class): Benders outer loop coordinator.
+    MasterProblem (class): Gurobi MILP master problem.
+    RecourseEvaluator (class): Benders cut generator.
+    ScenarioGenerator (class): SAA scenario generation.
+    ILSBDParams (class): Configuration dataclass.
+    run_ils_bd (func): Canonical solver entry point.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition import run_ils_bd
 """
 
 from typing import Any, Dict, List, Set, Tuple
@@ -68,6 +59,7 @@ def run_ils_bd(
         params: ILSBDParams configuration for the solver.
         mandatory_indices: Set of local node indices that are mandatory.
         vehicle_limit: Number of vehicles available (defaults to 1).
+        kwargs: Additional keyword arguments (e.g., scenario tree).
 
     Returns:
         Tuple of (routes, profit):

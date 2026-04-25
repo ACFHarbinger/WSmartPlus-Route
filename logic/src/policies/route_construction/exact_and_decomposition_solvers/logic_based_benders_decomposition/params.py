@@ -1,5 +1,10 @@
-"""
-Parameter dataclasses for Logic-Based Benders Decomposition (LBBD) solver.
+r"""Parameter dataclasses for Logic-Based Benders Decomposition (LBBD) solver.
+
+Attributes:
+    LBBDParams: Dataclass for LBBD solver configuration.
+
+Example:
+    >>> params = LBBDParams(max_iterations=50)
 """
 
 from dataclasses import dataclass
@@ -8,8 +13,24 @@ from typing import Any, Dict, Optional
 
 @dataclass
 class LBBDParams:
-    """
-    Standardized parameters for the LBBD solver.
+    r"""Standardized parameters for the LBBD solver.
+
+    Attributes:
+        num_days (int): Planning horizon.
+        stochastic_master (bool): Use stochastic master problem.
+        mean_increment (float): Average waste increment per day.
+        num_scenarios (int): Number of scenarios for evaluation.
+        max_iterations (int): Maximum Benders iterations.
+        benders_gap (float): Optimality gap for convergence.
+        time_limit (float): Overall time limit in seconds.
+        subproblem_timeout (float): Subproblem solver timeout.
+        mip_gap (float): Gurobi MIP gap for the master problem.
+        waste_weight (float): Objective weight for waste collected.
+        cost_weight (float): Objective weight for travel cost.
+        overflow_penalty (float): Penalty for bin overflow.
+        use_nogood_cuts (bool): Enable logic-based no-good cuts.
+        use_optimality_cuts (bool): Enable standard optimality cuts.
+        seed (Optional[int]): Random seed for scenario generation.
     """
 
     num_days: int = 3
@@ -30,14 +51,13 @@ class LBBDParams:
 
     @classmethod
     def from_config(cls, config: Dict[str, Any]) -> "LBBDParams":
-        """
-        Create a LBBDParams instance from a raw configuration dictionary.
+        """Create a LBBDParams instance from a raw configuration dictionary.
 
         Args:
-            config: Dictionary containing parameter overrides.
+            config (Dict[str, Any]): Dictionary containing parameter overrides.
 
         Returns:
-            A LBBDParams instance with values mapped from the config.
+            LBBDParams: A LBBDParams instance with values mapped from the config.
         """
         return cls(
             num_days=int(config.get("num_days", 3)),
@@ -58,8 +78,10 @@ class LBBDParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert parameters to a dictionary.
+        """Convert parameters to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary of parameter values.
         """
         return {
             "num_days": self.num_days,

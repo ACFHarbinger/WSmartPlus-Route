@@ -30,6 +30,13 @@ References:
     Laporte, G., & Louveaux, F. V. (1993). "The integer L-shaped method for
     stochastic integer programs with complete recourse". Operations Research
     Letters, 13(3), 133-142.
+
+Attributes:
+    IntegerLShapedEngine (class): Benders decomposition engine for stochastic VRPP.
+
+Example:
+    >>> engine = IntegerLShapedEngine(model, params)
+    >>> routes, y_hat, profit, stats = engine.solve(tree)
 """
 
 import time
@@ -72,17 +79,17 @@ class IntegerLShapedEngine:
         routes, y_hat, profit, stats = engine.solve(tree)
 
     Attributes:
-        model: VRPPModel encoding the deterministic problem structure.
-        params: ILSBDParams configuring all solver hyper-parameters.
-        stats: Diagnostic dict populated during ``solve()``.
+        model (VRPPModel): VRPPModel instance providing graph topology, costs, and profits.
+        params (ILSBDParams): ILSBDParams controlling all solver parameters.
+        stats (Dict[str, Any]): Diagnostic dict populated during ``solve()``.
     """
 
     def __init__(self, model: VRPPModel, params: ILSBDParams) -> None:
         """Initialise the engine.
 
         Args:
-            model: VRPPModel instance (network structure, costs, fill levels).
-            params: ILSBDParams configuring Benders iterations, scenarios, penalties.
+            model (VRPPModel): VRPPModel instance (network structure, costs, fill levels).
+            params (ILSBDParams): ILSBDParams configuring Benders iterations, scenarios, penalties.
         """
         self.model = model
         self.params = params
@@ -106,16 +113,20 @@ class IntegerLShapedEngine:
         bin_capacities: Optional[np.ndarray] = None,
         initial_inventory: Optional[np.ndarray] = None,
     ) -> Tuple[List[List[int]], Dict[int, float], float, Dict[str, Any]]:
-        r"""Run the (standard or Multi-Period) Integer L-Shaped Benders decomposition.
+        """Run the (standard or Multi-Period) Integer L-Shaped Benders decomposition.
 
         Args:
-            tree: A ScenarioTree object.
-            demand_matrix: Optional mean demand increments per day per node.
-            bin_capacities: Optional bin capacities per node.
-            initial_inventory: Optional initial fill levels per node.
+            tree (ScenarioTree): A ScenarioTree object.
+            demand_matrix (Optional[np.ndarray]): Optional mean demand increments per day per node.
+            bin_capacities (Optional[np.ndarray]): Optional bin capacities per node.
+            initial_inventory (Optional[np.ndarray]): Optional initial fill levels per node.
 
         Returns:
-            Tuple of (routes, y_hat, profit, stats).
+            Tuple[List[List[int]], Dict[int, float], float, Dict[str, Any]]: A tuple containing:
+                - routes: List of customer-only route lists (depot excluded).
+                - y_hat: Dictionary mapping node indices to visit decisions.
+                - profit: Calculated net profit.
+                - stats: Execution statistics and solver metadata.
         """
         if not GUROBI_AVAILABLE:
             raise ImportError("Gurobi (gurobipy) is required for the Integer L-Shaped solver. ")
@@ -128,7 +139,15 @@ class IntegerLShapedEngine:
         from logic.src.pipeline.simulations.bins.prediction import ScenarioTreeNode
 
         def get_all_paths(node: ScenarioTreeNode, current_path: List[np.ndarray]) -> List[List[np.ndarray]]:
-            """Recursively collect all scenarios from a scenario tree."""
+            """Recursively collect all scenarios from a scenario tree.
+
+            Args:
+                node: The current scenario tree node.
+                current_path: The path of wastes accumulated so far.
+
+            Returns:
+                List[List[np.ndarray]]: List of full waste paths (scenarios).
+            """
             new_path = current_path + [node.wastes]
             if not node.children:
                 return [new_path]
@@ -281,11 +300,11 @@ class IntegerLShapedEngine:
         BaseRoutingPolicy (``profit = revenue − travel_cost``).
 
         Args:
-            routes: Customer-only route lists from the master problem.
-            y_hat:  Binary visit decisions {node_idx: 0.0/1.0}.
+            routes (List[List[int]]): Customer-only route lists from the master problem.
+            y_hat (Dict[int, float]): Binary visit decisions {node_idx: 0.0/1.0}.
 
         Returns:
-            Net profit in the problem's monetary units.
+            float: Net profit in the problem's monetary units.
         """
         revenue = sum(self.model.get_node_profit(i) * float(y_hat.get(i, 0.0)) for i in self.model.customers)
 

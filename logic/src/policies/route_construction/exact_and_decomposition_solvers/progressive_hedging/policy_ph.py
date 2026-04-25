@@ -1,5 +1,4 @@
-r"""
-Progressive Hedging (PH) Policy Adapter for Stochastic VRPP.
+r"""Progressive Hedging (PH) Policy Adapter for Stochastic VRPP.
 
 This policy adapter bridges the Multi-Period Stochastic framework with the
 Progressive Hedging iterative decomposition algorithm. PH is a horizontal
@@ -35,6 +34,13 @@ Registry key: ``"ph"``
 References:
     Rockafellar, R. T., & Wets, R. J. B. (1991). "Scenarios and policy aggregation
     in optimization under uncertainty". Mathematics of Operations Research, 16(1), 119-147.
+
+Attributes:
+    ProgressiveHedgingPolicy: Policy adapter for Progressive Hedging decomposition.
+
+Example:
+    >>> policy = ProgressiveHedgingPolicy(config)
+    >>> sol, plan, stats = policy._run_multi_period_solver(problem, ctx)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -60,10 +66,13 @@ from .ph_engine import ProgressiveHedgingEngine
 )
 @RouteConstructorRegistry.register("ph")
 class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
-    """Policy adapter for Progressive Hedging decomposition.
+    r"""Policy adapter for Progressive Hedging decomposition.
 
     This class handles the boilerplate of scenario generation and invokes the
     ProgressiveHedgingEngine to solve the stochastic VRPP iteratively.
+
+    Attributes:
+        engine (ProgressiveHedgingEngine): Iterative PH engine.
     """
 
     def __init__(self, config: PHConfig) -> None:
@@ -77,11 +86,19 @@ class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Type[PHConfig]:
-        """Return the PH configuration dataclass."""
+        """Return the PH configuration dataclass.
+
+        Returns:
+            Type[PHConfig]: The configuration class.
+        """
         return PHConfig
 
     def _get_config_key(self) -> str:
-        """Return the configuration key."""
+        """Return the configuration key.
+
+        Returns:
+            str: The configuration key.
+        """
         return "ph"
 
     def _run_multi_period_solver(
@@ -145,7 +162,21 @@ class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
         mandatory_nodes: Optional[List[int]] = None,
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Legacy single-day solver (optional fallback)."""
+        """Legacy single-day solver (optional fallback).
+
+        Args:
+            sub_dist_matrix (np.ndarray): Local distance matrix.
+            sub_wastes (Dict[int, float]): Local fill levels.
+            capacity (float): Vehicle capacity.
+            revenue (float): Unit revenue.
+            cost_unit (float): Unit travel cost.
+            values (Dict[str, Any]): Additional state values.
+            mandatory_nodes (Optional[List[int]]): Local mandatory node indices.
+            kwargs (Any): Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty results for PH.
+        """
         # For simplicity in this SIRP refactor, we redirect to multi-period with a 1-day tree if needed
         # but here we just return empty to discourage myopic usage of PH.
         return [], 0.0, 0.0

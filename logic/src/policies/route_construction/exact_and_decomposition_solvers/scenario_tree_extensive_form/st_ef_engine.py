@@ -1,5 +1,11 @@
-"""
-Extensive form solver engine for Scenario Tree problems.
+r"""Extensive form solver engine for Scenario Tree problems.
+
+Attributes:
+    ScenarioTreeExtensiveFormEngine: Engine to build and solve ST-EF MILP models.
+
+Example:
+    >>> engine = ScenarioTreeExtensiveFormEngine(tree, dist, wastes, cap)
+    >>> route, profit = engine.solve()
 """
 
 from typing import Any, Dict, List, Tuple
@@ -49,9 +55,24 @@ class EngineNode:
 
 
 class ScenarioTreeExtensiveFormEngine:
-    """
-    Engine to parse a ScenarioTree and build the corresponding deterministic
-    equivalent MILP using Gurobi.
+    r"""Engine to parse a ScenarioTree and build the corresponding deterministic equivalent MILP using Gurobi.
+
+    Attributes:
+        tree (ScenarioTree): The scenario tree structure.
+        distance_matrix (np.ndarray): Full N×N distance matrix.
+        initial_wastes (Dict[int, float]): Initial waste levels at root.
+        capacity (float): Vehicle capacity.
+        waste_weight (float): Objective weight for collected waste.
+        cost_weight (float): Objective weight for travel cost.
+        overflow_penalty (float): Penalty for bin overflow.
+        time_limit (float): Gurobi time limit.
+        mip_gap (float): Gurobi MIP gap.
+        use_mtz (bool): Whether to use MTZ subtour elimination.
+        verbose (bool): Whether to enable Gurobi output.
+        num_nodes (int): Total number of nodes.
+        customers (List[int]): List of customer indices.
+        tree_nodes (Dict[int, Any]): Flattened map of tree nodes.
+        model (gp.Model): Gurobi model instance.
     """
 
     def __init__(
@@ -308,7 +329,13 @@ class ScenarioTreeExtensiveFormEngine:
         self.model.setObjective(expected_profit_expr, GRB.MAXIMIZE)
 
     def solve(self) -> Tuple[List[int], float]:
-        """Runs optimization and returns the selected route for Day 1."""
+        """Runs optimization and returns the selected route for Day 1.
+
+        Returns:
+            Tuple[List[int], float]: A tuple containing:
+                - route: The sequence of nodes for the Day 1 route.
+                - obj_val: The optimal expected value found.
+        """
         self.build_model()
 
         if not self.use_mtz:
@@ -340,6 +367,14 @@ class ScenarioTreeExtensiveFormEngine:
         return route, float(self.model.ObjVal)
 
     def _extract_route(self, n_idx: int) -> List[int]:
+        """Extracts the sequence of nodes for a specific tree node from the solver results.
+
+        Args:
+            n_idx (int): The index of the tree node to extract the route from.
+
+        Returns:
+            List[int]: The ordered list of node IDs.
+        """
         active_edges = []
         for i in range(self.num_nodes):
             for j in range(self.num_nodes):
@@ -364,8 +399,13 @@ class ScenarioTreeExtensiveFormEngine:
         route.append(0)
         return route
 
-    def _lazy_sec_callback(self, model, where):
-        """Lazy subtour elimination (if MTZ is disabled)"""
+    def _lazy_sec_callback(self, model: gp.Model, where: int) -> None:
+        """Lazy subtour elimination (if MTZ is disabled).
+
+        Args:
+            model (gp.Model): The Gurobi model.
+            where (int): The solver callback location.
+        """
         # This is a bit tricky to implement for multi-nodal layers quickly,
         # so for this framework we default to MTZ.
         if where == GRB.Callback.MIPSOL:
@@ -373,7 +413,14 @@ class ScenarioTreeExtensiveFormEngine:
             pass
 
     def _convert_simulation_tree(self, tree: Any) -> Dict[int, Any]:
-        """Convert simulation ScenarioTree (recursive) to flat solver tree."""
+        """Convert simulation ScenarioTree (recursive) to flat solver tree.
+
+        Args:
+            tree (Any): The simulation scenario tree.
+
+        Returns:
+            Dict[int, Any]: A flat map of EngineNode objects.
+        """
         flat = {}
         counter = [0]
 
@@ -410,8 +457,12 @@ class ScenarioTreeExtensiveFormEngine:
         traverse(tree.root)
         return flat
 
-    def _get_engine_root(self):
-        """Find the root node (day 0) in the tree_nodes map."""
+    def _get_engine_root(self) -> Any:
+        """Find the root node (day 0) in the tree_nodes map.
+
+        Returns:
+            Any: The root node object.
+        """
         for n in self.tree_nodes.values():
             if n.day == 0:
                 return n

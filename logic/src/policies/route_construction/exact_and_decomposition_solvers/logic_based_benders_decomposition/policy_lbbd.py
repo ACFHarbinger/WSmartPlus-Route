@@ -1,10 +1,16 @@
-"""
-Policy adapter for Logic-Based Benders Decomposition (LBBD).
+r"""Policy adapter for Logic-Based Benders Decomposition (LBBD).
+
+Attributes:
+    LBBDPolicy: Adapter for the Logic-Based Benders Decomposition (LBBD) policy.
+
+Example:
+    >>> policy = LBBDPolicy()
+    >>> sol, plan, stats = policy._run_multi_period_solver(problem, multi_day_ctx)
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
 
 import numpy as np
 
@@ -29,16 +35,29 @@ from .lbbd_engine import LBBDEngine
 )
 @RouteConstructorRegistry.register("lbbd")
 class LBBDPolicy(BaseMultiPeriodRoutingPolicy):
-    """
-    Adapter for the Logic-Based Benders Decomposition (LBBD) policy.
+    r"""Adapter for the Logic-Based Benders Decomposition (LBBD) policy.
+
     Supports multi-period stochastic decision making via ScenarioTree.
+
+    Attributes:
+        config (LBBDConfig): Policy configuration.
     """
 
     @classmethod
-    def _config_class(cls):
+    def _config_class(cls) -> Type[LBBDConfig]:
+        """Return the typed configuration class.
+
+        Returns:
+            Type[LBBDConfig]: The configuration class.
+        """
         return LBBDConfig
 
-    def _get_config_key(cls) -> str:
+    def _get_config_key(self) -> str:
+        """Return the YAML config key.
+
+        Returns:
+            str: The config key.
+        """
         return "lbbd"
 
     def _run_multi_period_solver(
@@ -101,7 +120,19 @@ class LBBDPolicy(BaseMultiPeriodRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Satisfies the abstract base class, but LBBD uses _run_multi_period_solver.
+        """Satisfies the abstract base class, but LBBD uses _run_multi_period_solver.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Local distance matrix.
+            sub_wastes (Dict[int, float]): Local fill levels.
+            capacity (float): Vehicle capacity.
+            revenue (float): Unit revenue.
+            cost_unit (float): Unit travel cost.
+            values (Dict[str, Any]): Additional state values.
+            mandatory_nodes (List[int]): Local mandatory node indices.
+            kwargs (Any): Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty results for LBBD.
         """
         return [], 0.0, 0.0

@@ -1,5 +1,11 @@
-r"""
-Analytical recourse subproblem evaluator for the Integer L-Shaped Method.
+r"""Analytical recourse subproblem evaluator for the Integer L-Shaped Method.
+
+Attributes:
+    RecourseEvaluator (class): Analytical evaluator for the Stage 2 recourse function.
+
+Example:
+    >>> evaluator = RecourseEvaluator()
+    >>> Q_bar, e, d = evaluator.evaluate(y_hat, scenarios, 100.0, 10.0, 70.0)
 """
 
 from typing import Dict, List, Tuple
@@ -9,7 +15,11 @@ import numpy as np
 
 class RecourseEvaluator:
     r"""Analytical evaluator for the Stage 2 recourse function Q̄(ŷ).
+
     Optimized for multi-period simulation over T days.
+
+    Attributes:
+        _None: This class has no public attributes.
     """
 
     def evaluate(
@@ -23,14 +33,17 @@ class RecourseEvaluator:
         r"""Compute Q̄(ŷ) and Benders optimality cut coefficients over T days.
 
         Args:
-            y_hat: Current master problem visit decisions {node_idx: value}.
-            scenarios: List of scenario paths. Each path is a list of [node_fill_array] for T days.
-            overflow_penalty: Cost per %-fill unit of overflow.
-            undervisit_penalty: Cost of wasted trip Day 0.
-            collection_threshold: Trigger level.
+            y_hat (Dict[int, float]): Current master problem visit decisions {node_idx: value}.
+            scenarios (List[List[np.ndarray]]): List of scenario paths. Each path is a list of [node_fill_array] for T days.
+            overflow_penalty (float): Cost per %-fill unit of overflow.
+            undervisit_penalty (float): Cost of wasted trip Day 0.
+            collection_threshold (float): Trigger level.
 
         Returns:
-            Tuple of (Q_bar, e, d).
+            Tuple[float, float, Dict[int, float]]: A tuple containing:
+                - Q_bar: Expected recourse cost.
+                - e: Constant term for the Benders cut.
+                - d: Coefficients for the Benders cut.
         """
         n_scenarios = len(scenarios)
         if n_scenarios == 0:

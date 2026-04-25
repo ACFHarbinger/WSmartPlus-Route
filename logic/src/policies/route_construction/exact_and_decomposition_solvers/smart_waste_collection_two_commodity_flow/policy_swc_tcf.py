@@ -1,5 +1,11 @@
-"""
-SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Policy Wrapper.
+r"""SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Policy Wrapper.
+
+Attributes:
+    SWCTCFPolicy: Simulator policy adapter for TCF.
+
+Example:
+    >>> policy = SWCTCFPolicy()
+    >>> res = policy._run_solver(dist, wastes, cap, rev, cost, values, mandatory)
 """
 
 from __future__ import annotations
@@ -25,8 +31,7 @@ from .params import SWCTCFParams
 )
 @RouteConstructorRegistry.register("swc_tcf")
 class SWCTCFPolicy(BaseRoutingPolicy):
-    """
-    Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy adapter.
+    r"""Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy adapter.
 
     This policy implements a mathematical programming approach based on the
     Two-Commodity Flow formulation for the Vehicle Routing Problem. It allows
@@ -41,6 +46,9 @@ class SWCTCFPolicy(BaseRoutingPolicy):
     - Ramos, T. R. P., Morais, C. S., & Barbosa-Povoa, A. P. (2018). "The smart
       waste collection routing problem: Alternative operational management
       approaches". Expert Systems with Applications.
+
+    Attributes:
+        config (SWCTCFConfig): Policy configuration.
     """
 
     def __init__(self, config: Optional[Union[SWCTCFConfig, Dict[str, Any]]] = None):
@@ -53,9 +61,19 @@ class SWCTCFPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for this policy.
+
+        Returns:
+            Optional[Type[SWCTCFConfig]]: The configuration class.
+        """
         return SWCTCFConfig
 
     def _get_config_key(self) -> str:
+        """Return the configuration key.
+
+        Returns:
+            str: The config key.
+        """
         return "swc_tcf"
 
     def _run_solver(
@@ -85,6 +103,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             cost_unit: Euro per kilometer traveled.
             values: Merged configuration dictionary from Policy and defaults.
             mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Tuple[List[List[int]], float, float]: (routes, profit, travel_cost)

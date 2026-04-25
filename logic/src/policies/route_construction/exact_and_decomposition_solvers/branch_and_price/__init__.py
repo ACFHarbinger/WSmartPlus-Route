@@ -1,5 +1,4 @@
-"""
-Branch-and-Price Algorithm for VRPP.
+"""Branch-and-Price Algorithm for VRPP.
 
 This package implements the Branch-and-Price algorithm for the Vehicle Routing
 Problem with Profits (VRPP) based on the methodology described in:
@@ -11,11 +10,15 @@ The implementation uses:
 - Ryan-Foster branching for binary decisions
 - Gurobi for solving restricted master problems
 
-Key Components:
-- VRPPMasterProblem: Set partitioning formulation with route columns
-- PricingSubproblem: Resource-constrained shortest path for route generation
-- BranchAndPriceSolver: Main solver with column generation and branching
-- PolicyBP: Policy adapter for WSmart+ Route framework
+Attributes:
+    BranchAndPriceSolver (class): Main optimization search for column generation.
+    BranchAndPricePolicy (class): Adapter for the BP solver.
+    PricingSubproblem (class): Resource-constrained shortest path subproblem.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price import BranchAndPricePolicy
+    >>> policy = BranchAndPricePolicy(config)
+    >>> routes, obj = policy.execute(context)
 """
 
 from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver, VRPPMasterProblem
