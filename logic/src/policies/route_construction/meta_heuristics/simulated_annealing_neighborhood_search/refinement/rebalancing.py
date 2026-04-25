@@ -1,6 +1,15 @@
 """
 Solution rebalancing strategies for the look-ahead policy.
 Iteratively removes and re-inserts bins to optimize route density and feasibility.
+
+Attributes:
+    rebalance_solution: Iteratively remove and re-insert bins to balance the solution.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.rebalancing import rebalance_solution
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> cost, profit = rebalance_solution(routes, [], 1.0, 1.0, 1.0, 1.0, data, mandatory_nodes, distance_matrix, values)
+    >>> print(f"Cost: {cost}, Profit: {profit}")
 """
 
 from typing import Dict, List, Tuple

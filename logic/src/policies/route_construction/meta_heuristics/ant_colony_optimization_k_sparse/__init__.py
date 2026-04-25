@@ -1,16 +1,14 @@
-"""
-K-Sparse Ant Colony Optimization.
+r"""K-Sparse Ant Colony Optimization.
 
 This package implements the K-Sparse ACO algorithm, which restricts the
 search space to the k-nearest neighbors for efficiency.
 
 Attributes:
-    KSparseACOSolver (class): The main solver class.
-    run_k_sparse_aco (function): Helper function to run the solver.
+    KSparseACOSolver: The main solver class.
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization_k_sparse import run_k_sparse_aco
-    >>> result = run_k_sparse_aco(dist_matrix, wastes, ...)
+    >>> from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse import KSparseACOSolver
+    >>> solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params)
 """
 
 from .solver import KSparseACOSolver

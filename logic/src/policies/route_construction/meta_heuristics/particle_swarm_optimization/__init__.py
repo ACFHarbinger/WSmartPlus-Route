@@ -1,7 +1,13 @@
-"""
-Particle Swarm Optimization (PSO) with velocity momentum.
+"""Particle Swarm Optimization (PSO) with velocity momentum.
 
-**TRUE PSO** replacing the mathematically equivalent but slower SCA.
+Attributes:
+    PSOParams: Parameter dataclass for Particle Swarm Optimization.
+    PSOPolicyAdapter: Policy class for Particle Swarm Optimization.
+    PSOSolver: Main solver class for Particle Swarm Optimization.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization import PSOPolicyAdapter
+    >>> policy = PSOPolicyAdapter()
 """
 
 from .params import PSOParams

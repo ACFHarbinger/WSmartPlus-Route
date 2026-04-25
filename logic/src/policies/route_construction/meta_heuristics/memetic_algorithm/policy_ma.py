@@ -1,13 +1,12 @@
-"""
-MA (Memetic Algorithm) Policy Adapter.
+"""MA (Memetic Algorithm) Policy Adapter.
 
-This module provides the integration layer between the MASolver and the
-broader simulator infrastructure. It adapts the evolutionary engine to the
-agnostic BaseRoutingPolicy interface.
+Attributes:
+    MAPolicy: Policy class for Memetic Algorithm.
 
-Reference:
-    Moscato, P., Cotta, C., & Mendes, A. (2004). "Memetic Algorithms".
-    Reference: bibliography/Memetic_Algorithms.pdf
+Example:
+    >>> from logic.src.configs.policies.ma import MAConfig
+    >>> config = MAConfig(pop_size=50)
+    >>> policy = MAPolicy(config)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -33,40 +32,26 @@ from .solver import MASolver
 )
 @RouteConstructorRegistry.register("ma")
 class MAPolicy(BaseRoutingPolicy):
-    """
-    Memetic Algorithm (MA) Policy - Evolutionary Search with Individual Learning.
+    """Memetic Algorithm (MA) Policy.
 
-    This policy implements a Memetic Algorithm (Moscato, 1989), which extends the
-    standard Genetic Algorithm by incorporating a local search (learning) phase
-    for every individual offspring.
-
-    Algorithm Components:
-    1.  **Global Exploration**: Employs genetic operators (selection, crossover,
-        mutation) to maintain a diverse population of routing solutions.
-    2.  **Individual Education**: Each newly generated offspring undergoes a
-        dedicated local search refinement (memetic learning) to reach a local
-        optimum before being re-integrated into the population.
-    3.  **Memetic Synergy**: This approach combines the broad exploratory power
-        of evolutionary search with the precision of deterministic local
-        optimization.
-
-    Registry key: ``"ma"``
+    Attributes:
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[MAConfig, Dict[str, Any]]] = None):
-        """
-        Initialize the MAPolicy adapter.
+        """Initialize the MAPolicy adapter.
 
         Args:
-            config: An optional configuration object or dictionary containing
-                    the engine hyper-parameters.
+            config: Optional configuration source.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """
-        Defines the Hydra-compliant configuration schema for this policy.
+        """Hydra-compliant configuration schema.
 
         Returns:
             MAConfig class.
@@ -74,11 +59,10 @@ class MAPolicy(BaseRoutingPolicy):
         return MAConfig
 
     def _get_config_key(self) -> str:
-        """
-        Returns the unique identifier for this policy in the registry.
+        """Identifier for this policy.
 
         Returns:
-            "ma"
+            The key 'ma'.
         """
         return "ma"
 
@@ -93,43 +77,22 @@ class MAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Memetic Algorithm (MA) solver logic.
+        """Execute the Memetic Algorithm (MA) solver logic.
 
-        MA is a population-based search heuristic that combines evolutionary
-        global search with local search refinement. It is often described as
-        a "Genetic Algorithm + Local Search". In this implementation:
-        - Population: Maintains a set of candidate solutions.
-        - Evolution: Standard genetic operators (selection, crossover, mutation)
-          are applied to evolve the population.
-        - Learning (Memetics): Each individual offspring undergoes a local search
-          refinement (learning) before being added to the population, ensuring
-          the search stays close to local optima.
-        This policy acts as an adapter for the mathematical MASolver engine.
+        MA combines evolutionary global search with local search refinement.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                MA parameters (pop_size, crossover_rate, mutation_rate, local_search_rate).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Mapping of local node indices to waste levels.
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue per kilogram of waste.
+            cost_unit: Monetary cost per kilometer.
+            values: Merged configuration dictionary.
+            mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple of (routes, profit, cost).
         """
         # 1. Parameter Extraction & Mapping (See params.py for conceptual mapping)
         params = MAParams(

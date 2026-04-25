@@ -2,6 +2,14 @@
 Distance-Based PSO Policy Adapter.
 
 Adapts the rigorous Distance-Based PSO implementation (replaces Firefly Algorithm).
+
+Attributes:
+    DistancePSOPolicy: Policy class registering the PSO-DA solver under key "psoda".
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.policy_psoda import DistancePSOPolicy
+    >>> policy = DistancePSOPolicy()
+    >>> routes, profit, cost = policy.run(dist_matrix, wastes, capacity, revenue, cost_unit, values, mandatory_nodes)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -22,6 +30,9 @@ class DistancePSOPolicy(BaseRoutingPolicy):
     Distance-Based Particle Swarm Optimization policy class.
 
     PSO with exponential distance decay. Replaces Firefly Algorithm.
+
+    Attributes:
+        config: DistancePSOConfig or equivalent dict with solver hyperparameters.
     """
 
     def __init__(self, config: Optional[Union[DistancePSOConfig, Dict[str, Any]]] = None):
@@ -34,10 +45,19 @@ class DistancePSOPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the config dataclass used by this policy.
+
+        Returns:
+            Type: DistancePSOConfig dataclass.
+        """
         return DistancePSOConfig
 
     def _get_config_key(self) -> str:
-        """Return config key."""
+        """Return the YAML config key for this solver.
+
+        Returns:
+            str: Config key "psoda".
+        """
         return "psoda"
 
     def _run_solver(
@@ -76,7 +96,7 @@ class DistancePSOPolicy(BaseRoutingPolicy):
                 PSO-DA parameters (population_size, inertia_weight, alpha_profit).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

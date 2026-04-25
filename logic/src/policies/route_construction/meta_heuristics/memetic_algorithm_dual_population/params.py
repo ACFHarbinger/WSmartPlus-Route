@@ -1,18 +1,11 @@
 """
 Configuration parameters for Memetic Algorithm with Dual Population (MADP).
 
-This is the rigorous parameter mapping for the Volleyball Premier League (VPL) algorithm
-with proper Operations Research terminology.
+Attributes:
+    MemeticAlgorithmDualPopulationParams: Parameters for the MADP solver.
 
-TERMINOLOGY MAPPING (VPL → MADP):
-- n_teams → population_size (number of active solutions)
-- substitution_rate → diversity_injection_rate
-- coaching_weight_1/2/3 → elite_learning_weights
-- elite_size → elite_count
-
-Reference:
-    Moghdani, R., & Salimifard, K. (2018). "Volleyball Premier League Algorithm."
-    Applied Soft Computing, 64, 161-185. DOI: 10.1016/j.asoc.2017.11.043
+Example:
+    >>> params = MemeticAlgorithmDualPopulationParams(population_size=30, max_iterations=200)
 """
 
 from __future__ import annotations
@@ -50,6 +43,9 @@ class MemeticAlgorithmDualPopulationParams:
                     Typically 3 for top-3 guidance.
         local_search_iterations: Local search refinement iterations per solution.
         time_limit: Wall-clock time limit in seconds (0 = no limit).
+        vrpp: Whether to solve as a VRP with profits.
+        profit_aware_operators: Whether to use profit-aware heuristics.
+        seed: Random seed for reproducibility.
     """
 
     # Population structure
@@ -74,7 +70,14 @@ class MemeticAlgorithmDualPopulationParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "MemeticAlgorithmDualPopulationParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration source (dataclass or object).
+
+        Returns:
+            MemeticAlgorithmDualPopulationParams: Initialized runtime parameters.
+        """
         return cls(
             population_size=getattr(config, "population_size", 30),
             max_iterations=getattr(config, "max_iterations", 200),
@@ -88,7 +91,14 @@ class MemeticAlgorithmDualPopulationParams:
         )
 
     def __post_init__(self):
-        """Validate parameter constraints and set default elite weights."""
+        """Validate parameter constraints and set default elite weights.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         assert self.population_size > 0, "population_size must be positive"
         assert 0 <= self.diversity_injection_rate <= 1, "diversity_injection_rate must be in [0, 1]"
         assert self.elite_count >= 3, "elite_count must be at least 3 for elite-guided construction"
@@ -116,28 +126,63 @@ class MemeticAlgorithmDualPopulationParams:
 
     @property
     def substitution_rate(self) -> float:
-        """Alias for diversity_injection_rate to match VPL exactly."""
+        """Alias for diversity_injection_rate to match VPL exactly.
+
+        Args:
+            None.
+
+        Returns:
+            float: The diversity injection rate.
+        """
         return self.diversity_injection_rate
 
     @property
     def elite_size(self) -> int:
-        """Alias for elite_count to match VPL exactly."""
+        """Alias for elite_count to match VPL exactly.
+
+        Args:
+            None.
+
+        Returns:
+            int: The elite count.
+        """
         return self.elite_count
 
     @property
     def coaching_weight_1(self) -> float:
-        """Alias for first elite learning weight to match VPL exactly."""
+        """Alias for first elite learning weight to match VPL exactly.
+
+        Args:
+            None.
+
+        Returns:
+            float: The first coaching weight.
+        """
         assert self.elite_learning_weights is not None and len(self.elite_learning_weights) >= 1
         return self.elite_learning_weights[0]
 
     @property
     def coaching_weight_2(self) -> float:
-        """Alias for second elite learning weight to match VPL exactly."""
+        """Alias for second elite learning weight to match VPL exactly.
+
+        Args:
+            None.
+
+        Returns:
+            float: The second coaching weight.
+        """
         assert self.elite_learning_weights is not None and len(self.elite_learning_weights) >= 2
         return self.elite_learning_weights[1]
 
     @property
     def coaching_weight_3(self) -> float:
-        """Alias for third elite learning weight to match VPL exactly."""
+        """Alias for third elite learning weight to match VPL exactly.
+
+        Args:
+            None.
+
+        Returns:
+            float: The third coaching weight.
+        """
         assert self.elite_learning_weights is not None and len(self.elite_learning_weights) >= 3
         return self.elite_learning_weights[2]

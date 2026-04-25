@@ -16,6 +16,13 @@ Reference:
     Moghdani, R., & Salimifard, K. (2018). "Volleyball Premier League
     Algorithm." Applied Soft Computing, 64, 161-185.
     DOI: https://doi.org/10.1016/j.asoc.2017.11.043
+
+Attributes:
+    VPLSolver: The solver class.
+
+Example:
+    >>> solver = VPLSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -45,6 +52,19 @@ class VPLSolver:
     Implements the VPL algorithm with dual population structure (active and
     passive teams) and four core phases: team formation, competition,
     substitution, and coaching/learning.
+
+    Attributes:
+        dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 = depot.
+        wastes: Dictionary mapping node index to waste/profit value.
+        capacity: Vehicle capacity constraint.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance traveled.
+        params: VPL algorithm parameters.
+        mandatory_nodes: List of nodes that must be visited.
+        n_nodes: Number of nodes (excluding depot).
+        nodes: List of node indices (1 to n_nodes).
+        random: Random number generator instance.
+        ls: ACOLocalSearch instance for local search operations.
     """
 
     def __init__(

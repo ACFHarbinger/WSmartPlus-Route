@@ -1,16 +1,15 @@
-"""
-K-Sparse ACO Solver Module.
+r"""K-Sparse ACO Solver Module.
 
 This module implements the main loop of the K-Sparse Ant Colony Optimization
 algorithm using MMAS_exp methodology. It manages the ant colony, global
 pheromone updates, and coordinates the search process.
 
 Attributes:
-    None
+    KSparseACOSolver: K-Sparse MAX-MIN Ant System (MMAS_exp) solver for CVRP/VRPP.
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization_k_sparse.solver import KSparseACOSolver
-    >>> solver = KSparseACOSolver(dist_matrix, wastes, ...)
+    >>> from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver import KSparseACOSolver
+    >>> solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params)
     >>> result = solver.solve()
 
 Reference:
@@ -33,8 +32,7 @@ from .pheromones import SparsePheromoneTau
 
 
 class KSparseACOSolver:
-    """
-    K-Sparse MAX-MIN Ant System (MMAS_exp) solver for CVRP/VRPP.
+    """K-Sparse MAX-MIN Ant System (MMAS_exp) solver for CVRP/VRPP.
 
     Implements MMAS with scale-based sparse pheromone storage for memory
     efficiency and fast computation on large problem instances. Follows
@@ -42,6 +40,23 @@ class KSparseACOSolver:
     - Global-only pheromone updates (no local updates during construction)
     - Pure roulette-wheel selection (no q0 exploitation)
     - Dynamic default_value with precision-based pruning
+
+    Attributes:
+        dist_matrix: NxN distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue multiplier for waste collected.
+        C: Cost multiplier for distance traveled.
+        params: Algorithm-specific hyperparameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Total number of nodes.
+        nodes: List of customer nodes.
+        eta: Heuristic visibility matrix.
+        tau_0: Initial pheromone level.
+        pheromone: Sparse pheromone matrix.
+        ls: Local search optimizer.
+        candidate_lists: K-sparse candidate neighbor lists.
+        constructor: Solution constructor for ants.
     """
 
     def __init__(
@@ -127,7 +142,11 @@ class KSparseACOSolver:
         )
 
     def _nearest_neighbor_cost(self) -> float:
-        """Compute cost of nearest neighbor tour for tau_0 initialization."""
+        """Compute cost of nearest neighbor tour for tau_0 initialization.
+
+        Returns:
+            Approximate cost of a complete tour.
+        """
         visited = set([0])
         current = 0
         cost = 0.0
@@ -148,7 +167,11 @@ class KSparseACOSolver:
         return cost
 
     def _build_candidate_lists(self) -> Dict[int, List[int]]:
-        """Build k-nearest neighbor candidate lists for each node."""
+        """Build k-nearest neighbor candidate lists for each node.
+
+        Returns:
+            Dictionary mapping node index to list of nearest neighbors.
+        """
         candidates: Dict[int, List[int]] = {}
         k = min(self.params.k_sparse, len(self.nodes))
 
@@ -237,6 +260,9 @@ class KSparseACOSolver:
             best_routes: Best solution found so far.
             best_cost: Cost of the best solution.
 
+        Returns:
+            None.
+
         Reference:
             Hale (2021), Section 4.2.2: MMAS global update with evaporate-then-reinforce.
         """
@@ -267,7 +293,14 @@ class KSparseACOSolver:
             self.pheromone.set(prev, 0, new_tau)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost."""
+        """Calculate total routing cost.
+
+        Args:
+            routes: List of routes to evaluate.
+
+        Returns:
+            Total distance-based cost.
+        """
         total = 0.0
         for route in routes:
             if not route:

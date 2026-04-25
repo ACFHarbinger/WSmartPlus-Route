@@ -1,5 +1,11 @@
 """
 Population manager tracking feasibility, calculating diversity contribution, and selecting individuals.
+
+Attributes:
+    Population: Manages feasible and infeasible sub-populations.
+
+Example:
+    >>> pop = Population(target_size=25, nb_close=4)
 """
 
 from typing import List
@@ -10,6 +16,15 @@ from .individual import Individual
 class Population:
     """
     Maintains feasible and infeasible subpopulations for HGS-ADC.
+
+    Attributes:
+        feas: List of feasible individuals.
+        inf: List of infeasible individuals.
+        target_size: Desired number of individuals in each sub-population.
+        nb_close: Number of closest neighbors to consider for diversity.
+
+    Example:
+        >>> pop = Population(25, 4)
     """
 
     def __init__(self, target_size: int, nb_close: int):
@@ -19,6 +34,9 @@ class Population:
         Args:
             target_size: Desired number of individuals in each sub-population.
             nb_close: Number of closest neighbors to consider for diversity.
+
+        Returns:
+            None.
         """
         self.feas: List[Individual] = []
         self.inf: List[Individual] = []
@@ -26,7 +44,15 @@ class Population:
         self.nb_close = nb_close
 
     def add_individual(self, ind: Individual) -> None:
-        """Adds an individual to the correct subpopulation."""
+        """
+        Adds an individual to the correct subpopulation.
+
+        Args:
+            ind: The individual to add.
+
+        Returns:
+            None.
+        """
         if ind.is_feasible:
             self.feas.append(ind)
         else:
@@ -35,7 +61,15 @@ class Population:
     def compute_diversity(self, subpop: List[Individual], T: int) -> None:
         """
         Calculates DC for every individual in the subpopulation.
+
         Metric: Hamming Pattern Distance + Route Broken Pairs Distance.
+
+        Args:
+            subpop: The subpopulation to update.
+            T: Number of days.
+
+        Returns:
+            None.
         """
         pop_size = len(subpop)
         if pop_size <= 1:
@@ -61,7 +95,16 @@ class Population:
     def _distance(self, ind_a: Individual, ind_b: Individual, T: int) -> float:
         """
         Calculate distance between two individuals.
+
         Hamming distance for patterns, broken pairs for routes.
+
+        Args:
+            ind_a: First individual.
+            ind_b: Second individual.
+            T: Number of days.
+
+        Returns:
+            float: The calculated distance.
         """
         # Pattern Hamming distance
         hamming = 0
@@ -88,6 +131,13 @@ class Population:
     def rank_and_survive(self, subpop: List[Individual], T: int) -> List[Individual]:
         """
         Ranks a subpopulation by Biased Fitness and culls to targeted size.
+
+        Args:
+            subpop: Subpopulation list.
+            T: Number of days.
+
+        Returns:
+            List[Individual]: The surviving subpopulation.
         """
         if len(subpop) <= self.target_size:
             return subpop
@@ -118,6 +168,14 @@ class Population:
         return subpop[: self.target_size]
 
     def trigger_survivor_selection(self, T: int) -> None:
-        """Applies survival to both populations."""
+        """
+        Applies survival to both populations.
+
+        Args:
+            T: Number of days.
+
+        Returns:
+            None.
+        """
         self.feas = self.rank_and_survive(self.feas, T)
         self.inf = self.rank_and_survive(self.inf, T)

@@ -1,5 +1,13 @@
 """
 Memetic Algorithm with Dual Population (MA-DP) Policy Adapter.
+
+Attributes:
+    MemeticAlgorithmDualPopulationPolicy: Policy adapter for the MA-DP metaheuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population import MemeticAlgorithmDualPopulationPolicy
+    >>> policy = MemeticAlgorithmDualPopulationPolicy()
+    >>> routes, profit, cost = policy(obs)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -18,22 +26,43 @@ from .solver import MemeticAlgorithmDualPopulationSolver
 class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
     """
     Memetic Algorithm Dual Population policy class.
+
+    Attributes:
+        config: Configuration parameters for the policy.
     """
 
     def __init__(self, config: Optional[Union[MemeticAlgorithmDualPopulationConfig, Dict[str, Any]]] = None):
-        """
-        Initializes the Memetic Algorithm Dual Population policy.
+        """Initializes the Memetic Algorithm Dual Population policy.
 
         Args:
-            config: Optional configuration dictionary.
+            config: Optional configuration source.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for MADP.
+
+        Args:
+            None.
+
+        Returns:
+            Optional[Type]: The MemeticAlgorithmDualPopulationConfig class.
+        """
         return MemeticAlgorithmDualPopulationConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the MADP policy.
+
+        Args:
+            None.
+
+        Returns:
+            str: The registry key 'ma_dp'.
+        """
         return "ma_dp"
 
     def _run_solver(
@@ -47,8 +76,7 @@ class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Memetic Algorithm with Dual Population (MA-DP) solver logic.
+        """Execute the Memetic Algorithm with Dual Population (MA-DP) solver logic.
 
         MA-DP is an specialized memetic architecture that maintains two distinct
         populations:
@@ -61,18 +89,18 @@ class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
         to ensure high-quality solution boundaries.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+            sub_dist_matrix: Symmetric distance matrix for the current
                 sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+            sub_wastes: Mapping of local node indices to their
                 current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste collected.
+            cost_unit: Monetary cost incurred per kilometer traveled.
+            values: Merged configuration dictionary containing
                 MA-DP parameters (population_size, diversity_injection_rate, elite_count).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
+            mandatory_nodes: Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

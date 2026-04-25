@@ -195,7 +195,16 @@ class VNSSolver:
     # ------------------------------------------------------------------
 
     def _shake_n1(self, routes: List[List[int]]) -> List[List[int]]:
-        """N_1: Remove 1 node randomly, greedy reinsert."""
+        """
+        N_1: Remove 1 node randomly, greedy reinsert.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -225,7 +234,16 @@ class VNSSolver:
         )
 
     def _shake_n2(self, routes: List[List[int]]) -> List[List[int]]:
-        """N_2: Remove 2 nodes randomly, greedy reinsert."""
+        """
+        N_2: Remove 2 nodes randomly, greedy reinsert.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -255,7 +273,16 @@ class VNSSolver:
         )
 
     def _shake_n3(self, routes: List[List[int]]) -> List[List[int]]:
-        """N_3: Worst removal of 2 nodes, regret-2 reinsert."""
+        """
+        N_3: Worst removal of 2 nodes, regret-2 reinsert.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -285,7 +312,16 @@ class VNSSolver:
         )
 
     def _shake_n4(self, routes: List[List[int]]) -> List[List[int]]:
-        """N_4: Cluster removal of 3 nodes, greedy reinsert."""
+        """
+        N_4: Cluster removal of 3 nodes, greedy reinsert.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -315,7 +351,16 @@ class VNSSolver:
         )
 
     def _shake_n5(self, routes: List[List[int]]) -> List[List[int]]:
-        """N_5: Remove 3 nodes randomly, regret-2 reinsert."""
+        """
+        N_5: Remove 3 nodes randomly, regret-2 reinsert.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -389,6 +434,16 @@ class VNSSolver:
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Local neighborhood search.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -418,6 +473,16 @@ class VNSSolver:
         )
 
     def _llh1(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Local neighborhood search.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -447,6 +512,16 @@ class VNSSolver:
         )
 
     def _llh2(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Local neighborhood search.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -476,6 +551,16 @@ class VNSSolver:
         )
 
     def _llh3(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Local neighborhood search.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -505,6 +590,16 @@ class VNSSolver:
         )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Local neighborhood search.
+
+        Args:
+            routes: List of routes.
+            n: Number of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -538,6 +633,15 @@ class VNSSolver:
     # ------------------------------------------------------------------
 
     def _build_initial_solution(self) -> List[List[int]]:
+        """
+        Build an initial solution.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -549,12 +653,30 @@ class VNSSolver:
         )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
+        """
+        Calculate the total profit of the routes.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            float: Total profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
+        """
+        Calculate the total cost of the routes.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            float: Total cost.
+        """
         total = 0.0
         for route in routes:
             if not route:

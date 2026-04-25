@@ -1,16 +1,12 @@
-"""
-GLS (Guided Local Search) Policy Adapter.
+"""GLS (Guided Local Search) Policy Adapter.
 
 Attributes:
-    GLSConfig (Type): Configuration schema for the GLS solver.
-    BaseRoutingPolicy (Type): Abstract base for routing policies.
-    RouteConstructorRegistry (Type): Global registry for constructors.
+    GLSPolicy: Policy class for Guided Local Search.
 
 Example:
     >>> from logic.src.configs.policies.gls import GLSConfig
     >>> config = GLSConfig(lambda_param=1.0)
     >>> policy = GLSPolicy(config)
-    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -38,16 +34,17 @@ class GLSPolicy(BaseRoutingPolicy):
     """Guided Large Neighborhood Search (G-LNS) policy class.
 
     Attributes:
-        solver (GLSSolver): Internal solver instance.
-        params (GLSParams): Algorithm parameters.
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[GLSConfig, Dict[str, Any]]] = None):
         """Initializes the GLS policy.
 
         Args:
-            config (Optional[Union[GLSConfig, Dict[str, Any]]]): Configuration
-                source for the Guided Local Search.
+            config: Configuration source for the Guided Local Search.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
@@ -56,7 +53,7 @@ class GLSPolicy(BaseRoutingPolicy):
         """Returns the configuration class for GLS.
 
         Returns:
-            Optional[Type]: The GLSConfig class.
+            The GLSConfig class.
         """
         return GLSConfig
 
@@ -64,7 +61,7 @@ class GLSPolicy(BaseRoutingPolicy):
         """Returns the configuration key for the GLS policy.
 
         Returns:
-            str: The registry key 'gls'.
+            The registry key 'gls'.
         """
         return "gls"
 
@@ -79,39 +76,22 @@ class GLSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Guided Local Search (GLS) metaheuristic solver logic.
+        """Execute the Guided Local Search (GLS) metaheuristic solver logic.
 
-        GLS is a metaheuristic that sits on top of a local search algorithm. It
-        augments the objective function with a penalty term for "bad" features
-        (e.g., expensive edges) in the solution. When the local search reaches a
-        local optimum, GLS identifies features contributing most to the high cost
-        and increases their penalty, guiding the search out of the local
-        optimum and towards unexplored areas of the search space.
+        GLS is a metaheuristic that augments the objective function with penalties.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                GLS parameters (lambda_param, alpha_param, penalty_cycles).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            kwargs (Any): Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Mapping of local node indices to waste levels.
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue per kilogram of waste.
+            cost_unit: Monetary cost per kilometer.
+            values: Merged configuration dictionary.
+            mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple of (routes, profit, cost).
         """
         params = GLSParams(
             lambda_param=float(values.get("lambda_param", 1.0)),

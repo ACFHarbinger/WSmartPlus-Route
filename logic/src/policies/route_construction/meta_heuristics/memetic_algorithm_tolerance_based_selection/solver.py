@@ -1,41 +1,12 @@
 """
 Memetic Algorithm with Tolerance-based Selection (MA-TS) for VRPP.
 
-EXACT COPY of League Championship Algorithm (LCA) with rigorous nomenclature.
+Attributes:
+    MemeticAlgorithmToleranceBasedSelectionSolver: Core solver class for MA-TS.
 
-TERMINOLOGY MAPPING (LCA → MA-TS):
-- "Teams" → Population (candidate solutions)
-- "League Schedule" → Round-Robin Pairwise Matching
-- "Playing Strength" → Fitness (objective function value)
-- "Match Outcome" → Pairwise Comparison with Infeasibility Tolerance
-- "Team Formation" → Solution Structure
-- "Seasons" → Generations
-
-Algorithm Structure (Kashan, 2013):
-    1. Initialize population of N solutions
-    2. For each generation:
-        a. Round-Robin Schedule: Random pairwise matching
-        b. For each match (i vs j):
-            - Determine winner using infeasibility tolerance
-            - If |fitness_i - fitness_j| ≤ tolerance: random winner (diversity)
-            - Otherwise: higher fitness wins
-            - Loser generates new solution (crossover or mutation)
-            - Loser ALWAYS accepts new solution (no elitism within match)
-        c. Update global best
-
-Key Feature: Infeasibility Tolerance
-    - Allows solutions with similar fitness to compete randomly
-    - Preserves diversity and prevents premature convergence
-    - Critical for bridging isolated feasible basins in constrained problems
-
-Reference:
-    Kashan, A. H. (2013). "League Championship Algorithm (LCA): An algorithm
-    for global optimization inspired by sport championships."
-    Applied Soft Computing, 13(5), 2171-2200.
-
-IMPORTANT: This implementation EXACTLY matches the LCA algorithm with only
-           terminology changed from sports metaphors to OR terminology.
-           Uses identical RNG attribute name (self.random) and algorithm flow.
+Example:
+    >>> solver = MemeticAlgorithmToleranceBasedSelectionSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import contextlib
@@ -63,7 +34,22 @@ from .params import MemeticAlgorithmToleranceBasedSelectionParams
 class MemeticAlgorithmToleranceBasedSelectionSolver:
     """
     Memetic Algorithm with Tolerance-based Selection for VRPP.
+
     EXACT COPY of LCA with rigorous nomenclature.
+
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        mandatory_set: Set of mandatory node indices.
+        random: Random number generator.
+        ls: Local search optimizer.
     """
 
     def __init__(
@@ -76,8 +62,7 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         params: MemeticAlgorithmToleranceBasedSelectionParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initializes the Memetic Algorithm Tolerance-Based Selection solver.
+        """Initializes the Memetic Algorithm Tolerance-Based Selection solver.
 
         Args:
             dist_matrix: Distance matrix between nodes.
@@ -87,6 +72,9 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
             C: Cost per unit distance.
             params: MA-TBS parameters.
             mandatory_nodes: Optional list of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -122,11 +110,10 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run MA-TS and return the best feasible solution.
+        """Run MA-TS and return the best feasible solution.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: A 3-tuple (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -214,6 +201,12 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         Random node ordering causes different capacity cutoffs, creating
         genuinely diverse initial solutions. Uses self.C for the profitability
         check so that economics are consistent with the solver's _evaluate().
+
+        Args:
+            None.
+
+        Returns:
+            List[List[int]]: A randomly constructed routing solution.
         """
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
@@ -228,7 +221,14 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         return optimized_routes
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """Mutation operator using destroy-repair."""
+        """Mutation operator using destroy-repair.
+
+        Args:
+            routes: The routing solution to perturb.
+
+        Returns:
+            List[List[int]]: The perturbed and refined routing solution.
+        """
         try:
             partial, removed = random_removal(routes, self.params.n_removal, self.random)
             if self.params.profit_aware_operators:
@@ -258,8 +258,7 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
             return routes
 
     def _crossover(self, loser_routes: List[List[int]], winner_routes: List[List[int]]) -> List[List[int]]:
-        """
-        Generate a new solution by injecting a segment from the winner's routes.
+        """Generate a new solution by injecting a segment from the winner's routes.
 
         The loser adopts a contiguous segment of nodes from the winner's flat
         tour that it does not already service.  The resulting child is then
@@ -270,7 +269,7 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
             winner_routes: Winning solution's routes.
 
         Returns:
-            Child routing solution.
+            List[List[int]]: Child routing solution.
         """
         winner_flat = [n for r in winner_routes for n in r]
         loser_visited = {n for r in loser_routes for n in r}
@@ -322,14 +321,28 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
         return self.ls.optimize(child)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: The routing solution to evaluate.
+
+        Returns:
+            float: The net profit (revenue - cost).
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: The routing solution to calculate distance for.
+
+        Returns:
+            float: Total distance traveled.
+        """
         total = 0.0
         for route in routes:
             if not route:

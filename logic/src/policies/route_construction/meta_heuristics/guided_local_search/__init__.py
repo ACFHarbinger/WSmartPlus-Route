@@ -1,9 +1,13 @@
-"""
-Guided Local Search (GLS) solver for VRPP.
+"""Guided Local Search (GLS) solver for VRPP.
 
-Exports:
-    GLSSolver: The main solver class.
-    GLSParams: Configuration parameters dataclass.
+Attributes:
+    GLSSolver: Main solver class for Guided Local Search.
+    GLSPolicy: Policy class for Guided Local Search.
+    GLSParams: Parameter dataclass for Guided Local Search.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.guided_local_search import GLSPolicy
+    >>> policy = GLSPolicy()
 """
 
 from .params import GLSParams

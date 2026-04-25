@@ -1,5 +1,14 @@
 """
 Configuration parameters for the Particle Swarm Optimization Memetic Algorithm (PSOMA).
+
+Attributes:
+    PSOMAParams: Dataclass holding PSOMA solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params import PSOMAParams
+    >>> params = PSOMAParams(pop_size=20, omega=0.1, c1=1.5, c2=2.0)
+    >>> print(params.max_iterations)
+    200
 """
 
 from __future__ import annotations

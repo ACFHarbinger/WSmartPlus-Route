@@ -4,6 +4,12 @@ Public exports for look-ahead auxiliary route construction and optimization.
 This package provides a comprehensive suite of utilities for solving profit-
 based vehicle routing problems, including mutation operators, feasibility
 checks, performance metrics, and high-level search orchestrators.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from .common.routes import create_points as create_points

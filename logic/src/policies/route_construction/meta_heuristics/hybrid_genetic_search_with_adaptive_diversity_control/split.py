@@ -1,6 +1,14 @@
 """
 Split algorithm for decoding giant tours into valid vehicle routes.
+
 Supports both Unconstrained Fleet (Prins 2004) and Constrained Fleet (Resource CSP).
+
+Attributes:
+    compute_daily_loads: Computes waste loads per node per day.
+    split_day: Main entry point for decoding a giant tour.
+
+Example:
+    >>> routes, cost, viol = split_day(giant_tour, loads, dist, capacity, n_vehicles)
 """
 
 from typing import List, Tuple
@@ -21,8 +29,8 @@ def compute_daily_loads(
         T: Horizon length.
 
     Returns:
-        np.ndarray of shape (T, N) containing the physical load picked up if visited.
-        If node i is not visited on day t, the value is 0.
+        np.ndarray: shape (T, N) containing the physical load picked up if visited.
+            If node i is not visited on day t, the value is 0.
     """
     N = patterns.shape[0]
     loads = np.zeros((T, N))
@@ -46,13 +54,13 @@ def split_day(
 
     Args:
         giant_tour: 1D array of active nodes.
-        loads: 1D array of loads for all nodes (shape N). We look up loads[giant_tour[i]].
+        loads: 1D array of loads for all nodes (shape N).
         distance_matrix: 2D array distance.
         capacity: Max capacity per route constraint (soft for fitness).
         n_vehicles: Hard topological limit on max vehicles (0 = unlimited).
 
     Returns:
-        (Decoded routes, Day Cost, Capacity Violation Sum)
+        Tuple[List[List[int]], float, float]: Decoded routes, day cost, and violation sum.
     """
     if len(giant_tour) == 0:
         return [], 0.0, 0.0
@@ -68,6 +76,15 @@ def _split_unconstrained(
 ) -> Tuple[List[List[int]], float, float]:
     """
     O(N) Bellman Split using Prins (2004) unconstrained shortest path.
+
+    Args:
+        giant_tour: 1D array of nodes.
+        loads: Load per node.
+        dist: Distance matrix.
+        capacity: Vehicle capacity.
+
+    Returns:
+        Tuple[List[List[int]], float, float]: Decoded routes, cost, and violation.
     """
     n = len(giant_tour)
 
@@ -92,16 +109,6 @@ def _split_unconstrained(
             else:
                 prev_node = giant_tour[j - 2]
                 cost = cost - dist[prev_node, 0] + dist[prev_node, node_j] + dist[node_j, 0]
-
-            # If load > capacity, normally Split allows it but penalizes.
-            # In HGS-ADC, Delta Q penalty is separated from routing cost.
-            # But the DAG needs to minimize Total Cost + w_Q * Delta Q?
-            # Or just Bellman with infinite capacity. The prompt says:
-            # "Track capacity violations \Delta_Q per route."
-            # So the Split *does* evaluate violations. For simplicity, cost metric
-            # here is standard cost. Wait, split must minimize expected fitness.
-            # We'll penalize violations heavily during Split to encourage feasible splits
-            # or use a fixed w_Q if available. Assuming w_Q = 100 for Split construction internally.
 
             current_violation = max(0.0, load - capacity)
             w_q = 100.0  # Heuristic weight for split DAG
@@ -146,6 +153,16 @@ def _split_constrained(
 ) -> Tuple[List[List[int]], float, float]:
     """
     O(K * N) Resource-Constrained Shortest Path for max K vehicles.
+
+    Args:
+        giant_tour: 1D array of nodes.
+        loads: Load per node.
+        dist: Distance matrix.
+        capacity: Vehicle capacity.
+        K: Max vehicles allowed.
+
+    Returns:
+        Tuple[List[List[int]], float, float]: Decoded routes, cost, and violation.
     """
     n = len(giant_tour)
 
@@ -193,7 +210,7 @@ def _split_constrained(
             best_k = k
 
     if best_k == -1:
-        # Infeasible to route within K vehicles topologically (should not happen if Split allows infinite load, but just in case)
+        # Infeasible to route within K vehicles topologically
         # We fallback to a generic split and heavily penalize
         r, c, v = _split_unconstrained(giant_tour, loads, dist, capacity)
         # Add massive penalty for fleet violation

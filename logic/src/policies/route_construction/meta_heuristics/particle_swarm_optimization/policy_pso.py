@@ -1,5 +1,12 @@
-"""
-Particle Swarm Optimization (PSO) policy.
+"""Particle Swarm Optimization (PSO) policy.
+
+Attributes:
+    PSOPolicyAdapter: Policy class for Particle Swarm Optimization.
+
+Example:
+    >>> from logic.src.configs.policies import PSOConfig
+    >>> config = PSOConfig(pop_size=50)
+    >>> policy = PSOPolicyAdapter(config)
 """
 
 from dataclasses import asdict
@@ -20,36 +27,38 @@ from .solver import PSOSolver
 
 @RouteConstructorRegistry.register("pso")
 class PSOPolicyAdapter(BaseMultiPeriodRoutingPolicy):
-    """
-    Policy adapter for Particle Swarm Optimization with velocity momentum.
+    """Policy adapter for Particle Swarm Optimization.
 
-    **TRUE PSO IMPLEMENTATION** (Kennedy & Eberhart 1995).
-    Replaces the Sine Cosine Algorithm (SCA) which is mathematically
-    equivalent to PSO without velocity momentum and with expensive
-    trigonometric operations.
-
-    Mathematical Superiority over SCA:
-        PSO: v' = w*v + c₁*r₁*(pbest - x) + c₂*r₂*(gbest - x)
-        SCA: x' = x + r₁·sin(r₂)·|r₃·gbest - x|
-
-        Where SCA's sin(r₂) is just a random weight in [-1,1] with
-        expensive transcendental computation and no periodicity exploitation.
+    Attributes:
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[PSOConfig, Dict[str, Any]]] = None):
-        """
-        Initialize PSO policy adapter.
+        """Initialize PSO policy adapter.
 
         Args:
-            config: Configuration parameters matching PSOParams fields.
+            config: Configuration source.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Hydra-compliant configuration schema.
+
+        Returns:
+            PSOConfig class.
+        """
         return PSOConfig
 
     def _get_config_key(self) -> str:
+        """Identifier for this policy.
+
+        Returns:
+            The key 'pso'.
+        """
         return "pso"
 
     def _run_multi_period_solver(
@@ -57,29 +66,14 @@ class PSOPolicyAdapter(BaseMultiPeriodRoutingPolicy):
         problem: ProblemContext,
         multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
-        """
-        Execute the Particle Swarm Optimization (PSO) solver logic.
-
-        PSO is a computational method that optimizes a problem by iteratively
-        trying to improve a candidate solution with regard to a given measure
-        of quality. It solves a problem by having a population of candidate
-        solutions, here dubbed particles, and moving these particles around in
-        the search-space according to simple mathematical formulae over the
-        particle's position and velocity. Each particle's movement is
-        influenced by its local best known position ("pbest") but is also
-        guided toward the best known positions in the search-space ("gbest"),
-        which are updated as better positions are found by other particles.
+        """Execute the Particle Swarm Optimization (PSO) solver logic.
 
         Args:
-            problem: The current ProblemContext containing the state, inventory,
-                and distance matrices.
-            multi_day_ctx: Optional context for inter-day state propagation.
+            problem: Current ProblemContext.
+            multi_day_ctx: Optional inter-day state propagation.
 
         Returns:
-            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
-                - today_solution: Standardized solution context for Day 0.
-                - full_plan: Collection plan (nested list by day and vehicle).
-                - stats: Execution statistics and PSO solver metadata.
+            Tuple of (SolutionContext, full_plan, stats).
         """
         values = asdict(self.config) if self.config else {}
 
@@ -132,13 +126,35 @@ class PSOPolicyAdapter(BaseMultiPeriodRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Legacy fallback."""
+        """Legacy fallback.
+
+        Args:
+            sub_dist_matrix: Dist matrix.
+            sub_wastes: Waste dict.
+            capacity: Capacity.
+            revenue: Revenue.
+            cost_unit: Cost.
+            values: Config dict.
+            mandatory_nodes: Mandatory nodes.
+            kwargs: Extra args.
+
+        Returns:
+            Empty results.
+        """
         return [], 0.0, 0.0
 
     def get_name(self) -> str:
-        """Return policy name."""
+        """Return policy name.
+
+        Returns:
+            Full name string.
+        """
         return "Particle Swarm Optimization (PSO)"
 
     def get_acronym(self) -> str:
-        """Return policy acronym."""
+        """Return policy acronym.
+
+        Returns:
+            Short acronym string.
+        """
         return "PSO"

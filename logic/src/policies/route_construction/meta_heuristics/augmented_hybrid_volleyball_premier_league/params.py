@@ -1,8 +1,14 @@
-"""
-Hyperparameters for the Augmented Hybrid Volleyball Premier League (AHVPL) algorithm.
+r"""Hyperparameters for the Augmented Hybrid Volleyball Premier League (AHVPL) algorithm.
 
 Extends the base HVPL framework with Hybrid Genetic Search (HGS) integration
 for diversity-driven population management and genetic crossover operators.
+
+Attributes:
+    AHVPLParams: Parameters for the Augmented Hybrid Volleyball Premier League metaheuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params import AHVPLParams
+    >>> params = AHVPLParams(n_teams=12, max_iterations=100)
 """
 
 from dataclasses import dataclass, field
@@ -24,6 +30,20 @@ class AHVPLParams:
 
     Combines VPL population dynamics, ACO initialization, ALNS local search,
     and HGS diversity management / crossover.
+
+    Attributes:
+        n_teams: Number of teams in the league.
+        max_iterations: Maximum number of league seasons.
+        sub_rate: Probability of player substitution.
+        elite_alns_iterations: ALNS iterations for coached teams.
+        not_coached_alns_iterations: ALNS iterations for non-coached teams.
+        time_limit: Total wall-clock time limit.
+        vrpp: Whether to solve as a VRP with Profits.
+        seed: Random seed for reproducibility.
+        profit_aware_operators: Whether to use operators biased towards profit.
+        hgs_params: Parameters for Hybrid Genetic Search components.
+        aco_params: Parameters for Ant Colony Optimization components.
+        alns_params: Parameters for Adaptive Large Neighborhood Search components.
     """
 
     # VPL Population Dynamics
@@ -93,7 +113,11 @@ class AHVPLParams:
     )
 
     def __post_init__(self):
-        """Sync flags across sub-parameters."""
+        """Sync flags across sub-parameters.
+
+        Returns:
+            None.
+        """
         if self.aco_params:
             self.aco_params.vrpp = self.vrpp
             self.aco_params.profit_aware_operators = self.profit_aware_operators

@@ -2,6 +2,12 @@
 HGS-ALNS Hybrid Policy Adapter.
 
 Adapts the Hybrid HGS-ALNS solver to the common simulator policy interface.
+
+Attributes:
+    HGSALNSPolicy: Policy adapter class for the HGS-ALNS hybrid metaheuristic.
+
+Example:
+    >>> policy = HGSALNSPolicy(config)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -42,6 +48,10 @@ class HGSALNSPolicy(BaseRoutingPolicy):
         a robust exploration of the search space.
 
     Registry key: ``"hgs_alns"``
+
+    Attributes:
+        _config: Optional configuration dataclass for this policy.
+        _seed: Random seed for reproducibility.
     """
 
     def __init__(self, config: Optional[Union[HGSALNSConfig, Dict[str, Any]]] = None):
@@ -49,15 +59,33 @@ class HGSALNSPolicy(BaseRoutingPolicy):
 
         Args:
             config: HGSALNSConfig dataclass, raw dict from YAML, or None.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return config key for HGS-ALNS hybrid.
+
+        Args:
+            None.
+
+        Returns:
+            Optional[Type]: HGSALNSConfig class.
+        """
         return HGSALNSConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for HGS-ALNS hybrid."""
+        """Return config key for HGS-ALNS hybrid.
+
+        Args:
+            None.
+
+        Returns:
+            str: "hgs_alns".
+        """
         return "hgs_alns"
 
     def _run_solver(
@@ -83,18 +111,18 @@ class HGSALNSPolicy(BaseRoutingPolicy):
         of ALNS to intensify the search around promising solution areas.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+            sub_dist_matrix: Symmetric distance matrix for the current
                 sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+            sub_wastes: Mapping of local node indices to their
                 current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste collected.
+            cost_unit: Monetary cost incurred per kilometer traveled.
+            values: Merged configuration dictionary containing
                 nested HGS and ALNS parameters.
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
+            mandatory_nodes: Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

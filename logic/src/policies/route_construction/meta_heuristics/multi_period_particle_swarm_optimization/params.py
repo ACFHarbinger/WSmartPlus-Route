@@ -1,5 +1,11 @@
 """
 Configuration parameters for the Multi-Period Particle Swarm Optimization (MP-PSO).
+
+Attributes:
+    MP_PSO_Params: Configuration parameters for MP-PSO.
+
+Example:
+    >>> params = MP_PSO_Params(swarm_size=30, iters=100)
 """
 
 from __future__ import annotations
@@ -31,7 +37,14 @@ class MP_PSO_Params:
 
     @classmethod
     def from_config(cls, config: Any) -> MP_PSO_Params:
-        """Create MP_PSO_Params from a configuration object or dictionary."""
+        """Create MP_PSO_Params from a configuration object or dictionary.
+
+        Args:
+            config: The configuration object or dictionary.
+
+        Returns:
+            MP_PSO_Params: The instantiated parameters.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -45,5 +58,12 @@ class MP_PSO_Params:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert MP_PSO_Params to a dictionary for backend compatibility."""
+        """Convert MP_PSO_Params to a dictionary for backend compatibility.
+
+        Args:
+            None.
+
+        Returns:
+            Dict[str, Any]: A dictionary of parameter names and values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

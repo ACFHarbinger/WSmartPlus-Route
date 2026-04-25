@@ -1,5 +1,18 @@
 """
 Configuration parameters for the Reactive Tabu Search (RTS) solver.
+
+Attributes:
+    RTSParams: Parameters for the Reactive Tabu Search solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.reactive_tabu_search.params import RTSParams
+    >>> params = RTSParams(
+    ...     initial_tenure=5,
+    ...     max_iterations=100,
+    ...     time_limit=30.0,
+    ... )
+    >>> print(params.initial_tenure)
+    5
 """
 
 from __future__ import annotations
@@ -48,8 +61,15 @@ class RTSParams:
     acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     @classmethod
-    def from_config(cls, config: RTSConfig) -> RTSParams:
-        """Create RTSParams from a Hydra configuration object."""
+    def from_config(cls, config: RTSConfig) -> "RTSParams":
+        """Create RTSParams from a Hydra configuration object.
+
+        Args:
+            config (RTSConfig): The configuration object.
+
+        Returns:
+            RTSParams: An instance of RTSParams populated from the config.
+        """
         params = cls(
             initial_tenure=getattr(config, "initial_tenure", 7),
             min_tenure=getattr(config, "min_tenure", 3),

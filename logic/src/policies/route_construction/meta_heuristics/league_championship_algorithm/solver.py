@@ -197,6 +197,12 @@ class LCASolver:
         Random node ordering causes different capacity cutoffs, creating
         genuinely diverse initial solutions. Uses self.C for the profitability
         check so that economics are consistent with the solver's _evaluate().
+
+        Args:
+            None.
+
+        Returns:
+            List[List[int]]: Randomly initialized routes.
         """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
@@ -209,14 +215,13 @@ class LCASolver:
         )
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Formation perturbation: worst removal + greedy re-insertion.
+        """Formation perturbation: worst removal + greedy re-insertion.
 
         Args:
             routes: Current team routes.
 
         Returns:
-            Perturbed routes.
+            List[List[int]]: Perturbed routes.
         """
         n = max(3, self.params.n_removal)
         use_profit = self.params.profit_aware_operators
@@ -266,8 +271,7 @@ class LCASolver:
             return copy.deepcopy(routes)
 
     def _crossover(self, loser_routes: List[List[int]], winner_routes: List[List[int]]) -> List[List[int]]:
-        """
-        Generate a new formation by injecting a segment from the winner's routes.
+        """Generate a new formation by injecting a segment from the winner's routes.
 
         The loser adopts a contiguous segment of nodes from the winner's flat
         tour that it does not already service.  The resulting child is then
@@ -278,7 +282,7 @@ class LCASolver:
             winner_routes: Winning team's routes.
 
         Returns:
-            Child routing solution.
+            List[List[int]]: Child routing solution.
         """
         winner_flat = [n for r in winner_routes for n in r]
         loser_visited = {n for r in loser_routes for n in r}
@@ -332,14 +336,28 @@ class LCASolver:
         return self.ls.optimize(child)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: Routing solution to evaluate.
+
+        Returns:
+            float: Total net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: Routing solution to calculate cost for.
+
+        Returns:
+            float: Total distance traveled.
+        """
         total = 0.0
         for route in routes:
             if not route:

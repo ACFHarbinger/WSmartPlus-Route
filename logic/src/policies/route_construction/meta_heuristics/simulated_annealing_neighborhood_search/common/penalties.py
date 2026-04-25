@@ -1,5 +1,17 @@
 """
 Cost and penalty calculations for SANS.
+
+Attributes:
+    compute_transportation_cost: Calculate the total transportation cost based on distance and cost coefficient.
+    compute_vehicle_use_penalty: Calculate the penalty for the number of vehicles (routes) used.
+    compute_route_time_difference_penalty: Calculate penalty for workload imbalance between routes.
+    compute_shift_excess_penalty: Calculate penalty for routes exceeding the shift duration.
+    compute_load_excess_penalty: Calculate penalty for vehicles exceeding their capacity limit.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.penalties import compute_transportation_cost
+    >>> cost = compute_transportation_cost(routes_list, distance_route_vector, C)
+    >>> print(cost)
 """
 
 from .distance import compute_route_time

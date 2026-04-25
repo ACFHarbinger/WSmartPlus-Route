@@ -185,6 +185,12 @@ class SCASolver:
     def _decode(self, x: np.ndarray) -> List[List[int]]:
         """
         Decode a continuous position vector to a discrete routing solution.
+
+        Args:
+            x (np.ndarray): Continuous position vector.
+
+        Returns:
+            List[List[int]]: Decoded routing solution.
         """
         sigmoid = 1.0 / (1.0 + np.exp(-x))
         mandatory_set = set(self.mandatory_nodes)
@@ -245,14 +251,28 @@ class SCASolver:
         return [r for r in routes if r]  # Clean up any empty routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+
+        Returns:
+            float: Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+
+        Returns:
+            float: Total routing distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

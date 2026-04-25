@@ -1,5 +1,10 @@
-"""
-Parameters for the Fast Iterative Localized Optimization (FILO) algorithm.
+"""Parameters for the Fast Iterative Localized Optimization (FILO) algorithm.
+
+Attributes:
+    FILOParams: Configuration parameters for the FILO solver.
+
+Example:
+    >>> params = FILOParams(max_iterations=1000)
 """
 
 from __future__ import annotations
@@ -11,9 +16,31 @@ from typing import Any, Optional
 
 @dataclass
 class FILOParams:
-    """
-    Configuration parameters for the FILO solver context.
+    """Configuration parameters for the FILO solver context.
+
     Aligned with Accorsi & Vigo (2021).
+
+    Attributes:
+        time_limit: Maximum allowed runtime.
+        max_iterations: Maximum number of optimization iterations.
+        initial_temperature_factor: Scaling for starting SA temperature.
+        final_temperature_factor: Scaling for final SA temperature.
+        omega_alpha: Probability of jumping to a neighbor route in Random Walk.
+        shaking_lb_factor: Lower bound factor for shaking.
+        shaking_ub_factor: Upper bound factor for shaking.
+        shaking_lb_intensity: Lower bound intensity for adaptive shaking.
+        shaking_ub_intensity: Upper bound intensity for adaptive shaking.
+        omega_base_multiplier: Base multiplier for shaking intensity.
+        delta_gamma: Threshold for expanding localized search.
+        gamma_base: Base expansion factor for nodes.
+        gamma_lambda: Expansion factor for stagnant nodes.
+        svc_size: Selective Vertex Caching size.
+        n_cw: Number of neighbors to consider in Clarke-Wright.
+        route_min_sa_temp: Temperature for route minimization SA.
+        local_search_iterations: Iterations per local search call.
+        seed: Random seed.
+        vrpp: Whether solving VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware operators.
     """
 
     time_limit: float = 60.0
@@ -50,7 +77,14 @@ class FILOParams:
 
     @classmethod
     def from_config(cls, config: Any) -> FILOParams:
-        """Create FILOParams from a configuration object."""
+        """Create FILOParams from a configuration object.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            FILOParams instance.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
 

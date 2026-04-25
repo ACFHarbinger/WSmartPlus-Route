@@ -1,5 +1,10 @@
-"""
-Parameters for the (μ+λ) Evolution Strategy.
+r"""Parameters for the (μ+λ) Evolution Strategy.
+
+Attributes:
+    MuPlusLambdaESParams: Parameter dataclass for (μ+λ)-ES.
+
+Example:
+    >>> params = MuPlusLambdaESParams(mu=10, lambda_=5)
 """
 
 from __future__ import annotations
@@ -20,27 +25,15 @@ class MuPlusLambdaESParams:
     combined pool of μ parents and λ offspring to form the next generation.
 
     Attributes:
-        mu (int): The number of parent individuals maintained in the population ($\mu$).
-            This acts as an archive of the best-found solutions, guaranteeing
-            strong elitism and monotonic improvement.
-
-        lambda_ (int): The number of offspring generated per generation ($\lambda$).
-            This defines the exploration capacity per cycle.
-
-        n_removal (int): The mutation strength parameter. Defines the number
-            of nodes removed during the destroy-repair mutation phase.
-
-        max_iterations (int): The generational loop limit. Serves as a
-            primary termination criterion for the search process.
-
-        local_search_iterations (int): The intensity of the local optimization
-            applied to each offspring.
-
-        time_limit (float): Wall-clock duration in seconds. The algorithm
-            will terminate early if the process time exceeds this threshold.
-        seed (Optional[int]): Random seed for reproducibility.
-        vrpp (bool): Whether the problem is VRP with Profits.
-        profit_aware_operators (bool): Whether to use profit-aware insertion/removal.
+        mu: The number of parent individuals maintained in the population (μ).
+        lambda_: The number of offspring generated per generation (λ).
+        n_removal: The mutation strength parameter.
+        max_iterations: The generational loop limit.
+        local_search_iterations: Intensity of local optimization.
+        time_limit: Wall-clock duration in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: Whether the problem is VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware insertion/removal.
     """
 
     mu: int = 10  # Parent population size (μ)
@@ -58,12 +51,10 @@ class MuPlusLambdaESParams:
         """Build parameters from a configuration object.
 
         Args:
-            config (Any): A configuration source, typically a dictionary
-                or a Hydra DictConfig object containing ES parameters.
+            config: Configuration source (dict or Hydra config).
 
         Returns:
-            MuPlusLambdaESParams: A validated parameters instance initialized
-                from the provided configuration.
+            MuPlusLambdaESParams instance.
         """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})

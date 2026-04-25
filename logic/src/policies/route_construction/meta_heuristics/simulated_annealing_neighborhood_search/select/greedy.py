@@ -1,5 +1,27 @@
 """
 Greedy selection strategies for bin management.
+
+Attributes:
+    insert_bins: Greedily insert bins from the removed set into the current routes if it improves profit.
+    remove_bins_end: Greedily remove bins from the current routes if it increases total profit.
+
+Example:
+    from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy import (
+        insert_bins,
+        remove_bins_end,
+    )
+    routes_list = []
+    removed_bins = []
+    bins_cannot_removed = []
+    data = pd.DataFrame()
+    distance_matrix = np.ndarray()
+    values = {}
+    p_vehicle = 1.0
+    p_load = 1.0
+    p_route_difference = 1.0
+    p_shift = 1.0
+    insert_bins(routes_list, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values)
+    remove_bins_end(routes_list, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)
 """
 
 from copy import deepcopy

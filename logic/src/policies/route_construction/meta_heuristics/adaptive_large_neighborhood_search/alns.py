@@ -1,10 +1,14 @@
-"""
-Adaptive Large Neighborhood Search (ALNS) for VRPP.
+r"""Adaptive Large Neighborhood Search (ALNS) for VRPP.
 
 This module implements ALNS following Ropke & Pisinger (2005) methodology,
 adapted for the Vehicle Routing Problem with Profits (VRPP) as a profit
 maximization problem.
 
+Attributes:
+    ALNSSolver: Core ALNS implementation.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
 Key Implementation Features:
 ============================
 
@@ -109,12 +113,48 @@ from .params import ALNSParams
 
 
 class ALNSSolver:
-    """
-    Custom implementation of Adaptive Large Neighborhood Search for VRPP.
+    r"""Custom implementation of Adaptive Large Neighborhood Search for VRPP.
 
     Follows Ropke & Pisinger (2005) with segment-based weight updates,
     clean/noisy operator pairs (paper Configuration 15), and optional
     extended destroy operator registry.
+
+    Attributes:
+        dist_matrix: Distance matrix between nodes.
+        wastes: Dictionary mapping node indices to waste amounts.
+        capacity: Vehicle capacity.
+        R: Revenue per unit collected.
+        C: Cost per unit distance.
+        params: ALNS parameters.
+        mandatory_nodes: List of nodes that must be visited.
+        vrpp: Whether to allow expanding insertion pool.
+        profit_aware_operators: Whether to use profit-aware operators.
+        extended_operators: Whether to use extended destroy set.
+        random: Random number generator for selection.
+        np_random: NumPy generator for worst removal.
+        _viz_record: Callable for recording solver state.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        destroy_ops: List of destroy operator functions.
+        destroy_names: Names of destroy operators.
+        repair_ops: List of repair operator functions.
+        repair_names: Names of repair operators.
+        repair_noisy: Boolean flags for noisy repair operators.
+        segment_size: Iterations per weight update segment.
+        destroy_weights: Adaptive weights for destroy operators.
+        repair_weights: Adaptive weights for repair operators.
+        destroy_scores: Accumulated scores for destroy operators.
+        repair_scores: Accumulated scores for repair operators.
+        destroy_counts: Usage counts for destroy operators.
+        repair_counts: Usage counts for repair operators.
+        weight_decay: Weight decay factor (1 - reaction_factor).
+        weight_learning_rate: Weight learning rate (reaction_factor).
+        visited_solutions: Set of hashed solution states.
+        acceptance_criterion: Logic for accepting candidate solutions.
+
+    Example:
+        >>> solver = ALNSSolver(dist_matrix, wastes, 100.0, 1.5, 0.5, params)
+        >>> best_routes, best_profit, best_cost = solver.solve()
     """
 
     def __init__(
@@ -342,8 +382,7 @@ class ALNSSolver:
         return ops, names
 
     def _build_repair_ops(self) -> Tuple[List[Callable], List[str], List[bool]]:
-        """
-        Build the repair operator registry with clean/noisy operator pairs.
+        """Build the repair operator registry with clean/noisy operator pairs.
 
         Noise-capable operators (greedy, regret-k) produce two consecutive slots:
             [<Name>Clean, <Name>Noisy]
@@ -500,8 +539,10 @@ class ALNSSolver:
         return self.random.uniform(-self.params.noise_factor, self.params.noise_factor) * max_dist
 
     def _hash_solution(self, routes: List[List[int]]) -> Tuple[Tuple[int, ...], ...]:
-        """
-        Create a canonical hash of a solution for tracking visited states.
+        """Create a canonical hash of a solution for tracking visited states.
+
+        Args:
+            routes: List of routes to hash.
 
         Returns:
             Tuple representation of sorted routes for hashing.
@@ -509,7 +550,17 @@ class ALNSSolver:
         sorted_routes = sorted([tuple(route) for route in routes if route])
         return tuple(sorted_routes)
 
-    def _initialize_solve(self, initial_solution: Optional[List[List[int]]]):
+    def _initialize_solve(
+        self, initial_solution: Optional[List[List[int]]]
+    ) -> Tuple[List[List[int]], List[List[int]], float, float]:
+        """Initialize the solver state with an initial solution.
+
+        Args:
+            initial_solution: Optional starting solution.
+
+        Returns:
+            Tuple containing (current_routes, best_routes, best_profit, best_cost).
+        """
         current_routes = initial_solution or self.build_initial_solution()
         best_routes = [r[:] for r in current_routes]
         best_cost = self.calculate_cost(best_routes)
@@ -518,15 +569,17 @@ class ALNSSolver:
         return current_routes, best_routes, best_profit, best_cost
 
     def _select_and_apply_operators(self, current_routes: List[List[int]]) -> Tuple[List[List[int]], int, int]:
-        """
-        Select and apply one destroy + one repair operator.
+        """Select and apply one destroy + one repair operator.
 
         Repair operators are selected via roulette-wheel (Eq. 20). Clean and
         noisy variants are independent slots — the adaptive mechanism decides
         which is preferable rather than a fixed coin flip (paper Conf. 15).
 
+        Args:
+            current_routes: The current solution routes.
+
         Returns:
-            (new_routes, destroy_idx, repair_idx)
+            Tuple containing (new_routes, destroy_idx, repair_idx).
         """
         d_idx = self.select_operator(self.destroy_weights)
         r_idx = self.select_operator(self.repair_weights)
@@ -555,6 +608,13 @@ class ALNSSolver:
     # Removed _accept_solution in favor of self.acceptance_criterion.accept()
 
     def _update_weights(self, d_idx: int, r_idx: int, score: float) -> None:
+        """Update scores and usage counts for operators.
+
+        Args:
+            d_idx: Index of the destroy operator used.
+            r_idx: Index of the repair operator used.
+            score: Score to add based on solution quality.
+        """
         self.destroy_scores[d_idx] += score
         self.repair_scores[r_idx] += score
         self.destroy_counts[d_idx] += 1
@@ -596,7 +656,14 @@ class ALNSSolver:
     # ------------------------------------------------------------------
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
-        """solve docstring."""
+        """Solve the VRPP using Adaptive Large Neighborhood Search.
+
+        Args:
+            initial_solution: Optional starting solution. If None, uses greedy.
+
+        Returns:
+            Tuple of (best_routes, best_profit, best_cost).
+        """
         start_time = time.process_time()
         current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
@@ -681,7 +748,14 @@ class ALNSSolver:
     # ------------------------------------------------------------------
 
     def select_operator(self, weights: List[float]) -> int:
-        """Roulette-wheel operator selection (Eq. 20)."""
+        """Roulette-wheel operator selection (Eq. 20).
+
+        Args:
+            weights: List of operator weights.
+
+        Returns:
+            Index of the selected operator.
+        """
         total = sum(weights)
         r = self.random.uniform(0, total)
         curr = 0.0
@@ -692,7 +766,14 @@ class ALNSSolver:
         return len(weights) - 1
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculates the total routing cost (distance) for the given routes."""
+        """Calculates the total routing cost (distance) for the given routes.
+
+        Args:
+            routes: List of routes to evaluate.
+
+        Returns:
+            Total calculated routing cost.
+        """
         total_dist = 0.0
         for route in routes:
             if not route:
@@ -705,7 +786,11 @@ class ALNSSolver:
         return total_dist * self.C
 
     def build_initial_solution(self) -> List[List[int]]:
-        """Build an initial solution using the greedy profit-aware heuristic."""
+        """Build an initial solution using the greedy profit-aware heuristic.
+
+        Returns:
+            List of routes for the initial solution.
+        """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,

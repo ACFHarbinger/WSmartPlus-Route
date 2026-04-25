@@ -183,7 +183,11 @@ class PSOMAsSolver:
     # ------------------------------------------------------------------
 
     def _init_swarm(self) -> List[PSOMAParticle]:
-        """Initialise swarm with random feasible solutions."""
+        """Initialise swarm with random feasible solutions.
+
+        Returns:
+            List[PSOMAParticle]: Initialized swarm of particles.
+        """
         swarm = []
         for _ in range(self.params.pop_size):
             routes = self._build_random_solution()
@@ -192,7 +196,11 @@ class PSOMAsSolver:
         return swarm
 
     def _build_random_solution(self) -> List[List[int]]:
-        """Order-dependent sequential construction (matches ALNS style)."""
+        """Order-dependent sequential construction (matches ALNS style).
+
+        Returns:
+            List[List[int]]: Feasible initial routes built via nearest-neighbor heuristic.
+        """
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -206,7 +214,14 @@ class PSOMAsSolver:
         return optimized_routes
 
     def _global_best(self, swarm: List[PSOMAParticle]) -> Tuple[List[List[int]], float]:
-        """Return (routes, profit) of best particle."""
+        """Return routes and profit of the best particle in the swarm.
+
+        Args:
+            swarm: List of current particles.
+
+        Returns:
+            Tuple[List[List[int]], float]: Deep copy of best routes and their profit.
+        """
         best = max(swarm, key=lambda p: p.profit)
         return copy.deepcopy(best.routes), best.profit
 
@@ -216,8 +231,15 @@ class PSOMAsSolver:
         pbest: List[List[int]],
         gbest: List[List[int]],
     ) -> List[List[int]]:
-        """
-        Update particle position via Swap-Based Velocity (Liu et al. 2006).
+        """Update particle position via Swap-Based Velocity (Liu et al. 2006).
+
+        Args:
+            current: Current particle routing solution.
+            pbest: Particle's personal best routing solution.
+            gbest: Global best routing solution across all particles.
+
+        Returns:
+            List[List[int]]: Updated routing solution after velocity application and local search.
         """
         routes = copy.deepcopy(current)
 
@@ -237,10 +259,17 @@ class PSOMAsSolver:
         return self.ls.optimize(routes)
 
     def _apply_velocity(self, current: List[List[int]], target: List[List[int]]) -> List[List[int]]:
-        """
-        Apply 'velocity' by moving current toward target via swap sequences.
-        In discrete PSO for VRP, this often means adopting segments or
-        performing swaps that reduce the distance to the target.
+        """Apply velocity by moving current solution toward target via segment adoption.
+
+        In discrete PSO for VRP, this means adopting segments or performing swaps
+        that reduce the distance to the target solution.
+
+        Args:
+            current: Current routing solution to be updated.
+            target: Target routing solution (personal best or global best).
+
+        Returns:
+            List[List[int]]: Updated routing solution after segment adoption.
         """
         curr_flat = [n for r in current for n in r]
         targ_flat = [n for r in target for n in r]
@@ -266,7 +295,14 @@ class PSOMAsSolver:
         return current
 
     def _partition_flat(self, flat_nodes: List[int]) -> List[List[int]]:
-        """Partition flattened nodes into feasible routes."""
+        """Partition flattened nodes into capacity-feasible routes.
+
+        Args:
+            flat_nodes: Ordered sequence of customer node indices.
+
+        Returns:
+            List[List[int]]: Routes respecting vehicle capacity constraints.
+        """
         routes: List[List[int]] = []
         curr_route: List[int] = []
         load = 0.0
@@ -332,8 +368,13 @@ class PSOMAsSolver:
         return new_routes
 
     def _local_search(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Memetic local search: worst-removal + greedy-insertion + ACO.
+        """Apply memetic local search: worst-removal + greedy-insertion + ACO.
+
+        Args:
+            routes: Current routing solution to improve.
+
+        Returns:
+            List[List[int]]: Locally improved routing solution.
         """
         n = max(3, self.params.n_removal)
         use_profit = self.params.profit_aware_operators
@@ -369,14 +410,28 @@ class PSOMAsSolver:
             return copy.deepcopy(routes)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Compute net profit for a set of routes.
+
+        Args:
+            routes: Routing solution to evaluate.
+
+        Returns:
+            float: Net profit (revenue minus travel cost).
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Compute total routing distance across all routes.
+
+        Args:
+            routes: Routing solution to evaluate.
+
+        Returns:
+            float: Sum of all inter-node distances including depot returns.
+        """
         total = 0.0
         for route in routes:
             if not route:

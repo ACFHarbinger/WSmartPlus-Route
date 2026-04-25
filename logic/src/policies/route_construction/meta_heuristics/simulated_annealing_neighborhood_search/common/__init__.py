@@ -1,5 +1,11 @@
 """
 Common utilities and structures for Simulated Annealing Neighborhood Search (SANS).
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from .distance import (

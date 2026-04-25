@@ -1,6 +1,15 @@
 """
 Routing search strategies and orchestration.
 Contains the main Simulated Annealing and Local Search loops for the LookAhead policy.
+
+Attributes:
+    find_solutions: Find high-quality routing solutions using a randomized local search procedure.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> cost, profit = find_solutions(routes, distance_matrix, values, capacities, mandatory_nodes)
+    >>> print(f"Cost: {cost}, Profit: {profit}")
 """
 
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes import (

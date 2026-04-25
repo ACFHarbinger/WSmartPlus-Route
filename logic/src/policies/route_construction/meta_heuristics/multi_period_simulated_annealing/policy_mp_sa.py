@@ -1,5 +1,12 @@
 """
 Multi-Period Simulated Annealing (MP-SA) policy.
+
+Attributes:
+    MultiPeriodSimulatedAnnealingPolicy: Policy class for the MP-SA approach.
+
+Example:
+    >>> policy = MultiPeriodSimulatedAnnealingPolicy(config)
+    >>> sol, plan, meta = policy._run_multi_period_solver(problem, multi_day_ctx)
 """
 
 import copy
@@ -37,15 +44,26 @@ from logic.src.utils.policy.wrappers import (
 class MultiPeriodSimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Multi-Period Simulated Annealing metaheuristic.
+
     Accepts worse solutions with probability e^(delta/T).
+
+    Attributes:
+        params: MPSA specific parameters.
+        max_iter: Maximum number of iterations.
+        init_temp: Initial temperature.
+        cooling_rate: Cooling rate coefficient.
+        seed: Random seed.
+        rng: Random number generator.
     """
 
     def __init__(self, config: Any = None):
-        """
-        Initializes the Multi-Period Simulated Annealing policy.
+        """Initializes the Multi-Period Simulated Annealing policy.
 
         Args:
             config: Optional configuration dictionary or Hydra config.
+
+        Returns:
+            None.
         """
         super().__init__(config)
         self.params = MP_BMC_Params.from_config(config)
@@ -56,6 +74,15 @@ class MultiPeriodSimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
         self.rng = random.Random(self.seed)
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """Evaluate the multi-period plan and return total profit.
+
+        Args:
+            plan: The multi-period routing plan.
+            problem: The problem context.
+
+        Returns:
+            float: Total net profit across all periods.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):
@@ -65,6 +92,17 @@ class MultiPeriodSimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _neighbor(self, plan: List[List[List[int]]], problem: ProblemContext) -> List[List[List[int]]]:
+        """Generate a neighbor solution by making a small stochastic change.
+
+        Swap 2 nodes between days, or add/drop.
+
+        Args:
+            plan: The current multi-period plan.
+            problem: The initial problem context.
+
+        Returns:
+            List[List[List[int]]]: The neighbor multi-period plan.
+        """
         # swap 2 nodes between days, or add/drop
         new_plan = copy.deepcopy(plan)
         D = problem.horizon
@@ -100,8 +138,7 @@ class MultiPeriodSimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
         problem: ProblemContext,
         multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
-        """
-        Execute the Simulated Annealing (SA) metaheuristic solver logic.
+        """Execute the Simulated Annealing (SA) metaheuristic solver logic.
 
         SA is a probabilistic technique for approximating the global optimum of
         a given function. Specifically, it is a metaheuristic inspired by the

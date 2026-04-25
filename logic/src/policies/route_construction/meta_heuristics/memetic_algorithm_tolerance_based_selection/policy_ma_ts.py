@@ -1,5 +1,11 @@
 """
 Memetic Algorithm with Tolerance-based Selection (MA-TS) Policy Adapter.
+
+Attributes:
+    MemeticAlgorithmToleranceBasedSelectionPolicy: Policy class for MATBS.
+
+Example:
+    >>> policy = MemeticAlgorithmToleranceBasedSelectionPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -18,22 +24,44 @@ from .solver import MemeticAlgorithmToleranceBasedSelectionSolver
 class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
     """
     Memetic Algorithm Tolerance-based Selection policy class.
+
+    Attributes:
+        solver: Internal solver instance.
+        params: Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[MemeticAlgorithmToleranceBasedSelectionConfig, Dict[str, Any]]] = None):
-        """
-        Initializes the Memetic Algorithm Tolerance-Based Selection policy.
+        """Initializes the Memetic Algorithm Tolerance-Based Selection policy.
 
         Args:
-            config: Optional configuration dictionary.
+            config: Optional configuration source.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for MATBS.
+
+        Args:
+            None.
+
+        Returns:
+            Optional[Type]: The MemeticAlgorithmToleranceBasedSelectionConfig class.
+        """
         return MemeticAlgorithmToleranceBasedSelectionConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the MATBS policy.
+
+        Args:
+            None.
+
+        Returns:
+            str: The registry key 'ma_ts'.
+        """
         return "ma_ts"
 
     def _run_solver(
@@ -47,9 +75,7 @@ class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Memetic Algorithm with Tolerance-Based Selection (MA-TS)
-        solver logic.
+        """Execute the Memetic Algorithm with Tolerance-Based Selection (MA-TS) solver logic.
 
         MA-TS is a memetic algorithm variant that employs a "tolerance"
         threshold during the survivor selection phase. Instead of strictly
@@ -61,18 +87,18 @@ class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
         ability to escape from locally deceptive regions of the profit surface.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+            sub_dist_matrix: Symmetric distance matrix for the current
                 sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+            sub_wastes: Mapping of local node indices to their
                 current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste collected.
+            cost_unit: Monetary cost incurred per kilometer traveled.
+            values: Merged configuration dictionary containing
                 MA-TS parameters (population_size, tolerance_pct, recombination_rate).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
+            mandatory_nodes: Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

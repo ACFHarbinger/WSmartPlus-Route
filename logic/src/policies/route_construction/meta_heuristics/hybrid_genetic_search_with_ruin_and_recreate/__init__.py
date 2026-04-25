@@ -7,6 +7,14 @@ destroy/repair operators from ALNS (Ruin-and-Recreate paradigm).
 Reference:
     Pisinger, D., & Ropke, S. (2019). Large neighborhood search.
     In Handbook of metaheuristics (pp. 99-127). Springer, Cham.
+
+Attributes:
+    HGSRRSolver: High-performance hybrid evolutionary solver.
+    HGSRRParams: Configuration parameters for the HGS-RR solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate import HGSRRSolver
+    >>> solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params)
 """
 
 from .hgs_rr import HGSRRSolver

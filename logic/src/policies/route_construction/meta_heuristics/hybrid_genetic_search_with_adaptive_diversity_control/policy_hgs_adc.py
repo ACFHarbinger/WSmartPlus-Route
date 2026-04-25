@@ -2,9 +2,9 @@
 Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC) for MPVRP.
 
 Attributes:
-    Population (Type): Management class for HGS sub-populations.
-    Individual (Type): Solution representation for HGS-ADC.
-    LocalSearchManager (Type): Orchestrator for descent heuristics.
+    Population: Management class for HGS sub-populations.
+    Individual: Solution representation for HGS-ADC.
+    LocalSearchManager: Orchestrator for descent heuristics.
 
 Example:
     >>> policy = PolicyHGSADC(config)
@@ -73,14 +73,20 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
         time windows". Computers & Operations Research, 39(9), 2125-2136.
 
     Attributes:
-        config (Any): Policy configuration object.
+        config: Policy configuration object.
+
+    Example:
+        >>> policy = PolicyHGSADC()
     """
 
     def __init__(self, config: Any = None):
         """Initializes the HGS-ADC policy.
 
         Args:
-            config (Any): Configuration source for the algorithm.
+            config: Configuration source for the algorithm.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
@@ -176,12 +182,12 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
         """Internal helper to evolve multi-period routes.
 
         Args:
-            T (int): Planning horizon in days.
-            base_wastes (np.ndarray): Waste quantities at the start.
-            daily_increments (np.ndarray): Expected daily waste accumulation.
-            dist_matrix (np.ndarray): Distance matrix.
-            capacity (float): Vehicle capacity.
-            **kwargs: Additional configuration parameters (n_vehicles, etc).
+            T: Planning horizon in days.
+            base_wastes: Waste quantities at the start.
+            daily_increments: Expected daily waste accumulation.
+            dist_matrix: Distance matrix.
+            capacity: Vehicle capacity.
+            kwargs: Additional configuration parameters (n_vehicles, etc).
 
         Returns:
             Optional[Individual]: The best evolved solution, if found.
@@ -257,6 +263,21 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
         n_vehicles: int,
         T: int,
     ) -> None:
+        """
+        Evaluate an individual's objective and feasibility.
+
+        Args:
+            ind: The individual to evaluate.
+            base_wastes: Initial waste levels.
+            daily_increments: Daily waste accumulation.
+            dist: Distance matrix.
+            capacity: Vehicle capacity.
+            n_vehicles: Number of vehicles available.
+            T: Planning horizon.
+
+        Returns:
+            None.
+        """
         loads = compute_daily_loads(ind.patterns, base_wastes, daily_increments, T)
         tot_cost = 0.0
         tot_viol = 0.0
@@ -284,8 +305,18 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
     ) -> List[List[List[int]]]:
         """
         Intra-day Local Search (Education).
+
         Applies unified local search operators (2-opt, SWAP*)
         to the given decoded routes on a day-by-day basis.
+
+        Args:
+            routes: Initial decoded routes per day.
+            dist: Distance matrix.
+            capacity: Vehicle capacity.
+            loads: Projected loads per day per node.
+
+        Returns:
+            List[List[List[int]]]: Improved routes after local search.
         """
         improved_routes: List[List[List[int]]] = []
         T = len(routes)

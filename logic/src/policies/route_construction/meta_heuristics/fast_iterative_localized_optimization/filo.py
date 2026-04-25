@@ -1,8 +1,14 @@
-"""
-Fast Iterative Localized Optimization (FILO) policy module.
+r"""Fast Iterative Localized Optimization (FILO) policy module.
 
 This module provides the main entry point for the FILO metaheuristic,
 incorporating Ruin & Recreate shaking and Local Search via Simulated Annealing.
+
+Attributes:
+    FILOSolver: Main solver class for FILO.
+
+Example:
+    >>> solver = FILOSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 
 References:
     Accorsi, L., & Vigo, D. "A fast and scalable heuristic for the solution
@@ -30,8 +36,27 @@ from logic.src.policies.route_construction.meta_heuristics.fast_iterative_locali
 
 
 class FILOSolver:
-    """
-    Implementation of Fast Iterative Localized Optimization (FILO) for CVRP/VRPP.
+    """Implementation of Fast Iterative Localized Optimization (FILO) for CVRP/VRPP.
+
+    Attributes:
+        d: Symmetric distance matrix.
+        waste: Mapping of bin IDs to waste quantities.
+        Q: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per km traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        all_customers: List of customer node indices.
+        random: Random number generator.
+        rng: NumPy random generator.
+        ruin_recreate: Shaking operator instance.
+        local_search: Local search optimizer instance.
+        node_gamma: Localized expansion parameters.
+        non_improving_iter: Counter for stagnant iterations per node.
+        node_omega: Localized shaking intensity parameters.
+        svc_cache: Selective Vertex Caching (LRU).
+        svc_history: History of SVC sizes.
     """
 
     def __init__(
@@ -47,13 +72,16 @@ class FILOSolver:
         """Initializes the Fast Iterative Localized Optimization solver.
 
         Args:
-            dist_matrix (np.ndarray): Symmetric distance matrix.
-            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-            capacity (float): Maximum vehicle collection capacity.
-            R (float): Revenue per kg of waste.
-            C (float): Cost per km traveled.
-            params (FILOParams): Algorithm-specific parameters.
-            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+            dist_matrix: Symmetric distance matrix.
+            wastes: Mapping of bin IDs to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            R: Revenue per kg of waste.
+            C: Cost per km traveled.
+            params: Algorithm-specific parameters.
+            mandatory_nodes: Nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.d = dist_matrix
         self.waste = wastes
@@ -95,7 +123,14 @@ class FILOSolver:
         self.svc_history: List[int] = []
 
     def _evaluate_routes(self, routes: List[List[int]]) -> Tuple[float, float]:
-        """Evaluate VRPP cost and profit."""
+        """Evaluate VRPP cost and profit.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Tuple of (total_cost, net_profit).
+        """
         total_cost, total_revenue = 0.0, 0.0
         for route in routes:
             if not route:
@@ -109,7 +144,16 @@ class FILOSolver:
         return total_cost, total_revenue - total_cost
 
     def _update_gamma(self, is_new_best: bool, improved: bool, ruined_and_recreated: List[int]) -> None:
-        """Update localized gamma parameters (expansion strategy)."""
+        """Update localized gamma parameters (expansion strategy).
+
+        Args:
+            is_new_best: Whether a new global best was found.
+            improved: Whether the current solution improved.
+            ruined_and_recreated: List of nodes affected by shaking.
+
+        Returns:
+            None.
+        """
         if is_new_best:
             for i in ruined_and_recreated:
                 self.node_gamma[i], self.non_improving_iter[i] = self.params.gamma_base, 0
@@ -130,7 +174,17 @@ class FILOSolver:
     def _update_omega(
         self, current_cost: float, routes: List[List[int]], delta_profit: float, ruined_and_recreated: List[int]
     ) -> None:
-        """Update localized omega meta-strategy strictly targeting ruined nodes."""
+        """Update localized omega meta-strategy strictly targeting ruined nodes.
+
+        Args:
+            current_cost: Current solution distance.
+            routes: Current routing sequences.
+            delta_profit: Profit change in the last iteration.
+            ruined_and_recreated: List of nodes affected by shaking.
+
+        Returns:
+            None.
+        """
         n_visited = sum(len(r) for r in routes)
         n_routes = len(routes)
         if n_visited == 0:
@@ -152,7 +206,14 @@ class FILOSolver:
                     self.node_omega[i] -= 1
 
     def _update_svc(self, nodes: List[int]) -> None:
-        """Update Selective Vertex Caching (LRU)."""
+        """Update Selective Vertex Caching (LRU).
+
+        Args:
+            nodes: Nodes to add or move to end in cache.
+
+        Returns:
+            None.
+        """
         for node in nodes:
             if node in self.svc_cache:
                 self.svc_cache.move_to_end(node)
@@ -163,7 +224,11 @@ class FILOSolver:
         self.svc_history.append(len(self.svc_cache))
 
     def _clarke_wright_initialization(self) -> List[List[int]]:
-        """Linearized Clarke and Wright savings algorithm."""
+        """Linearized Clarke and Wright savings algorithm.
+
+        Returns:
+            Initial set of routes.
+        """
         savings, n_cw = [], self.params.n_cw
         for i in self.all_customers:
             count = 0
@@ -198,7 +263,15 @@ class FILOSolver:
         return [r for r in routes if r]
 
     def _find_best_insertion(self, working_routes: List[List[int]], customer: int) -> Tuple[int, int]:
-        """Find the best route index and position for a customer."""
+        """Find the best route index and position for a customer.
+
+        Args:
+            working_routes: Set of available routes.
+            customer: Customer node ID to insert.
+
+        Returns:
+            Tuple of (route_index, position).
+        """
         best_cost_inc, best_ri, best_pos = float("inf"), -1, -1
         w = self.waste.get(customer, 0.0)
         for ri, r in enumerate(working_routes):
@@ -212,7 +285,14 @@ class FILOSolver:
         return best_ri, best_pos
 
     def _route_minimization(self, routes: List[List[int]]) -> List[List[int]]:
-        """Algorithm 4: Episodic Route Minimization."""
+        """Algorithm 4: Episodic Route Minimization.
+
+        Args:
+            routes: Current routing sequences.
+
+        Returns:
+            Minimized set of routes.
+        """
         if not routes or len(routes) < 2:
             return routes
 
@@ -285,7 +365,11 @@ class FILOSolver:
         return [r for r in working_routes if r]
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """Execute the FILO heuristic."""
+        """Execute the FILO heuristic.
+
+        Returns:
+            Tuple of (best_routes, best_profit, best_cost).
+        """
         start_time = time.process_time()
         current_routes = self._clarke_wright_initialization()
         current_routes = self._route_minimization(current_routes)

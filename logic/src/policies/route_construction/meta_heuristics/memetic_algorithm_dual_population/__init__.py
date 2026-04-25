@@ -1,8 +1,16 @@
 """
 Memetic Algorithm with Dual Population (MA-DP) for VRPP.
 
-Rigorous implementation based on VPL but with OR terminology.
-Maintains dual population structure (active + reserve).
+Maintains dual population structure (active + reserve) to balance
+intensification and diversification.
+
+Attributes:
+    MemeticAlgorithmDualPopulationParams: Configuration parameters for MA-DP.
+    MemeticAlgorithmDualPopulationPolicy: Policy adapter for MA-DP.
+    MemeticAlgorithmDualPopulationSolver: Core solver logic for MA-DP.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population import MemeticAlgorithmDualPopulationPolicy
 """
 
 from .params import MemeticAlgorithmDualPopulationParams

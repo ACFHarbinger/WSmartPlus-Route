@@ -2,6 +2,14 @@
 Configuration parameters for Distance-Based Particle Swarm Optimization.
 
 This replaces the metaphor-based "Firefly Algorithm" with standard PSO terminology.
+
+Attributes:
+    DistancePSOParams: Dataclass holding all PSO hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params import DistancePSOParams
+    >>> params = DistancePSOParams(population_size=20, max_iterations=500, cognitive_coef=2.0)
+    >>> w = params.get_inertia_weight(iteration=100)
 """
 
 from __future__ import annotations
@@ -118,32 +126,59 @@ class DistancePSOParams:
 
     @property
     def c1(self) -> float:
-        """Alias for cognitive_coef (standard PSO notation)."""
+        """Alias for cognitive_coef (standard PSO notation).
+
+        Returns:
+            float: Cognitive acceleration coefficient.
+        """
         return self.cognitive_coef
 
     @property
     def c2(self) -> float:
-        """Alias for social_coef (standard PSO notation)."""
+        """Alias for social_coef (standard PSO notation).
+
+        Returns:
+            float: Social acceleration coefficient.
+        """
         return self.social_coef
 
     @property
     def w_start(self) -> float:
-        """Alias for inertia_weight_start."""
+        """Alias for inertia_weight_start.
+
+        Returns:
+            float: Initial inertia weight.
+        """
         return self.inertia_weight_start
 
     @property
     def w_end(self) -> float:
-        """Alias for inertia_weight_end."""
+        """Alias for inertia_weight_end.
+
+        Returns:
+            float: Final inertia weight.
+        """
         return self.inertia_weight_end
 
     @property
     def pop_size(self) -> int:
-        """Alias for population_size."""
+        """Alias for population_size.
+
+        Returns:
+            int: Number of particles in the swarm.
+        """
         return self.population_size
 
     @classmethod
     def from_config(cls, config: Any) -> "DistancePSOParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object with PSO parameter attributes.
+
+        Returns:
+            DistancePSOParams: Populated parameter dataclass.
+        """
         return cls(
             population_size=getattr(config, "population_size", 20),
             max_iterations=getattr(config, "max_iterations", 500),

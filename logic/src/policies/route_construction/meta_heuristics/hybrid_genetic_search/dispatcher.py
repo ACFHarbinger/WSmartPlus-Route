@@ -2,6 +2,12 @@
 HGS Dispatcher module.
 
 Dispatches to different HGS implementations based on configuration.
+
+Attributes:
+    run_hgs: Main entry point for running HGS.
+
+Example:
+    >>> routes, profit, cost = run_hgs(dist_matrix, wastes, capacity, R, C, values)
 """
 
 from .hgs import HGSSolver
@@ -21,7 +27,9 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, x
         C: Cost multiplier.
         values: Dictionary of parameters and config.
         mandatory_nodes: List of local node indices that MUST be visited.
-        *args: Additional arguments (ignored or passed through).
+        x_coords: Optional x-coordinates.
+        y_coords: Optional y_coords.
+        args: Additional positional arguments (ignored).
 
     Returns:
         Tuple[List[List[int]], float, float]: Best routes, profit, and cost.

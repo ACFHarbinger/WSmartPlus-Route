@@ -1,8 +1,14 @@
-"""
-Wrapper for Google OR-Tools to solve the waste-collecting VRP.
+r"""Wrapper for Google OR-Tools to solve the waste-collecting VRP.
 
 This module adapts the WSmart-Route problem definition into a format
 compatible with OR-Tools' routing solver.
+
+Attributes:
+    run_alns_ortools: Entry point for OR-Tools based ALNS.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper import run_alns_ortools
+    >>> routes, profit, cost = run_alns_ortools(dist, wastes, 50.0, 1.0, 1.0, {"time_limit": 10})
 """
 
 import numpy as np
@@ -11,8 +17,18 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 
 def run_alns_ortools(dist_matrix, wastes, capacity, R, C, values):
-    """
-    Run ALNS using Google OR-Tools with Guided Local Search.
+    """Run ALNS using Google OR-Tools with Guided Local Search.
+
+    Args:
+        dist_matrix: Distance matrix.
+        wastes: Bin wastes.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Dictionary of parameters and config.
+
+    Returns:
+        Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
     """
     seed = values.get("seed", 42)
 

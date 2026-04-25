@@ -1,6 +1,19 @@
 """
 Randomized local search strategy.
+
+Attributes:
+    local_search: Perform a multi-operator local search on the routing solution.
+
+Example:
+    from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search import (
+        local_search,
+    )
+    local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed, rng, np_rng)
 """
+
+import random
+
+import numpy as np
 
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes import (
     rearrange_part_route,
@@ -35,7 +48,14 @@ from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_n
 )
 
 
-def local_search(routes_list, removed_bins, distance_matrix, bins_cannot_removed, rng, np_rng):  # noqa: C901
+def local_search(  # noqa: C901
+    routes_list: list[list[int]],
+    removed_bins: list[int],
+    distance_matrix: np.ndarray,
+    bins_cannot_removed: list[int],
+    rng: random.Random,
+    np_rng: np.random.Generator,
+) -> list[list[int]]:
     """
     Perform a multi-operator local search on the routing solution.
 

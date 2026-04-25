@@ -1,5 +1,4 @@
-"""
-Artificial Bee Colony (ABC) algorithm for VRPP.
+r"""Artificial Bee Colony (ABC) algorithm for VRPP.
 
 Three agent types — employed, onlooker, and scout bees — cooperate to
 explore and exploit the routing solution space without requiring gradient
@@ -7,10 +6,10 @@ information, making ABC naturally suited to the discontinuous profit
 landscapes of the VRPP.
 
 Attributes:
-    ABCSolver (Type): Core solver class for the Artificial Bee Colony.
-    ABCParams (Type): Parameter dataclass for the solver.
+    ABCSolver: Core solver class for the Artificial Bee Colony.
 
 Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.artificial_bee_colony.solver import ABCSolver
     >>> solver = ABCSolver(dist_matrix, wastes, capacity, R, C, params)
     >>> routes, profit, cost = solver.solve()
 
@@ -52,13 +51,17 @@ class ABCSolver:
     Artificial Bee Colony solver for VRPP.
 
     Attributes:
-        dist_matrix (np.ndarray): Symmetric distance matrix.
-        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-        capacity (float): Maximum vehicle collection capacity.
-        R (float): Revenue per kg of waste.
-        C (float): Cost per kg traveled.
-        params (ABCParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        rng: Random number generator.
+        ls: Local search optimizer.
     """
 
     def __init__(
@@ -206,14 +209,18 @@ class ABCSolver:
     # ------------------------------------------------------------------
 
     def _new_source(self) -> List[List[int]]:
-        """
-        Creates a new food source (initial solution).
+        """Creates a new food source (initial solution).
+
+        Returns:
+            A new set of routes.
         """
         return self._build_random_solution()
 
     def _build_random_solution(self) -> List[List[int]]:
-        """
-        Builds a random initial solution using greedy constructive heuristic.
+        """Builds a random initial solution using greedy constructive heuristic.
+
+        Returns:
+            A randomized greedy solution.
         """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
@@ -226,9 +233,17 @@ class ABCSolver:
         )
 
     def _perturb(self, current: List[List[int]], peer: List[List[int]]) -> List[List[int]]:
-        """
-        Cross-solution interpolation: extracts nodes from a peer and injects
-        them into the current solution, mimicking the v_ij = x_ij + φ(x_ij - x_kj) equation.
+        """Cross-solution interpolation for search.
+
+        Extracts nodes from a peer and injects them into the current solution,
+        mimicking the v_ij = x_ij + phi(x_ij - x_kj) equation.
+
+        Args:
+            current: The solution being perturbed.
+            peer: The guidance solution.
+
+        Returns:
+            A new perturbed solution.
         """
         if not current or not peer:
             return copy.deepcopy(current)
@@ -329,8 +344,14 @@ class ABCSolver:
 
     @staticmethod
     def _roulette(probs: List[float], rng: random.Random) -> int:
-        """
-        Roulette-wheel selection.
+        """Roulette-wheel selection.
+
+        Args:
+            probs: Probabilities for each index.
+            rng: Random number generator.
+
+        Returns:
+            Selected index.
         """
         r = rng.random()
         cumulative = 0.0
@@ -341,14 +362,28 @@ class ABCSolver:
         return len(probs) - 1
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: Routes to evaluate.
+
+        Returns:
+            Total profit (revenue - cost).
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: Routes to evaluate.
+
+        Returns:
+            Total distance-based cost.
+        """
         total = 0.0
         for route in routes:
             if not route:

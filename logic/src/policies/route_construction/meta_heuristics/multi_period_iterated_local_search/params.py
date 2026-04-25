@@ -1,5 +1,11 @@
 """
 Configuration parameters for the Multi-Period Iterated Local Search (MP-ILS).
+
+Attributes:
+    MP_ILS_Params: Configuration parameters for MP-ILS.
+
+Example:
+    >>> params = MP_ILS_Params(iters=100, perturb_size=5)
 """
 
 from __future__ import annotations
@@ -25,7 +31,14 @@ class MP_ILS_Params:
 
     @classmethod
     def from_config(cls, config: Any) -> MP_ILS_Params:
-        """Create MP_ILS_Params from a configuration object or dictionary."""
+        """Create MP_ILS_Params from a configuration object or dictionary.
+
+        Args:
+            config: The configuration object or dictionary.
+
+        Returns:
+            MP_ILS_Params: The instantiated parameters.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -36,5 +49,12 @@ class MP_ILS_Params:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert MP_ILS_Params to a dictionary for backend compatibility."""
+        """Convert MP_ILS_Params to a dictionary for backend compatibility.
+
+        Args:
+            None.
+
+        Returns:
+            Dict[str, Any]: A dictionary of parameter names and values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

@@ -1,7 +1,13 @@
-"""
-ACO Policy Adapter.
+r"""ACO Policy Adapter.
 
 Adapts the K-Sparse Ant Colony Optimization solver to the common policy interface.
+
+Attributes:
+    ACOPolicy: K-Sparse Ant Colony Optimization policy class.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse import ACOPolicy
+    >>> policy = ACOPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -18,10 +24,15 @@ from .solver import KSparseACOSolver
 
 @RouteConstructorRegistry.register("aco_ks")
 class ACOPolicy(BaseRoutingPolicy):
-    """
-    K-Sparse Ant Colony Optimization policy class.
+    """K-Sparse Ant Colony Optimization policy class.
 
     Uses ACS with sparse pheromone matrix for efficient VRP solving.
+
+    Attributes:
+        config: Configuration for the policy.
+
+    Example:
+        >>> policy = ACOPolicy()
     """
 
     def __init__(self, config: Optional[Union[KSparseACOConfig, Dict[str, Any]]] = None):
@@ -34,6 +45,11 @@ class ACOPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for ACO.
+
+        Returns:
+            The KSparseACOConfig class or None.
+        """
         return KSparseACOConfig
 
     def _get_config_key(self) -> str:
@@ -67,28 +83,17 @@ class ACOPolicy(BaseRoutingPolicy):
         exploration.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                ACO parameters (n_ants, alpha, beta, q0, k_sparse).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Square distance matrix.
+            sub_wastes: Node fill levels.
+            capacity: Vehicle capacity.
+            revenue: Revenue per kg.
+            cost_unit: Cost per km.
+            values: Merged config dictionary.
+            mandatory_nodes: Nodes that must be visited.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple containing (routes, profit, cost).
         """
         # Use standardized from_config to ensure all fields (including acceptance) are propagated
         params = KSACOParams.from_config(self.config)

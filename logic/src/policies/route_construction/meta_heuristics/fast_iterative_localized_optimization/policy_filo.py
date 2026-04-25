@@ -1,7 +1,12 @@
-"""
-FILO Policy Adapter.
+"""FILO Policy Adapter.
 
 Adapts the Fast Iterative Localized Optimization (FILO) logic to the agnostic interface.
+
+Attributes:
+    FILOPolicy: Policy class for FILO.
+
+Example:
+    >>> policy = FILOPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -18,29 +23,37 @@ from .params import FILOParams
 
 @RouteConstructorRegistry.register("filo")
 class FILOPolicy(BaseRoutingPolicy):
-    """
-    FILO policy class.
+    """FILO policy class.
 
-    Visits pre-selected 'mandatory' bins using Fast Iterative Localized Optimization.
+    Attributes:
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[FILOConfig, Dict[str, Any]]] = None):
         """Initialize FILO policy with optional config.
 
         Args:
-            config: FILOConfig dataclass, raw dict from YAML, or None.
+            config: FILOConfig dataclass, raw dict, or None.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for this policy.
+
+        Returns:
+            FILOConfig class.
+        """
         return FILOConfig
 
     def _get_config_key(self) -> str:
         """Returns the configuration key for the FILO policy.
 
         Returns:
-            str: The registry key 'filo'.
+            The registry key 'filo'.
         """
         return "filo"
 
@@ -55,38 +68,22 @@ class FILOPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Fast Iterative Localized Optimization (FILO) solver logic.
+        """Execute the Fast Iterative Localized Optimization (FILO) solver logic.
 
         FILO is a high-performance metaheuristic designed for large-scale VRPs.
-        It employs a localized search strategy, focusing on subsets of nodes
-        (localized neighborhoods) to improve the solution iteratively. It
-        combines simulated annealing-based acceptance criteria with sophisticated
-        "ruin and recreate" operators tailored for waste collection constraints.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                FILO parameters (max_iterations, temperature factors, shaking intensity).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Mapping of local node indices to waste levels.
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste.
+            cost_unit: Monetary cost incurred per kilometer.
+            values: Merged configuration dictionary.
+            mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple of (routes, profit, cost).
         """
         # Build parameters from config
         params = FILOParams(

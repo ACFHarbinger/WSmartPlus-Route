@@ -1,15 +1,13 @@
-"""
-Memetic Algorithm (MA) for VRPP.
+"""Memetic Algorithm (MA) for VRPP.
 
-The solver follows the three key processes of the "Complete Memetic Algorithm"
-framework as defined in the paper:
-- Fig. 3.1: The generational step (Select → Generate → Update)
-- Fig. 3.2: Generational operator pipeline (Recombine → Mutate → Local-Improve)
-- Fig. 3.3: Iterative local improver (Hill-climbing until local optimum)
+Combines population-based stochastic search with intensive individual refinement.
 
-Reference:
-    Moscato, P., Cotta, C., & Mendes, A. (2004). "Memetic Algorithms".
-    Bibliography: bibliography/Memetic_Algorithms.pdf
+Attributes:
+    MASolver: Main solver class for the Memetic Algorithm.
+
+Example:
+    >>> solver = MASolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> best_routes, best_profit = solver.solve()
 """
 
 import contextlib
@@ -26,23 +24,20 @@ from .params import MAParams
 
 
 class MASolver:
-    """
-    Memetic Algorithm solver for the Vehicle Routing Problem with Profits (VRPP).
+    """Memetic Algorithm solver for VRPP.
 
-    This solver coordinates a population of solutions by combining population-based
-    stochastic search (reproduction and mutation) with intensive individual refinement
-    (local search). This synergy is the hallmark of Memetic Algorithms (MAs).
-
-    The implementation strictly adheres to the algorithmic structure proposed by
-    Moscato et al. (2004), mapping code components to the pseudocode figures
-    defined in the reference paper.
-
-    Key Computational Steps:
-    1.  Initialization: Constructing a diversified initial population.
-    2.  Competition-Selection: Identifying high-fitness individuals to serve as "breeders".
-    3.  Reproduction Pipeline: Creating offspring through recombination and mutation.
-    4.  Local Improvement: Applying intensive search to reach local optima.
-    5.  Replacement-Update: Maintaining population size via elitist selection.
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of node indices.
+        random: Random number generator.
+        start_time: Process start time.
     """
 
     def __init__(
@@ -59,13 +54,16 @@ class MASolver:
         Initialize the Memetic Algorithm solver.
 
         Args:
-            dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), where index 0 is the depot.
-            wastes: Dictionary mapping node indices to their respective waste levels (profits).
-            capacity: The maximum capacity constraint for the vehicle.
-            R: Revenue multiplier per unit of waste collected ($/unit).
-            C: Cost multiplier per unit of distance traveled tracked ($/km).
-            params: Configuration objects containing hyper-parameters (population size, rates, etc.).
-            mandatory_nodes: Indices of nodes that MUST be visited in every feasible solution.
+            dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1).
+            wastes: Dictionary mapping node indices to waste levels.
+            capacity: Maximum capacity constraint for the vehicle.
+            R: Revenue multiplier per unit of waste collected.
+            C: Cost multiplier per unit of distance traveled.
+            params: Configuration objects containing hyper-parameters.
+            mandatory_nodes: Indices of nodes that MUST be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -149,18 +147,13 @@ class MASolver:
     # -------------------------------------------------------------------------
 
     def _select_from_population(self, population: List[List[List[int]]]) -> List[List[List[int]]]:
-        """
-        Implements Select-From-Population(pop) using Tournament Selection.
+        """Tournament selection to identify breeders.
 
-        Paper Reference (p. 3):
-        "Tournament-based methods (individuals are selected on the basis of a
-        direct competition within small sub-groups of individuals)."
-
-        We select multiple individuals (breeders) to match the population size,
-        ensuring a consistent pool for the next generation.
+        Args:
+            population: Current generation.
 
         Returns:
-            List[List[List[int]]]: A list of selected individuals (breeders).
+            Selected breeders.
         """
         breeders = []
         for _ in range(self.params.pop_size):
@@ -172,20 +165,13 @@ class MASolver:
         return breeders
 
     def _generate_new_population(self, breeders: List[List[List[int]]]) -> List[List[List[int]]]:
-        """
-        Implements FIG 3.2: "Generating the new population".
+        """Generating the new population via recombination and mutation.
 
-        Creates child individuals by passing breeders through a pipeline of
-        reproductive operators. This phase implements both the 'Genetic'
-        exploration and the 'Memetic' local exploitation.
-
-        Operator Pipeline:
-        1. Recombination (Crossover): Combines parents to explore the landscape.
-        2. Mutation: Injects diversity to prevent premature convergence.
-        3. Local-Improver: Intensifies the search on child solutions.
+        Args:
+            breeders: Selected parents.
 
         Returns:
-            List[List[List[int]]]: The newly created population of offspring.
+            The newly created offspring population.
         """
         new_pop = []
 
@@ -222,17 +208,14 @@ class MASolver:
     def _update_population(
         self, old_pop: List[List[List[int]]], new_pop: List[List[List[int]]]
     ) -> List[List[List[int]]]:
-        """
-        Implements Update-Population(pop, newpop) via Elitist Replacement.
+        """Update-Population(pop, newpop) via Elitist Replacement.
 
-        Paper Reference (p. 3):
-        "Taking the best... individuals both from pop and newpop (the plus replacement strategy)."
-
-        By sorting the union of current and new populations and keeping the top individuals,
-        we guarantee that the best solution ever found is preserved (True Elitism).
+        Args:
+            old_pop: Current generation.
+            new_pop: Offspring population.
 
         Returns:
-            List[List[List[int]]]: The updated population of size self.params.pop_size.
+            The merged, elite-selected population.
         """
         # Combine existing and new individuals.
         combined = old_pop + new_pop
@@ -246,25 +229,13 @@ class MASolver:
     # -------------------------------------------------------------------------
 
     def _local_improver(self, solution: List[List[int]]) -> List[List[int]]:
-        """
-        Implements FIG 3.3: "Pseudocode of a Local-Improver".
+        """Intensive Local Search (2-Opt) refinement.
 
-        This method performs Intensive Local Search by exploring the neighborhoods
-        of the current solution. It is the defining feature that differentiates
-        MAs from standard GAs.
-
-        Algorithm: Hill-Climbing
-        -----------------------
-        Repeat:
-            Explore neighborhood (Adjacent vertices)
-            If (Better solution found):
-                Update current solution
-        Until (No more improvements possible) -> Local Optimum.
-
-        Move Operator: 2-Opt (Swapping edge order to untangle route crossings).
+        Args:
+            solution: Candidate routing solution.
 
         Returns:
-            List[List[int]]: The locally optimized routing solution.
+            Locally optimized routing solution.
         """
         current = copy.deepcopy(solution)
         improved = True
@@ -303,17 +274,14 @@ class MASolver:
     # -------------------------------------------------------------------------
 
     def _recombination(self, parent1: List[List[int]], parent2: List[List[int]]) -> List[List[int]]:
-        """
-        Recombination (Crossover) Operator.
+        """Recombination (Crossover) operator.
 
-        Paper Definition (p. 4):
-        "Encapsulates the mutual cooperation among several individuals... exchange of information."
-
-        This operator performs Single-Point Crossover on a flattened representation
-        of the routing to discover new high-quality node sequences.
+        Args:
+            parent1: First parent solution.
+            parent2: Second parent solution.
 
         Returns:
-            List[List[int]]: The new child solution.
+            A new child solution.
         """
         # Flatten routes to operate on the sequences of nodes.
         p1_flat = [node for route in parent1 for node in route]
@@ -368,17 +336,13 @@ class MASolver:
         return child_routes if child_routes else copy.deepcopy(parent1)
 
     def _mutation(self, solution: List[List[int]]) -> List[List[int]]:
-        """
-        Mutation (Exploration) Operator.
+        """Mutation (Exploration) operator.
 
-        Paper Definition (p. 4):
-        "Keep the pot boiling... injecting new material in the population."
-
-        Implements Shuffle-Relocate: Removes a subset of nodes and re-inserts
-        them to explore different topological regions of the fitness landscape.
+        Args:
+            solution: Candidate routing solution.
 
         Returns:
-            List[List[int]]: The mutated routing solution.
+            The mutated routing solution.
         """
         # Collect all visited nodes.
         flat_nodes = [node for route in solution for node in route]
@@ -424,11 +388,10 @@ class MASolver:
     # -------------------------------------------------------------------------
 
     def _initialize_population(self) -> List[List[List[int]]]:
-        """
-        Constructs diverse initial solutions for the starting population.
+        """Constructs diverse initial solutions.
 
-        Uses randomized node orderings and the greedy_insertion heuristic to
-        ensure the starting population covers multiple regions of the search space.
+        Returns:
+            Initial feasible population.
         """
         starting_pop = []
         for _ in range(self.params.pop_size):
@@ -466,11 +429,13 @@ class MASolver:
         return starting_pop
 
     def _evaluate(self, solution: List[List[int]]) -> float:
-        """
-        Guiding Function (Fg) per Paper terminology (p. 5).
+        """Fitness evaluation (Net Profit).
 
-        Measures the quality (Fitness) of a solution as Net Profit:
-        Fitness = (Gross Revenue) - (Distance-Based Travel Cost)
+        Args:
+            solution: Candidate routing solution.
+
+        Returns:
+            Total profit value.
         """
         if not solution:
             return 0.0
@@ -480,10 +445,13 @@ class MASolver:
         return total_revenue - self._cost(solution) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """
-        Calculates the total travel distance (km) of a complete routing solution.
+        """Calculates total travel distance.
 
-        Calculates distance from depot (0) -> node1 -> ... -> nodeN -> depot (0).
+        Args:
+            routes: Candidate routing solution.
+
+        Returns:
+            Total distance traveled.
         """
         total_distance = 0.0
         for individual_route in routes:

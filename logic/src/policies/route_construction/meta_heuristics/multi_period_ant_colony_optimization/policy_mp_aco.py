@@ -1,5 +1,12 @@
 """
 Multi-Period Ant Colony Optimization (MP-ACO) policy.
+
+Attributes:
+    MultiPeriodACOPolicy: Policy class for the MP-ACO approach.
+
+Example:
+    >>> policy = MultiPeriodACOPolicy(config)
+    >>> sol, plan, meta = policy._run_multi_period_solver(problem, multi_day_ctx)
 """
 
 import copy
@@ -31,15 +38,28 @@ from logic.src.utils.policy.routes import route_cost, route_profit
 class MultiPeriodACOPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Multi-Period Ant Colony Optimization (ACO).
+
     Pheromone matrix guides construction in each day based on multi-day reward.
+
+    Attributes:
+        params: MPACO specific parameters.
+        n_ants: Number of ants per iteration.
+        iters: Number of iterations.
+        alpha: Influence of pheromone.
+        beta: Influence of heuristic visibility.
+        rho: Pheromone evaporation rate.
+        seed: Random seed.
+        rng: Random number generator.
     """
 
     def __init__(self, config: Any = None):
-        """
-        Initializes the Multi-Period ACO policy.
+        """Initializes the Multi-Period ACO policy.
 
         Args:
             config: Optional configuration dictionary or Hydra config.
+
+        Returns:
+            None.
         """
         super().__init__(config)
         self.params = MP_ACO_Params.from_config(config)
@@ -52,6 +72,15 @@ class MultiPeriodACOPolicy(BaseMultiPeriodRoutingPolicy):
         self.rng = random.Random(self.seed)
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """Evaluate the multi-period plan and return total profit.
+
+        Args:
+            plan: The multi-period routing plan.
+            problem: The problem context.
+
+        Returns:
+            float: Total net profit across all periods.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):
@@ -61,6 +90,15 @@ class MultiPeriodACOPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _build_ant_solution(self, problem: ProblemContext, pheromones: np.ndarray) -> List[List[List[int]]]:
+        """Build a single ant's multi-period routing plan.
+
+        Args:
+            problem: The problem context.
+            pheromones: The current pheromone matrix.
+
+        Returns:
+            List[List[List[int]]]: A generated multi-period plan.
+        """
         D = problem.horizon
         N = len(problem.distance_matrix)
         plan = []
@@ -106,6 +144,18 @@ class MultiPeriodACOPolicy(BaseMultiPeriodRoutingPolicy):
     def _update_pheromones(
         self, pheromones: np.ndarray, plans: List, best_plan: List, best_prof: float, problem: ProblemContext
     ):
+        """Update pheromones based on the current iteration's plans.
+
+        Args:
+            pheromones: The pheromone matrix to update.
+            plans: List of (profit, plan) tuples for all ants.
+            best_plan: The best plan found so far.
+            best_prof: The profit of the best plan.
+            problem: The problem context.
+
+        Returns:
+            None.
+        """
         # evaporation
         pheromones *= 1.0 - self.rho
 
@@ -134,6 +184,16 @@ class MultiPeriodACOPolicy(BaseMultiPeriodRoutingPolicy):
     def _run_multi_period_solver(
         self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """Run the multi-period ACO solver.
+
+        Args:
+            problem: The initial problem context.
+            multi_day_ctx: Optional multi-day context.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                The solution for today, the full multi-period plan, and metadata.
+        """
         D = problem.horizon
         N = len(problem.distance_matrix)
 

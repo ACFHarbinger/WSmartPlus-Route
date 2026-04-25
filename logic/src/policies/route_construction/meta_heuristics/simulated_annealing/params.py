@@ -1,12 +1,10 @@
-"""
-Configuration parameters for the Simulated Annealing (SA) meta-heuristic.
+"""Configuration parameters for the Simulated Annealing (SA) meta-heuristic.
 
-This module defines the thermodynamic hyper-parameters governing the cooling
-schedule and the Markov chain lengths for the SA framework.
+Attributes:
+    SAParams: Parameter dataclass for the Simulated Annealing.
 
-Reference:
-    Kirkpatrick, S., Gelatt, C. D., & Vecchi, M. P. (1983).
-    "Optimization by simulated annealing". Science, 220(4598), 671-680.
+Example:
+    >>> params = SAParams(initial_temperature=50.0)
 """
 
 from __future__ import annotations
@@ -19,21 +17,25 @@ from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
 @dataclass
 class SAParams:
-    """
-    Hyper-parameters for the Simulated Annealing solver.
+    """Hyper-parameters for the Simulated Annealing solver.
 
     Attributes:
-        initial_temperature (float): Starting temperature T_0. Must be high enough
-            to ensure an initial acceptance probability of approx 0.8 for worsening moves.
-        cooling_rate (float): Geometric cooling coefficient alpha in (0, 1).
-            T_{k+1} = alpha * T_k.
-        min_temperature (float): Termination temperature threshold T_{min}.
-        iterations_per_temp (int): Length of the Markov chain L_k at each temperature step.
-            Allows the system to reach thermal equilibrium before cooling.
-        time_limit (float): Absolute wall-clock time limit in seconds.
-        seed (Optional[int]): Random seed for stochastic reproducibility.
-        vrpp (bool): Flag to enable pool expansion for Vehicle Routing with Profits.
-        profit_aware_operators (bool): Flag to bias ruin/recreate toward high-revenue nodes.
+        initial_temperature: Starting temperature T_0.
+        cooling_rate: Geometric cooling coefficient alpha.
+        min_temperature: Termination temperature threshold.
+        target_acceptances_per_node: Target accepted moves per node.
+        max_attempts_multiplier: Max attempts multiplier.
+        frozen_streak_limit: Limit of iterations without improvement.
+        auto_calibrate_temperature: Whether to auto-calibrate T_0.
+        target_initial_acceptance: Target acceptance probability for calibration.
+        calibration_samples: Samples used for calibration.
+        n_restarts: Number of solver restarts.
+        time_limit: Wall-clock time limit.
+        seed: Random seed.
+        vrpp: Whether solving VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware operators.
+        nb_granular: Number of granular neighbors.
+        acceptance_criterion: Criterion for accepting moves.
     """
 
     initial_temperature: float = 100.0
@@ -55,7 +57,14 @@ class SAParams:
 
     @classmethod
     def from_config(cls, config: Any) -> SAParams:
-        """Create SAParams from a configuration object or dictionary."""
+        """Create SAParams from a configuration source.
+
+        Args:
+            config: Configuration source.
+
+        Returns:
+            Instantiated SAParams.
+        """
         # Get base params
         if isinstance(config, dict):
             params = cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})

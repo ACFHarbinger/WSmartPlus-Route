@@ -1,8 +1,25 @@
-"""Meta-heuristic routing policies.
+r"""Meta-heuristic routing policies.
 
 This package contains advanced iterative search algorithms including
 Evolutionary Strategies, Local Search meta-heuristics, and Swarm Intelligence
 approaches for solving the VRPP and its variants.
+
+Attributes:
+    adaptive_large_neighborhood_search: ALNS implementations.
+    ant_colony_optimization_k_sparse: ACO implementations.
+    artificial_bee_colony: ABC implementations.
+    augmented_hybrid_volleyball_premier_league: AHVPL implementations.
+    differential_evolution: DE implementations.
+    evolution_strategy_mu_comma_lambda: ES (mu, lambda) implementations.
+    evolution_strategy_mu_kappa_lambda: ES (mu, kappa, lambda) implementations.
+    evolution_strategy_mu_plus_lambda: ES (mu + lambda) implementations.
+    fast_iterative_localized_optimization: FILO implementations.
+    firefly_algorithm: Firefly implementations.
+    genetic_algorithm: GA implementations.
+    genius: GENIUS implementations.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search import policy_alns
 """
 
 from .adaptive_large_neighborhood_search import policy_alns as policy_alns

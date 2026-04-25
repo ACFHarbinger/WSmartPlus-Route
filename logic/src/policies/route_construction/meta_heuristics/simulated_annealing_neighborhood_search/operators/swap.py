@@ -4,6 +4,12 @@ Node exchange operators for solution perturbation and neighborhood search.
 Provides intra-route and inter-route bin swapping logic. Includes routines
 for swapping single points or entire sequences (segments) between routes,
 supporting randomized and consecutive exchange strategies.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from .inter_swap import (

@@ -15,10 +15,16 @@ Reference:
     "New Insertion and Postoptimization Procedures for the Traveling Salesman Problem"
     Operations Research, 40(6), 1086-1094.
 
-Exports:
-    GENIUSSolver: The main solver class.
+Attributes:
     GENIUSParams: Configuration parameters dataclass.
     GENIUSPolicy: Policy adapter for the routing framework.
+    GENIUSSolver: The main solver class.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.genius import GENIUSSolver, GENIUSParams
+    >>> params = GENIUSParams(neighborhood_size=5)
+    >>> solver = GENIUSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 from .params import GENIUSParams

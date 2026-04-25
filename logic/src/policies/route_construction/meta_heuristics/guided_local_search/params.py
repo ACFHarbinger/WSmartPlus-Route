@@ -1,5 +1,10 @@
-"""
-Configuration parameters for the Guided Local Search (GLS) solver.
+"""Configuration parameters for the Guided Local Search (GLS) solver.
+
+Attributes:
+    GLSParams: Parameter dataclass for the Guided Local Search.
+
+Example:
+    >>> params = GLSParams(lambda_param=0.5)
 """
 
 from __future__ import annotations
@@ -10,12 +15,7 @@ from typing import Optional
 
 @dataclass
 class GLSParams:
-    """
-    Configuration for the GLS solver.
-
-    GLS augments the objective function with adaptive penalty terms on
-    edge features present at local optima.  The penalty makes previously
-    visited optima less attractive, forcing the search into new basins.
+    """Configuration for the GLS solver.
 
     Attributes:
         lambda_param: Scaling coefficient for the penalty term (global intensity).
@@ -23,9 +23,12 @@ class GLSParams:
         penalty_cycles: Number of GLS penalty update cycles (restarts).
         n_removal: Maximum nodes removed per LNS ruin step.
         n_llh: Number of Low-Level Heuristics in the pool.
-        inner_iterations: Stagnation threshold representing Expected Neighborhood Coverage before declaring a local optimum and triggering a penalty update.
-        fls_coupling_prob: Probability of triggering targeted penalized removal after update.
+        inner_iterations: Stagnation threshold for declaring a local optimum.
+        fls_coupling_prob: Probability of triggering targeted penalized removal.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed.
+        vrpp: Whether solving VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware operators.
     """
 
     lambda_param: float = 1.0

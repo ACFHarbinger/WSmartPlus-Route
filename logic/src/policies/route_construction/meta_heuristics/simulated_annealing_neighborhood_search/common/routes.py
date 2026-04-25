@@ -1,5 +1,18 @@
 """
 Route manipulation utilities for SANS.
+
+Attributes:
+    create_points: Create a mapping of bin IDs to their coordinates.
+    uncross_arcs_in_routes: Improve routes by uncrossing arcs while maintaining profit constraints.
+    rearrange_part_route: Select a random portion of a route and reorder it using a greedy Nearest Neighbor heuristic.
+    organize_route: Group bins into zones based on longitude.
+    two_opt_uncross_arc: Apply a 2-opt swap to uncross arcs in a route.
+    uncross_arcs_in_sans_routes: Identify and remove invalid crossings (depot-connected or sharing endpoints).
+
+Examples:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes import create_points
+    >>> points = create_points(data, bins_coordinates)
+    >>> print(points)
 """
 
 import random

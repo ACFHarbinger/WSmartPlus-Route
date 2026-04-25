@@ -5,11 +5,12 @@ This module implements a hybrid approach where Hybrid Genetic Search (HGS)
 uses Adaptive Large Neighborhood Search (ALNS) for its education phase.
 
 Attributes:
-    None
+    HGSALNSSolver: Core solver class for the HGS-ALNS hybrid metaheuristic.
 
 Example:
-    >>> from logic.src.policies.hybrid_genetic_search_with_adaptive_large_neighborhood_search import HGSALNSSolver
-    >>> result = solver.solve()
+    >>> from .hgs_alns import HGSALNSSolver
+    >>> solver = HGSALNSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import time
@@ -35,6 +36,10 @@ from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search
 class HGSALNSSolver(HGSSolver):
     """
     Hybrid solver that combines HGS with ALNS as a local search optimizer.
+
+    Attributes:
+        hgs_alns_params: Configuration for the hybrid solver.
+        alns_solver: Internal ALNS solver instance for education.
     """
 
     def __init__(
@@ -58,6 +63,9 @@ class HGSALNSSolver(HGSSolver):
             C: Cost multiplier.
             params: HGSALNSParams containing HGS and ALNS configurations.
             mandatory_nodes: Optional list of mandatory node indices.
+
+        Returns:
+            None.
         """
         # Initialize parent HGSSolver with HGS params
         super().__init__(dist_matrix, wastes, capacity, R, C, params.hgs_params, mandatory_nodes)
@@ -70,6 +78,9 @@ class HGSALNSSolver(HGSSolver):
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
         Run the Hybrid Genetic Search algorithm with ALNS-based education.
+
+        Args:
+            None.
 
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.

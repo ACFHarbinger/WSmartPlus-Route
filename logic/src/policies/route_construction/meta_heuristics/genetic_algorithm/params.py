@@ -1,5 +1,10 @@
-"""
-Configuration parameters for the Genetic Algorithm (GA) solver.
+"""Configuration parameters for the Genetic Algorithm (GA) solver.
+
+Attributes:
+    GAParams: Parameter dataclass for the Genetic Algorithm.
+
+Example:
+    >>> params = GAParams(pop_size=50)
 """
 
 from __future__ import annotations
@@ -10,8 +15,7 @@ from typing import Any, Optional
 
 @dataclass
 class GAParams:
-    """
-    Configuration for the GA solver.
+    """Configuration for the GA solver.
 
     Standard evolutionary algorithm with tournament selection, OX crossover,
     random relocate mutation, and elitism.
@@ -24,6 +28,9 @@ class GAParams:
         tournament_size: Number of individuals in tournament selection.
         n_removal: Nodes removed per local search step.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed.
+        vrpp: Whether solving VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware operators.
     """
 
     pop_size: int = 30
@@ -39,7 +46,14 @@ class GAParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "GAParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            GAParams instance.
+        """
         return cls(
             pop_size=getattr(config, "pop_size", 30),
             max_generations=getattr(config, "max_generations", 100),
