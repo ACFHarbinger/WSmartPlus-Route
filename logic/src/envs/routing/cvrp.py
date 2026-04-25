@@ -7,6 +7,14 @@ exhausted.  The objective is to minimise total travel distance.
 
 Reward: -(total tour length)
 Done:   all customers visited and vehicle back at depot
+Attributes:
+    CVRPEnv: Capacitated Vehicle Routing Problem (CVRP) environment.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.routing.cvrp import CVRPEnv
+    >>> env = CVRPEnv(batch_size=4)
+    >>> env.reset()
 """
 
 from __future__ import annotations
@@ -31,6 +39,11 @@ class CVRPEnv(RL4COEnvBase):
     The vehicle starts at the depot, visits customers, and can return to
     the depot (index 0) at any time to refill.  The episode ends when all
     customers have been served and the vehicle has returned to the depot.
+
+    Attributes:
+        NAME: Environment name identifier.
+        name: Environment name identifier.
+        node_dim: Dimension of the node coordinates.
     """
 
     NAME: str = "cvrp"
@@ -44,7 +57,14 @@ class CVRPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
-        """Initialize the CVRP environment."""
+        """Initialize the CVRP environment.
+
+        Args:
+            generator: Data generator for the environment.
+            generator_params: Parameters for the data generator.
+            device: Torch device to place tensors on.
+            kwargs: Additional keyword arguments.
+        """
         generator_params = generator_params or {}
         if generator is None:
             generator = CVRPGenerator(**generator_params, device=device)
@@ -55,7 +75,14 @@ class CVRPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialize CVRP episode state."""
+        """Initialize CVRP episode state.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         if self.generator is None:
             raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
         if "visited" in td.keys():
@@ -91,6 +118,14 @@ class CVRPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """Delegate to OpsMixin._step, which calls _step_instance.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         return OpsMixin._step(self, td)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -100,6 +135,11 @@ class CVRPEnv(RL4COEnvBase):
         Computes Euclidean travel distance, marks the node as visited,
         and updates the vehicle's remaining capacity.  Visiting the depot
         (action = 0) resets the on-board load.
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
         """
         action = td["action"]
         if action.dim() > 1:
@@ -137,7 +177,14 @@ class CVRPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Done when all customers are visited and vehicle is at depot."""
+        """Done when all customers are visited and vehicle is at depot.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         all_customers_done = td["visited"][..., 1:].all(dim=-1)
         at_depot = td["current_node"].squeeze(-1) == 0
         step = td["i"].squeeze(-1) if td["i"].dim() > 1 else td["i"]
@@ -153,6 +200,11 @@ class CVRPEnv(RL4COEnvBase):
 
         The depot (index 0) is valid UNLESS the vehicle is already at the
         depot while unvisited customers remain.
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
         """
         vehicle_cap = td["vehicle_capacity"]  # [B]
         if vehicle_cap.dim() > 1:
@@ -173,5 +225,13 @@ class CVRPEnv(RL4COEnvBase):
         return torch.cat([mask_depot.unsqueeze(-1), mask_cust], dim=-1)  # [B, N+1]
 
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Reward is the negative total tour length."""
+        """Reward is the negative total tour length.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+            actions: Tensor of actions to take.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         return -td["tour_length"]

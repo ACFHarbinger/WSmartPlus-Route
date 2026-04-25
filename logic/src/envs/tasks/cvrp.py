@@ -1,5 +1,22 @@
 """
 CVRP problem definition for offline evaluation.
+
+Attributes:
+    CVRP: Capacitated Vehicle Routing Problem (CVRP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.cvrp import CVRP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]]),
+    ...     "demand": torch.tensor([[0.0, 1.0, 1.0]]),
+    ...     "vehicle_capacity": torch.tensor([2.0]),
+    ...     "depot": torch.tensor([0.0]),
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 2, 0]]])
+    >>> length, cost_dict, _ = CVRP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([2.8284])
 """
 
 from __future__ import annotations
@@ -16,6 +33,9 @@ class CVRP(BaseProblem):
     Capacitated Vehicle Routing Problem (CVRP).
 
     Validates capacity constraints and computes total tour length.
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "cvrp"

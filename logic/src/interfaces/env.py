@@ -63,7 +63,7 @@ class IEnv(Protocol):
 
         Args:
             tensordict: TensorDict containing the input data
-            **kwargs: Additional keyword arguments
+            kwargs: Additional keyword arguments
 
         Returns:
             TensorDictBase: TensorDict containing the output data

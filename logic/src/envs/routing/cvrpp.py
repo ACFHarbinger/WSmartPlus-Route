@@ -1,5 +1,13 @@
 """
 CVRPP Environment implementation.
+
+Attributes:
+    CVRPPEnv: CVRPP environment.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("cvrpp", num_loc=50)
+    >>> td = env.reset()
 """
 
 from __future__ import annotations
@@ -16,12 +24,22 @@ from logic.src.envs.routing.vrpp import VRPPEnv
 class CVRPPEnv(VRPPEnv):
     """
     Capacitated VRPP: VRPP with vehicle capacity constraints.
+
+    Attributes:
+        name: Name of the environment.
     """
 
     name: str = "cvrpp"
 
     def _reset_instance(self, tensordict: TensorDict) -> TensorDict:
-        """Initialize CVRPP state with capacity tracking."""
+        """Initialize CVRPP state with capacity tracking.
+
+        Args:
+            tensordict: Input TensorDict containing graph structure and node properties.
+
+        Returns:
+            TensorDict: Initialized CVRPP state with capacity tracking.
+        """
         tensordict = super()._reset_instance(tensordict)
 
         bs = tensordict.batch_size[0]
@@ -37,7 +55,15 @@ class CVRPPEnv(VRPPEnv):
         return tensordict
 
     def _reset(self, tensordict: Optional[TensorDict] = None, **kwargs) -> TensorDict:  # type: ignore[override]
-        # Correct TorchRL signature
+        """Reset the environment.
+
+        Args:
+            tensordict: Input TensorDict containing graph structure and node properties.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            TensorDict: Reset environment state.
+        """
         return super()._reset(tensordict, **kwargs)
 
     def _step_instance(self, tensordict: TensorDict) -> TensorDict:
@@ -45,10 +71,10 @@ class CVRPPEnv(VRPPEnv):
 
         Args:
             tensordict (Optional[TensorDict]): Description of tensordict.
-            kwargs (Any): Description of kwargs.
+            kwargs (Any): Additional keyword arguments.
 
         Returns:
-            Any: Description of return value.
+            Any: Updated TensorDict or tensor containing the result.
         """
         """Execute action with capacity tracking."""
         action = tensordict["action"]
@@ -74,6 +100,14 @@ class CVRPPEnv(VRPPEnv):
         return tensordict
 
     def _step(self, tensordict: TensorDict) -> TensorDict:
+        """Step the environment.
+
+        Args:
+            tensordict: Input TensorDict containing action.
+
+        Returns:
+            TensorDict: Environment state after action.
+        """
         return OpsMixin._step(self, tensordict)
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
@@ -82,6 +116,12 @@ class CVRPPEnv(VRPPEnv):
 
         Applies capacity constraints on top of base VRPP mask, then
         re-applies mandatory logic to determine depot validity.
+
+        Args:
+            tensordict: Input TensorDict containing graph structure and node properties.
+
+        Returns:
+            torch.Tensor: Action mask.
         """
         # Get base mask (without mandatory depot logic applied yet)
         base_mask = ~tensordict["visited"].clone()

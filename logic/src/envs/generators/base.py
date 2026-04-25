@@ -1,5 +1,20 @@
 """
 Base generator class for problem instances.
+
+Attributes:
+    Generator: Abstract base class for problem instance generators.
+
+Example:
+    >>> from src.envs.generators import get_generator
+    >>> generator = get_generator("vrpp", num_loc=20)
+    >>> problem = generator.generate()
+    >>> problem
+    <ProblemInstance: ...>
+
+    >>> generator = get_generator("atsp", num_loc=20, tmat_class=True)
+    >>> problem = generator.generate()
+    >>> problem
+    <ProblemInstance: ...>
 """
 
 from __future__ import annotations
@@ -18,6 +33,17 @@ class Generator(ABC):
 
     Generators create batches of problem instances as TensorDict objects,
     supporting various probability distributions for feature generation.
+
+    Attributes:
+        num_loc (int): Number of nodes in the problem.
+        min_loc (float): Minimum location value.
+        max_loc (float): Maximum location value.
+        loc_distribution (Union[str, Callable]): Distribution for location generation.
+        device (torch.device): Device for computation.
+        bins (Optional[int]): Number of bins for location distribution.
+        kwargs: Additional keyword arguments.
+        rng: Random number generator.
+        generator: PyTorch generator for reproducibility.
     """
 
     def __init__(
@@ -34,6 +60,8 @@ class Generator(ABC):
         """
         Initialize the generator.
 
+
+
         Args:
             num_loc: Number of locations (excluding depot).
             min_loc: Minimum coordinate value.
@@ -43,7 +71,7 @@ class Generator(ABC):
             device: Device to place tensors on.
             rng: Random number generator for numpy operations.
             generator: Random number generator for torch operations.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         self.num_loc = num_loc
         self.min_loc = min_loc
@@ -57,7 +85,11 @@ class Generator(ABC):
 
     @property
     def kwargs(self) -> dict[str, Any]:
-        """Return all arguments used to initialize the generator."""
+        """Return all arguments used to initialize the generator.
+
+        Returns:
+            Description of return value.
+        """
         return self._kwargs
 
     def to(self, device: Union[str, torch.device]) -> Generator:
@@ -272,7 +304,15 @@ class Generator(ABC):
             raise ValueError(f"Unknown location distribution: {self.loc_distribution}")
 
     def _uniform_locations(self, batch_size: tuple[int, ...], num_loc: int) -> torch.Tensor:
-        """Generate uniformly distributed locations."""
+        """Generate uniformly distributed locations.
+
+        Args:
+            batch_size: Batch size tuple.
+            num_loc: Number of locations.
+
+        Returns:
+            Tensor of shape (*batch_size, num_loc, 2) containing uniformly distributed coordinates.
+        """
         return (
             torch.rand(*batch_size, num_loc, 2, device=self.device, generator=self.generator)
             * (self.max_loc - self.min_loc)
@@ -280,14 +320,31 @@ class Generator(ABC):
         )
 
     def _normal_locations(self, batch_size: tuple[int, ...], num_loc: int) -> torch.Tensor:
-        """Generate normally distributed locations (clipped to bounds)."""
+        """Generate normally distributed locations (clipped to bounds).
+
+        Args:
+            batch_size: Batch size tuple.
+            num_loc: Number of locations.
+
+        Returns:
+            Tensor of shape (*batch_size, num_loc, 2) containing normally distributed coordinates.
+        """
         center = (self.max_loc + self.min_loc) / 2
         std = (self.max_loc - self.min_loc) / 6  # ~99.7% within bounds
         locs = torch.randn(*batch_size, num_loc, 2, device=self.device, generator=self.generator) * std + center
         return torch.clamp(locs, self.min_loc, self.max_loc)
 
     def _clustered_locations(self, batch_size: tuple[int, ...], num_loc: int, num_clusters: int = 3) -> torch.Tensor:
-        """Generate clustered locations using Gaussian mixture."""
+        """Generate clustered locations using Gaussian mixture.
+
+        Args:
+            batch_size: Batch size tuple.
+            num_loc: Number of locations.
+            num_clusters: Number of clusters.
+
+        Returns:
+            Tensor of shape (*batch_size, num_loc, 2) containing clustered coordinates.
+        """
         num_clusters = self._kwargs.get("num_clusters", num_clusters)
 
         # Generate cluster centers

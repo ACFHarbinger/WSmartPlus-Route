@@ -7,6 +7,14 @@ depot.  The objective balances saved penalties against travel cost.
 
 Reward: saved_penalties - (tour_length + total_remaining_penalties)
 Done:   agent returns to depot after collecting at least prize_required
+
+Attributes:
+    PCTSPEnv: RL4CO environment for the Prize-Collecting TSP.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("pctsp", num_loc=50)
+    >>> td = env.reset()
 """
 
 from __future__ import annotations
@@ -31,6 +39,12 @@ class PCTSPEnv(RL4COEnvBase):
     In the deterministic variant (PCTSP) the ``real_prize`` revealed upon
     visiting a node equals the ``deterministic_prize`` known up front.
     In the stochastic variant (SPCTSP) the ``stochastic_prize`` is used.
+
+    Attributes:
+        NAME: Name of the environment.
+        name: Name of the environment.
+        node_dim: Node feature dimension (x, y coordinates only → 2).
+        _stochastic: Whether the environment is stochastic.
     """
 
     NAME: str = "pctsp"
@@ -45,7 +59,14 @@ class PCTSPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
-        """Initialize the PCTSP environment."""
+        """Initialize the PCTSP environment.
+
+        Args:
+            generator: Pre-built PCTSPGenerator; created from generator_params if None.
+            generator_params: Keyword arguments forwarded to PCTSPGenerator constructor.
+            device: Torch device for tensor placement.
+            kwargs: Additional arguments forwarded to RL4COEnvBase.
+        """
         generator_params = generator_params or {}
         if generator is None:
             generator = PCTSPGenerator(**generator_params, device=device)
@@ -56,7 +77,14 @@ class PCTSPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialize PCTSP episode state."""
+        """Initialize PCTSP episode state.
+
+        Args:
+            td: Input TensorDict containing graph structure and node properties.
+
+        Returns:
+            TensorDict: Initialized PCTSP state with per-episode mutable fields.
+        """
         if self.generator is None:
             raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
         if "visited" in td.keys():
@@ -108,6 +136,14 @@ class PCTSPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """Execute one step in the environment.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            TensorDict: Updated TensorDict with new state and reward information.
+        """
         return OpsMixin._step(self, td)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -116,6 +152,12 @@ class PCTSPEnv(RL4COEnvBase):
 
         When visiting a customer node, the real prize is collected and the
         node's penalty is removed from the running total (it is "saved").
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            TensorDict: Updated TensorDict with new state and reward information.
         """
         action = td["action"]
         if action.dim() > 1:
@@ -152,7 +194,14 @@ class PCTSPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Done when agent returns to depot after at least one step."""
+        """Done when agent returns to depot after at least one step.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            BoolTensor [*B] — True for completed episodes.
+        """
         current = td["current_node"]
         if current.dim() > 1:
             current = current.squeeze(-1)
@@ -165,6 +214,12 @@ class PCTSPEnv(RL4COEnvBase):
         ``prize_required`` total prize, unless all customers are visited.
 
         All already-visited nodes are masked out.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            BoolTensor [*B, num_nodes] — True indicates a selectable action.
         """
         visited = td["visited"]  # [B, N+1]
         # Also mask out nodes reachable from an already-done episode (depot visited)
@@ -180,13 +235,20 @@ class PCTSPEnv(RL4COEnvBase):
         return mask
 
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-                Compute reward for PCTSP: Prize - Cost - Penalty.
-        ies - total tour cost.
+        """Compute reward for PCTSP: saved_penalties - (tour_length + remaining_penalties).
 
-                ``saved_penalties`` are the penalties of visited customer nodes.
-                ``total_tour_cost`` = tour_length + penalties of all unvisited nodes
-                (still "owed").
+        ``saved_penalties`` are the penalties of visited customer nodes.
+        ``remaining_penalties`` = total penalty of all unvisited customer nodes
+        (still owed at episode end).
+
+        Args:
+            td: Final state TensorDict containing ``penalty``, ``tour_length``,
+                and ``cur_total_penalty``.
+            actions: Optional tour action sequence ``(batch, tour_len)``;
+                when provided, penalties are gathered directly from this tensor.
+
+        Returns:
+            torch.Tensor: Scalar reward per batch element, shape ``(batch,)``.
         """
         penalty = td["penalty"]  # [B, N+1] with depot=0
 

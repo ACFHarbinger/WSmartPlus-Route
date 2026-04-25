@@ -1,5 +1,11 @@
 """
 RL4CO Base Environment.
+
+Attributes:
+    RL4COEnvBase: Base class for RL4CO environments.
+
+Example:
+    None
 """
 
 from abc import ABC, abstractmethod
@@ -32,7 +38,11 @@ class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase, ABC):
 
     @property
     def dim(self) -> int:
-        """Alias for node_dim, expected by some models."""
+        """Alias for node_dim, expected by some models.
+
+        Returns:
+            int: Node dimension.
+        """
         return self.node_dim
 
     def __init__(
@@ -51,7 +61,7 @@ class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase, ABC):
             generator_params: Parameters to pass to the generator if not provided.
             device: Device to place tensors on.
             batch_size: Batch size for the environment.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         # Default batch_size to empty Size if not provided
         if batch_size is None:
@@ -85,29 +95,72 @@ class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase, ABC):
     def render(self, td: Any, **kwargs: Any) -> Any:
         """
         Render the current state (optional).
+
+        Args:
+            td: TensorDict containing the state.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Any: The rendered state.
         """
         raise NotImplementedError(f"Rendering not implemented for {self.name}")
 
     def __repr__(self) -> str:
-        """String representation of the environment."""
+        """String representation of the environment.
+
+        Returns:
+            str: String representation of the environment.
+        """
         return f"{self.__class__.__name__}(name={self.name}, device={self.device})"
 
     @abstractmethod
     def _reset_instance(self, td: TensorDictBase) -> TensorDictBase:
-        """Reset the environment for a specific problem instance."""
+        """
+        Reset the environment for a specific problem instance.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            TensorDictBase: The reset environment.
+        """
         pass
 
     @abstractmethod
     def _step(self, td: TensorDictBase) -> TensorDictBase:
-        """Perform a transition in the environment."""
+        """Perform a transition in the environment.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            TensorDictBase: The environment after the transition.
+        """
         pass
 
     @abstractmethod
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Compute the reward for a specific action sequence."""
+        """
+        Compute the reward for a specific action sequence.
+
+        Args:
+            td: TensorDict containing the state.
+            actions: Optional tensor of actions.
+
+        Returns:
+            torch.Tensor: The reward for the given action sequence.
+        """
         pass
 
     @abstractmethod
     def _get_action_mask(self, td: TensorDictBase) -> torch.Tensor:
-        """Return the valid action mask for the current state."""
+        """
+        Return the valid action mask for the current state.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            torch.Tensor: The action mask for the given state.
+        """
         pass

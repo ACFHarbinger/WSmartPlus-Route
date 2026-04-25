@@ -1,5 +1,17 @@
 """
 Core operations mixin for RL4CO environment.
+
+Attributes:
+    OpsMixin: Mixin class for core operations of the environment.
+
+Example:
+    >>> from logic.src.envs.base.ops import OpsMixin
+    >>> class MyEnv(OpsMixin):
+    ...     def __init__(self):
+    ...         self.batch_size = 32
+    >>> env = MyEnv()
+    >>> env.batch_size
+    torch.Size([32])
 """
 
 from abc import abstractmethod
@@ -13,6 +25,9 @@ from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTens
 class OpsMixin:
     """
     Mixin to handle Step, Reset, and Cost calculations.
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     def _make_spec(self, generator: Optional[Any] = None) -> None:
@@ -39,6 +54,12 @@ class OpsMixin:
         """
         Execute action and update state.
         Synchronizes environment batch size with input TensorDict.
+
+        Args:
+            tensordict: TensorDict containing the state.
+
+        Returns:
+            TensorDict: The updated environment.
         """
         self.batch_size = tensordict.batch_size
         out = cast(TensorDictBase, super().step(tensordict))  # type: ignore[misc]
@@ -47,6 +68,13 @@ class OpsMixin:
     def reset(self, tensordict: Optional[TensorDictBase] = None, **kwargs) -> TensorDictBase:
         """
         Sync batch size and initialize state.
+
+        Args:
+            tensordict: TensorDict containing the state.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            TensorDict: The reset environment.
         """
         # Support both 'td' and 'tensordict' naming
         if tensordict is None:
@@ -62,6 +90,13 @@ class OpsMixin:
     def _reset(self, tensordict: Optional[TensorDictBase] = None, **kwargs) -> TensorDictBase:
         """
         Initialize episode state from problem instance.
+
+        Args:
+            tensordict: TensorDict containing the state.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            TensorDict: The reset environment.
         """
         batch_size_arg = kwargs.pop("batch_size", None)
         if tensordict is None:
@@ -96,6 +131,12 @@ class OpsMixin:
     def _step(self, tensordict: TensorDictBase) -> TensorDictBase:
         """
         Execute action and return new state as 'next' entry.
+
+        Args:
+            tensordict: TensorDict containing the state.
+
+        Returns:
+            TensorDict: The next state.
         """
         # Copy and clean to avoid cycles
         td_next = tensordict.copy()
@@ -145,6 +186,16 @@ class OpsMixin:
         """
         Create a state wrapper for the environment.
         This provides the API expected by the constructive decoders.
+
+        Args:
+            nodes: TensorDict containing the state.
+            edges: Optional tensor of edges.
+            cost_weights: Optional tensor of cost weights.
+            dist_matrix: Optional tensor of distance matrix.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
         """
         from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 
@@ -170,6 +221,15 @@ class OpsMixin:
         """
         Compute costs for a sequence of actions.
         This provides the API expected by the AttentionModel.
+
+        Args:
+            tensordict: TensorDict containing the state.
+            pi: TensorDict containing the actions.
+            cost_weights: Optional tensor of cost weights.
+            dist_matrix: Optional tensor of distance matrix.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
         """
         # Reset and follow pi
         curr_td = self.reset(tensordict)
@@ -189,6 +249,12 @@ class OpsMixin:
         """
         Core state transition logic common to most routing problems.
         Updates visited mask, current node, and tour tracking.
+
+        Args:
+            tensordict: TensorDict containing the state.
+
+        Returns:
+            TensorDict: The next state.
         """
         action = tensordict["action"]
         current = tensordict.get("current_node", torch.zeros_like(action))
@@ -233,6 +299,12 @@ class OpsMixin:
         """
         Check if episodes are complete.
         Returns: [B] bool tensor
+
+        Args:
+            tensordict: TensorDict containing the state.
+
+        Returns:
+            torch.Tensor: Boolean tensor indicating completed episodes.
         """
         current_node = tensordict.get("current_node", None)
         step_count = tensordict.get("i", None)
@@ -253,25 +325,58 @@ class OpsMixin:
     def get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Public method to compute rewards.
+
+        Args:
+            tensordict: TensorDict containing the state.
+            actions: Optional tensor of actions.
+
+        Returns:
+            torch.Tensor: The rewards.
         """
         return self._get_reward(tensordict, actions)
 
     @abstractmethod
     def _reset_instance(self, tensordict: TensorDictBase) -> TensorDictBase:
-        """Problem-specific instance initialization."""
+        """Problem-specific instance initialization.
+
+        Args:
+            tensordict: TensorDict containing the state.
+
+        Returns:
+            TensorDict: The reset environment.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def _get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Compute reward."""
+        """Compute reward.
+
+        Args:
+            tensordict: TensorDict containing the state.
+            actions: Optional tensor of actions.
+
+        Returns:
+            torch.Tensor: The rewards.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def _get_action_mask(self, tensordict: TensorDictBase) -> torch.Tensor:
-        """Return mask of valid actions."""
+        """Return mask of valid actions.
+
+        Args:
+            tensordict: TensorDict containing the state.
+
+        Returns:
+            torch.Tensor: Boolean tensor indicating valid actions.
+        """
         raise NotImplementedError
 
     def _set_seed(self, seed: Optional[int]):
-        """Set random seed for reproducibility."""
+        """Set random seed for reproducibility.
+
+        Args:
+            seed: Integer seed for random number generator.
+        """
         if seed is not None:
             torch.manual_seed(seed)

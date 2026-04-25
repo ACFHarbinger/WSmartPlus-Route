@@ -37,6 +37,9 @@ class ITraversable(Protocol):
         ...     if hasattr(config, "get"):
         ...         return config.get(key, None)
         ...     return None
+
+    Attributes:
+        None
     """
 
     def __getitem__(self, key: Any, /) -> Any:

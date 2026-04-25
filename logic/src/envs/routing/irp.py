@@ -42,6 +42,14 @@ Reward
 
 All three components are accumulated over T periods.  The reward is dense
 (computed at every step) but only meaningful at the terminal step.
+
+Attributes:
+    IRPEnv: IRP environment.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("irp", num_loc=50)
+    >>> td = env.reset()
 """
 
 from __future__ import annotations
@@ -77,6 +85,15 @@ class IRPEnv(RL4COEnvBase):
         Scalar multiplier on total holding cost.
     routing_cost_weight : float
         Scalar multiplier on total routing distance.
+
+    Attributes:
+        NAME: Name of the environment.
+        name: Name of the environment.
+        node_dim: Node feature dimension (x, y coordinates only → 2).
+        num_periods: Planning horizon T, copied from the generator.
+        stockout_penalty: Coefficient applied to total unmet demand.
+        holding_cost_weight: Scalar multiplier on total holding cost.
+        routing_cost_weight: Scalar multiplier on total routing distance.
     """
 
     NAME: str = "irp"
@@ -105,7 +122,10 @@ class IRPEnv(RL4COEnvBase):
             holding_cost_weight: Multiplier on the accumulated holding cost term.
             routing_cost_weight: Multiplier on the accumulated routing distance term.
             device: Torch device string or object.
-            **kwargs: Additional keyword arguments forwarded to the base class.
+            kwargs: Additional keyword arguments forwarded to the base class.
+
+        Returns:
+            None
         """
         generator_params = generator_params or {}
         # Absorb any extra kwargs that are also valid generator params
@@ -158,6 +178,12 @@ class IRPEnv(RL4COEnvBase):
         current_period     : LongTensor [*B]          – period index in {0, …, T}
         total_holding_cost : Tensor     [*B]          – sum of h_i I_it over completed periods
         total_stockout     : Tensor     [*B]          – sum of max(0, -I_it) over completed periods
+
+        Args:
+            td: Input TensorDict containing graph structure and node properties.
+
+        Returns:
+            TensorDict: Initialized IRP state with per-episode mutable fields.
         """
         if "current_node" in td.keys():
             return td
@@ -226,6 +252,14 @@ class IRPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """Execute one step in the environment.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            TensorDict: Updated TensorDict with new state and reward information.
+        """
         return OpsMixin._step(self, td)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -244,6 +278,12 @@ class IRPEnv(RL4COEnvBase):
         5. If period ends (depot return from customer): update inventories,
            accumulate holding cost / stockout, advance current_period, and
            reset per-period buffers (delivered, remaining_capacity, visited).
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            TensorDict: Updated TensorDict with new state and reward information.
         """
         action = td["action"]
         if action.dim() > 1:
@@ -366,6 +406,9 @@ class IRPEnv(RL4COEnvBase):
         The condition fires immediately after the vehicle returns to the depot
         at the end of the last period, incrementing current_period to num_periods.
 
+        Args:
+            td: Input TensorDict containing action and state information.
+
         Returns:
             BoolTensor [*B] — True for completed episodes.
         """
@@ -394,6 +437,9 @@ class IRPEnv(RL4COEnvBase):
 
         A customer node where delivery would be zero (inventory full OR vehicle
         empty) is masked out to prevent wasteful detours.
+
+        Args:
+            td: Input TensorDict containing action and state information.
 
         Returns:
             BoolTensor [*B, num_nodes] — True indicates a selectable action.
@@ -442,6 +488,10 @@ class IRPEnv(RL4COEnvBase):
 
         Cost components are stored back into the TensorDict for downstream
         logging (``routing_cost``, ``holding_cost``, ``stockout``).
+
+        Args:
+            td: Input TensorDict containing action and state information.
+            actions: Action sequence (unused in this implementation).
 
         Returns:
             Tensor [*B] — scalar reward per batch instance.

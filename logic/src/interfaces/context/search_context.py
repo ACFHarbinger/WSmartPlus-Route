@@ -48,7 +48,7 @@ Attributes:
     SearchPhase: Enum for pipeline phases
     merge_context: Function to merge contexts
 
-Example
+Example:
 -------
 >>> from logic.src.interfaces.context import SearchContext, SelectionMetrics, merge_context
 >>> sm: SelectionMetrics = {"bin_scores": [0.9, 0.3, 0.7], "strategy": "fractional_knapsack"}
@@ -67,7 +67,13 @@ from typing import Any, Dict, List, Optional
 
 
 class SearchPhase(str, Enum):
-    """Marks which pipeline phase last wrote to the ``SearchContext``."""
+    """Marks which pipeline phase last wrote to the ``SearchContext``.
+
+    Attributes:
+        SELECTION: Selection phase
+        CONSTRUCTION: Construction phase
+        IMPROVEMENT: Improvement phase
+    """
 
     SELECTION = "selection"
     CONSTRUCTION = "construction"

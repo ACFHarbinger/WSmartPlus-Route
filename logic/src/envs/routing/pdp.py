@@ -13,6 +13,17 @@ where K = num_loc / 2.
 
 Reward: -(total tour length, depot → tour → depot)
 Done:   all pickup/delivery nodes visited
+
+Attributes:
+    NAME: Name of the environment.
+    name: Name of the environment.
+    node_dim: Node feature dimension (x, y coordinates only → 2).
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("pdp", num_loc=50)
+    >>> td = env.reset()
+    >>> td = env.step(td)
 """
 
 from __future__ import annotations
@@ -34,6 +45,11 @@ class PDPEnv(RL4COEnvBase):
     Ordering constraint: pickup node i must be visited before its paired
     delivery node i + K.  The ``to_deliver`` mask tracks which delivery
     nodes have had their pickup completed and are therefore unlocked.
+
+    Attributes:
+        NAME: Environment identifier string ``"pdp"``.
+        name: Alias for NAME used by the registry.
+        node_dim: Node feature dimension — 2 for (x, y) coordinates.
     """
 
     NAME: str = "pdp"
@@ -47,7 +63,14 @@ class PDPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
-        """Initialize the PDP environment."""
+        """Initialize the PDP environment.
+
+        Args:
+            generator: Pre-built PDPGenerator; created from generator_params if None.
+            generator_params: Keyword arguments forwarded to PDPGenerator constructor.
+            device: Torch device for tensor placement.
+            kwargs: Additional arguments forwarded to RL4COEnvBase.
+        """
         generator_params = generator_params or {}
         if generator is None:
             generator = PDPGenerator(**generator_params, device=device)
@@ -123,6 +146,14 @@ class PDPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """Execute one step in the environment.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            TensorDict: Updated TensorDict with new state and reward information.
+        """
         return OpsMixin._step(self, td)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -186,13 +217,25 @@ class PDPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Done when no customer nodes remain available."""
+        """Done when no customer nodes remain available.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+
+        Returns:
+            BoolTensor [*B] — True for completed episodes.
+        """
         return ~td["available"][..., 1:].any(dim=-1)
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
         """
         Valid actions: nodes that are both available AND to_deliver.
         Depot (index 0) is never a valid action.
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
         """
         return td["available"] & td["to_deliver"]
 
@@ -202,6 +245,13 @@ class PDPEnv(RL4COEnvBase):
 
         The tour stored in ``td["tour"]`` does not include the depot;
         the return-to-depot distance is added here.
+
+        Args:
+            td: Input TensorDict containing action and state information.
+            actions: Action sequence (unused in this implementation).
+
+        Returns:
+            Tensor [*B] — scalar reward per batch instance.
         """
         locs = td["locs"]
         depot_loc = locs[..., 0:1, :]  # [B, 1, 2]

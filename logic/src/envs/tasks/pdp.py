@@ -1,5 +1,22 @@
 """
 PDP problem definition for offline evaluation.
+
+Attributes:
+    PDP: Pickup and Delivery Problem (PDP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.pdp import PDP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]]),
+    ...     "demand": torch.tensor([[0.0, 1.0, 1.0]]),
+    ...     "vehicle_capacity": torch.tensor([2.0]),
+    ...     "depot": torch.tensor([0.0]),
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 2, 0]]])
+    >>> length, cost_dict, _ = PDP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([2.8284])
 """
 
 from __future__ import annotations
@@ -16,6 +33,9 @@ class PDP(BaseProblem):
     Pickup and Delivery Problem (PDP).
 
     Cost = total tour length (depot implicitly added at start and end).
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "pdp"

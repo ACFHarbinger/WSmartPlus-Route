@@ -3,6 +3,14 @@ TSPkopt Environment implementation.
 
 Improvement-based Traveling Salesman Problem (TSP) supporting iterative
 local search moves (e.g. 2-opt).
+
+Attributes:
+    TSPkoptEnv: Class definition of TSP Environment for improvement-based methods.
+
+Example:
+    >>> from logic.src.envs.generators import TSPGenerator
+    >>> generator = TSPGenerator(num_nodes=10, generator_params={"num_nodes": 10})
+    >>> env = TSPkoptEnv(generator)
 """
 
 from __future__ import annotations
@@ -22,6 +30,11 @@ class TSPkoptEnv(ImprovementEnvBase):
 
     State contains a 'solution' field (tour) which is modified by actions.
     Actions are typically pairs of indices to swap or reverse sections.
+
+    Attributes:
+        generator: TSPGenerator object
+        generator_params: Dictionary of generator parameters
+        device: Device to run the environment on
     """
 
     name: str = "tsp_kopt"
@@ -33,7 +46,14 @@ class TSPkoptEnv(ImprovementEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
-        """Initialize TSPkoptEnv."""
+        """Initialize TSPkoptEnv.
+
+        Args:
+            generator: TSPGenerator object
+            generator_params: Dictionary of generator parameters
+            device: Device to run the environment on
+            kwargs: Additional keyword arguments
+        """
         generator_params = generator_params or kwargs
         if generator is None:
             generator = TSPGenerator(**generator_params, device=device)
@@ -41,7 +61,14 @@ class TSPkoptEnv(ImprovementEnvBase):
         super().__init__(generator, generator_params, device, **kwargs)
 
     def _step(self, td: TensorDict) -> TensorDict:
-        """Execute step via OpsMixin implementation."""
+        """Execute step via OpsMixin implementation.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            TensorDict containing the next state.
+        """
         from logic.src.envs.base.ops import OpsMixin
 
         return OpsMixin._step(self, td)
@@ -49,13 +76,27 @@ class TSPkoptEnv(ImprovementEnvBase):
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
         """For improvement moves, all nodes are typically valid targets.
         Return a mask that allows all nodes.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            torch.Tensor: Action mask.
         """
         bs = td.batch_size
         num_nodes = td["locs"].shape[-2] + 1
         return torch.ones(*bs, num_nodes, dtype=torch.bool, device=self.device)
 
     def _get_initial_solution(self, td: TensorDict, generator: Optional[torch.Generator] = None) -> torch.Tensor:
-        """Generate random initial tour starting at depot."""
+        """Generate random initial tour starting at depot.
+
+        Args:
+            td: TensorDict containing the state.
+            generator: PyTorch random generator.
+
+        Returns:
+            torch.Tensor: Initial tour.
+        """
         if generator is None:
             generator = torch.Generator(device=self.device)
         bs = td.batch_size[0]
@@ -76,6 +117,12 @@ class TSPkoptEnv(ImprovementEnvBase):
         """
         Apply k-opt move to the solution.
         Action: (idx1, idx2) - edges to swap for 2-opt.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            TensorDict containing the next state.
         """
         action = td["action"]  # [batch, 2] or combined
         solution = td["solution"]
@@ -103,7 +150,15 @@ class TSPkoptEnv(ImprovementEnvBase):
         return td
 
     def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Return negative tour length of current solution."""
+        """Return negative tour length of current solution.
+
+        Args:
+            td: TensorDict containing the state.
+            actions: Optional torch.Tensor containing the actions.
+
+        Returns:
+            torch.Tensor: Negative tour length.
+        """
         solution = td["solution"]
 
         depot = td["depot"]
@@ -119,12 +174,27 @@ class TSPkoptEnv(ImprovementEnvBase):
         return -length
 
     def _get_initial_reward(self, td: TensorDict) -> torch.Tensor:
-        """Compute reward for initial solution."""
+        """Compute reward for initial solution.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            torch.Tensor: Initial reward.
+        """
         return self._get_reward(td)
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Usually improvement continues for fixed steps or until converge.
+        """
+        Usually improvement continues for fixed steps or until converge.
+
         Here we define a max_steps entry in td if present.
+
+        Args:
+            td: TensorDict containing the state.
+
+        Returns:
+            torch.Tensor: Done mask.
         """
         if "max_steps" in td.keys():
             return td["i"] >= td["max_steps"]

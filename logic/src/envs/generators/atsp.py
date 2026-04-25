@@ -3,6 +3,16 @@ ATSP problem generator.
 
 Generates asymmetric distance matrices satisfying the triangle inequality
 (TMAT class) following the approach of Kwon et al. (MatNet, 2021).
+
+Attributes:
+    ATSPGenerator
+
+Example:
+    >>> from src.envs.generators import get_generator
+    >>> generator = get_generator("atsp", num_loc=20, tmat_class=True)
+    >>> problem = generator.generate()
+    >>> problem
+    <ProblemInstance: ...>
 """
 
 from __future__ import annotations
@@ -26,6 +36,16 @@ class ATSPGenerator(Generator):
     Instance layout
     ---------------
     - cost_matrix : [*B, num_loc, num_loc] — asymmetric pairwise distances
+
+    Attributes:
+        num_loc (int): Number of locations in the problem.
+        min_dist (float): Minimum distance between locations.
+        max_dist (float): Maximum distance between locations.
+        tmat_class (bool): Whether to enforce triangle inequality.
+        device (Union[str, torch.device]): Device to use for computation.
+        rng (Optional[Any]): Random number generator.
+        generator (Optional[torch.Generator]): PyTorch generator for reproducibility.
+        kwargs: Additional keyword arguments.
     """
 
     def __init__(
@@ -50,7 +70,7 @@ class ATSPGenerator(Generator):
             device: Target device for generated tensors.
             rng: Optional numpy RNG (forwarded to base).
             generator: Optional torch RNG.
-            **kwargs: Forwarded to Generator base.
+            kwargs: Forwarded to Generator base.
         """
         super().__init__(num_loc=num_loc, device=device, rng=rng, generator=generator, **kwargs)
         self.min_dist = min_dist
@@ -58,7 +78,14 @@ class ATSPGenerator(Generator):
         self.tmat_class = tmat_class
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
-        """Generate a batch of ATSP distance matrices."""
+        """Generate a batch of ATSP distance matrices.
+
+        Args:
+            batch_size: Batch size tuple.
+
+        Returns:
+            TensorDict with cost_matrix.
+        """
         dms = (
             torch.rand(*batch_size, self.num_loc, self.num_loc, device=self.device, generator=self.generator)
             * (self.max_dist - self.min_dist)

@@ -2,6 +2,21 @@
 Orienteering Problem (OP) generator.
 
 Prize types follow Fischetti et al. (1998) and Kool et al. (2019).
+
+Attributes:
+    OPGenerator: OPGenerator class.
+
+Example:
+    >>> from logic.src.envs.generators import OPGenerator
+    >>> generator = OPGenerator(num_loc=20, prize_type="dist")
+    >>> instance = generator.generate()
+    >>> instance
+    TensorDict({
+        'locs': TensorDict(
+            # ... customer locations (shape: [*B, 20, 2]) ...
+        )
+        # ... other fields ...
+    })
 """
 
 from __future__ import annotations
@@ -26,6 +41,11 @@ class OPGenerator(Generator):
     - depot      : [*B, 2]           — depot coordinate
     - prize      : [*B, num_loc]     — prize at each customer
     - max_length : [*B]              — maximum path length allowed
+
+    Attributes:
+        prize_type: Prize generation method ("dist", "unif", or "const").
+        depot_type: Depot placement strategy ("random", "center", or "corner").
+        max_length: Maximum allowed path length budget.
     """
 
     def __init__(
@@ -59,7 +79,7 @@ class OPGenerator(Generator):
             device: Target device.
             rng: Optional numpy RNG.
             generator: Optional torch RNG.
-            **kwargs: Forwarded to Generator base.
+            kwargs: Forwarded to Generator base.
         """
         super().__init__(
             num_loc=num_loc,
@@ -80,7 +100,18 @@ class OPGenerator(Generator):
         self.max_length = max_length
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
-        """Generate a batch of OP instances."""
+        """Generate a batch of OP instances.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with:
+                locs: [*B, num_loc, 2]     — customer coordinates
+                depot: [*B, 2]              — depot coordinate
+                prize: [*B, num_loc]        — prize at each customer
+                max_length: [*B]           — maximum path length allowed
+        """
         locs = self._generate_locations(batch_size)
         depot = self._generate_depot(batch_size)
         locs_with_depot = torch.cat([depot.unsqueeze(-2), locs], dim=-2)
@@ -112,7 +143,14 @@ class OPGenerator(Generator):
         )
 
     def _generate_depot(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate depot location."""
+        """Generate depot location.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            Depot location.
+        """
         if self.depot_type == "center":
             center = (self.max_loc + self.min_loc) / 2.0
             return torch.full((*batch_size, 2), center, device=self.device, dtype=torch.float32)
