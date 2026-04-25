@@ -39,7 +39,7 @@ class StochasticRegretSelection(IMandatorySelectionStrategy):
         """Select bins based on the mathematical expectation of their overflow.
 
         Args:
-            context (SelectionContext): The selection context providing current_fill, 
+            context (SelectionContext): The selection context providing current_fill,
                 accumulation_rates, and std_deviations.
 
         Returns:

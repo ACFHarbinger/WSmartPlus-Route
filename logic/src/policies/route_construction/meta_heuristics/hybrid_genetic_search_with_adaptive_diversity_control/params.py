@@ -13,6 +13,17 @@ if TYPE_CHECKING:
 
 @dataclass
 class HGSADCParams:
+    """
+    Parameters for the HGSADC algorithm.
+
+    Attributes:
+        pop_size: Population size
+        mu: Number of elitist parents
+        nb_close: Number of nearest neighbors to consider for elitism
+        generations: Number of generations
+        n_vehicles: Number of vehicles
+    """
+
     pop_size: int = 25
     mu: int = 25
     nb_close: int = 4

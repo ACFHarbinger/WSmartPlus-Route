@@ -1,3 +1,10 @@
+"""Route construction policies and sub-algorithms.
+
+This package contains various algorithms for constructing vehicle routes,
+ranging from classical heuristics to meta-heuristics and deep reinforcement
+learning models.
+"""
+
 from . import acceptance_criteria as acceptance_criteria
 from . import exact_and_decomposition_solvers as exact_and_decomposition_solvers
 from . import hyper_heuristics as hyper_heuristics

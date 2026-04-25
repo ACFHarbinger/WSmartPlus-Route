@@ -10,6 +10,14 @@ The objective function f(s) evaluates Net Profit. As this is a maximization
 problem, the Boltzmann acceptance probability for a deteriorating move (Δf < 0)
 is defined exactly as: P = exp(Δf / T).
 
+Attributes:
+    SASolver (Type): Core solver class for Simulated Annealing.
+    SAParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = SASolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
 References:
     Kirkpatrick, S., et al. (1983). "Optimization by simulated annealing". Science.
     Metropolis, N., et al. (1953). "Equation of state calculations by fast computing machines".
@@ -34,6 +42,15 @@ from .params import SAParams
 class SASolver(LocalSearch):
     """
     Simulated Annealing exact solver logic.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per km traveled.
+        params (SAParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -46,6 +63,17 @@ class SASolver(LocalSearch):
         params: SAParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the Simulated Annealing solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (SAParams): Algorithm-specific parameters (T_0, alpha).
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         super().__init__(
             dist_matrix=dist_matrix,
             waste=wastes,
@@ -240,6 +268,13 @@ class SASolver(LocalSearch):
         """
         Kirkpatrick (1983) Simulated Annealing.
         Adaptive Markov chains, specific heat tracking, and multi-start.
+
+        Args:
+            initial_solution (Optional[List[List[int]]]): Starting solution.
+                If None, builds a greedy initial solution.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         start_time = time.time()
         global_best_routes = []

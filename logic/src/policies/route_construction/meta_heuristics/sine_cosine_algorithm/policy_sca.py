@@ -3,6 +3,17 @@ SCA Policy Adapter.
 
 Adapts the Sine Cosine Algorithm (SCA) solver to the agnostic
 BaseRoutingPolicy interface.
+
+Attributes:
+    SCAConfig (Type): Configuration schema for the SCA solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.sca import SCAConfig
+    >>> config = SCAConfig(pop_size=30)
+    >>> policy = SCAPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -22,16 +33,36 @@ class SCAPolicy(BaseRoutingPolicy):
     SCA policy class.
 
     Visits bins using the Sine Cosine Algorithm.
+
+    Attributes:
+        solver (SCASolver): Internal solver instance.
+        params (SCAParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[SCAConfig, Dict[str, Any]]] = None):
+        """Initializes the SCA policy.
+
+        Args:
+            config (Optional[Union[SCAConfig, Dict[str, Any]]]): Configuration
+                source for the Sine Cosine Algorithm.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for SCA.
+
+        Returns:
+            Optional[Type]: The SCAConfig class.
+        """
         return SCAConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the SCA policy.
+
+        Returns:
+            str: The registry key 'sca'.
+        """
         return "sca"
 
     def _run_solver(
@@ -68,7 +99,7 @@ class SCAPolicy(BaseRoutingPolicy):
                 SCA parameters (pop_size, a_max, max_iterations).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

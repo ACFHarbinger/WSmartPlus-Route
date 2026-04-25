@@ -36,6 +36,14 @@ Key Advantages over Set-Theoretic DE:
     - Prevents population stagnation through continuous diversity
     - No information loss during mutation/crossover operations
 
+Attributes:
+    DESolver (Type): Core solver class for Differential Evolution.
+    DEParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = DESolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
 References:
     Storn, R., & Price, K. (1997). "Differential Evolution – A Simple and
     Efficient Heuristic for Global Optimization over Continuous Spaces."
@@ -75,6 +83,15 @@ class DESolver:
     - Local Search reinforcement (Lamarckian/Baldwinian memetic addition)
     - Dynamic population scaling (NP depends on dimensionality D)
     - Bounce-back boundary handling for genetic diversity
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per km traveled.
+        params (DEParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -87,6 +104,17 @@ class DESolver:
         params: DEParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the Memetic Differential Evolution solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (DEParams): Algorithm-specific parameters (F, CR, pop_size).
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 

@@ -3,6 +3,16 @@ Simulated Annealing Policy Adapter.
 
 Wraps the core SA meta-heuristic into the standard BaseRoutingPolicy interface
 to permit unified execution by the factory manager.
+
+Attributes:
+    SAParams (Type): Parameter dataclass for the SA solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> config = {"initial_temp": 100.0, "cooling_rate": 0.99}
+    >>> policy = SAPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -46,13 +56,28 @@ class SAPolicy(BaseRoutingPolicy):
     the narrow basins of attraction in the routing landscape.
 
     Registry key: ``"sa"``
+
+    Attributes:
+        solver (SASolver): Internal solver instance.
+        params (SAParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[Dict[str, Any], Any]] = None):
+        """Initializes the SA policy.
+
+        Args:
+            config (Optional[Union[Dict[str, Any], Any]]): Configuration
+                source for the Simulated Annealing.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for SA.
+
+        Returns:
+            Optional[Type]: Always None for SA (dictionary based).
+        """
         # Using dictionary configurations internally, avoiding external dataclass dependencies
         return None
 
@@ -94,7 +119,7 @@ class SAPolicy(BaseRoutingPolicy):
                 SA parameters (initial_temp, cooling_rate, iterations_per_temp).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

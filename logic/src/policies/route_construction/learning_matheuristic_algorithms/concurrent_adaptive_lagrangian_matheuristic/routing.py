@@ -40,6 +40,21 @@ from .selection import SelectionResult
 
 @dataclass
 class RoutingResult:
+    """
+    Result of a single period's routing subproblem evaluation.
+
+    Attributes:
+        period: The time period (0-indexed).
+        tour: The full tour including the depot (e.g., [0, 3, 1, 0]).
+        tour_cost: The cost of the tour.
+        selection: The set of nodes visited in the tour (excluding the depot).
+        quality_ratio: Ratio of the current tour cost to the incumbent cost (>= 1.0 if improving).
+        insertion_costs_for_unselected: Dictionary mapping unselected node indices to their insertion costs.
+        lagrangian_value_contrib: The Lagrangian value contribution from this period (prize - cost).
+        accepted_by_oracle: Indicates whether the solution was accepted by the oracle ("accepted_improving", "accepted_partial", "rejected").
+        multiplier_step: The multiplier step size determined by the coordinator.
+    """
+
     period: int
     tour: List[int]
     tour_cost: float
@@ -66,18 +81,18 @@ def evaluate_period(
     """
     Evaluate a single period's routing subproblem, update oracle + coordinator.
 
-    Parameters
-    ----------
-    selection_result : SelectionResult
-        Output of the corresponding knapsack solve for this period.
-    dist_matrix : (N+1, N+1)
-    n_bins : int  (= N, without depot)
-    V_column : (N,)  lookahead values for this period (raw, not corrected).
-    lambdas_column : (N,)  current lambda[:, period].
-    oracle : InsertionCostOracle
-    coordinator : LagrangianCoordinator
-    upper_bound : float  (best known primal; used for Polyak stepsize).
-    lkh3_improver : optional callable that takes (tour, dist_matrix) ->
+    Args:
+        selection_result : SelectionResult
+            Output of the corresponding knapsack solve for this period.
+        dist_matrix : (N+1, N+1)
+            Distance matrix including the depot.
+        n_bins : int  (= N, without depot)
+        V_column : (N,)  lookahead values for this period (raw, not corrected).
+        lambdas_column : (N,)  current lambda[:, period].
+        oracle : InsertionCostOracle
+        coordinator : LagrangianCoordinator
+        upper_bound : float  (best known primal; used for Polyak stepsize).
+        lkh3_improver : optional callable that takes (tour, dist_matrix) ->
                     (improved_tour, improved_cost).
     """
     period = selection_result.period

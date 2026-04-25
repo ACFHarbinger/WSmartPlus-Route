@@ -44,7 +44,10 @@ class GlobalCutPool:
     """
 
     def __init__(self) -> None:
-        """Initialise empty global cut registries."""
+        """Initializes empty global cut registries.
+
+        Sets up dictionaries and sets for RCC, SRI, SEC, Edge Clique, and LCI cuts.
+        """
         # RCC: maps node_set -> original rhs (2*ceil(demand/Q))
         self.rcc_cuts: Dict[FrozenSet[int], float] = {}
         self.sri_cuts: Set[FrozenSet[int]] = set()
@@ -60,22 +63,14 @@ class GlobalCutPool:
         self.lci_arcs: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = {}
 
     def add_cut(self, cut_type: str, data: Any) -> None:
-        """
-        Archive a globally valid cut in the pool.
+        """Archives a globally valid cut in the pool.
 
-        Global Validity Contract:
-            Only archive cuts here that are valid at EVERY node in the B&B tree
-            (e.g., RCC, SRI, SEC 2.1). Node-local cuts (branching-dependent SECs,
-            lifted cover cuts dependent on local bounds) MUST NOT be added to
-            this pool or they will lead to incorrect pruning and loss of optimality.
+        Only archives cuts that are valid at EVERY node in the B&B tree.
+        Node-local cuts must not be added here.
 
         Args:
-            cut_type: The type of cut ("rcc", "sri", "sec_2.1", "edge_clique", "lci").
-            data: Cut-specific data.
-                  For "rcc": (FrozenSet[int], rhs: float)
-                  For "lci": (FrozenSet[int], rhs: float, route_coefficients: Dict[int, float],
-                              node_alphas: Dict[int, float])  — 4-tuple (node_alphas optional)
-                  For others: FrozenSet[int] or Tuple[int, int].
+            cut_type (str): Type of cut ("rcc", "sri", "sec_2.1", "edge_clique", "lci").
+            data (Any): Cut-specific data (node-sets, coefficients, etc.).
         """
 
         if cut_type == "rcc":
@@ -110,15 +105,15 @@ class GlobalCutPool:
             self.lci_arcs[node_set] = arc
 
     def apply_to_master(self, master: MasterProblemSupport) -> int:
-        """
-        Inject all pooled global cuts into a fresh Master Problem instance.
+        """Injects all pooled global cuts into a fresh Master Problem instance.
+
         Typically called when entering a new B&B node to tighten the root relaxation.
 
         Args:
-            master: The VRPPMasterProblem instance to receive the cuts.
+            master (MasterProblemSupport): MasterProblem instance to receive the cuts.
 
         Returns:
-            Number of cuts successfully applied.
+            int: Number of cuts successfully applied.
         """
         added = 0
         # RCC: replay with the stored (correct) RHS, not a hard-coded value.

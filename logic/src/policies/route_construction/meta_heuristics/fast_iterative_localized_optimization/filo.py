@@ -44,7 +44,17 @@ class FILOSolver:
         params: FILOParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """Initialize the FILO solver."""
+        """Initializes the Fast Iterative Localized Optimization solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (FILOParams): Algorithm-specific parameters.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.d = dist_matrix
         self.waste = wastes
         self.Q = capacity

@@ -4,6 +4,21 @@ from typing import Any
 
 @dataclass
 class LNSMIPParams:
+    """
+    Parameters for the LNSMIP algorithm.
+
+    Attributes:
+        k_destroy: Number of nodes to destroy in each iteration.
+        d_destroy: Number of neighbors to destroy at each step.
+        max_iterations: Maximum number of iterations.
+        mip_time_limit: Time limit for MIP solves.
+        mip_gap: MIP relative gap tolerance.
+        acceptance: Acceptance strategy ("improving" or "sa").
+        sa_temperature: Initial temperature for Simulated Annealing.
+        sa_cooling: Cooling rate for Simulated Annealing.
+        seed: Random seed for reproducibility.
+    """
+
     k_destroy: int = 10
     d_destroy: int = 3
     max_iterations: int = 200

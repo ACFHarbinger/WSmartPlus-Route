@@ -25,7 +25,12 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[MuPlusLambdaESConfig, Dict[str, Any]]] = None):
-        """Initialize (μ+λ)-ES policy with optional config."""
+        """Initializes the (μ+λ)-ES policy with optional configuration.
+
+        Args:
+            config (Optional[Union[MuPlusLambdaESConfig, Dict[str, Any]]]): Configuration
+                dataclass, raw dictionary from YAML, or None.
+        """
         super().__init__(config)
 
     @classmethod
@@ -33,7 +38,11 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
         return MuPlusLambdaESConfig
 
     def _get_config_key(self) -> str:
-        """Return config key."""
+        """Returns the configuration key for the (μ+λ)-ES policy.
+
+        Returns:
+            str: The registry key 'es_mpl'.
+        """
         return "es_mpl"
 
     def _run_solver(

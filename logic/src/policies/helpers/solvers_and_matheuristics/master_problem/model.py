@@ -74,6 +74,24 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
     Reference:
         - Barnhart, C., et al. (1998, 2000).
         - Wentges, T. (1997). "Weighted Dantzig-Wolfe decomposition."
+
+    Attributes:
+        n_nodes (int): Number of customer nodes.
+        mandatory_nodes (Set[int]): Indices of mandatory customers.
+        optional_nodes (Set[int]): Indices of optional customers.
+        cost_matrix (np.ndarray): Distance/cost matrix.
+        wastes (Dict[int, float]): Demand/waste per node.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue per unit collected.
+        C (float): Cost per unit distance.
+        vehicle_limit (Optional[int]): Fleet size limit K.
+        global_cut_pool (GlobalCutPool): Shared valid inequalities.
+        model (Optional[gp.Model]): Underlying Gurobi model.
+        routes (List[Route]): Generated columns.
+        lambda_vars (List[gp.Var]): Binary/continuous route variables.
+        dual_node_coverage (Dict[int, float]): Dual values for node constraints.
+        dual_vehicle_limit (float): Dual value for fleet limit.
+        phase (int): Optimization phase (1: Feasibility, 2: Optimality).
     """
 
     def __init__(
@@ -438,12 +456,12 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             self._add_column_to_model(route)
 
     def _add_column_to_model(self, route: Route) -> None:
-        """
-        Dynamically inserts a new column (route) into the Restricted Master Problem.
+        """Dynamically inserts a new column (route) into the Restricted Master Problem.
+
         This must inject the variable into both the base constraints AND any active cuts.
 
         Args:
-            route: Route whose λ variable is being added.
+            route (Route): Route whose λ variable is being added.
         """
         if self.model is None:
             return
@@ -469,13 +487,15 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self.model.update()
 
     def _wire_route_into_active_cuts(self, route: Route, var: Any) -> None:
-        """
-        Calculates the exact coefficient of the new route for every active cutting plane,
-        guaranteeing that newly priced columns strictly respect previously separated inequalities.
+        """Calculates the exact coefficient of the new route for every active cutting plane.
 
-        This ensures that columns added after some cuts have been discovered
-        (standard Column Generation + Cutting Planes sequence) correctly
+        Guarantees that newly priced columns strictly respect previously separated inequalities.
+        This ensures that columns added after some cuts have been discovered correctly
         participate in those cuts, maintaining LP relaxation validity.
+
+        Args:
+            route (Route): The new route to inject.
+            var (gp.Var): The Gurobi variable associated with the route.
         """
         if self.model is None:
             return

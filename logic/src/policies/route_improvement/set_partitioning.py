@@ -154,6 +154,14 @@ class SetPartitioningRouteImprover(IRouteImprovement):
             pool: List[List[int]] = []
 
             def add(route: List[int]) -> None:
+                """Adds a candidate route to the pool if it is unique.
+
+                Args:
+                    route (List[int]): The sequence of node IDs to potentially add.
+
+                Returns:
+                    None
+                """
                 if not route:
                     return
                 key = _canonical(route)

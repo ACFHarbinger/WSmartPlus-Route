@@ -20,7 +20,6 @@ Example:
     # Runs the evaluation task with specified model path
 """
 
-import os
 from typing import Any
 
 import hydra

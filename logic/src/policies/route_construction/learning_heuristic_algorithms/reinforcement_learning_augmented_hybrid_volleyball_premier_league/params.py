@@ -93,177 +93,220 @@ class RLAHVPLParams:
 
     @property
     def bandit_algorithm(self) -> str:
+        """Name of the multi-armed bandit algorithm."""
         return self._get_val("bandit", "algorithm", "ucb1")
 
     @property
     def bandit_max_iterations(self) -> int:
+        """Maximum iterations for the bandit solver."""
         return self._get_param("bandit_max_iterations", 1000)
 
     @property
     def bandit_quality_weight(self) -> float:
+        """Weight for solution quality in bandit rewards."""
         return self._get_val("evolution_cmab", "quality_weight", 0.5)
 
     @property
     def bandit_improvement_weight(self) -> float:
+        """Weight for objective improvement in bandit rewards."""
         return self._get_val("evolution_cmab", "improvement_weight", 1.0)
 
     @property
     def bandit_diversity_weight(self) -> float:
+        """Weight for population diversity in bandit rewards."""
         return self._get_val("evolution_cmab", "diversity_weight", 0.2)
 
     @property
     def bandit_novelty_weight(self) -> float:
+        """Weight for solution novelty in bandit rewards."""
         return self._get_val("evolution_cmab", "novelty_weight", 1.0)
 
     @property
     def bandit_reward_threshold(self) -> float:
+        """Minimum improvement threshold for bandit rewards."""
         return self._get_val("evolution_cmab", "reward_threshold", 1e-6)
 
     @property
     def bandit_default_reward(self) -> float:
+        """Initial reward assigned to unexplored operators."""
         return self._get_val("evolution_cmab", "default_reward", 5.0)
 
     @property
     def cfe_alpha(self) -> float:
+        """Learning rate for Contextual Feature Embedding."""
         return self._get_val("context_features", "alpha", 0.1)
 
     @property
     def cfe_feature_dim(self) -> int:
+        """Dimensionality of the context feature vector."""
         return self._get_val("context_features", "feature_dim", 8)
 
     @property
     def cfe_operator_selection_threshold(self) -> float:
+        """Threshold for pruning low-probability operators in CFE."""
         return self._get_val("context_features", "selection_threshold", 1e-9)
 
     @property
     def cfe_lambda_prior(self) -> float:
+        """Prior value for the precision matrix in CFE."""
         return self._get_val("context_features", "lambda_prior", 1.0)
 
     @property
     def cfe_noise_variance(self) -> float:
+        """Variance of the observation noise in CFE."""
         return self._get_val("context_features", "noise_variance", 0.1)
 
     @property
     def cfe_epsilon(self) -> float:
+        """Exploration probability for CFE agents."""
         return self._get_val("context_features", "epsilon", 0.15)
 
     @property
     def cfe_epsilon_decay(self) -> float:
+        """Decay factor for CFE exploration."""
         return self._get_val("context_features", "epsilon_decay", 0.995)
 
     @property
     def cfe_epsilon_decay_step(self) -> int:
+        """Interval between CFE epsilon decay steps."""
         return self._get_val("context_features", "epsilon_decay_step", 20)
 
     @property
     def cfe_epsilon_min(self) -> float:
+        """Minimum value for CFE exploration."""
         return self._get_val("context_features", "epsilon_min", 0.05)
 
     @property
     def cfe_diversity_history_size(self) -> int:
+        """Size of the rolling window for diversity features."""
         return self._get_val("features", "diversity_history_size", 10)
 
     @property
     def cfe_improvement_history_size(self) -> int:
+        """Size of the rolling window for objective improvement features."""
         return self._get_val("features", "improvement_history_size", 10)
 
     @property
     def cfe_operator_reward_size(self) -> int:
+        """History size for individual operator rewards."""
         return self._get_param("cfe_operator_reward_size", 50)
 
     @property
     def cfe_improvement_threshold(self) -> float:
+        """Minimum objective improvement to trigger a reward in CFE."""
         return float(self._get_val("reward", "improvement_threshold", 1e-6))
 
     @property
     def qlearning_alpha(self) -> float:
+        """Learning rate for the Q-Learning agent."""
         return self._get_val("td_learning", "alpha", 0.1)
 
     @property
     def qlearning_gamma(self) -> float:
+        """Discount factor for the Q-Learning agent."""
         return self._get_val("td_learning", "gamma", 0.95)
 
     @property
     def qlearning_epsilon(self) -> float:
+        """Exploration probability for the Q-Learning agent."""
         return self._get_val("td_learning", "epsilon", 0.1)
 
     @property
     def qlearning_epsilon_decay(self) -> float:
+        """Decay factor for Q-Learning exploration."""
         return self._get_val("td_learning", "epsilon_decay", 0.995)
 
     @property
     def qlearning_epsilon_decay_step(self) -> int:
+        """Interval between Q-Learning epsilon decay steps."""
         return self._get_val("td_learning", "epsilon_decay_step", 20)
 
     @property
     def qlearning_epsilon_min(self) -> float:
+        """Minimum value for Q-Learning exploration."""
         return self._get_val("td_learning", "epsilon_min", 0.05)
 
     @property
     def qlearning_history_size(self) -> int:
+        """History buffer size for Q-Learning experience replay."""
         return self._get_val("td_learning", "history_size", 100)
 
     @property
     def qlearning_rewards_size(self) -> int:
+        """History buffer size for Q-Learning rewards."""
         return self._get_param("qlearning_rewards_size", 100)
 
     @property
     def qlearning_improvement_thresholds(self) -> Tuple[float, float]:
+        """Thresholds for classifying improvements in Q-Learning."""
         val = self._get_param("qlearning_improvement_thresholds", (1e-4, 1e-2))
         return float(val[0]), float(val[1])
 
     @property
     def sarsa_alpha(self) -> float:
+        """Learning rate for the SARSA agent."""
         return self._get_val("sarsa", "alpha", 0.1)
 
     @property
     def sarsa_gamma(self) -> float:
+        """Discount factor for the SARSA agent."""
         return self._get_val("sarsa", "gamma", 0.95)
 
     @property
     def sarsa_epsilon(self) -> float:
+        """Exploration probability for the SARSA agent."""
         return self._get_val("sarsa", "epsilon", 0.1)
 
     @property
     def sarsa_epsilon_decay(self) -> float:
+        """Decay factor for SARSA exploration."""
         return self._get_val("sarsa", "epsilon_decay", 0.995)
 
     @property
     def sarsa_epsilon_decay_step(self) -> int:
+        """Interval between SARSA epsilon decay steps."""
         return self._get_val("sarsa", "epsilon_decay_step", 20)
 
     @property
     def sarsa_epsilon_min(self) -> float:
+        """Minimum value for SARSA exploration."""
         return self._get_val("sarsa", "epsilon_min", 0.05)
 
     @property
     def sarsa_diversity_size(self) -> int:
+        """Buffer size for SARSA diversity calculations."""
         return self._get_param("sarsa_diversity_size", 50)
 
     @property
     def sarsa_scores_size(self) -> int:
+        """Buffer size for SARSA score history."""
         return self._get_param("sarsa_scores_size", 100)
 
     @property
     def sarsa_qtable_size_rate(self) -> float:
+        """Learning rate multiplier for SARSA Q-Table expansion."""
         return self._get_param("sarsa_qtable_size_rate", 0.5)
 
     @property
     def sarsa_improvement_thresholds(self) -> Tuple[float, float]:
+        """Thresholds for classifying improvements in SARSA."""
         val = self._get_param("sarsa_improvement_thresholds", (1e-4, 1e-2))
         return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_progress_thresholds(self) -> Tuple[float, float]:
+        """Progress thresholds for SARSA operator selection."""
         val = self._get_param("sarsa_operator_progress_thresholds", (0.3, 0.7))
         return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_stagnation_thresholds(self) -> Tuple[int, int]:
+        """Stagnation thresholds for SARSA operator selection."""
         val = self._get_param("sarsa_operator_stagnation_thresholds", (10, 50))
         return int(val[0]), int(val[1])
 
     @property
     def sarsa_operator_diversity_thresholds(self) -> Tuple[float, float]:
+        """Diversity thresholds for SARSA operator selection."""
         val = self._get_param("sarsa_operator_diversity_thresholds", (0.2, 0.5))
         return float(val[0]), float(val[1])

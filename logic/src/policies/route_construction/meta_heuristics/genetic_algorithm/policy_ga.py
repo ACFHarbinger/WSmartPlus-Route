@@ -1,5 +1,16 @@
 """
 GA (Genetic Algorithm) Policy Adapter.
+
+Attributes:
+    GAConfig (Type): Configuration schema for the GA solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.ga import GAConfig
+    >>> config = GAConfig(pop_size=50)
+    >>> policy = GAPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -41,16 +52,36 @@ class GAPolicy(BaseRoutingPolicy):
     parallelizing the optimization of complex multi-vehicle configurations.
 
     Registry key: ``"ga"``
+
+    Attributes:
+        solver (GASolver): Internal solver instance.
+        params (GAParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[GAConfig, Dict[str, Any]]] = None):
+        """Initializes the GA policy.
+
+        Args:
+            config (Optional[Union[GAConfig, Dict[str, Any]]]): Configuration
+                source for the Genetic Algorithm.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for GA.
+
+        Returns:
+            Optional[Type]: The GAConfig class.
+        """
         return GAConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the GA policy.
+
+        Returns:
+            str: The registry key 'ga'.
+        """
         return "ga"
 
     def _run_solver(
@@ -87,7 +118,7 @@ class GAPolicy(BaseRoutingPolicy):
                 GA parameters (pop_size, crossover_rate, mutation_rate).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

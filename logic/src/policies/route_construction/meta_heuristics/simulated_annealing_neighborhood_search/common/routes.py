@@ -33,7 +33,18 @@ def create_points(data, bins_coordinates):
 
 
 def _find_crossed_arcs(route, points, route_idx, cache):
-    """Identify intersecting arcs within a route."""
+    """Identify intersecting arcs within a route and store them in the cache.
+
+    Args:
+        route (List[int]): The sequence of node IDs in the route.
+        points (List[List[float]]): Mapping from node ID to [lng, lat] coordinates.
+        route_idx (int): The index of the route being processed.
+        cache (Dict[int, List[List[List[int]]]]): A dictionary to store found
+            intersecting arc pairs for each route index.
+
+    Returns:
+        None
+    """
     arc_pair = []
     arc1 = []
     arc2 = []
@@ -60,7 +71,16 @@ def _find_crossed_arcs(route, points, route_idx, cache):
 
 
 def _remove_invalid_crossings(crossings, points):
-    """Filter out invalid crossings (depot-connected or sharing endpoints)."""
+    """Filter out invalid crossings (depot-connected or sharing endpoints).
+
+    Args:
+        crossings (List[List[List[int]]]): List of arc pairs that intersect.
+        points (List[List[float]]): Mapping from node ID to [lng, lat] coordinates.
+
+    Returns:
+        List[List[List[int]]]: The filtered list of valid geometric crossings
+            that should be resolved by swapping.
+    """
     valid_crossings = []
     for pair in crossings:
         # Check if depot (0) is involved

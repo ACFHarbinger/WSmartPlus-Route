@@ -54,7 +54,6 @@ CONFIG_MAPPING = {
     "bernoulli_random": "bernoulli_random",
     "kmeans_sector": "kmeans_sector",
     "staggered_regular": "staggered_regular",
-    "set_cover": "set_cover",
     "fptas_knapsack": "fptas_knapsack",
 }
 
@@ -146,7 +145,6 @@ class MandatorySelectionFactory:
             "bernoulli_random": BernoulliRandomSelection,
             "kmeans_sector": KMeansGeographicSectorSelection,
             "staggered_regular": StaggeredRegularSelection,
-            "set_cover": SetCoverSelection,
             "fptas_knapsack": FPTASKnapsackSelection,
         }
 

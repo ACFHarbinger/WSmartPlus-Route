@@ -55,7 +55,7 @@ class StaggeredRegularSelection(IMandatorySelectionStrategy):
         """Return bin IDs whose phase offset matches today's slot in the period.
 
         Args:
-            context (SelectionContext): The selection context providing current_day, 
+            context (SelectionContext): The selection context providing current_day,
                 current_fill, and threshold (frequency).
 
         Returns:

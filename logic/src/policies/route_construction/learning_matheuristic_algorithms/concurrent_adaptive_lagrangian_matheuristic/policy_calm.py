@@ -131,9 +131,7 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
 
     def __init__(self, config: Any = None):
         super().__init__(config)
-        self.params = (
-            CALMParams.from_config(self.config) if config else CALMParams()
-        )
+        self.params = CALMParams.from_config(self.config) if config else CALMParams()
         # Align BaseMultiPeriodRoutingPolicy defaults.
         self.horizon = self.params.lookahead.horizon
         self.stockout_penalty = self.params.stockout_penalty
@@ -172,6 +170,7 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
 
             iter_start = time.perf_counter()
             old_primal = state.best_primal
+            old_dual = state.coordinator.current_dual_bound()
 
             selection_results = self._solve_selection_layer(
                 state=state,

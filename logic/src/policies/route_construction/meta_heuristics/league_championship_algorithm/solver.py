@@ -12,6 +12,14 @@ This controlled infeasibility provides topological bridging between isolated
 feasible basins, a property that proves particularly valuable in highly
 constrained VRPP variants such as helicopter offshore routing.
 
+Attributes:
+    LCASolver (Type): Core solver class for the League Championship Algorithm.
+    LCAParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = LCASolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
 Reference:
     Kashan, A. H. (2013). "League Championship Algorithm (LCA): An
     algorithm for global optimization inspired by sport championships."
@@ -42,6 +50,15 @@ from .params import LCAParams
 class LCASolver:
     """
     League Championship Algorithm solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per km traveled.
+        params (LCAParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -54,6 +71,17 @@ class LCASolver:
         params: LCAParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the League Championship Algorithm solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (LCAParams): Algorithm-specific parameters (teams, iterations).
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -91,7 +119,7 @@ class LCASolver:
         Run LCA and return the best feasible solution.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

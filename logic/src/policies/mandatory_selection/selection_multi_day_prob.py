@@ -40,7 +40,7 @@ class MultiDayOverflowSelection(IMandatorySelectionStrategy):
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """Selects bins based on overflow probability within K days.
 
-        Computes the tail probability of a bin overflowing over a stochastic 
+        Computes the tail probability of a bin overflowing over a stochastic
         horizon of K days. Assumes daily waste generation is i.i.d Gaussian.
 
         Args:

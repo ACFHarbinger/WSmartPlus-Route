@@ -45,6 +45,12 @@ class TSPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[TSConfig, Dict[str, Any]]] = None):
+        """Initializes the Tabu Search policy with optional configuration.
+
+        Args:
+            config (Optional[Union[TSConfig, Dict[str, Any]]]): Configuration dataclass,
+                raw dictionary from YAML, or None.
+        """
         super().__init__(config)
 
     @classmethod
@@ -52,6 +58,11 @@ class TSPolicy(BaseRoutingPolicy):
         return TSConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the TS policy.
+
+        Returns:
+            str: The registry key 'ts'.
+        """
         return "ts"
 
     def _run_solver(

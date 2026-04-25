@@ -42,7 +42,7 @@ class ProfitPerKmSelection(IMandatorySelectionStrategy):
         """Selects bins whose profit-per-kilometer strictly exceeds a minimum threshold.
 
         Args:
-            context (SelectionContext): The selection context providing current_fill, 
+            context (SelectionContext): The selection context providing current_fill,
                 distance_matrix, and revenue parameters.
 
         Returns:

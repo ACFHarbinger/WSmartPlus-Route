@@ -35,8 +35,8 @@ from logic.src.interfaces.context import (
     JointSelectionConstructionContext,
     MultiDayContext,
     SearchContext,
-    SelectionContext,
     SearchPhase,
+    SelectionContext,
     SelectionMetrics,
     merge_context,
 )

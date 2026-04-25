@@ -62,6 +62,17 @@ class SLCSolver:
         params: SLCParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the Soccer League Competition solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (SLCParams): Algorithm-specific parameters (teams, size).
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity

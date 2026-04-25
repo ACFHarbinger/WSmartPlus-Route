@@ -9,11 +9,13 @@ Each outer iteration consists of two phases:
   2. Local search descent: apply repeated LLH improvement from the shaken
      solution until no further improvement within the budget.
 
-If the local search result improves the incumbent, the algorithm resets to
-the first (mildest) neighborhood k=1.  Otherwise it advances to k+1.  Once
-all k_max shaking structures are exhausted without improvement one outer
-iteration is complete.  The process repeats for max_iterations outer loops
-or until the time_limit is reached.
+Attributes:
+    VNSSolver (Type): Core solver class for the Variable Neighborhood Search.
+    VNSParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = VNSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 
 Reference:
     Mladenović, N., & Hansen, P. "Variable Neighborhood Search", 1997.
@@ -46,6 +48,15 @@ from .params import VNSParams
 class VNSSolver:
     """
     Variable Neighborhood Search solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per km traveled.
+        params (VNSParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -58,6 +69,17 @@ class VNSSolver:
         params: VNSParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """Initializes the Variable Neighborhood Search solver.
+
+        Args:
+            dist_matrix (np.ndarray): Symmetric distance matrix.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            R (float): Revenue per kg of waste.
+            C (float): Cost per km traveled.
+            params (VNSParams): Algorithm-specific parameters.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity

@@ -87,7 +87,7 @@ class SetCoverRouteImprover(IRouteImprovement):
         >>> tour, metrics = improver.process(tour, distance_matrix=dm)
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:  # noqa: C901
         """Apply Set Cover intensification to the tour.
 
         Args:
@@ -148,6 +148,14 @@ class SetCoverRouteImprover(IRouteImprovement):
             pool: List[List[int]] = []
 
             def add(route: List[int]) -> None:
+                """Adds a candidate route to the pool if it is unique.
+
+                Args:
+                    route (List[int]): The sequence of node IDs to potentially add.
+
+                Returns:
+                    None
+                """
                 if not route:
                     return
                 key = _canonical(route)
@@ -205,7 +213,9 @@ class SetCoverRouteImprover(IRouteImprovement):
                 return tour, {"algorithm": "SetCoverRouteImprover"}
 
             # --- Target Nodes ---
-            target_nodes = set(mandatory_nodes) if mandatory_nodes else set(n for r in input_routes for n in r if n != 0)
+            target_nodes = (
+                set(mandatory_nodes) if mandatory_nodes else set(n for r in input_routes for n in r if n != 0)
+            )
 
             # --- Solve Set Cover IP ---
             selected_routes = self._solve_set_cover_ip(

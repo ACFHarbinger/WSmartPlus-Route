@@ -6,7 +6,15 @@ explore and exploit the routing solution space without requiring gradient
 information, making ABC naturally suited to the discontinuous profit
 landscapes of the VRPP.
 
-Reference:
+Attributes:
+    ABCSolver (Type): Core solver class for the Artificial Bee Colony.
+    ABCParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = ABCSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
+References:
     Rechenberg, I. (1973). "Evolutionsstrategie: Optimierung technischer
     Systeme nach Prinzipien der biologischen Evolution."
     Yao, B., Yan, Q., Zhang, M., & Yang, Y. "Improved artificial bee
@@ -42,6 +50,15 @@ from logic.src.policies.route_construction.meta_heuristics.artificial_bee_colony
 class ABCSolver:
     """
     Artificial Bee Colony solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per kg traveled.
+        params (ABCParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -90,7 +107,7 @@ class ABCSolver:
         Run ABC and return the best solution found.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

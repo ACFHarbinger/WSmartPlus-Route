@@ -1,5 +1,16 @@
 """
 RTS (Reactive Tabu Search) Policy Adapter.
+
+Attributes:
+    RTSConfig (Type): Configuration schema for the RTS solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.rts import RTSConfig
+    >>> config = RTSConfig(max_iterations=500)
+    >>> policy = RTSPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -16,16 +27,37 @@ from .solver import RTSSolver
 
 @RouteConstructorRegistry.register("rts")
 class RTSPolicy(BaseRoutingPolicy):
-    """Reactive Tabu Search policy class."""
+    """Reactive Tabu Search policy class.
+
+    Attributes:
+        solver (RTSSolver): Internal solver instance.
+        params (RTSParams): Algorithm parameters.
+    """
 
     def __init__(self, config: Optional[Union[RTSConfig, Dict[str, Any]]] = None):
+        """Initializes the RTS policy.
+
+        Args:
+            config (Optional[Union[RTSConfig, Dict[str, Any]]]): Configuration
+                source for the Reactive Tabu Search.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for RTS.
+
+        Returns:
+            Optional[Type]: The RTSConfig class.
+        """
         return RTSConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the RTS policy.
+
+        Returns:
+            str: The registry key 'rts'.
+        """
         return "rts"
 
     def _run_solver(
@@ -65,7 +97,7 @@ class RTSPolicy(BaseRoutingPolicy):
                 RTS parameters (initial_tenure, tenure_increase, max_iterations).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for
