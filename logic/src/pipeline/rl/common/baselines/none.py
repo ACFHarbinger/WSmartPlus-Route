@@ -1,10 +1,13 @@
 """none.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    NoBaseline: No baseline (vanilla REINFORCE).
 
 Example:
-    >>> import none
+    >>> from logic.src.pipeline.rl.common.baselines import NoBaseline
+    >>> baseline = NoBaseline()
+    >>> baseline.eval()
+    tensor(0.0)
 """
 
 from typing import Any, Optional
@@ -16,10 +19,18 @@ from .base import Baseline
 
 
 class NoBaseline(Baseline):
-    """No baseline (vanilla REINFORCE)."""
+    """No baseline (vanilla REINFORCE).
+
+    Attributes:
+        None
+    """
 
     def __init__(self, **kwargs):
-        """Initialize NoBaseline."""
+        """Initialize NoBaseline.
+
+        Args:
+            kwargs: Additional arguments (unused).
+        """
         super().__init__()
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]

@@ -1,10 +1,15 @@
 """shared_critic.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    SharedBaseline: Shared baseline using a critic that shares the encoder with the actor.
 
 Example:
-    >>> import shared_critic
+    >>> from logic.src.pipeline.rl.common.baselines import SharedBaseline
+    >>> baseline = SharedBaseline()
+    >>> td = TensorDict({"obs": torch.randn(2, 10, 20)}, batch_size=[2])
+    >>> reward = torch.tensor([1.0, 2.0])
+    >>> baseline.eval(td, reward)
+    tensor([1.0, 2.0])
 """
 
 from typing import Any, Optional
@@ -26,6 +31,9 @@ class SharedBaseline(Baseline):
     Creates a critic network from the actor's encoder via weight sharing
     (deepcopy). This enables the critic to leverage the same learned
     representations while having its own value head.
+
+    Attributes:
+        critic: The shared critic network.
     """
 
     def __init__(
@@ -36,10 +44,11 @@ class SharedBaseline(Baseline):
         """
         Initialize SharedBaseline.
 
+
+
         Args:
-            critic: Pre-built critic module. If None, must call setup() with a policy
-                    that has a ``create_critic_from_actor`` compatible encoder.
-            **kwargs: Additional arguments.
+            critic: Optional pre-built critic module. If None, will be created from policy in setup().
+            kwargs: Additional keyword arguments (unused).
         """
         super().__init__()
         self.critic = critic
@@ -75,5 +84,9 @@ class SharedBaseline(Baseline):
         return self.critic(td).squeeze(-1)
 
     def get_learnable_parameters(self) -> list:
-        """Get learnable parameters for the shared critic."""
+        """Get learnable parameters for the shared critic.
+
+        Returns:
+            List of learnable parameters.
+        """
         return list(self.critic.parameters()) if self.critic is not None else []

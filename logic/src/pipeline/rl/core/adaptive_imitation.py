@@ -1,6 +1,17 @@
 """
 Adaptive Imitation Learning + RL algorithm.
-Combines PPO/REINFORCE with Imitation Learning using an annealing schedule.
+
+This module implements the AdaptiveImitation class, which combines policy
+gradient methods (REINFORCE/PPO) with imitation learning from expert
+heuristics (HGS, ALNS, etc.) using an adaptive annealing schedule.
+
+Attributes:
+    AdaptiveImitation: Combined RL and Imitation Learning algorithm.
+
+Example:
+    >>> # config = HGSConfig(iterations=100)
+    >>> # agent = AdaptiveImitation(config, env_name="vrpp")
+    >>> # trainer.fit(agent)
 """
 
 from __future__ import annotations
@@ -45,6 +56,22 @@ class AdaptiveImitation(REINFORCE):
     - lambda starts at `il_weight`
     - decays by `il_decay` each epoch
     - resets to `il_weight` if validation reward dominates patience (simulated annealing reheating)
+
+    Attributes:
+        expert_policy: The expert policy used for imitation learning.
+        il_weight: The initial weight for the imitation learning loss.
+        initial_il_weight: Copy of initial weight for resetting (re-heating).
+        il_decay: The decay rate for the imitation learning weight per epoch.
+        patience: Number of epochs to wait for improvement before re-heating.
+        threshold: Termination threshold for the imitation weight.
+        decay_step: Step size for decay intervals.
+        epsilon: Precision threshold for improvement detection.
+        loss_fn_name: String identifier for the IL loss function.
+        loss_fn: The actual loss function callable.
+        stop_il: Boolean flag to permanently halt imitation.
+        wait: Internal counter for patience-based logic.
+        best_reward: Historical maximum validation reward.
+        current_il_weight: The active weight multiplier for the IL loss term.
     """
 
     def __init__(
@@ -66,17 +93,18 @@ class AdaptiveImitation(REINFORCE):
         Initialize AdaptiveImitation module.
 
         Args:
-            policy_config: Expert policy configuration object (HGSConfig, ALNSConfig, etc.).
-            env_name: Environment name for the expert policy.
-            il_weight: Initial weight for imitation loss.
-            il_decay: Decay factor for IL weight each epoch.
-            patience: Epochs without improvement before resetting IL weight.
-            threshold: Threshold for reannealing.
-            decay_step: Number of epochs to decay IL weight.
-            epsilon: Epsilon for improvement detection.
-            loss_fn: Name of loss function to use ('weighted_nll', 'nll', etc.).
+            policy_config: Expert policy configuration (HGSConfig, ALNSConfig, etc.).
+            env_name: Environment name for the policy.
+            il_weight: Initial weight for imitation learning loss.
+            il_decay: Decay rate for imitation learning weight per epoch.
+            patience: Number of epochs to wait before decay if validation reward doesn't improve.
+            threshold: Relative improvement threshold for validation reward.
+            decay_step: Number of steps between decays.
+            epsilon: Small value to prevent division by zero in loss calculations.
+            loss_fn: Name of the loss function to use ('nll', 'weighted_nll', 'kl', 'reverse_kl').
             seed: Random seed for reproducibility.
-            **kwargs: Arguments passed to REINFORCE.
+            device: Device to run the policy on.
+            kwargs: Additional keyword arguments for base class.
         """
         # Exclude non-serializable objects from hyperparameters
         self.save_hyperparameters(ignore=["policy_config", "env", "policy", "generator"])
@@ -171,6 +199,12 @@ class AdaptiveImitation(REINFORCE):
 
         This constructs a new TensorDict containing only the leaf Tensors from the original,
         breaking any reference cycles that might cause RecursionError during cloning or printing.
+
+        Args:
+            td: TensorDict to sanitize.
+
+        Returns:
+            Sanitized TensorDict with only Tensors.
         """
         # Iterate over all keys in the TensorDict and keep only Tensors
         # to ensure we break any nesting or recursive structures.
@@ -191,6 +225,15 @@ class AdaptiveImitation(REINFORCE):
     ) -> torch.Tensor:
         """
         Compute Combined Loss: RL + IL.
+
+        Args:
+            td: Batch of data containing environment state.
+            out: Primary policy output (log_likelihood, actions, rewards).
+            batch_idx: Global index of the training batch.
+            env: Optional environment instance.
+
+        Returns:
+            Weighted sum of RL loss and adaptive IL loss.
         """
         # 1. RL Loss (REINFORCE)
         # Note: This computes advantage, baseline, etc.

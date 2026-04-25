@@ -5,6 +5,19 @@ Reference:
     Kim, M., Park, J., & Park, J. (2022).
     Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
     Advances in Neural Information Processing Systems, 35, 1936-1949.
+
+Attributes:
+    SymNCO: SymNCO algorithm.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import SymNCO
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> symnco = SymNCO(env, agent)
+    >>> symnco
+    SymNCO(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True, num_starts=10, num_augment=8, augmentation='dihedral', alpha=0.2, beta=1.0)
 """
 
 from __future__ import annotations
@@ -34,6 +47,10 @@ class SymNCO(POMO):
         Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
         NeurIPS 2022. arXiv:2205.13209
         https://arxiv.org/abs/2205.13209
+
+    Attributes:
+        alpha: Weight for the invariance loss.
+        beta: Weight for the solution symmetricity loss.
     """
 
     def __init__(
@@ -46,9 +63,9 @@ class SymNCO(POMO):
         Initialize SymNCO module.
 
         Args:
-            alpha: Weight for invariance loss.
-            beta: Weight for solution symmetricity loss.
-            **kwargs: Arguments passed to POMO.
+            alpha: Weight for the invariance loss (default: 0.2).
+            beta: Weight for the solution symmetricity loss (default: 1.0).
+            kwargs: Additional arguments to pass to the parent class (POMO).
         """
         super().__init__(**kwargs)
         self.alpha = alpha
@@ -62,6 +79,14 @@ class SymNCO(POMO):
     ) -> dict:
         """
         SymNCO shared step with symmetricity losses.
+
+        Args:
+            batch: Input tensor dictionary containing state information.
+            batch_idx: Index of the current batch.
+            phase: Phase of the training (train, val, or test).
+
+        Returns:
+            Dictionary containing training losses and metrics.
         """
         td = self.env.reset(batch)
         bs = td.batch_size[0]

@@ -1,5 +1,15 @@
 """
 Bin State Management and Waste Accumulation Simulation.
+
+This module provides the Bins class, which manages the state, daily waste
+accumulation, and collection processes for a population of bins.
+
+Attributes:
+    Bins: Manager class for bin state and dynamics.
+
+Example:
+    >>> # bins = Bins(n=100, data_dir="data/vrpp")
+    >>> # bins.collect(tour=[0, 1, 2, 0], cost=15.5)
 """
 
 import contextlib
@@ -46,7 +56,7 @@ class Bins:
         - real_c: Ground truth fill levels (0-100%)
         - c: Observed fill levels (may include sensor noise)
 
-    Args:
+    Attributes:
         n (int): Number of bins.
         data_dir (str): Path to data directory.
         sample_dist (str, optional): Sampling distribution. Defaults to "gamma".
@@ -80,6 +90,20 @@ class Bins:
     ):
         """
         Initializes the bin population with area-specific parameters.
+        Args:
+            n: Number of bins.
+            data_dir: Path to the data directory.
+            sample_dist: Sampling distribution (e.g., "gamma", "emp").
+            grid: GridBase object for empirical data.
+            area: Name of the area for parameter loading.
+            waste_type: Type of waste (e.g., "all", "glass").
+            indices: Subset of bin indices to use.
+            waste_file: Path to a file containing pre-recorded waste data.
+            noise_mean: Mean of the sensor noise.
+            noise_variance: Variance of the sensor noise.
+            n_days: Total number of simulation days.
+            n_samples: Number of waste samples in the dataset.
+            seed: Random seed for reproducibility.
         """
         assert sample_dist == "emp" or "gamma" in sample_dist
         self.n = n
@@ -175,14 +199,22 @@ class Bins:
                 )
 
     def __get_stdev(self):
-        """Computes current standard deviation."""
+        """Computes current standard deviation.
+
+        Returns:
+            Numpy array of standard deviations for each bin.
+        """
         if self.day_count > 1:
             variance = self.square_diff / (self.day_count - 1)
             return np.sqrt(variance)
         return np.zeros(self.n)
 
     def set_statistics(self, stats_file: str) -> None:
-        """Loads pre-computed fill statistics."""
+        """Loads pre-computed fill statistics.
+
+        Args:
+            stats_file: Path to the statistics CSV file.
+        """
         if os.path.isabs(stats_file):
             path = stats_file
         elif stats_file.startswith("data/"):
@@ -224,34 +256,67 @@ class Bins:
                 )
 
     def is_stochastic(self) -> bool:
-        """Checks if using stochastic filling."""
+        """Checks if using stochastic filling.
+
+        Returns:
+            True if the waste dataset is generative/stochastic.
+        """
         return isinstance(self.waste_dataset, GenerativeDataset)
 
     def get_fill_history(self, device: Optional[torch.device] = None) -> Union[np.ndarray, torch.Tensor]:
-        """Retrieves history of daily fill increments."""
+        """Retrieves history of daily fill increments.
+
+        Args:
+            device: Optional torch device to move the tensor to.
+
+        Returns:
+            Numpy array or Torch tensor of fill history.
+        """
         if device is not None:
             return torch.tensor(np.array(self.history), dtype=torch.float, device=device) / 100.0
         return np.array(self.history)
 
     def get_level_history(self, device: Optional[torch.device] = None) -> Union[np.ndarray, torch.Tensor]:
-        """Retrieves history of daily absolute fill levels."""
+        """Retrieves history of daily absolute fill levels.
+
+        Args:
+            device: Optional torch device to move the tensor to.
+
+        Returns:
+            Numpy array or Torch tensor of level history.
+        """
         if device is not None:
             return torch.tensor(np.array(self.level_history), dtype=torch.float, device=device) / 100.0
         return np.array(self.level_history)
 
     def predict_days_to_overflow(self, cl: float) -> np.ndarray:
-        """Predicts days to overflow based on statistics."""
+        """Predicts days to overflow based on statistics.
+
+        Args:
+            cl: Confidence level for prediction.
+
+        Returns:
+            Numpy array of predicted days to overflow.
+        """
         return predict_days_to_overflow(self.means, self.std, self.c, cl)
 
     def set_indices(self, indices: Optional[Union[List[int], np.ndarray]] = None) -> None:
-        """Sets subset of bin indices."""
+        """Sets subset of bin indices.
+
+        Args:
+            indices: Optional list or array of bin indices.
+        """
         if indices is not None:
             self.indices = np.array(indices)
         else:
             self.indices = np.array(range(self.n))
 
     def set_sample_waste(self, sample_id: int) -> None:
-        """Sets current waste profile from dataset."""
+        """Sets current waste profile from dataset.
+
+        Args:
+            sample_id: Index of the waste sample to load.
+        """
         assert self.waste_dataset is not None
         sample = self.waste_dataset[sample_id]
         self.waste_fills = sample["waste"]
@@ -285,7 +350,15 @@ class Bins:
                 )
 
     def collect(self, idsfull: List[int], cost: float = 0) -> Tuple[np.ndarray, float, int, float]:
-        """Processes waste collection from bins in the tour."""
+        """Processes waste collection from bins in the tour.
+
+        Args:
+            idsfull: List of bin IDs in the tour (1-indexed, 0 is depot).
+            cost: Total travel distance for the tour.
+
+        Returns:
+            Tuple containing (collected_mass_vector, total_mass, n_bins_collected, profit).
+        """
         ids = set(idsfull)
         total_collected = np.zeros((self.n))
         if len(ids) < 2:
@@ -308,7 +381,15 @@ class Bins:
     def _process_filling(
         self, todaysfilling: np.ndarray, noisyfilling: Optional[np.ndarray] = None
     ) -> Tuple[int, np.ndarray, np.ndarray, float]:
-        """Processes daily waste deposition."""
+        """Processes daily waste deposition.
+
+        Args:
+            todaysfilling: Ground truth waste increments.
+            noisyfilling: Optional sensor-observed increments.
+
+        Returns:
+            Tuple containing (n_overflows, filling_array, level_array, lost_waste).
+        """
         self.history.append(todaysfilling)
 
         todaysfilling_arr = np.array(todaysfilling)
@@ -349,18 +430,37 @@ class Bins:
         )
 
     def deterministic_filling(self, date):
-        """Loads deterministic fill levels from historical data."""
+        """Loads deterministic fill levels from historical data.
+
+        Args:
+            date: Date string or object to load values for.
+
+        Returns:
+            The processed filling tuple.
+        """
         todaysfilling = self.grid.get_values_by_date(date, sample=True)
         return self._process_filling(todaysfilling)
 
     def load_filling(self, day: int) -> Tuple[int, np.ndarray, np.ndarray, float]:
-        """Loads deterministic waste fills from pre-recorded data."""
+        """Loads deterministic waste fills from pre-recorded data.
+
+        Args:
+            day: Current simulation day index.
+
+        Returns:
+            The processed filling tuple.
+        """
         todaysfilling = self.waste_fills[day] if self.start_with_fill else self.waste_fills[day - 1]
         noisyfilling = self.noisy_waste_fills[day] if self.start_with_fill else self.noisy_waste_fills[day - 1]
         return self._process_filling(todaysfilling, noisyfilling)
 
     def __setDistribution(self, param1, param2):
-        """Internal helper to set sampling distribution parameters."""
+        """Internal helper to set sampling distribution parameters.
+
+        Args:
+            param1: First parameter (e.g., shape k).
+            param2: Second parameter (e.g., scale theta).
+        """
         if len(param1) == 1:
             self.dist_param1 = np.ones((self.n)) * param1
             self.dist_param2 = np.ones((self.n)) * param2
@@ -370,16 +470,23 @@ class Bins:
         self.set_collection_level_and_freq()
 
     def set_gamma_distribution(self, option=0):
-        """Configures bins with predefined Gamma distribution profiles."""
+        """Configures bins with predefined Gamma distribution profiles.
+
+        Args:
+            option: The predefined configuration index (0-3).
+
+        Returns:
+            None.
+        """
 
         def __set_param(param):
             """set param.
 
             Args:
-                    param (Any): Description of param.
+                param: Parameter vector or scalar.
 
             Returns:
-                Any: Description of return value.
+                Tiled parameter vector matching n_bins.
             """
             param_len = len(param)
             if self.n == param_len:
@@ -414,7 +521,11 @@ class Bins:
                 )
 
     def set_collection_level_and_freq(self, cf=0.9):
-        """Sets visit frequency and level thresholds."""
+        """Sets visit frequency and level thresholds.
+
+        Args:
+            cf: Confidence factor for frequency calculation.
+        """
         for ii in range(0, self.n):
             f2, lv2 = calculate_frequency_and_level(
                 self.dist_param1[ii] * self.dist_param2[ii] if self.distribution == "gamma" else self.dist_param1[ii],

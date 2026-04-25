@@ -1,5 +1,12 @@
 """
 Action for waste collection execution.
+
+Attributes:
+    CollectAction: Command to execute waste collection.
+
+Example:
+    >>> # action = CollectAction()
+    >>> # action.execute(context)
 """
 
 from typing import Any, Dict
@@ -10,10 +17,18 @@ from .base import SimulationAction
 class CollectAction(SimulationAction):
     """
     Processes waste collection from bins visited in the tour.
+
+    Attributes:
+        None
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
-        """Execute waste collection based on the generated tour."""
+        """
+        Execute waste collection based on the generated tour.
+
+        Args:
+            context: Shared dictionary containing simulation state.
+        """
         from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import (
             get_route_cost,
         )

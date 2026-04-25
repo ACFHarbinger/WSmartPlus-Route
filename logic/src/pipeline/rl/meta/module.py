@@ -3,6 +3,15 @@ Meta-Reinforcement Learning (Meta-RL) module.
 
 This module implements bi-level optimization where a meta-learner
 adjusts environment reward weights to optimize the training progress of an inner RL agent.
+
+Attributes:
+    MetaRLModule: Meta-Reinforcement Learning module.
+
+Example:
+    >>> from logic.src.pipeline.rl.meta import MetaRLModule
+    >>> meta_rl_module = MetaRLModule(agent="dummy_agent")
+    >>> meta_rl_module
+    <logic.src.pipeline.rl.meta.module.MetaRLModule object at 0x...>
 """
 
 from typing import Any
@@ -22,6 +31,12 @@ class MetaRLModule(pl.LightningModule):
     Lightning module for Meta-Reinforcement Learning.
 
     Wraps an RL agent (inner loop) and a meta-model (outer loop).
+
+    Attributes:
+        agent (Any): Description of agent.
+        meta_strategy (Any): Description of meta_strategy.
+        initial_weights (dict[str, float]): Description of initial_weights.
+        automatic_optimization (bool): Whether automatic optimization is enabled.
     """
 
     def __init__(
@@ -33,7 +48,16 @@ class MetaRLModule(pl.LightningModule):
         hidden_size: int = 64,
         **kwargs,
     ):
-        """Initialize MetaRLModule."""
+        """Initialize MetaRLModule.
+
+        Args:
+            agent: The RL agent to wrap (inner loop).
+            strategy (str): The meta-learning strategy to use. Options: "rnn", "tdl", "hypernet".
+            meta_lr (float): Learning rate for the meta-learner.
+            history_length (int): Number of past steps to consider for the meta-learner.
+            hidden_size (int): Size of the hidden layer in the meta-learner.
+            kwargs: Additional keyword arguments for the meta-learner.
+        """
         super().__init__()
         self.save_hyperparameters(ignore=["agent", "env", "kwargs", "generator"])
         self.agent = agent
@@ -69,7 +93,15 @@ class MetaRLModule(pl.LightningModule):
         self.automatic_optimization = False
 
     def training_step(self, batch: TensorDict, batch_idx: int):
-        """Step for Meta-RL bi-level optimization."""
+        """Step for Meta-RL bi-level optimization.
+
+        Args:
+            batch: Batch of data containing trajectories from the inner RL agent.
+            batch_idx: Batch index.
+
+        Returns:
+            Total loss for the batch.
+        """
         # 1. Inner Loop: Train the Agent
         loss = self.agent.training_step(batch, batch_idx)
 
@@ -109,13 +141,33 @@ class MetaRLModule(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        """Configure optimizers for both loops."""
+        """Configure optimizers for both loops.
+
+        Returns:
+            Dict[str, torch.optim.Optimizer]: Dictionary of optimizers.
+        """
         return self.agent.configure_optimizers()
 
     def validation_step(self, batch: TensorDict, batch_idx: int):
-        """Validation step for meta RL."""
+        """Validation step for meta RL.
+
+        Args:
+            batch: Batch of data containing trajectories from the inner RL agent.
+            batch_idx: Batch index.
+
+        Returns:
+            Total loss for the batch.
+        """
         return self.agent.validation_step(batch, batch_idx)
 
     def test_step(self, batch: TensorDict, batch_idx: int):
-        """Test step for meta RL."""
+        """Test step for meta RL.
+
+        Args:
+            batch: Batch of data containing trajectories from the inner RL agent.
+            batch_idx: Batch index.
+
+        Returns:
+            Total loss for the batch.
+        """
         return self.agent.test_step(batch, batch_idx)

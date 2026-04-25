@@ -5,6 +5,16 @@ Provides running mean/variance normalization for advantage estimation,
 using Welford's online algorithm for numerical stability.
 
 Reference: RL4CO (https://github.com/ai4co/rl4co)
+
+Attributes:
+    RewardScaler: RewardScaler class
+
+Example:
+    >>> from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
+    >>> scaler = RewardScaler()
+    >>> scaler.update(torch.tensor([1, 2, 3, 4, 5]))
+    >>> scaler.mean
+    3.0
 """
 
 from __future__ import annotations
@@ -28,6 +38,16 @@ class RewardScaler:
             - "none": No scaling
         running_momentum: Momentum for exponential moving average (0 = cumulative, 1 = instant)
         eps: Small constant for numerical stability
+
+    Attributes:
+        _count: Counter for number of updates
+        _mean: Running mean of scores
+        _m2: Sum of squared differences from mean
+        _ema_mean: Exponential moving average of mean
+        _ema_var: Exponential moving average of variance
+        scale: Scaling mode ('norm', 'scale', 'none').
+        running_momentum: Momentum for stats updates.
+        eps: Numerical stability constant.
     """
 
     def __init__(
@@ -59,19 +79,31 @@ class RewardScaler:
 
     @property
     def mean(self) -> float:
-        """Current running mean."""
+        """Current running mean.
+
+        Returns:
+            The current running mean.
+        """
         return self._mean
 
     @property
     def variance(self) -> float:
-        """Current running variance."""
+        """Current running variance.
+
+        Returns:
+            The current running variance.
+        """
         if self._count < 2:
             return 1.0
         return self._m2 / self._count
 
     @property
     def std(self) -> float:
-        """Current running standard deviation."""
+        """Current running standard deviation.
+
+        Returns:
+            The current running standard deviation.
+        """
         return max(self.variance**0.5, self.eps)
 
     def update(self, scores: torch.Tensor) -> None:
@@ -91,7 +123,11 @@ class RewardScaler:
             self._update_welford(scores)
 
     def _update_welford(self, scores: torch.Tensor) -> None:
-        """Update using Welford's online algorithm (vectorized batch update)."""
+        """Update using Welford's online algorithm (vectorized batch update).
+
+        Args:
+            scores: The rewards scores to update the running statistics with.
+        """
         scores_flat = scores.detach().float().view(-1)
         n_b = scores_flat.numel()
         if n_b == 0:
@@ -115,7 +151,11 @@ class RewardScaler:
             self._count = n
 
     def _update_ema(self, scores: torch.Tensor) -> None:
-        """Update using exponential moving average."""
+        """Update using exponential moving average.
+
+        Args:
+            scores: The rewards scores to update the running statistics with.
+        """
         scores_flat = scores.detach().float().view(-1)
         batch_mean = scores_flat.mean()
         batch_var = scores_flat.var()
@@ -164,7 +204,11 @@ class RewardScaler:
         self._ema_var = None
 
     def state_dict(self) -> dict:
-        """Get state dictionary for checkpointing."""
+        """Get state dictionary for checkpointing.
+
+        Returns:
+            The state dictionary.
+        """
         return {
             "count": self._count,
             "mean": self._mean,
@@ -175,7 +219,11 @@ class RewardScaler:
         }
 
     def load_state_dict(self, state: dict) -> None:
-        """Load state from dictionary."""
+        """Load state from dictionary.
+
+        Args:
+            state: The state dictionary to load.
+        """
         self._count = state.get("count", 0)
         self._mean = state.get("mean", 0.0)
         self._m2 = state.get("m2", 0.0)

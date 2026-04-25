@@ -1,5 +1,10 @@
-"""
-Repository Pattern for Simulation data access.
+"""Repository Pattern for Simulation data access.
+
+Attributes:
+    _REPOSITORY: Singleton repository instance.
+
+Example:
+    None
 """
 
 import contextlib
@@ -37,6 +42,9 @@ def set_repository(
 
     Call this before simulation initialization to switch between
     filesystem-based and npz-based data loading.
+
+    Args:
+        repo: The repository instance to set.
     """
     global _REPOSITORY
     _REPOSITORY = repo
@@ -102,6 +110,16 @@ def set_repository_from_path(
 def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
     """
     Convenience wrapper to load indices from the singleton repository.
+
+    Args:
+        filename: Path to the index file.
+        n_samples: Number of samples.
+        n_nodes: Number of nodes.
+        data_size: Size of the dataset.
+        lock: Optional file lock.
+
+    Returns:
+        List of bin indices for each sample.
     """
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
     indices = _REPOSITORY.get_indices(filename, n_samples, n_nodes, data_size, lock)
@@ -134,6 +152,13 @@ def load_indices(filename, n_samples, n_nodes, data_size, lock=None):
 def load_depot(data_dir, area="Rio Maior"):
     """
     Convenience wrapper to load depot coords from the singleton repository.
+
+    Args:
+        data_dir: Path to the data directory.
+        area: Name of the geographic area.
+
+    Returns:
+        Pandas DataFrame with depot coordinates.
     """
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
     depot_df = _REPOSITORY.get_depot(area, data_dir=data_dir)
@@ -166,6 +191,16 @@ def load_depot(data_dir, area="Rio Maior"):
 def load_simulator_data(data_dir, number_of_bins, area="Rio Maior", waste_type=None, lock=None):
     """
     Convenience wrapper to load simulator data from the singleton repository.
+
+    Args:
+        data_dir: Path to the data directory.
+        number_of_bins: Number of bins.
+        area: Name of the geographic area.
+        waste_type: Type of waste.
+        lock: Optional file lock.
+
+    Returns:
+        Description of return value.
     """
     assert _REPOSITORY is not None, "Repository not initialized. Call set_repository() first."
     data, bins_coordinates = _REPOSITORY.get_simulator_data(number_of_bins, area, waste_type, lock, data_dir=data_dir)
@@ -207,6 +242,13 @@ def load_simulator_data(data_dir, number_of_bins, area="Rio Maior", waste_type=N
 def load_area_and_waste_type_params(area, waste_type):
     """
     Convenience wrapper to load area params.
+
+    Args:
+        area: Geographic area name.
+        waste_type: Type of waste.
+
+    Returns:
+        Dictionary containing area parameters.
     """
     params = SimulationRepository.get_area_params(area, waste_type)
     with contextlib.suppress(Exception):

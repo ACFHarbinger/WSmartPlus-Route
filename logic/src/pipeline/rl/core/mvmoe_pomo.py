@@ -9,6 +9,19 @@ Reference:
     Zhou, J., Wu, Y., Song, Q., Ma, S., & Cao, J. (2024).
     MVMoE: Multi-Task Vehicle Routing Solver with Mixture-of-Experts.
     arXiv:2405.01029.
+
+Attributes:
+    MVMoE_POMO: MVMoE with POMO backbone.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import MVMoE_POMO
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> mvmoe_pomo = MVMoE_POMO(env, agent)
+    >>> mvmoe_pomo
+    MVMoE_POMO(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
 """
 
 from __future__ import annotations
@@ -32,6 +45,11 @@ class MVMoE_POMO(POMO):
     Reference:
         Zhou et al. (2024). MVMoE: Multi-Task Vehicle Routing Solver
         with Mixture-of-Experts. arXiv:2405.01029.
+
+    Attributes:
+        policy: Policy network.
+        moe_kwargs: Keyword arguments for MoE.
+        baseline: Baseline method.
     """
 
     def __init__(
@@ -56,7 +74,7 @@ class MVMoE_POMO(POMO):
             augment_fn: Augmentation function.
             first_aug_identity: Whether first augmentation is identity.
             num_starts: Number of multi-start nodes.
-            **kwargs: Passed to POMO (and REINFORCE/RL4COLitModule).
+            kwargs: Passed to POMO (and REINFORCE/RL4COLitModule).
         """
         if moe_kwargs is None:
             moe_kwargs = DEFAULT_MOE_KWARGS

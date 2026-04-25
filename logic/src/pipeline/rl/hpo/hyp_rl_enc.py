@@ -3,6 +3,17 @@ Hyperparameter Encoder for HPO.
 
 Provides the HyperparameterEncoder module which encodes hyperparameter
 configurations into fixed-size embeddings for use in neural architectures.
+
+Attributes:
+    HyperparameterEncoder: Hyperparameter encoder module.
+    ParamSpec: Type alias for parameter specification.
+    BaseHPO: Abstract base class for HPO algorithms.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import HyperparameterEncoder
+    >>> encoder = HyperparameterEncoder(search_space)
+    >>> encoder
+    HyperparameterEncoder(search_space={'learning_rate': {'type': 'float', 'low': 1e-05, 'high': 0.01, 'log': True}, 'batch_size': {'type': 'int', 'low': 16, 'high': 64}, 'num_layers': {'type': 'int', 'low': 1, 'high': 5}}, embed_dim=32, normalization='layer', activation='relu', device=device(type='cpu'))
 """
 
 from typing import Any, Dict, Optional
@@ -22,6 +33,14 @@ class HyperparameterEncoder(nn.Module):
 
     Handles mixed types (continuous, discrete, categorical) by creating
     appropriate embeddings for each parameter type.
+
+    Attributes:
+        search_space: Search space.
+        embed_dim: Embedding dimension.
+        device: Device.
+        encoders: Encoding layers.
+        param_names: Parameter names.
+        choice_to_idx_maps: Choice to index maps.
     """
 
     def __init__(

@@ -1,10 +1,14 @@
-"""base.py module.
+"""
+Abstract Base Class for Simulation States.
+
+This module defines the SimState interface for the Simulation State Machine.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    SimState: Abstract base class for all simulation states.
 
 Example:
-    >>> import base
+    >>> # from logic.src.pipeline.simulations.states.base.base import SimState
+    >>> # class MyState(SimState): ...
 """
 
 from __future__ import annotations
@@ -17,11 +21,21 @@ if TYPE_CHECKING:
 
 
 class SimState(ABC):
-    """Abstract base class for simulation states."""
+    """
+    Abstract base class for simulation states.
+
+    Attributes:
+        context: The SimulationContext object managing the state machine.
+    """
 
     context: SimulationContext
 
     @abstractmethod
     def handle(self, ctx: SimulationContext) -> None:
-        """Handles the current state and returns the next state."""
+        """
+        Handles the logic for the current state and triggers transitions.
+
+        Args:
+            ctx: The simulation context object.
+        """
         pass

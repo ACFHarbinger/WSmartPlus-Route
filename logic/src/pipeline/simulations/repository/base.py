@@ -1,5 +1,14 @@
 """
 Abstract interface for simulation data access.
+
+This module defines the base class for data repositories used by the
+simulation pipeline to load areas, depots, and waste configurations.
+
+Attributes:
+    SimulationRepository: Abstract base class for data access.
+
+Example:
+    >>> # class MyRepo(SimulationRepository): ...
 """
 
 from abc import ABC, abstractmethod
@@ -15,6 +24,9 @@ class SimulationRepository(ABC):
     Defines the contract for loading geographic, waste, and configuration
     data required to initialize simulations. Implementations can source
     data from files, databases, APIs, or other backends.
+
+    Attributes:
+        None
     """
 
     @abstractmethod
@@ -23,6 +35,16 @@ class SimulationRepository(ABC):
     ) -> List[List[int]]:
         """
         Loads or generates a list of bin indices for simulation samples.
+
+        Args:
+            filename: Path to the index file.
+            n_samples: Number of samples to generate/load.
+            n_nodes: Number of nodes per sample.
+            data_size: Total size of the source data.
+            lock: Optional file lock for concurrent access.
+
+        Returns:
+            A list of lists containing bin indices for each sample.
         """
         pass
 
@@ -30,6 +52,13 @@ class SimulationRepository(ABC):
     def get_depot(self, area: Any, data_dir: Optional[str] = None) -> pd.DataFrame:
         """
         Retrieves the depot coordinates for a given area.
+
+        Args:
+            area: Name of the geographic area.
+            data_dir: Path to the data directory.
+
+        Returns:
+            Pandas DataFrame containing depot coordinates.
         """
         pass
 
@@ -44,6 +73,16 @@ class SimulationRepository(ABC):
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Loads waste statistics and coordinate data for the simulator.
+
+        Args:
+            number_of_bins: Number of bins to load.
+            area: Name of the geographic area.
+            waste_type: Type of waste.
+            lock: Optional file lock.
+            data_dir: Path to the data directory.
+
+        Returns:
+            Tuple containing (stats_df, coordinates_df).
         """
         pass
 

@@ -35,6 +35,15 @@ Typical usage
 This class is instantiated automatically by ``run_hpo()`` in
 ``logic/src/pipeline/features/train/hpo.py`` when ``cfg.hpo.method`` is
 one of ``"asha"``, ``"pbt"``, or ``"bohb"``.
+
+Attributes:
+    RayTuneHPO: Ray Tune HPO class.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import RayTuneHPO
+    >>> ray_tune_hpo = RayTuneHPO(cfg, objective_fn)
+    >>> ray_tune_hpo
+    <logic.src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO object at 0x...>
 """
 
 from __future__ import annotations
@@ -78,7 +87,7 @@ class RayTuneHPO(BaseHPO):
     ``WSTrainer``, and reports ``val_reward`` back to the Tune scheduler
     after every epoch via ``ray.train.report()``.
 
-    Args:
+    Attributes:
         cfg: Root application configuration.
         objective_fn: Callable ``(trial_cfg: Config) -> float`` that
             trains a model for one trial and returns the validation
@@ -87,12 +96,12 @@ class RayTuneHPO(BaseHPO):
             a lambda or local closure).
         search_space: Optional pre-normalised search space dict.  When
             ``None``, ``cfg.hpo.search_space`` is used.
-        scheduler: Which scheduler to use.  One of ``"asha"`` (default),
+        _scheduler_name: Which scheduler to use.  One of ``"asha"`` (default),
             ``"pbt"``, or ``"bohb"``.
-        mlflow_tracking_uri: MLflow server URI forwarded to
+        _mlflow_tracking_uri: MLflow server URI forwarded to
             ``MLflowLoggerCallback``.  ``None`` disables per-trial
             MLflow logging.
-        mlflow_experiment_name: MLflow experiment name for trial runs.
+        _mlflow_experiment_name: MLflow experiment name for trial runs.
     """
 
     def __init__(
@@ -215,7 +224,11 @@ class RayTuneHPO(BaseHPO):
     # ------------------------------------------------------------------
 
     def _build_ray_search_space(self) -> Dict[str, Any]:
-        """Convert typed ParamSpec dict to Ray Tune ``param_space``."""
+        """Convert typed ParamSpec dict to Ray Tune ``param_space``.
+
+        Returns:
+            Ray tune param space.
+        """
         space: Dict[str, Any] = {}
         for name, spec in self.search_space.items():
             ptype = spec["type"]
@@ -240,7 +253,11 @@ class RayTuneHPO(BaseHPO):
     # ------------------------------------------------------------------
 
     def _build_scheduler(self) -> Any:
-        """Instantiate the Ray Tune trial scheduler."""
+        """Instantiate the Ray Tune trial scheduler.
+
+        Returns:
+            Ray Tune scheduler.
+        """
         name = self._scheduler_name
         max_t = self.cfg.hpo.n_epochs_per_trial
         grace = max(1, max_t // self.cfg.hpo.reduction_factor)
@@ -279,7 +296,11 @@ class RayTuneHPO(BaseHPO):
         return ASHAScheduler(max_t=max_t, grace_period=grace)
 
     def _build_search_alg(self) -> Optional[Any]:
-        """Return a search algorithm compatible with the chosen scheduler."""
+        """Return a search algorithm compatible with the chosen scheduler.
+
+        Returns:
+            Ray tune search algorithm.
+        """
         if self._scheduler_name == "bohb":
             # BOHB requires the TuneBOHB search algorithm
             with contextlib.suppress(ImportError):
@@ -291,7 +312,11 @@ class RayTuneHPO(BaseHPO):
     # ------------------------------------------------------------------
 
     def _build_run_callbacks(self) -> list:
-        """Build Ray Tune run-level callbacks."""
+        """Build Ray Tune run-level callbacks.
+
+        Returns:
+            Ray tune callbacks.
+        """
         callbacks: list = []
 
         mlflow_uri = self._mlflow_tracking_uri

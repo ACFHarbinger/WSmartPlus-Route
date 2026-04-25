@@ -1,4 +1,16 @@
-"""Negative Log-Likelihood loss for behavior cloning."""
+"""Negative Log-Likelihood loss for behavior cloning.
+
+Attributes:
+    nll_loss: Negative log-likelihood loss function.
+    weighted_nll_loss: Weighted negative log-likelihood loss function.
+
+Example:
+    >>> from logic.src.pipeline.rl.core.losses import nll_loss, weighted_nll_loss
+    >>> nll_loss
+    <function nll_loss at 0x...>
+    >>> weighted_nll_loss
+    <function weighted_nll_loss at 0x...>
+"""
 
 from __future__ import annotations
 

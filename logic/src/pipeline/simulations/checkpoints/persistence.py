@@ -1,5 +1,15 @@
 """
 Checkpoint file persistence management.
+
+This module provides the SimulationCheckpoint class, which handles saving
+and loading the simulation state to/from disk for fault tolerance.
+
+Attributes:
+    SimulationCheckpoint: Manager for checkpoint file persistence.
+
+Example:
+    >>> # cp = SimulationCheckpoint(output_dir="results", policy="HGS")
+    >>> # cp.save_state(state, day=10)
 """
 
 import contextlib
@@ -21,16 +31,21 @@ except ImportError:
 class SimulationCheckpoint:
     """
     Manages checkpoint file persistence for a single simulation run.
+    Attributes:
+        checkpoint_dir: Directory for temporary checkpoints.
+        output_dir: Directory for final simulation artifacts.
+        policy: The name of the policy being simulated.
+        sample_id: The index of the current waste sample.
     """
 
     def __init__(self, output_dir: str, checkpoint_dir: str = "temp", policy: str = "", sample_id: int = 0):
         """Initialize Class.
 
         Args:
-            output_dir (str): Description of output_dir.
-            checkpoint_dir (str): Description of checkpoint_dir.
-            policy (str): Description of policy.
-            sample_id (int): Description of sample_id.
+            output_dir: Root directory for permanent outputs.
+            checkpoint_dir: Subdirectory for temporary state files.
+            policy: Policy identifier string.
+            sample_id: Integer sample ID.
         """
         self.checkpoint_dir = os.path.join(ROOT_DIR, checkpoint_dir)
         self.output_dir = os.path.join(output_dir, checkpoint_dir)
@@ -41,7 +56,7 @@ class SimulationCheckpoint:
         """Get simulation info.
 
         Returns:
-            Any: Description.
+            Dictionary with policy and sample_id.
         """
         return {"policy": self.policy, "sample": self.sample_id}
 
@@ -49,11 +64,11 @@ class SimulationCheckpoint:
         """Get checkpoint file.
 
         Args:
-            day (Optional[int]): Description of day.
-            end_simulation (bool): Description of end_simulation.
+            day: Specific day to retrieve, or None for the latest.
+            end_simulation: If True, look in the output_dir instead of temp.
 
         Returns:
-            Any: Description of return value.
+            Full path to the checkpoint file.
         """
         parent_dir = self.output_dir if end_simulation else self.checkpoint_dir
         if day is not None:
@@ -65,9 +80,9 @@ class SimulationCheckpoint:
         """Save state.
 
         Args:
-            state (Any): Description of state.
-            day (int): Description of day.
-            end_simulation (bool): Description of end_simulation.
+            state: The simulation state dictionary to persist.
+            day: The simulation day index.
+            end_simulation: Whether to save as a final result.
         """
         checkpoint_data = {
             "state": state,
@@ -106,10 +121,10 @@ class SimulationCheckpoint:
         """Load state.
 
         Args:
-            day (Optional[int]): Description of day.
+            day: Specific day to load, or None for the latest available.
 
         Returns:
-            Any: Description of return value.
+            Tuple of (state_dictionary, resumed_day_index).
         """
         checkpoint_files = []
 
@@ -163,7 +178,7 @@ class SimulationCheckpoint:
         """Find last checkpoint day.
 
         Returns:
-            Any: Description.
+            The integer index of the latest day found in the checkpoint directory.
         """
         max_day = 0
         pattern = f"checkpoint_{self.policy}_{self.sample_id}_day"
@@ -182,11 +197,11 @@ class SimulationCheckpoint:
         """Clear.
 
         Args:
-            policy (Optional[str]): Description of policy.
-            sample_id (Optional[int]): Description of sample_id.
+            policy: Policy filter (defaults to current).
+            sample_id: Sample filter (defaults to current).
 
         Returns:
-            Any: Description of return value.
+            Number of files removed.
         """
         if policy is None:
             policy = self.policy
@@ -210,10 +225,10 @@ class SimulationCheckpoint:
         """Delete checkpoint day.
 
         Args:
-            day (int): Description of day.
+            day: The day index to delete.
 
         Returns:
-            Any: Description of return value.
+            True if the file was found and deleted.
         """
         checkpoint_file = self.get_checkpoint_file(day)
         try:

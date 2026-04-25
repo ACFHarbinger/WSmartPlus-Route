@@ -1,10 +1,16 @@
 """
 Advantage Actor-Critic (A2C) implementation.
 
-A2C uses a critic network to estimate value function and reduces
-variance in policy gradient estimation.
+This module provides the A2C class, which uses a critic network to estimate
+state values and reduce variance in policy gradient estimation.
 
-Reference: RL4CO (https://github.com/ai4co/rl4co)
+Attributes:
+    A2C: Advantage Actor-Critic (A2C) algorithm.
+
+Example:
+    >>> # from logic.src.pipeline.rl.core import A2C
+    >>> # agent = A2C(env, policy)
+    >>> # trainer.fit(agent)
 """
 
 from __future__ import annotations
@@ -30,18 +36,16 @@ class A2C(RL4COLitModule):
     in policy gradient estimation. Supports separate optimizer configurations
     for actor and critic.
 
-    Args:
-        env: RL environment.
-        policy: Actor policy network.
-        critic: Critic network for value estimation.
-        actor_optimizer: Optimizer for actor ('adam', 'adamw').
-        actor_lr: Learning rate for actor.
-        critic_optimizer: Optimizer for critic.
-        critic_lr: Learning rate for critic.
-        entropy_coef: Coefficient for entropy bonus.
-        value_loss_coef: Coefficient for value loss.
-        normalize_advantage: Whether to normalize advantages.
-        **kwargs: Additional arguments for base class.
+    Attributes:
+        policy_cast: The policy cast to ConstructivePolicy for type safety.
+        critic: The critic network for value estimation.
+        actor_optimizer_name: The optimizer identifier for the actor.
+        actor_lr: The learning rate for the actor.
+        critic_optimizer_name: The optimizer identifier for the critic.
+        critic_lr: The learning rate for the critic.
+        entropy_coef: The coefficient for the entropy regularization bonus.
+        value_loss_coef: The weight for the MSE value loss.
+        normalize_advantage: Whether to perform batch-norm on advantages.
     """
 
     def __init__(
@@ -72,7 +76,7 @@ class A2C(RL4COLitModule):
             entropy_coef: Entropy regularization coefficient.
             value_loss_coef: Critic loss coefficient.
             normalize_advantage: Whether to normalize advantages.
-            **kwargs: Additional args passed to RL4COLitModule.
+            kwargs: Additional args passed to RL4COLitModule.
         """
         # A2C uses critic baseline
         kwargs["baseline"] = "critic"
@@ -124,13 +128,13 @@ class A2C(RL4COLitModule):
         Calculate A2C loss.
 
         Args:
-            td: TensorDict with environment state.
-            out: Policy output dictionary.
-            batch_idx: Current batch index.
-            env: Environment (optional).
+            td: TensorDict containing the current environment state.
+            out: Dictionary containing policy outputs (reward, log_likelihood).
+            batch_idx: Index of the current batch.
+            env: Optional environment instance.
 
         Returns:
-            Combined actor + critic loss.
+            Weighted combination of policy gradient, value, and entropy losses.
         """
         reward = out["reward"]
         log_likelihood = out["log_likelihood"]
@@ -170,7 +174,11 @@ class A2C(RL4COLitModule):
         return total_loss
 
     def configure_optimizers(self):
-        """Configure separate optimizers for actor and critic."""
+        """Configure separate optimizers for actor and critic.
+
+        Returns:
+            List containing the actor and critic optimizers.
+        """
         # Actor optimizer
         if self.actor_optimizer_name.lower() == "adam":
             actor_opt = torch.optim.Adam(self.policy.parameters(), lr=self.actor_lr)  # type: ignore[attr-defined]
@@ -192,6 +200,13 @@ class A2C(RL4COLitModule):
     def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
         """
         Execute a single training step with both optimizers.
+
+        Args:
+            batch: Data batch containing environment states.
+            batch_idx: Sequential index of the batch.
+
+        Returns:
+            Computed loss for the current step.
         """
         optimizers = self.optimizers()
         if isinstance(optimizers, list):

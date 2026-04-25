@@ -13,6 +13,15 @@ Key Components:
     - Action: Next hyperparameter configuration to evaluate
     - Reward: Improvement in validation performance
     - Policy Network: LSTM-based network that processes history and generates configs
+
+Attributes:
+    HypRLHPO: Hyp-RL HPO class.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import HypRLHPO
+    >>> hyp_rl_hpo = HypRLHPO(cfg, objective_fn)
+    >>> hyp_rl_hpo
+    <logic.src.pipeline.rl.hpo.hyp_rl.HypRLHPO object at 0x...>
 """
 
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -39,6 +48,23 @@ class HypRLHPO(BaseHPO):
 
     The policy is trained with REINFORCE using the improvement in validation
     performance as the reward signal.
+
+    Attributes:
+        search_space: Search space.
+        state_dim: Dimension of state embeddings.
+        hidden_dim: Hidden dimension of LSTM.
+        n_layers: Number of LSTM layers.
+        policy_lr: Learning rate of policy.
+        entropy_weight: Weight of entropy regularization.
+        gamma: Discount factor.
+        device: Device.
+        policy: LSTM-based policy network.
+        optimizer: Optimizer.
+        episode_configs: List of configurations.
+        episode_log_probs: List of log probabilities.
+        episode_rewards: List of rewards.
+        best_value: Best value.
+        best_config: Best configuration.
     """
 
     def __init__(

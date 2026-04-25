@@ -1,5 +1,16 @@
 """
 Gradual transition warmup baseline.
+
+Attributes:
+    WarmupBaseline: Warmup baseline using a gradual transition from ExponentialBaseline to target baseline.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.baselines import WarmupBaseline
+    >>> baseline = WarmupBaseline(baseline=ExponentialBaseline())
+    >>> td = TensorDict({"obs": torch.randn(2, 10, 20)}, batch_size=[2])
+    >>> reward = torch.tensor([1.0, 2.0])
+    >>> baseline.eval(td, reward)
+    tensor([1.0, 2.0])
 """
 
 from __future__ import annotations
@@ -15,7 +26,14 @@ from .exponential import ExponentialBaseline
 
 
 class WarmupBaseline(Baseline):
-    """Gradual transition from ExponentialBaseline to target baseline."""
+    """Gradual transition from ExponentialBaseline to target baseline.
+
+    Attributes:
+        baseline: The target baseline.
+        warmup_epochs: The number of epochs for warmup.
+        warmup_baseline: The exponential baseline used for warmup.
+        alpha: The warmup progress factor.
+    """
 
     def __init__(
         self,
@@ -29,12 +47,15 @@ class WarmupBaseline(Baseline):
         """
         Initialize WarmupBaseline.
 
+
+
         Args:
-            baseline: Target baseline to transition to.
-            warmup_epochs: Number of epochs for warmup transition.
-            bl_warmup_epochs: Alternative name for warmup_epochs.
-            beta: Beta parameter for the warmup exponential baseline.
-            exp_beta: Alternative name for beta.
+            baseline: The target baseline.
+            warmup_epochs: The number of epochs for warmup.
+            bl_warmup_epochs: The number of epochs for baseline warmup.
+            beta: The beta parameter for ExponentialBaseline.
+            exp_beta: The exp_beta parameter for ExponentialBaseline.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.baseline = baseline
@@ -97,5 +118,9 @@ class WarmupBaseline(Baseline):
             self.alpha = 1.0
 
     def get_learnable_parameters(self) -> list:
-        """Get learnable parameters of the inner baseline."""
+        """Get learnable parameters of the inner baseline.
+
+        Returns:
+            List of learnable parameters.
+        """
         return self.baseline.get_learnable_parameters()

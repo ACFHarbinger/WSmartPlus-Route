@@ -3,6 +3,12 @@ Training common subpackage for WSmart-Route.
 
 This package contains training utilities and common components
 like epoch preparation, dataset regeneration, and training hooks.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from logic.src.pipeline.rl.common.base import RL4COLitModule

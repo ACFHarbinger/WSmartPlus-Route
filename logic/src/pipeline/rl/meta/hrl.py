@@ -8,6 +8,15 @@ Implements a Manager-Worker architecture:
 The manager outputs:
 - mandatory_action: Which bins must be collected (boolean mask)
 - gate_action: Whether to dispatch vehicles
+
+Attributes:
+    HRLModule: A hierarchical reinforcement learning module.
+
+Example:
+    >>> from logic.src.pipeline.rl.meta import HRLModule
+    >>> hrl_module = HRLModule()
+    >>> hrl_module
+    <logic.src.pipeline.rl.meta.hrl.HRLModule object at 0x...>
 """
 
 from __future__ import annotations
@@ -29,6 +38,8 @@ class HRLModule(pl.LightningModule):
     Lightning module for Hierarchical RL.
 
     Coordinates a high-level manager and a low-level worker.
+    Attributes:
+        None
     """
 
     def __init__(
@@ -57,7 +68,7 @@ class HRLModule(pl.LightningModule):
             ppo_epochs: Number of PPO optimization epochs.
             lambda_mask_aux: Weight for auxiliary mandatory loss (BCE with target).
             entropy_coef: Entropy regularization coefficient.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.save_hyperparameters(ignore=["manager", "worker", "env", "kwargs", "generator"])
@@ -77,6 +88,10 @@ class HRLModule(pl.LightningModule):
     def training_step(self, batch: TensorDict, batch_idx: int):
         """
         Combined training step for Manager and Worker with PPO.
+
+        Args:
+            batch: Batch of data.
+            batch_idx: Batch index.
         """
         opt = cast(torch.optim.Optimizer, self.optimizers())
 

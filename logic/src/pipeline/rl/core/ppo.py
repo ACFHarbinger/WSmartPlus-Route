@@ -5,6 +5,19 @@ Reference:
     Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017).
     Proximal policy optimization algorithms.
     arXiv preprint arXiv:1707.06347.
+
+Attributes:
+    PPO: Proximal Policy Optimization (PPO) algorithm.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import PPO
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> ppo = PPO(env, agent)
+    >>> ppo
+    PPO(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
 """
 
 from __future__ import annotations
@@ -35,6 +48,16 @@ class PPO(RL4COLitModule):
         Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017).
         Proximal Policy Optimization Algorithms. arXiv:1707.06347
         https://arxiv.org/abs/1707.06347
+
+    Attributes:
+        policy: Policy network.
+        critic: Critic network.
+        ppo_epochs: Number of optimization epochs per batch.
+        eps_clip: Clipping parameter for PPO.
+        value_loss_weight: Weight for value loss.
+        entropy_weight: Weight for entropy bonus.
+        max_grad_norm: Maximum gradient norm for clipping.
+        mini_batch_size: Size of mini-batches for optimization.
     """
 
     def __init__(
@@ -52,14 +75,14 @@ class PPO(RL4COLitModule):
         Initialize PPO module.
 
         Args:
-            critic: Critic network for value estimation.
-            ppo_epochs: Number of PPO optimization epochs per batch.
-            eps_clip: Clipping parameter for PPO surrogate objective.
-            value_loss_weight: Weight for value function loss.
-            entropy_weight: Weight for entropy bonus.
-            max_grad_norm: Maximum gradient norm for clipping.
-            mini_batch_size: Mini-batch size (int or fraction of batch).
-            **kwargs: Arguments passed to RL4COLitModule.
+            critic: The critic network used for baseline estimation.
+            ppo_epochs: The number of optimization epochs to run per batch of rollouts.
+            eps_clip: The clipping parameter for the PPO loss (default: 0.2).
+            value_loss_weight: The weight for the critic loss (default: 0.5).
+            entropy_weight: The weight for the entropy bonus (default: 0.0).
+            max_grad_norm: The maximum gradient norm for clipping (default: 0.5).
+            mini_batch_size: The size of mini-batches for optimization. Can be an integer or a float (fraction of batch size, default: 0.25).
+            kwargs: Additional arguments to pass to the parent class (RL4COLitModule).
         """
         super().__init__(**kwargs)
         self.critic = critic
@@ -83,6 +106,14 @@ class PPO(RL4COLitModule):
         """
         Dummy implementation to satisfy abstract requirement.
         PPO uses manual optimization in training_step.
+        Args:
+            td: TensorDict containing state information.
+            out: Dictionary containing policy output.
+            batch_idx: Index of the current batch.
+            env: Optional environment instance.
+
+        Returns:
+            A zero tensor (actual loss is calculated in training_step).
         """
         return torch.tensor(0.0, device=td.device)
 
@@ -223,24 +254,56 @@ class PPO(RL4COLitModule):
         return loss
 
     def calculate_advantages(self, rewards, values):
-        """Estimate advantages (R - V)."""
+        """Estimate advantages (R - V).
+
+        Args:
+            rewards: Tensor of rewards.
+            values: Tensor of predicted values.
+
+        Returns:
+            Tensor of normalized advantages.
+        """
         advantage = rewards - values.detach()
         if advantage.size(0) > 1:
             advantage = (advantage - advantage.mean()) / (advantage.std() + 1e-8)
         return advantage
 
     def calculate_ratio(self, new_log_p, old_log_p):
-        """Calculate importance ratio."""
+        """Calculate importance ratio.
+
+        Args:
+            new_log_p: Log probabilities under the current policy.
+            old_log_p: Log probabilities under the behavioral policy.
+
+        Returns:
+            Importance sampling ratios.
+        """
         return torch.exp(new_log_p - old_log_p.detach())
 
     def calculate_actor_loss(self, ratio, advantage):
-        """Clipped surrogate objective."""
+        """Clipped surrogate objective.
+
+        Args:
+            ratio: Importance sampling ratios.
+            advantage: Estimated advantages.
+
+        Returns:
+            The negative of the clipped surrogate objective.
+        """
         surr1 = ratio * advantage
         surr2 = torch.clamp(ratio, 1.0 - self.eps_clip, 1.0 + self.eps_clip) * advantage
         return -torch.min(surr1, surr2).mean()
 
     def calculate_critic_loss(self, values, rewards):
-        """MSE loss for value function."""
+        """MSE loss for value function.
+
+        Args:
+            values: Values predicted by the critic.
+            rewards: Target rewards.
+
+        Returns:
+            MSE loss tensor.
+        """
         return nn.MSELoss()(values, rewards)
 
     def configure_optimizers(self):
@@ -248,7 +311,7 @@ class PPO(RL4COLitModule):
         Configure optimizer for policy and critic parameters.
 
         Returns:
-            Adam optimizer with combined policy and critic parameters.
+            PyTorch optimizer configured for actor and critic parameters.
         """
         # Combined parameters from policy and critic
         params = list(self.policy.parameters()) + list(self.critic.parameters())  # type: ignore[attr-defined]

@@ -1,6 +1,15 @@
 """
 Hypernetwork Strategy for Meta-RL.
 Wraps the HypernetworkOptimizer model to provide adaptive weights.
+
+Attributes:
+    HyperNetworkStrategy: A weight adjustment strategy using a Hypernetwork.
+
+Example:
+    >>> from logic.src.pipeline.rl.meta import HyperNetworkStrategy
+    >>> hypernetwork_strategy = HyperNetworkStrategy()
+    >>> hypernetwork_strategy
+    <logic.src.pipeline.rl.meta.hypernet_strategy.HyperNetworkStrategy object at 0x...>
 """
 
 from __future__ import annotations
@@ -20,6 +29,14 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
 
     The hypernetwork observes performance metrics and time context (day)
     to generate optimal cost weights for the current situation.
+
+    Args:
+        cost_weight_keys (list[str]): Keys for the cost weights.
+        device (Any): Device to run the hypernetwork on.
+        optimizer (HyperNetworkOptimizer): The underlying optimizer logic.
+        current_weights (dict[str, float]): Current cost weights.
+        last_costs (dict[str, torch.Tensor]): Last observed costs.
+        current_day (int): Current day.
     """
 
     def __init__(
@@ -32,7 +49,17 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
         buffer_size: int = 100,
         **kwargs,
     ):
-        """Initialize Hypernetwork Meta-Learning Strategy."""
+        """Initialize Hypernetwork Meta-Learning Strategy.
+
+        Args:
+            problem: Description of problem.
+            device: Description of device.
+            initial_weights: Description of initial_weights.
+            lr: Description of lr.
+            constraint_value: Description of constraint_value.
+            buffer_size: Description of buffer_size.
+            kwargs: Description of kwargs.
+        """
         super().__init__()
         self.cost_weight_keys = list(initial_weights.keys())
         self.device = device
@@ -61,6 +88,12 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
     def propose_weights(self, context: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
         """
         Generate weights for the next step.
+
+        Args:
+            context: Optional dictionary containing context.
+
+        Returns:
+            Dict[str, float]: Generated weights.
         """
         context = context or {}
         day = context.get("day", self.current_day)
@@ -86,6 +119,12 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
     ):
         """
         Record feedback and train the hypernetwork.
+
+        Args:
+            reward: Reward.
+            metrics: Metrics.
+            day: Day.
+            step: Step.
         """
         if day is not None:
             self.current_day = day
@@ -163,5 +202,9 @@ class HyperNetworkStrategy(WeightAdjustmentStrategy):
         self.optimizer.train(epochs=1)
 
     def get_current_weights(self) -> Dict[str, float]:
-        """Get current hypernetwork weights."""
+        """Get current hypernetwork weights.
+
+        Returns:
+            Dict[str, float]: Current weights.
+        """
         return self.current_weights

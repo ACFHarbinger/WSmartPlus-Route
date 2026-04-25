@@ -1,5 +1,15 @@
 """
 Action for tour route improvement and refinement.
+
+This module provides the RouteImprovementAction class, which applies
+post-processing algorithms (Local Search, ALNS-improvement, etc.) to refine tours.
+
+Attributes:
+    RouteImprovementAction: Command for tour refinement.
+
+Example:
+    >>> # action = RouteImprovementAction()
+    >>> # action.execute(context)
 """
 
 import os
@@ -20,10 +30,18 @@ from .base import SimulationAction, _flatten_config
 class RouteImprovementAction(SimulationAction):
     """
     Refines generated collection tours using modular refinement strategies.
+
+    Attributes:
+        None
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
-        """Refine the generated collection tour."""
+        """
+        Refine the generated collection tour.
+
+        Args:
+            context: Shared dictionary containing simulation state.
+        """
         tour = context.get("tour")
         if not tour or len(tour) <= 2:
             return
@@ -36,7 +54,14 @@ class RouteImprovementAction(SimulationAction):
                 self._apply_processors(processors, context)
 
     def _get_route_improvement_configs(self, context: Dict[str, Any]) -> list:
-        """Retrieve and normalize route improvement configurations."""
+        """Retrieve and normalize route improvement configurations.
+
+        Args:
+            context: Shared dictionary containing simulation state.
+
+        Returns:
+            A list of RouteImprovingConfig objects.
+        """
         raw_cfg = context.get("config", {})
         flat_cfg = _flatten_config(raw_cfg)
         pp_list = flat_cfg.get("route_improvement") or context.get("route_improvement")
@@ -56,7 +81,15 @@ class RouteImprovementAction(SimulationAction):
         return pp_configs
 
     def _create_processors(self, entry: Any, context: Dict[str, Any]) -> list:
-        """Create processors from a configuration entry."""
+        """Create processors from a configuration entry.
+
+        Args:
+            entry: The configuration entry for the processors.
+            context: Shared dictionary containing simulation state.
+
+        Returns:
+            A list of instantiated route improver processors.
+        """
         if isinstance(entry, RouteImprovingConfig):
             return RouteImproverFactory.create_from_config(entry)
 
@@ -64,7 +97,16 @@ class RouteImprovementAction(SimulationAction):
         return self._create_legacy_processors(entry, context, RouteImproverFactory)
 
     def _create_legacy_processors(self, item: Any, context: Dict[str, Any], factory) -> list:
-        """Handle legacy string/file configuration for processors."""
+        """Handle legacy string/file configuration for processors.
+
+        Args:
+            item: The legacy configuration item.
+            context: Shared dictionary containing simulation state.
+            factory: The factory used to create processors.
+
+        Returns:
+            A list of instantiated route improver processors.
+        """
         pp_name = ""
         pp_params = {k: v for k, v in context.items() if k != "tour"}
         if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
@@ -95,7 +137,12 @@ class RouteImprovementAction(SimulationAction):
             return []
 
     def _apply_processors(self, processors: list, context: Dict[str, Any]) -> None:
-        """Apply a list of processors to the tour in the context."""
+        """Apply a list of processors to the tour in the context.
+
+        Args:
+            processors: A list of processors to apply.
+            context: Shared dictionary containing simulation state.
+        """
         tour = context.get("tour")
         for processor in processors:
             try:

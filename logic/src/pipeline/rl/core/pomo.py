@@ -5,6 +5,19 @@ Reference:
     Kwon, Y. D., Choo, J., Kim, B., Yoon, I., Gwon, Y., & Min, S. (2020).
     POMO: Policy Optimization with Multiple Optima for Neural Combinatorial Optimization.
     Advances in Neural Information Processing Systems, 33, 21188-21198.
+
+Attributes:
+    POMO: POMO algorithm: REINFORCE with shared baseline and multi-start decoding.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import POMO
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> pomo = POMO(env, agent)
+    >>> pomo
+    POMO(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
 """
 
 from __future__ import annotations
@@ -31,6 +44,14 @@ class POMO(REINFORCE):
         POMO: Policy Optimization with Multiple Optima for Reinforcement Learning.
         NeurIPS 2020. arXiv:2010.16011
         https://arxiv.org/abs/2010.16011
+
+    Attributes:
+        policy: The policy network used to generate actions.
+        env: The environment used to generate rewards.
+        num_augment: The number of augmentations used.
+        augment_fn: The augmentation function used.
+        first_aug_identity: Whether the first augmentation is identity.
+        num_starts: The number of starts used.
     """
 
     def __init__(
@@ -45,11 +66,11 @@ class POMO(REINFORCE):
         Initialize POMO module.
 
         Args:
-            num_augment: Number of data augmentations during inference.
-            augment_fn: Augmentation function ('dihedral8', 'symmetric', or callable).
-            first_aug_identity: If True, first augmentation is identity.
-            num_starts: Number of starting points for multi-start decoding.
-            **kwargs: Arguments passed to REINFORCE.
+            num_augment: Number of augmentations to use (default: 8).
+            augment_fn: Function to apply augmentations. Can be a string ('dihedral8') or a callable.
+            first_aug_identity: Whether to apply identity augmentation first.
+            num_starts: Number of starts to use for multi-start decoding. If None, uses the number of nodes.
+            kwargs: Additional arguments to pass to the parent class.
         """
         # POMO generally uses a shared baseline of rewards across starts
         # We set baseline to 'no' because we handle the shared baseline logic in calculate_loss
@@ -78,6 +99,14 @@ class POMO(REINFORCE):
     ) -> dict:
         """
         POMO shared step with augmentation and multi-start.
+
+        Args:
+            batch: Batch of states from the dataset.
+            batch_idx: Index of the batch.
+            phase: Phase of the training (train, val, or test).
+
+        Returns:
+            Dictionary containing loss and other metrics.
         """
         td = self.env.reset(batch)
         bs = td.batch_size[0]

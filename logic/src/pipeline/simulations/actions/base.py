@@ -1,5 +1,13 @@
 """
 Base classes and utilities for simulation actions.
+
+Attributes:
+    SimulationAction: Abstract base class for simulation actions.
+
+Example:
+    >>> # from logic.src.pipeline.simulations.actions.base import SimulationAction
+    >>> # class MyAction(SimulationAction):
+    >>> #     def execute(self, context): ...
 """
 
 from abc import ABC, abstractmethod
@@ -10,6 +18,12 @@ def _find_mandatory(d: Any) -> Any:
     """
     Recursively find the first occurrence of 'mandatory_selection' in a nested structure.
     Handles dictionaries, ITraversable objects, and iterable sequences (lists, ListConfig, etc.).
+
+    Args:
+        d: The nested structure to search within.
+
+    Returns:
+        The value of the first 'mandatory_selection' found, or None if not found.
     """
     if isinstance(d, dict) or hasattr(d, "items"):
         d_dict = dict(d) if hasattr(d, "items") else d
@@ -32,6 +46,11 @@ def _find_mandatory(d: Any) -> Any:
 def _flatten_config(cfg: Any) -> dict:
     """
     Helper to flatten nested configuration structures (e.g. hgs.custom -> list of dicts).
+    Args:
+        cfg: The configuration object to flatten.
+
+    Returns:
+        A flattened dictionary of the configuration.
     """
     if not cfg:
         return {}
@@ -82,10 +101,13 @@ def _flatten_config(cfg: Any) -> dict:
 
 class SimulationAction(ABC):
     """
-    Abstract base class for simulation day actions.
+    Abstract base class for simulation actions.
 
     Defines the interface for all simulation commands. Each action receives
     a shared context dictionary and modifies it in-place with its outputs.
+
+    Attributes:
+        None
     """
 
     @abstractmethod

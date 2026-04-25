@@ -1,5 +1,15 @@
 """
 Action for mandatory bin selection.
+
+This module provides the MandatorySelectionAction class, which identifies
+which bins MUST be visited during a simulation day based on configured strategies.
+
+Attributes:
+    MandatorySelectionAction: Command for mandatory bin identification.
+
+Example:
+    >>> # action = MandatorySelectionAction()
+    >>> # action.execute(context)
 """
 
 import os
@@ -21,11 +31,17 @@ from .base import SimulationAction, _flatten_config
 class MandatorySelectionAction(SimulationAction):
     """
     Identifies which bins are targets for collection based on various strategies.
+
+    Attributes:
+        None
     """
 
     def execute(self, context: Dict[str, Any]) -> None:  # noqa: C901
         """
         Execute mandatory selection strategies and update context['mandatory'].
+
+        Args:
+            context: Shared dictionary containing simulation state.
         """
         # Early exit if neural network explicitly predicts selection
         model_name = ""
@@ -216,7 +232,14 @@ class MandatorySelectionAction(SimulationAction):
         context["mandatory"] = sorted(list(final_mandatory))
 
     def _gather_strategies(self, context: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Gather all strategies from configuration."""
+        """Gather all strategies from configuration.
+
+        Args:
+            context: Shared dictionary containing simulation state.
+
+        Returns:
+            A list of dictionaries representing resolved strategies.
+        """
         strategies: List[Dict[str, Any]] = []
         raw_cfg = context.get("config", {})
         flat_cfg = _flatten_config(raw_cfg)
@@ -237,7 +260,14 @@ class MandatorySelectionAction(SimulationAction):
         return strategies
 
     def _parse_strategy_item(self, item: Any) -> List[Dict[str, Any]]:
-        """Parse a single mandatory configuration item."""
+        """Parse a single mandatory configuration item.
+
+        Args:
+            item: The configuration item to parse (Config, string path, or dict).
+
+        Returns:
+            A list of strategy definitions parsed from the item.
+        """
         strategies: List[Dict[str, Any]] = []
         if isinstance(item, MandatorySelectionConfig):
             strategies.append({"config": item})

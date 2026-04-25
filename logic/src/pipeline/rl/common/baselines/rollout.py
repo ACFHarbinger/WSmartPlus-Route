@@ -1,5 +1,14 @@
 """
 Greedy rollout baseline with significance-based updates.
+
+Attributes:
+    RolloutBaseline: Greedy rollout baseline with significance-based updates.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.baselines import RolloutBaseline
+    >>> baseline = RolloutBaseline()
+    >>> baseline.eval()
+    tensor(0.0)
 """
 
 from __future__ import annotations
@@ -30,6 +39,11 @@ class RolloutBaseline(Baseline):
     Uses greedy decoding with a frozen policy copy as baseline.
     The baseline policy is updated only if the current policy outperforms it
     significantly according to a T-test.
+
+    Attributes:
+        baseline_policy: Copy of the policy used as baseline.
+        update_every: Frequency of baseline updates.
+        bl_alpha: Significance level for T-test.
     """
 
     def __init__(
@@ -42,11 +56,13 @@ class RolloutBaseline(Baseline):
         """
         Initialize RolloutBaseline.
 
+
+
         Args:
             policy: Policy to use as initial baseline (will be copied).
             update_every: Update baseline every N epochs.
             bl_alpha: Significance level for T-test to decide on updates.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.update_every = update_every
@@ -57,7 +73,11 @@ class RolloutBaseline(Baseline):
             self.setup(policy)
 
     def setup(self, policy: nn.Module):
-        """Copy policy for baseline."""
+        """Copy policy for baseline.
+
+        Args:
+            policy: Policy to use as initial baseline (will be copied).
+        """
         self.baseline_policy = copy.deepcopy(policy)  # type: ignore[assignment]
         if self.baseline_policy is not None:
             self.baseline_policy.eval()  # type: ignore[misc]
@@ -65,13 +85,31 @@ class RolloutBaseline(Baseline):
                 param.requires_grad = False
 
     def _rollout(self, policy: nn.Module, td_or_dataset: Any, env: Optional[Any] = None) -> torch.Tensor:
-        """Run greedy rollout on a batch or dataset."""
+        """Run greedy rollout on a batch or dataset.
+
+        Args:
+            policy: Policy to use for rollout.
+            td_or_dataset: TensorDict or Dataset to evaluate.
+            env: Environment instance.
+
+        Returns:
+            Rewards from the rollout.
+        """
         if isinstance(td_or_dataset, Dataset):
             return self._rollout_dataset(policy, td_or_dataset, env)
         return self._rollout_batch(policy, td_or_dataset, env)
 
     def _rollout_dataset(self, policy: nn.Module, dataset: Any, env: Optional[Any] = None) -> torch.Tensor:
-        """Run greedy rollout on a complete dataset."""
+        """Run greedy rollout on a complete dataset.
+
+        Args:
+            policy: Policy to use for rollout.
+            dataset: Dataset to evaluate.
+            env: Environment instance.
+
+        Returns:
+            Rewards from the rollout.
+        """
         if env is None:
             raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
 
@@ -128,7 +166,16 @@ class RolloutBaseline(Baseline):
         return torch.cat(rewards)
 
     def _rollout_batch(self, policy: nn.Module, td: Any, env: Optional[Any] = None) -> torch.Tensor:
-        """Run greedy rollout on a single batch."""
+        """Run greedy rollout on a single batch.
+
+        Args:
+            policy: Policy to use for rollout.
+            td: TensorDict to evaluate.
+            env: Environment instance.
+
+        Returns:
+            Rewards from the rollout.
+        """
         # Note: deepcopy can be expensive, but ensure_tensordict helps standardize
         device = next(policy.parameters()).device
         td_data = ensure_tensordict(td, device)
@@ -153,7 +200,16 @@ class RolloutBaseline(Baseline):
         policy: Optional[nn.Module] = None,
         env: Optional[Any] = None,
     ) -> Any:
-        """Wrap the dataset with rollout baseline values."""
+        """Wrap the dataset with rollout baseline values.
+
+        Args:
+            dataset: Dataset to wrap.
+            policy: Policy to use for rollout.
+            env: Environment instance.
+
+        Returns:
+            Dataset with rollout baseline values.
+        """
         # Compatibility: handle positional arguments if called as (policy, dataset, env)
         if isinstance(dataset, nn.Module):
             # Probably called as wrap_dataset(policy, dataset, env)
@@ -181,6 +237,14 @@ class RolloutBaseline(Baseline):
     def eval(self, td: Any, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
         """
         Compute baseline value.
+
+        Args:
+            td: TensorDict to evaluate.
+            reward: Reward tensor.
+            env: Environment instance.
+
+        Returns:
+            Baseline value.
         """
         # If we have a baseline policy, run it to get the baseline value
         if self.baseline_policy is not None:
@@ -199,7 +263,14 @@ class RolloutBaseline(Baseline):
         val_dataset: Optional[Any] = None,
         env: Optional[Any] = None,
     ):
-        """Update baseline policy if current policy improves significantly."""
+        """Update baseline policy if current policy improves significantly.
+
+        Args:
+            policy: Policy to evaluate.
+            epoch: Epoch number.
+            val_dataset: Dataset for evaluation.
+            env: Environment instance.
+        """
         if (epoch + 1) % self.update_every == 0:
             if (
                 val_dataset is not None

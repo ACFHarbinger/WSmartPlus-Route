@@ -3,6 +3,15 @@ Simulation state encapsulation and consolidation.
 
 This module provides the SimulationDayContext dataclass and orchestrates
 the execution of a single simulation day using the Command Pattern.
+
+Attributes:
+    SimulationDayContext: Represents the context of a single simulation day.
+
+Example:
+    >>> from logic.src.pipeline.simulations.day_context import SimulationDayContext
+    >>> context = SimulationDayContext(graph_size=51)
+    >>> context.graph_size
+    51
 """
 
 from __future__ import annotations
@@ -93,9 +102,10 @@ class SimulationDayContext(Mapping):
         cost_weight: Weight for length.
         waste_weight: Weight for waste.
         overflow_penalty: Weight for overflows.
-        engine: Policy engine.
-        threshold: Decision threshold.
+        engine: The policy engine type (e.g., 'neural', 'classical').
+        threshold: Decision threshold for bin selection.
         seed: Base seed for the simulation.
+        policy_seed: Policy-specific seed for RNG isolation.
 
         # Mutable attributes added during run_day
         daily_log: Dictionary for daily logs.
@@ -169,7 +179,11 @@ class SimulationDayContext(Mapping):
 
     @property
     def field_names(self):
-        """Returns the names of all fields in the dataclass."""
+        """Returns the names of all fields in the dataclass.
+
+        Returns:
+            List of field names.
+        """
         return [f.name for f in fields(self)]
 
     def __post_init__(self):
@@ -178,27 +192,62 @@ class SimulationDayContext(Mapping):
             self.config = {}
 
     def __getitem__(self, key: str) -> Any:
-        """Dictionary-like access to context fields."""
+        """Dictionary-like access to context fields.
+
+        Args:
+            key: The key to access.
+
+        Returns:
+            The value associated with the key.
+        """
         return getattr(self, key)
 
     def __setitem__(self, key: str, value: Any) -> None:
-        """Allow setting context fields via dictionary syntax."""
+        """Allow setting context fields via dictionary syntax.
+
+        Args:
+            key: The name of the field to set.
+            value: The value to assign to the field.
+        """
         setattr(self, key, value)
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Safely get a value from the context with an optional default."""
+        """Safely get a value from the context with an optional default.
+
+        Args:
+            key: The name of the field to retrieve.
+            default: The default value to return if the field does not exist.
+
+        Returns:
+            The value of the specified field or the default.
+        """
         return getattr(self, key, default)
 
     def __iter__(self):
-        """Return an iterator over field names to support Mapping interface."""
+        """Return an iterator over field names to support Mapping interface.
+
+        Returns:
+            Iterator over the field names.
+        """
         return iter((f.name for f in fields(self)))
 
     def __len__(self):
-        """Return the number of fields to support Mapping interface."""
+        """Return the number of fields to support Mapping interface.
+
+        Returns:
+            Number of fields in the dataclass.
+        """
         return len(fields(self))
 
     def __contains__(self, key: object) -> bool:
-        """Check if a field exists in the context."""
+        """Check if a field exists in the context.
+
+        Args:
+            key: The name of the field to check.
+
+        Returns:
+            True if the field exists, False otherwise.
+        """
         if not isinstance(key, str):
             return False
         return hasattr(self, key)
@@ -210,7 +259,17 @@ def set_daily_waste(
     device: torch.device,
     fill: Optional[np.ndarray] = None,
 ) -> Dict[str, Any]:
-    """Updates neural model input with current bin waste levels."""
+    """Updates neural model input with current bin waste levels.
+
+    Args:
+        model_data: Dictionary of model input tensors.
+        waste: Array of current waste levels for all bins.
+        device: Target torch device.
+        fill: Array of current fill levels for all bins.
+
+    Returns:
+        Updated model_data dictionary moved to the target device.
+    """
     waste_tensor = torch.as_tensor(waste, dtype=torch.float32).unsqueeze(0).div(100.0)
     if device.type == "cuda":
         waste_tensor = waste_tensor.pin_memory()
@@ -239,7 +298,23 @@ def get_daily_results(
     profit: float,
     time: float,
 ) -> Dict[str, Union[int, float, List[Union[int, str]]]]:
-    """Formats raw simulation outputs into structured daily log dictionary."""
+    """Formats raw simulation outputs into structured daily log dictionary.
+
+    Args:
+        total_collected: Total weight of waste collected (kg).
+        ncol: Number of bins collected.
+        cost: Total distance traveled (km).
+        tour: List of node indices in the collection route.
+        day: Current simulation day index.
+        new_overflows: Number of new overflows occurred.
+        sum_lost: Amount of waste lost due to overflows (kg).
+        coordinates: DataFrame containing bin metadata and coordinates.
+        profit: Total profit from collected waste.
+        time: Execution time of the routing policy (s).
+
+    Returns:
+        Dictionary containing formatted daily metrics and the route.
+    """
     dlog: Dict[str, Any] = {key: 0 for key in DAY_METRICS}
     dlog["day"] = day
     dlog["overflows"] = new_overflows
@@ -269,6 +344,11 @@ def get_daily_results(
 def run_day(context: SimulationDayContext) -> SimulationDayContext:
     """
     Orchestrates a single simulation day using the Command Pattern.
+    Args:
+        context: The simulation context for the day.
+
+    Returns:
+        The updated context after executing all daily actions.
     """
     # Compute policy-specific seed for RNG isolation
     canonical_name = get_canonical_policy_name(context.policy_name)
