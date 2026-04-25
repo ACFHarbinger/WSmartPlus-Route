@@ -1,5 +1,23 @@
 """
 Distance Calculation and Network Sparsification.
+
+Attributes:
+    haversine_distance: Stand-alone vectorized Haversine distance calculation.
+    compute_distance_matrix: Computes or loads cached pairwise distance matrix for bin locations.
+    DistanceStrategy: Base class for distance calculation strategies.
+    IterativeDistanceStrategy: Base class for iterative distance calculation strategies.
+    EuclideanStrategy: Computes distances using Euclidean metric.
+    FileStrategy: Reads precomputed distances from a file.
+    GeodesicStrategy: Computes great-circle distances on a sphere.
+    GeoPandasStrategy: Computes distances using GeoPandas.
+    GoogleMapsStrategy: Computes distances using Google Maps API.
+    HaversineStrategy: Computes distances using Haversine formula.
+    OSMStrategy: Computes distances using OpenStreetMap data.
+
+Example:
+    from logic.src.data.network import haversine_distance, compute_distance_matrix
+    haversine_distance(lat1, lng1, lat2, lng2)
+    compute_distance_matrix(coords, method="haversine")
 """
 
 import contextlib
@@ -34,6 +52,15 @@ def haversine_distance(
 ) -> Union[float, np.ndarray]:
     """
     Stand-alone vectorized Haversine distance calculation.
+
+    Args:
+        lat1: Latitude(s) of the first point(s).
+        lng1: Longitude(s) of the first point(s).
+        lat2: Latitude(s) of the second point(s).
+        lng2: Longitude(s) of the second point(s).
+
+    Returns:
+        Distance(s) between the first and second point(s).
     """
     lat1, lng1, lat2, lng2 = np.radians(lat1), np.radians(lng1), np.radians(lat2), np.radians(lng2)
     a = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lng2 - lng1) / 2) ** 2
@@ -44,6 +71,14 @@ def haversine_distance(
 def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) -> np.ndarray:
     """
     Computes or loads cached pairwise distance matrix for bin locations.
+
+    Args:
+        coords: DataFrame with coordinates (must contain 'ID', 'lat', 'lng' columns).
+        method: Distance calculation method (e.g., 'haversine', 'gmaps', 'osm').
+        kwargs: Additional arguments for the distance strategy.
+
+    Returns:
+        Distance matrix as a NumPy array.
     """
     STRATEGIES = {
         "gmaps": GoogleMapsStrategy,

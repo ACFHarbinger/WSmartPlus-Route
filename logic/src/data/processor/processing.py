@@ -1,4 +1,17 @@
-"""Data transformation functions for coordinates and model inputs."""
+"""Data transformation functions for coordinates and model inputs.
+
+Attributes:
+    _mapper: Instance of SimulationDataMapper for processing.
+    process_data: Process raw bin data and coordinates for simulation use.
+    process_coordinates: Normalize and format coordinates using the specified method.
+    process_model_data: Prepare data for neural model inputs.
+
+Example:
+    from logic.src.data.processor import process_data, process_coordinates, process_model_data
+    processed_data, processed_coordinates = process_data(data, bins_coordinates, depot)
+    depot, locations = process_coordinates(processed_coordinates, method)
+    model_data, edges_and_dm, profit_vars = process_model_data(depot, loc, method)
+"""
 
 import contextlib
 

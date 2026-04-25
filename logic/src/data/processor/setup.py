@@ -1,4 +1,13 @@
-"""Simulation setup functions for base data and distance computation."""
+"""Simulation setup functions for base data and distance computation.
+
+Attributes:
+    setup_basedata: Load depot, bin statistics and coordinates for a given area.
+    setup_dist_path_tup: Compute distance matrix, edge structure and shortest paths.
+
+Example:
+    data, bins_coordinates, depot = setup_basedata(n_bins, data_dir, area, waste_type)
+    (dist_matrix_edges, paths, dm_tensor, distC), adj_matrix = setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_filename, gapik_file, symkey_name, edge_thresh, edge_method, focus_idx)
+"""
 
 import contextlib
 

@@ -1,4 +1,29 @@
-"""DataFrame manipulation utilities for simulation data."""
+"""DataFrame manipulation utilities for simulation data.
+
+Attributes:
+    sort_dataframe: Sort dataframe by a given metric column.
+    get_df_types: Infer and map column data types to specific precisions.
+    setup_df: Merge depot and bin data into a single DataFrame.
+    sample_df: Sample a subset of bins from a DataFrame.
+    process_indices: Extract a subset of rows based on indices.
+    create_dataframe_from_matrix: Create a bin-level DataFrame from a fill-history matrix.
+    convert_to_dict: Convert a coordinates DataFrame to a ``{ID: {lat, lng}}`` dict.
+    save_matrix_to_excel: Export a fill-history matrix to an Excel file.
+
+Example:
+    >>> from logic.src.data.processor.dataframes import sort_dataframe
+    >>> df = pd.DataFrame({"A": [1, 2, 3], "B": [3, 2, 1]})
+    >>> sort_dataframe(df, "A")
+           A  B
+    0      1  3
+    1      2  2
+    2      3  1
+    >>> sort_dataframe(df, "A", ascending_order=False)
+           A  B
+    0      3  1
+    1      2  2
+    2      1  3
+"""
 
 import numpy as np
 import pandas as pd
@@ -133,6 +158,9 @@ def save_matrix_to_excel(matrix, results_dir, seed, data_dist, policy, sample_id
         data_dist: Distribution name.
         policy: Policy name.
         sample_id: Sample identifier.
+
+    Returns:
+        Path to the generated Excel file.
     """
     result = _mapper.save_results(matrix, results_dir, seed, data_dist, policy, sample_id)
     _log_processor_event(

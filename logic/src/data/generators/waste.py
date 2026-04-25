@@ -4,6 +4,13 @@ Waste generation utilities for VRP instances.
 This module provides functions for generating waste/fill values using various
 statistical and spatial distributions. It delegates to distribution classes
 from ``logic.src.data.distributions``.
+
+Attributes:
+    generate_waste: Generates waste values based on a distribution or empirical data.
+
+Example:
+    from logic.src.data.generators.waste import generate_waste
+    waste = generate_waste(10, "gamma1", (coords, edges))
 """
 
 from typing import Any, Optional, Tuple, Union
@@ -38,17 +45,21 @@ def generate_waste(
     Delegates to distribution classes from ``logic.src.data.distributions``
     for standard distributions.
 
+
+
     Args:
-        problem_size: Number of nodes/bins.
-        distribution: Distribution type ('empty', 'const', 'unif', 'gammaX', 'emp', 'dist', 'beta').
-        graph: (depot, loc) coordinates.
-        dataset_size: Number of datasets to generate. Defaults to 1.
-        grid: GridBase object for empirical sampling.
-        rng: Random number generator.
-        **kwargs: Additional parameters (e.g., alpha, beta for beta distribution).
+        problem_size: Description of problem_size.
+        distribution: Description of distribution.
+        graph: Description of graph.
+        dataset_size: Description of dataset_size.
+        grid: Description of grid.
+        rng: Description of rng.
+        sample_method: Description of sample_method.
+        kwargs: Description of kwargs.
 
     Returns:
         Generated waste values.
+
     """
     size = (dataset_size, problem_size)
     dist_obj: Optional[BaseDistribution] = None

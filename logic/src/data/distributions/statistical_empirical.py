@@ -1,5 +1,13 @@
 """
 Empirical sampling distributions.
+
+Attributes:
+    Empirical(grid, area, indices, data_path, dataset):
+        Empirical dataset sampling.
+
+Example:
+    dist = Empirical(data_path="data/test.pkl")
+    data = dist._sample_tensor(torch.Size((10, 50)))
 """
 
 from __future__ import annotations
@@ -19,7 +27,13 @@ from .base import BaseDistribution
 
 
 class Empirical(BaseDistribution):
-    """Sampling from an empirical dataset (e.g. file or Bins object)."""
+    """Sampling from an empirical dataset (e.g. file or Bins object).
+
+    Attributes:
+        grid (Optional[GridBase]): The grid object.
+        dataset (Optional[Any]): The dataset object.
+        data_path (Optional[str]): The path to the dataset.
+    """
 
     def __init__(
         self,
@@ -31,10 +45,14 @@ class Empirical(BaseDistribution):
     ):
         """Initialize Class.
 
+
+
         Args:
-            grid (Optional[GridBase]): Grid object.
-            area (Optional[str]): Area name.
-            data_path (Optional[str]): Path to data file/directory.
+            grid: Description of grid.
+            area: Description of area.
+            indices: Description of indices.
+            data_path: Description of data_path.
+            dataset: Description of dataset.
         """
         self.grid = grid
         self.dataset = dataset

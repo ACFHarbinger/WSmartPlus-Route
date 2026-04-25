@@ -1,5 +1,25 @@
 """
 Coordinate transformation and normalization logic for simulation data.
+
+Attributes:
+    _format_c3d: Format coordinates using the 3D Cartesian method.
+    _format_ecp: Format coordinates using the Equidistant Cylindrical Projection.
+    _format_hdp: Format coordinates using the Haberman Distance Preserving projection.
+    _format_mun: Format coordinates using the Mean-Unit Normalization method.
+    _format_mmn: Format coordinates using the Mean-Max Normalization method.
+    _format_s4d: Format coordinates using the Spherical 4D method.
+    _format_smsd: Format coordinates using the Standardized Mean Squared Differences method.
+    _format_wmp: Format coordinates using the World Map Projection method.
+    format_coordinates: Normalize and format coordinates based on the specified method.
+
+Example:
+    >>> from logic.src.data.processor.formatting import format_coordinates
+    >>> coords = np.array([[40.7128, -74.0060], [34.0522, -118.2437]])
+    >>> depot, loc = format_coordinates(coords, "mmn")
+    >>> print(depot)
+    [-0.07018945  0.9974605 ]
+    >>> print(loc)
+    [[[ 0.34246975  0.9408447 ]] [[-0.60114167  0.79934471]]]
 """
 
 from typing import Any, List, Optional, Tuple
@@ -14,6 +34,14 @@ def format_coordinates(coords: Any, method: str, col_names: Optional[List[str]] 
     """
     Normalizes and formats coordinates based on the specified method.
     Supported methods: 'mmn', 'mun', 'smsd', 'ecp', 'utmp', 'wmp', 'hdp', 'c3d', 's4d'.
+
+    Args:
+        coords: Coordinates to format, can be NumPy array or pandas DataFrame.
+        method: Normalization method (e.g., 'mmn', 'mun', 'smsd', 'ecp', 'utmp', 'wmp', 'hdp', 'c3d', 's4d').
+        col_names: Optional list of column names for latitude and longitude.
+
+    Returns:
+        Tuple of (depot, loc), where depot is the depot coordinates and loc is the location coordinates.
     """
     assert method in ["mmn", "mun", "smsd", "ecp", "utmp", "wmp", "hdp", "c3d", "s4d", None]
 
@@ -59,6 +87,16 @@ def format_coordinates(coords: Any, method: str, col_names: Optional[List[str]] 
 
 
 def _format_c3d(lat, lng, IS_PANDAS):
+    """Format coordinates using the 3D Cartesian method.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (depot, loc), where depot is the depot coordinates and loc is the location coordinates.
+    """
     latr = np.radians(lat)
     lngr = np.radians(lng)
     x_axis = EARTH_RADIUS * np.cos(latr) * np.cos(lngr)
@@ -81,6 +119,16 @@ def _format_c3d(lat, lng, IS_PANDAS):
 
 
 def _format_s4d(lat, lng, IS_PANDAS):
+    """Format coordinates using the Spherical 4D method.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (depot, loc), where depot is the depot coordinates and loc is the location coordinates.
+    """
     latr = np.radians(lat)
     lngr = np.radians(lng)
     lats, latc = np.sin(latr), np.cos(latr)
@@ -108,6 +156,17 @@ def _format_s4d(lat, lng, IS_PANDAS):
 
 
 def _format_mun(lat, lng, coords, IS_PANDAS):
+    """Format coordinates using the Mean-Unit Normalization method.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        coords: Coordinates to format (used for non-pandas arrays).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.
+    """
     if IS_PANDAS:
         lat = (lat - lat.mean()) / (lat.max() - lat.min())
         lng = (lng - lng.mean()) / (lng.max() - lng.min())
@@ -121,6 +180,17 @@ def _format_mun(lat, lng, coords, IS_PANDAS):
 
 
 def _format_smsd(lat, lng, coords, IS_PANDAS):
+    """Format coordinates using the Standardized Mean Squared Differences method.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        coords: Coordinates to format (used for non-pandas arrays).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.
+    """
     if IS_PANDAS:
         lat = (lat - lat.mean()) / lat.std()
         lng = (lng - lng.mean()) / lng.std()
@@ -133,6 +203,18 @@ def _format_smsd(lat, lng, coords, IS_PANDAS):
 
 
 def _format_ecp(lat, lng, coords, IS_PANDAS):
+    """Format coordinates using the Equidistant Cylindrical Projection method.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        coords: Coordinates to format (used for non-pandas arrays).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.
+    """
+
     def per_func(arr, percent):
         """Calculate the percentile for a given array (pandas or numpy)."""
         if IS_PANDAS:
@@ -158,6 +240,17 @@ def _format_ecp(lat, lng, coords, IS_PANDAS):
 
 
 def _format_wmp(lat, lng, coords, IS_PANDAS):
+    """Format coordinates using the World Map Projection method.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        coords: Coordinates to format (used for non-pandas arrays).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.
+    """
     lng = EARTH_WMP_RADIUS * np.radians(lng)
     lat = EARTH_WMP_RADIUS * np.log(np.tan(np.pi / 4 + np.radians(lat) / 2))
     if not IS_PANDAS:
@@ -166,6 +259,18 @@ def _format_wmp(lat, lng, coords, IS_PANDAS):
 
 
 def _format_hdp(lat, lng, coords, IS_PANDAS):
+    """Format coordinates using the Haberman Distance Preserving projection.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        coords: Coordinates to format (used for non-pandas arrays).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.
+    """
+
     def max_func(h1, h2):
         """Return the maximum of two values or element-wise maximum."""
         if IS_PANDAS:
@@ -199,6 +304,17 @@ def _format_hdp(lat, lng, coords, IS_PANDAS):
 
 
 def _format_mmn(lat, lng, coords, IS_PANDAS):
+    """Format coordinates using the Mean-Max Normalization method.
+
+    Args:
+        lat: Latitude values (pandas Series or numpy array).
+        lng: Longitude values (pandas Series or numpy array).
+        coords: Coordinates to format (used for non-pandas arrays).
+        IS_PANDAS: Whether the input is a pandas DataFrame.
+
+    Returns:
+        Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.
+    """
     if IS_PANDAS:
         lat = (lat - lat.min()) / (lat.max() - lat.min()) if lat.max() != lat.min() else lat
         lng = (lng - lng.min()) / (lng.max() - lng.min()) if lng.max() != lng.min() else lng

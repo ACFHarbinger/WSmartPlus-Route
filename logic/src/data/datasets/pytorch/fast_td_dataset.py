@@ -1,5 +1,16 @@
 """
 Optimized TensorDict dataset.
+
+Attributes:
+    FastTdDataset: Optimized dataset for TensorDicts.
+
+Example:
+    >>> from logic.src.data.datasets import FastTdDataset
+    >>> dataset = FastTdDataset(td)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Any
@@ -11,6 +22,10 @@ from torch.utils.data import Dataset
 class FastTdDataset(Dataset):
     """
     Optimized Dataset for TensorDicts.
+
+    Attributes:
+        data_len: Number of samples in the dataset.
+        data: TensorDict containing the dataset.
     """
 
     def __init__(self, td: TensorDict):

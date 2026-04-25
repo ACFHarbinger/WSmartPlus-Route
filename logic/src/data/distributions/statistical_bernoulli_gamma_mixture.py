@@ -1,5 +1,14 @@
 """
 Statistical sampling distributions - Bernoulli-Gamma Mixture.
+
+Attributes:
+    p (Union[float, torch.Tensor]): Probability of a non-zero (Gamma-distributed) event.
+    alpha (Union[float, torch.Tensor]): Gamma shape parameter.
+    theta (Union[float, torch.Tensor]): Gamma scale parameter.
+
+Example:
+    bgm = BernoulliGammaMixture()
+    bgm.sample(torch.Size((10, 50)))
 """
 
 from typing import Optional, Tuple, Union
@@ -11,7 +20,13 @@ from .base import BaseDistribution
 
 
 class BernoulliGammaMixture(BaseDistribution):
-    """Bernoulli-Gamma Mixture distribution sampling."""
+    """Bernoulli-Gamma Mixture distribution sampling.
+
+    Attributes:
+        p (Union[float, torch.Tensor]): Probability of a non-zero (Gamma-distributed) event.
+        alpha (Union[float, torch.Tensor]): Gamma shape parameter.
+        theta (Union[float, torch.Tensor]): Gamma scale parameter.
+    """
 
     def __init__(
         self,

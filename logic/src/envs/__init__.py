@@ -3,6 +3,15 @@ Environment module for WSmart-Route.
 
 This module provides RL4CO-style environment abstractions for
 combinatorial optimization problems.
+
+Attributes:
+    ENV_REGISTRY: Registry of all environments.
+    get_env: Factory function to get environment by name.
+
+Example:
+    >>> env = get_env("vrpp", num_loc=25, seed=42)
+    >>> env
+    <logic.src.envs.routing.vrpp.VRPPEnv object at 0x...>
 """
 
 from logic.src.envs.base.base import RL4COEnvBase
@@ -58,15 +67,18 @@ def get_env(name: str, **kwargs) -> RL4COEnvBase:
     """
     Factory function to get environment by name.
 
+
+
     Args:
-        name: Environment name (vrpp, cvrpp, wcvrp, irp, atsp, cvrp, op, etc.)
-        **kwargs: Environment configuration parameters.
+        name: Description of name.
+        kwargs: Description of kwargs.
 
     Returns:
         Initialized environment instance.
 
     Raises:
         ValueError: If environment name is not recognized.
+
     """
     name = name.lower()
     if name not in ENV_REGISTRY:

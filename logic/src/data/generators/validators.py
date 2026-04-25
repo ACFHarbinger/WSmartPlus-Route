@@ -1,6 +1,15 @@
 """validators.py module.
 
 Validation and sanitization for data generation configuration.
+
+Attributes:
+    _sanitize_area: Sanitize and validate area name.
+    _sanitize_waste: Sanitize and validate waste type.
+    validate_data_config: Validate and sanitize data generation configuration.
+
+Example:
+    from logic.src.data.generators.validators import validate_data_config
+    validate_data_config(cfg)
 """
 
 import re
@@ -12,6 +21,14 @@ from logic.src.constants import MAP_DEPOTS, WASTE_TYPES
 
 
 def _sanitize_area(area: Optional[str]) -> str:
+    """Docstring.
+
+    Args:
+        area: Description of area.
+
+    Returns:
+        Description of return value.
+    """
     if area is None:
         return "riomaior"
     area = re.sub(r"[^a-zA-Z]", "", area.lower())
@@ -20,6 +37,14 @@ def _sanitize_area(area: Optional[str]) -> str:
 
 
 def _sanitize_waste(waste: Optional[str]) -> str:
+    """Docstring.
+
+    Args:
+        waste: Description of waste.
+
+    Returns:
+        Description of return value.
+    """
     if waste is None:
         return "plastic"
     waste = re.sub(r"[^a-zA-Z]", "", waste.lower())
