@@ -3,6 +3,15 @@ TSP Policy module.
 
 Implements a single-vehicle routing policy (TSP) that visits a specific set of bins.
 Agnostic to how the targets were selected.
+
+Attributes:
+    TSPPolicy: TSP Policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem import TSPPolicy
+    >>> policy = TSPPolicy()
+    >>> policy.execute(mandatory_nodes=[1, 2, 3], capacity=100, revenue=100, cost_unit=1)
+    ([1, 2, 3], 100.0, 0.0)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -48,6 +57,8 @@ class TSPPolicy(BaseRoutingPolicy):
     capacities.
 
     Registry key: ``"tsp"``
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Union[TSPConfig, Dict[str, Any]]] = None):
@@ -60,10 +71,19 @@ class TSPPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Docstring.
+
+        Returns:
+            Description of return value.
+        """
         return TSPConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for TSP."""
+        """Return config key for TSP.
+
+        Returns:
+            Description of return value.
+        """
         return "tsp"
 
     def _run_solver(
@@ -90,29 +110,24 @@ class TSPPolicy(BaseRoutingPolicy):
            collection fleet while maintaining the spatial efficiency of the
            giant tour.
 
+
+
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                TSP parameters (time_limit, engine).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Description of sub_dist_matrix.
+            sub_wastes: Description of sub_wastes.
+            capacity: Description of capacity.
+            revenue: Description of revenue.
+            cost_unit: Description of cost_unit.
+            values: Description of values.
+            mandatory_nodes: Description of mandatory_nodes.
+            kwargs: Description of kwargs.
 
         Returns:
             Tuple[List[List[int]], float, float]: A 3-tuple containing:
                 - routes: Optimized collection routes (list-of-lists, local indices).
                 - profit: Total calculated net profit (Total Revenue - Total Cost).
                 - cost: Total travel cost calculated by the solver.
+
         """
         # 1. Initialize type-safe Params
         params = TSPParams.from_config(self._config or values)

@@ -49,6 +49,16 @@ References:
 
     Burke, E. K., et al. (2013). Hyper-heuristics: A survey of the state of
     the art. Journal of the Operational Research Society, 64(12), 1695–1724.
+
+Attributes:
+    AdaptiveRouteConstructorOrchestrator: Meta-constructor that learns optimal
+        ordering of routing heuristics through online experience.
+
+Example:
+    >>> from logic.src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator import AdaptiveRouteConstructorOrchestrator
+    >>> params = ARCOParams()
+    >>> arco = AdaptiveRouteConstructorOrchestrator(params)
+    >>> routes = arco.build_routes(context)
 """
 
 from __future__ import annotations
@@ -113,6 +123,8 @@ class AdaptiveRouteConstructorOrchestrator(BaseRoutingPolicy):
             w_first[c_0] ← (1 − α) · w_first[c_0] + α · r_0
 
     Registry key: ``"arco"``
+    Attributes:
+        None
     """
 
     def __init__(self, config: Any = None) -> None:
@@ -147,12 +159,22 @@ class AdaptiveRouteConstructorOrchestrator(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls):
+        """Docstring.
+
+        Returns:
+            Description of return value.
+        """
         from logic.src.configs.policies.arco import ARCOConfig
 
         return ARCOConfig
 
     @classmethod
     def _get_config_key(cls) -> str:
+        """Docstring.
+
+        Returns:
+            Description of return value.
+        """
         return "arco"
 
     # ------------------------------------------------------------------
@@ -207,11 +229,14 @@ class AdaptiveRouteConstructorOrchestrator(BaseRoutingPolicy):
         3. Observes marginal improvement per step and updates weights.
 
         Args:
+            kwargs: Description of kwargs.
             **kwargs: Simulation context (tour, cost, profit, search_context,
                 multi_day_context, mandatory, bins, distance_matrix, …).
 
         Returns:
             5-tuple: (tour, cost, profit, search_context, multi_day_context).
+        Args:
+            kwargs: Description of kwargs.
         """
         self._initialize_constructors()
 
@@ -498,7 +523,21 @@ class AdaptiveRouteConstructorOrchestrator(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used — execute() is overridden directly."""
+        """Not used — execute() is overridden directly.
+
+        Args:
+            sub_dist_matrix: Description of sub_dist_matrix.
+            sub_wastes: Description of sub_wastes.
+            capacity: Description of capacity.
+            revenue: Description of revenue.
+            cost_unit: Description of cost_unit.
+            values: Description of values.
+            mandatory_nodes: Description of mandatory_nodes.
+            kwargs: Description of kwargs.
+
+        Returns:
+            Description of return value.
+        """
         return [], 0.0, 0.0
 
 
@@ -516,6 +555,12 @@ def _sigmoid_reward(raw: float, scale: float = 1.0) -> float:
 
     f(x) = x / (x + scale)    for x > 0
     f(x) = 0                  for x ≤ 0
+    Args:
+        raw: Description of raw.
+        scale: Description of scale.
+
+    Returns:
+        Description of return value.
     """
     if raw <= 0.0:
         return 0.0
