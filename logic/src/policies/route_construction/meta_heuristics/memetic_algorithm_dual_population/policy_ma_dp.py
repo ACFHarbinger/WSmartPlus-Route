@@ -21,6 +21,12 @@ class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[MemeticAlgorithmDualPopulationConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the Memetic Algorithm Dual Population policy.
+
+        Args:
+            config: Optional configuration dictionary.
+        """
         super().__init__(config)
 
     @classmethod

@@ -189,6 +189,12 @@ class MIPKnapsackSelection(IMandatorySelectionStrategy):
     """
 
     def __init__(self, overflow_penalty_frac: float = 1.0) -> None:
+        """
+        Initializes the MIP knapsack selection strategy.
+
+        Args:
+            overflow_penalty_frac: Fraction of overflow penalty to consider.
+        """
         self.overflow_penalty_frac = overflow_penalty_frac
 
     def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:

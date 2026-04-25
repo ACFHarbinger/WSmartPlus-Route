@@ -41,6 +41,13 @@ class LearnedSelection(IMandatorySelectionStrategy):
     """
 
     def __init__(self, model_path: Optional[str] = None, threshold: float = 0.5):
+        """
+        Initializes the learned selection strategy.
+
+        Args:
+            model_path: Optional path to the learned model.
+            threshold: Selection threshold.
+        """
         self.model_path = model_path
         self._learned_threshold = threshold
         self._model: Any = None

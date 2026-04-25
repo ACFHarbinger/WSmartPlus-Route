@@ -61,6 +61,15 @@ class GlobalRegistry:
         """
 
         def decorator(obj: T_Algorithm) -> T_Algorithm:
+            """
+            Inner decorator function.
+
+            Args:
+                obj: The class or function to register.
+
+            Returns:
+                The registered class or function.
+            """
             cls._registry[obj] = set(tags)
             return obj
 

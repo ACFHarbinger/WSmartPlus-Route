@@ -157,6 +157,7 @@ def run_popmusic(  # noqa: C901
     centroid_cache: Dict[int, np.ndarray] = {}
 
     def get_centroid(route_idx: int) -> np.ndarray:
+        """Returns the geographic centroid of nodes in the given route."""
         if route_idx not in centroid_cache:
             nodes = [n for n in routes[route_idx] if n != 0]
             if nodes:

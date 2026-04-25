@@ -55,12 +55,18 @@ class LagrangianState:
     gamma: np.ndarray = field(init=False)
 
     def __post_init__(self) -> None:
+        """Initializes state tensors after dataclass initialization."""
         self.lambdas = np.zeros((self.n_bins, self.horizon), dtype=float)
         self.x_K = np.zeros((self.n_bins, self.horizon), dtype=float)
         self.x_R = np.zeros((self.n_bins, self.horizon), dtype=float)
         self.gamma = np.ones(self.horizon, dtype=float)
 
     def snapshot(self) -> Dict[str, np.ndarray]:
+        """Returns a copy of the current state tensors.
+
+        Returns:
+            Dict[str, np.ndarray]: Dictionary containing copies of state tensors.
+        """
         return {
             "lambdas": self.lambdas.copy(),
             "x_K": self.x_K.copy(),
@@ -88,6 +94,13 @@ class LagrangianCoordinator:
         tracker: DualBoundTracker,
         lag_params: LagrangianParams,
     ):
+        """Initializes the Lagrangian coordinator.
+
+        Args:
+            state (LagrangianState): Shared state object.
+            tracker (DualBoundTracker): The dual bound tracking and update engine.
+            lag_params (LagrangianParams): Hyperparameters for the matheuristic.
+        """
         self.state = state
         self.tracker = tracker
         self.params = lag_params
@@ -236,12 +249,27 @@ class LagrangianCoordinator:
         return float(np.clip(mu, self.params.polyak_mu_floor, self.params.polyak_mu_ceil))
 
     def current_dual_bound(self) -> float:
+        """Returns the current best dual bound from the tracker.
+
+        Returns:
+            float: Best dual bound found.
+        """
         return self.tracker.current_dual_bound()
 
     def lambdas_snapshot(self) -> np.ndarray:
+        """Returns a thread-safe copy of the current multipliers.
+
+        Returns:
+            np.ndarray: Copy of the lambda matrix.
+        """
         with self._lock:
             return self.state.lambdas.copy()
 
     def gamma_snapshot(self) -> np.ndarray:
+        """Returns a thread-safe copy of the current gamma trust weights.
+
+        Returns:
+            np.ndarray: Copy of the gamma vector.
+        """
         with self._lock:
             return self.state.gamma.copy()

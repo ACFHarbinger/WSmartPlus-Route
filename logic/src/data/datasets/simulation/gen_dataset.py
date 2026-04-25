@@ -60,6 +60,7 @@ class GenerativeDataset(SimulationDataset):
         grid: Optional[Any] = None,
         seed: Optional[int] = None,
     ):
+        """Initialize the generative dataset."""
         self.data_dir = data_dir
         self.n_samples = n_samples
         self.n_days = n_days
@@ -88,6 +89,7 @@ class GenerativeDataset(SimulationDataset):
         self.noisy_waste_fills = self._apply_noise(self.waste_fills)
 
     def __len__(self) -> int:
+        """Return the number of samples in the dataset."""
         return self.n_samples
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:

@@ -1,3 +1,7 @@
+"""
+Matheuristics for route construction.
+"""
+
 from .adaptive_kernel_search import policy_aks as policy_aks
 from .cluster_first_route_second import policy_cf_rs as policy_cf_rs
 from .column_generation_heuristic import policy_cgh as policy_cgh

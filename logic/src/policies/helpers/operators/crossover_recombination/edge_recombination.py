@@ -1,3 +1,5 @@
+"""Edge Recombination Crossover (ERX)."""
+
 from __future__ import annotations
 
 import random

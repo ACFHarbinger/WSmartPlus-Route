@@ -1,3 +1,7 @@
+"""
+Column Generation Heuristic (CGH) policy implementation.
+"""
+
 from typing import Any, Dict, List, Optional, Tuple
 
 import gurobipy as gp
@@ -30,6 +34,12 @@ class ColumnGenerationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the CGH policy.
+
+        Args:
+            config: Optional Hydra configuration.
+        """
         super().__init__(config)
         self.params = CGHParams.from_config(config)
         self.cg_iters = self.params.cg_iters
@@ -97,6 +107,7 @@ class ColumnGenerationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
             constrs[i] = model.addConstr(gp.quicksum([]) >= 0, name=f"cov_{i}")  # dummy initial
 
         def _add_col(rt):
+            """Helper to add a column from a route rt."""
             prof = route_profit(rt, problem)
             col = gp.Column()
             for v in rt:

@@ -665,6 +665,31 @@ def __or_opt_relocation(
     curr_p,
     curr_c,
 ):
+    """
+    Evaluates and applies an Or-opt relocation move.
+
+    Args:
+        seg_len: Length of the segment to relocate.
+        t1: Base node.
+        t_first: First node of the segment.
+        t_after: Node originally after the segment.
+        t_last: Last node of the segment.
+        t_dest: Destination node.
+        t_dest_after: Node after the destination.
+        d: Distance matrix.
+        load_state: Load state.
+        waste: Node wastes.
+        capacity: Vehicle capacity.
+        curr_tour: Current tour.
+        n_original: Original number of nodes.
+        i: Current index in the tour.
+        nodes_count: Number of nodes.
+        curr_p: Current penalty.
+        curr_c: Current cost.
+
+    Returns:
+        A tuple of (new_tour, penalty, cost, improved).
+    """
     orientations = [True, False] if seg_len > 1 else [True]
     for forward in orientations:
         # Broken: (t1, t_first), (t_last, t_after), (t_dest, t_dest_after)

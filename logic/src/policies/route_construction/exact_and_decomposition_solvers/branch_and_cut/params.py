@@ -1,3 +1,7 @@
+"""
+Configuration parameters for the Branch-and-Cut (BC) algorithm.
+"""
+
 from dataclasses import dataclass
 from typing import Any, Dict
 

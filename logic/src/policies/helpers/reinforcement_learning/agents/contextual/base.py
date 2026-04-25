@@ -1,3 +1,7 @@
+"""
+Base class definition for Contextual Multi-Armed Bandit (CMAB) agents.
+"""
+
 from abc import abstractmethod
 from collections import deque
 from typing import Any, Deque, Optional
@@ -38,23 +42,49 @@ class ContextualBanditAgent(RLAgent):
 
     # Optional exploration rate decay (if applicable).
     def decay_epsilon(self):
+        """Optionally decays the exploration rate (epsilon)."""
         pass
 
     @abstractmethod
     def select_action(self, context: np.ndarray, rng: np.random.Generator) -> int:
+        """Selects an action given the current context.
+
+        Args:
+            context (np.ndarray): The current context vector.
+            rng (np.random.Generator): Random number generator for exploration.
+
+        Returns:
+            int: The index of the selected arm.
+        """
         pass
 
     # Return the current weights/parameters of the agent.
     def get_weights(self) -> Any:
+        """Returns the current internal weights or parameters of the agent.
+
+        Returns:
+            Any: Agent-specific weights, or None if not applicable.
+        """
         return None
 
     def save(self, path: str) -> None:
+        """Saves the agent state to the specified path.
+
+        Args:
+            path (str): File system path to save the state.
+        """
         pass
 
     def load(self, path: str) -> None:
+        """Loads the agent state from the specified path.
+
+        Args:
+            path (str): File system path to load the state from.
+        """
         pass
 
     def reset(self) -> None:
+        """Resets the agent state, trials, and history buffers."""
         self.trials = 0
         self.rewards.clear()
         self.actions.clear()

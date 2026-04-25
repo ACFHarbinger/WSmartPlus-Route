@@ -73,6 +73,7 @@ class InsertionCostOracle:
         quality_threshold: float = 1.05,
         default_delta: float = 0.0,
     ):
+        """__init__ docstring."""
         self.n_bins = n_bins
         self.horizon = horizon
         self.alpha = alpha
@@ -97,6 +98,7 @@ class InsertionCostOracle:
             return self.delta.copy()
 
     def get_incumbent(self, period: int) -> PeriodIncumbent:
+        """get_incumbent docstring."""
         with self._lock:
             inc = self.incumbents[period]
             # Shallow copy -- tour is a list, selection is a frozenset.

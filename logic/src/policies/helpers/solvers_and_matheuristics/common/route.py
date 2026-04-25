@@ -35,4 +35,5 @@ class Route:
         self.reduced_cost: Optional[float] = None
 
     def __repr__(self) -> str:
+        """Returns string representation of the route."""
         return f"Route(nodes={self.nodes}, profit={self.profit:.2f})"

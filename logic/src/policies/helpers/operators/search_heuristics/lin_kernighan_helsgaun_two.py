@@ -248,6 +248,7 @@ class TourPopulation:
 
     @property
     def size(self) -> int:
+        """Current number of members in the population."""
         return len(self.members)
 
     @property

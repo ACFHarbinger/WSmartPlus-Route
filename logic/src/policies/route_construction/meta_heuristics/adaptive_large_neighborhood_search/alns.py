@@ -129,7 +129,17 @@ class ALNSSolver:
         recorder: Optional[PolicyStateRecorder] = None,
     ):
         """
-        Initialize the ALNS solver.
+        Initializes the ALNS solver.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            wastes: Dictionary mapping node indices to waste amounts.
+            capacity: Vehicle capacity.
+            R: Revenue per unit collected.
+            C: Cost per unit distance.
+            params: ALNS parameters.
+            mandatory_nodes: Optional list of nodes that must be visited.
+            recorder: Optional recorder for solver state.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -586,6 +596,7 @@ class ALNSSolver:
     # ------------------------------------------------------------------
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
+        """solve docstring."""
         start_time = time.process_time()
         current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
@@ -681,6 +692,7 @@ class ALNSSolver:
         return len(weights) - 1
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
+        """Calculates the total routing cost (distance) for the given routes."""
         total_dist = 0.0
         for route in routes:
             if not route:

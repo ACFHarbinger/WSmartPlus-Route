@@ -38,6 +38,12 @@ class POPMUSICPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """
+        Initializes the POPMUSIC policy.
+
+        Args:
+            config: Optional configuration dictionary.
+        """
         super().__init__(config)
 
     @classmethod

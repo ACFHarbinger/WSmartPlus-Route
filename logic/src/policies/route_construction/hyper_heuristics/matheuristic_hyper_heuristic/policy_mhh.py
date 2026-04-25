@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 import copy
 import random
 from typing import Any, Dict, List, Optional, Tuple
@@ -48,6 +52,7 @@ class MHHPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """__init__ docstring."""
         super().__init__(config)
         self.params = MHHParams.from_config(config)
         self.iters = self.params.iters

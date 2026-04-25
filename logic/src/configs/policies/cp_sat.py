@@ -1,3 +1,5 @@
+"""Configuration for the Constraint Programming (CP-SAT) policy."""
+
 from dataclasses import dataclass
 from typing import List, Optional
 

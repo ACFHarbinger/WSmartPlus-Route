@@ -1,3 +1,7 @@
+"""
+Scenario Tree Extensive Form (ST-EF) package.
+"""
+
 from .policy_st_ef import ScenarioTreeExtensiveFormPolicy
 from .st_ef_engine import ScenarioTreeExtensiveFormEngine
 from .tree import ScenarioTree

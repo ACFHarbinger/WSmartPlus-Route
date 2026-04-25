@@ -1,3 +1,7 @@
+"""
+Policy adapter for Logic-Based Benders Decomposition (LBBD).
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple

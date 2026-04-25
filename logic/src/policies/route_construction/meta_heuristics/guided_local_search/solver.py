@@ -68,6 +68,18 @@ class GLSSolver:
         params: GLSParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """
+        Initializes the Guided Local Search solver.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            wastes: Dictionary mapping node indices to waste amounts.
+            capacity: Vehicle capacity.
+            R: Revenue per unit collected.
+            C: Cost per unit distance.
+            params: GLS parameters.
+            mandatory_nodes: Optional list of nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity

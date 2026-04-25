@@ -1,3 +1,7 @@
+"""
+Subproblem solver for Logic-Based Benders Decomposition (LBBD).
+"""
+
 from typing import List, Tuple
 
 import numpy as np
@@ -17,6 +21,13 @@ class RoutingSubproblem:
     """
 
     def __init__(self, distance_matrix: np.ndarray, timeout_seconds: float = 10.0):
+        """
+        Initializes the LBBD subproblem solver.
+
+        Args:
+            distance_matrix: Distance matrix.
+            timeout_seconds: Timeout in seconds.
+        """
         self.distance_matrix = distance_matrix
         self.timeout_seconds = timeout_seconds
 

@@ -1,3 +1,7 @@
+"""
+Multi-Period Ant Colony Optimization (MP-ACO) policy.
+"""
+
 import copy
 import random
 from typing import Any, Dict, List, Optional, Tuple
@@ -31,6 +35,12 @@ class MultiPeriodACOPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the Multi-Period ACO policy.
+
+        Args:
+            config: Optional configuration dictionary or Hydra config.
+        """
         super().__init__(config)
         self.params = MP_ACO_Params.from_config(config)
         self.n_ants = self.params.n_ants

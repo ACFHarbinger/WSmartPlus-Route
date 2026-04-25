@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 from .adaptive_memory_programming_hyper_heuristic import policy_amphh as policy_amp_hh
 from .ant_colony_optimization_hyper_heuristic import policy_aco_hh as policy_aco_hh
 from .genetic_programming_hyper_heuristic import policy_gp_hh as policy_gp_hh

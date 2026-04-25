@@ -45,6 +45,11 @@ class ConstantNode:
     __slots__ = ("val",)
 
     def __init__(self, val: float):
+        """Initialize the constant node with a random value.
+
+        Args:
+            val (float): Fixed random scalar value.
+        """
         self.val = val
 
     def evaluate(self, ctx: Dict[str, float]) -> float:
@@ -79,6 +84,11 @@ class TerminalNode:
     __slots__ = ("feature",)
 
     def __init__(self, feature: str):
+        """Initialize the terminal node for a specific context feature.
+
+        Args:
+            feature (str): Name of the feature to extract.
+        """
         self.feature = feature
 
     def evaluate(self, ctx: Dict[str, float]) -> float:
@@ -126,6 +136,13 @@ class FunctionNode:
     __slots__ = ("fn", "left", "right")
 
     def __init__(self, fn: str, left: "GPNode", right: "GPNode"):
+        """Initialize the function node with an operation and two subtrees.
+
+        Args:
+            fn (str): Name of the arithmetic operation (ADD, SUB, etc.).
+            left (GPNode): Left child subtree.
+            right (GPNode): Right child subtree.
+        """
         self.fn = fn
         self.left = left
         self.right = right

@@ -61,6 +61,14 @@ class MarkovSequenceState:
         alpha_ema: float = 0.1,
         allow_self_loops: bool = False,
     ) -> None:
+        """
+        Initializes the MarkovSequenceState.
+
+        Args:
+            op_names: Ordered list of LLH operator names.
+            alpha_ema: EMA smoothing factor.
+            allow_self_loops: Whether self loops are allowed.
+        """
         self.op_names = list(op_names)
         self.n = len(op_names)
         self.alpha_ema = alpha_ema
@@ -81,6 +89,7 @@ class MarkovSequenceState:
         self.T = self.T / row_sums
 
     def index(self, name: str) -> int:
+        """Returns the integer index corresponding to the operator name."""
         return self._idx[name]
 
 

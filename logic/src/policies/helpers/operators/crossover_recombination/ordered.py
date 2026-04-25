@@ -1,3 +1,5 @@
+"""Ordered Crossover (OX)."""
+
 from __future__ import annotations
 
 import random

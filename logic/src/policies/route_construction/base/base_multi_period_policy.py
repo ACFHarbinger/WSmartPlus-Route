@@ -36,6 +36,12 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the BaseMultiPeriodRoutingPolicy.
+
+        Args:
+            config: Optional configuration object.
+        """
         super().__init__(config)
         self.horizon: int = getattr(self.config, "horizon", 7)
         self.stockout_penalty: float = getattr(self.config, "stockout_penalty", 500.0)
@@ -141,6 +147,15 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
     def execute(
         self, **kwargs: Any
     ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+        """
+        Executes the multi-period routing policy.
+
+        Args:
+            **kwargs: Keyword arguments containing context parameters.
+
+        Returns:
+            A tuple of (tour, cost, profit, search_context, multi_day_context).
+        """
         from logic.src.interfaces.context.problem_context import ProblemContext
 
         # 1. Load area params (unchanged — uses existing _load_area_params)

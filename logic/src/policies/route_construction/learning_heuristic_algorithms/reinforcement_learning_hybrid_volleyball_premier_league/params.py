@@ -114,81 +114,100 @@ class RLHVPLParams:
 
     @property
     def qlearning_alpha(self) -> float:
+        """Learning rate for Q-Learning."""
         return float(self._get_val("td_learning", "alpha", 0.1))
 
     @property
     def qlearning_gamma(self) -> float:
+        """Discount factor for Q-Learning."""
         return float(self._get_val("td_learning", "gamma", 0.95))
 
     @property
     def qlearning_epsilon(self) -> float:
+        """Exploration rate for Q-Learning."""
         return float(self._get_val("td_learning", "epsilon", 0.1))
 
     @property
     def qlearning_epsilon_decay(self) -> float:
+        """Decay factor for Q-Learning exploration rate."""
         return float(self._get_val("td_learning", "epsilon_decay", 0.995))
 
     @property
     def qlearning_epsilon_decay_step(self) -> int:
+        """Frequency of Q-Learning exploration rate decay (in iterations)."""
         return self._get_val("td_learning", "epsilon_decay_step", 20)
 
     @property
     def qlearning_epsilon_min(self) -> float:
+        """Minimum exploration rate for Q-Learning."""
         return float(self._get_val("td_learning", "epsilon_min", 0.05))
 
     @property
     def qlearning_improvement_thresholds(self) -> Tuple[float, float]:
+        """Thresholds for classifying solution quality improvements in Q-Learning."""
         val = self._get_param("qlearning_improvement_thresholds", (1e-4, 1e-2))
         return float(val[0]), float(val[1])
 
     @property
     def qlearning_history_size(self) -> int:
+        """Size of the rolling history window for Q-Learning state estimation."""
         return self._get_param("qlearning_history_size", 50)
 
     @property
     def sarsa_alpha(self) -> float:
+        """Learning rate for SARSA (used in ALNS)."""
         return float(self._get_val("sarsa", "alpha", 0.1))
 
     @property
     def sarsa_gamma(self) -> float:
+        """Discount factor for SARSA."""
         return float(self._get_val("sarsa", "gamma", 0.95))
 
     @property
     def sarsa_epsilon(self) -> float:
+        """Exploration rate for SARSA."""
         return float(self._get_val("sarsa", "epsilon", 0.1))
 
     @property
     def sarsa_epsilon_decay(self) -> float:
+        """Decay factor for SARSA exploration rate."""
         return float(self._get_val("sarsa", "epsilon_decay", 0.995))
 
     @property
     def sarsa_epsilon_decay_step(self) -> int:
+        """Frequency of SARSA exploration rate decay (in iterations)."""
         return self._get_val("sarsa", "epsilon_decay_step", 20)
 
     @property
     def sarsa_epsilon_min(self) -> float:
+        """Minimum exploration rate for SARSA."""
         return float(self._get_val("sarsa", "epsilon_min", 0.05))
 
     @property
     def sarsa_diversity_size(self) -> int:
+        """Maximum number of diverse solutions to track for SARSA reward calculation."""
         return self._get_param("sarsa_diversity_size", 50)
 
     @property
     def sarsa_improvement_thresholds(self) -> Tuple[float, float]:
+        """Thresholds for solution quality improvement rewards in SARSA."""
         val = self._get_param("sarsa_improvement_thresholds", (1e-4, 1e-2))
         return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_progress_thresholds(self) -> Tuple[float, float]:
+        """Progress-based thresholds for adjusting SARSA rewards."""
         val = self._get_param("sarsa_operator_progress_thresholds", (0.3, 0.7))
         return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_stagnation_thresholds(self) -> Tuple[int, int]:
+        """Stagnation count thresholds for triggering SARSA penalty/reset."""
         val = self._get_param("sarsa_operator_stagnation_thresholds", (10, 50))
         return int(val[0]), int(val[1])
 
     @property
     def sarsa_operator_diversity_thresholds(self) -> Tuple[float, float]:
+        """Diversity-based thresholds for adjusting SARSA rewards."""
         val = self._get_param("sarsa_operator_diversity_thresholds", (0.2, 0.5))
         return float(val[0]), float(val[1])

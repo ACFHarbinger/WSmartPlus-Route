@@ -1,3 +1,7 @@
+"""
+Parameters for the (μ,λ) Evolution Strategy.
+"""
+
 from __future__ import annotations
 
 import dataclasses

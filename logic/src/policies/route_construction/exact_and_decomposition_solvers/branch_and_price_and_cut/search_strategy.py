@@ -96,6 +96,14 @@ class BestFirstSearch(NodeSelectionStrategy):
 
         # Fix 8: Use O(n) scan instead of O(n log n) sort
         def get_best_first_key(i: int) -> float:
+            """Key function for best-first selection based on LP bound.
+
+            Args:
+                i (int): Index in the open nodes list.
+
+            Returns:
+                float: The LP bound of the node, or -inf if None.
+            """
             bound = open_nodes[i].lp_bound
             return bound if bound is not None else float("-inf")
 
@@ -104,6 +112,11 @@ class BestFirstSearch(NodeSelectionStrategy):
         return open_nodes.pop(best_idx)
 
     def get_name(self) -> str:
+        """Returns the identifier for this strategy.
+
+        Returns:
+            str: The strategy name 'best_first'.
+        """
         return "best_first"
 
 
@@ -159,6 +172,11 @@ class DepthFirstSearch(NodeSelectionStrategy):
         return open_nodes.pop()
 
     def get_name(self) -> str:
+        """Returns the identifier for this strategy.
+
+        Returns:
+            str: The strategy name 'depth_first'.
+        """
         return "depth_first"
 
 
@@ -211,6 +229,14 @@ class HybridSearchStrategy(NodeSelectionStrategy):
 
         # Bound Phase: Best-First Search (O(n) scan)
         def get_best_first_key(i: int) -> float:
+            """Key function for best-first selection based on LP bound.
+
+            Args:
+                i (int): Index in the open nodes list.
+
+            Returns:
+                float: The LP bound of the node, or -inf if None.
+            """
             bound = open_nodes[i].lp_bound
             return bound if bound is not None else float("-inf")
 
@@ -218,6 +244,11 @@ class HybridSearchStrategy(NodeSelectionStrategy):
         return open_nodes.pop(best_idx)
 
     def get_name(self) -> str:
+        """Returns the identifier for this strategy.
+
+        Returns:
+            str: The strategy name 'hybrid'.
+        """
         return "hybrid"
 
 

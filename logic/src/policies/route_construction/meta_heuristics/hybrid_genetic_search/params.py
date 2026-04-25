@@ -145,6 +145,11 @@ class HGSParams:
 
     @lambda_param.setter
     def lambda_param(self, value: int):
+        """Sets the number of offspring per generation.
+
+        Args:
+            value (int): New generation size.
+        """
         self.n_offspring = value
 
     @property
@@ -154,6 +159,11 @@ class HGSParams:
 
     @population_size.setter
     def population_size(self, value: int):
+        """Sets the minimum population size per subpopulation.
+
+        Args:
+            value (int): New minimum population size.
+        """
         self.mu = value
 
     @property
@@ -163,6 +173,11 @@ class HGSParams:
 
     @elite_size.setter
     def elite_size(self, value: int):
+        """Sets the number of elite individuals to preserve.
+
+        Args:
+            value (int): New elite size.
+        """
         self.nb_elite = value
 
     @property
@@ -172,6 +187,11 @@ class HGSParams:
 
     @no_improvement_threshold.setter
     def no_improvement_threshold(self, value: int):
+        """Sets the stopping criterion iteration threshold.
+
+        Args:
+            value (int): Max iterations without improvement.
+        """
         self.n_iterations_no_improvement = value
 
     @property
@@ -181,4 +201,9 @@ class HGSParams:
 
     @neighbor_list_size.setter
     def neighbor_list_size(self, value: int):
+        """Sets the granular search neighbor list size.
+
+        Args:
+            value (int): New neighbor list size.
+        """
         self.nb_granular = value

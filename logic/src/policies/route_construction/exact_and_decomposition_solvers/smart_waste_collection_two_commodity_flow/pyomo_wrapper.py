@@ -48,6 +48,16 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     model.V_real = pyo.Set(initialize=nodes_real)
 
     def valid_arcs_rule(m, i, j):
+        """Rule to filter out invalid or excessively long arcs.
+
+        Args:
+            m (pyo.ConcreteModel): The Pyomo model instance.
+            i (int): Tail node index.
+            j (int): Head node index.
+
+        Returns:
+            bool: True if the arc is valid and within max_dist.
+        """
         return i != j and distance_matrix[i][j] <= max_dist
 
     model.A = pyo.Set(within=model.V * model.V, filter=valid_arcs_rule)
@@ -63,11 +73,30 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
 
     # 3. Constraints
     def cap_match_rule(m, i, j):
+        """Ensures the total flow (waste + empty) matches vehicle capacity if used.
+
+        Args:
+            m (pyo.ConcreteModel): The Pyomo model instance.
+            i (int): Tail node index.
+            j (int): Head node index.
+
+        Returns:
+            pyo.Expression: Equality constraint expression.
+        """
         return m.f[i, j] + m.h[i, j] == Q * m.x[i, j]
 
     model.cap_match = pyo.Constraint(model.A, rule=cap_match_rule)
 
     def flow_waste_rule(m, i):
+        """Conservation rule for the waste commodity (commodity 1).
+
+        Args:
+            m (pyo.ConcreteModel): The Pyomo model instance.
+            i (int): Node index.
+
+        Returns:
+            pyo.Expression: Conservation constraint expression.
+        """
         inflow = sum(m.f[j, i] for j in m.V if (j, i) in m.A)
         outflow = sum(m.f[i, j] for j in m.V if (i, j) in m.A)
         return outflow - inflow == S_dict[i] * m.g[i]
@@ -75,6 +104,15 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     model.flow_waste = pyo.Constraint(model.V_real, rule=flow_waste_rule)
 
     def flow_empty_rule(m, i):
+        """Conservation rule for the empty space commodity (commodity 2).
+
+        Args:
+            m (pyo.ConcreteModel): The Pyomo model instance.
+            i (int): Node index.
+
+        Returns:
+            pyo.Expression: Conservation constraint expression.
+        """
         inflow = sum(m.h[j, i] for j in m.V if (j, i) in m.A)
         outflow = sum(m.h[i, j] for j in m.V if (i, j) in m.A)
         return inflow - outflow == S_dict[i] * m.g[i]
@@ -95,11 +133,29 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     )
 
     def route_in_rule(m, j):
+        """Ensures that if a node is collected, it has exactly one incoming arc.
+
+        Args:
+            m (pyo.ConcreteModel): The Pyomo model instance.
+            j (int): Node index.
+
+        Returns:
+            pyo.Expression: Degree constraint expression.
+        """
         return sum(m.x[i, j] for i in m.V if (i, j) in m.A) == m.g[j]
 
     model.route_in = pyo.Constraint(model.V_real, rule=route_in_rule)
 
     def route_out_rule(m, j):
+        """Ensures that if a node is collected, it has exactly one outgoing arc.
+
+        Args:
+            m (pyo.ConcreteModel): The Pyomo model instance.
+            j (int): Node index.
+
+        Returns:
+            pyo.Expression: Degree constraint expression.
+        """
         return sum(m.x[j, k] for k in m.V if (j, k) in m.A) == m.g[j]
 
     model.route_out = pyo.Constraint(model.V_real, rule=route_out_rule)
@@ -119,6 +175,14 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
 
     # 4. Objective Function
     def obj_rule(m):
+        """Calculates the objective value (profit - routing cost - vehicle cost).
+
+        Args:
+            m (pyo.ConcreteModel): The Pyomo model instance.
+
+        Returns:
+            pyo.Expression: Maximization objective expression.
+        """
         if dual_values:
             pi_0 = dual_values.get(0, 0.0)
             profit = sum((R * S_dict[i] - dual_values.get(i, 0.0)) * m.g[i] for i in m.V_real)

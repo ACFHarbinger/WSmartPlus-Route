@@ -1,3 +1,7 @@
+"""
+Exact Stochastic Dynamic Programming (ESDP) engine for VRPP.
+"""
+
 from typing import Dict, FrozenSet, Tuple
 
 import numpy as np
@@ -14,6 +18,14 @@ class ExactSDPEngine:
     """
 
     def __init__(self, params: SDPParams, dist_matrix: np.ndarray, capacity: float):
+        """
+        Initializes the ESDP engine.
+
+        Args:
+            params: SDP configuration parameters.
+            dist_matrix: Distance matrix between nodes.
+            capacity: Vehicle capacity.
+        """
         self.params = params
         self.num_nodes = dist_matrix.shape[0]
         self.capacity = capacity
@@ -57,6 +69,7 @@ class ExactSDPEngine:
         return stage_reward + self.params.discount_factor * expected_future
 
     def compute_overflow_penalty(self, state: Tuple[int, ...]) -> float:
+        """Calculate the total overflow penalty for the current state."""
         # duplicated safe call for overflow
         return self._compute_overflow_penalty(state)
 

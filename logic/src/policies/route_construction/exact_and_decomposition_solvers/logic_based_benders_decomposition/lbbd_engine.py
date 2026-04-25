@@ -1,3 +1,7 @@
+"""
+LBBD engine coordinating master and subproblems.
+"""
+
 import time
 from typing import Any, Dict, List, Tuple
 
@@ -22,6 +26,15 @@ class LBBDEngine:
         tree: ScenarioTree,
         capacity: float = 1.0,
     ):
+        """
+        Initializes the LBBD engine.
+
+        Args:
+            config: Configuration parameters.
+            distance_matrix: Distance matrix.
+            tree: Scenario tree for stochasticity.
+            capacity: Vehicle capacity.
+        """
         self.config = config
         self.distance_matrix = distance_matrix
         self.tree = tree

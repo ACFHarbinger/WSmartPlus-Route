@@ -424,6 +424,7 @@ class KoptTopologyFactory:
             broken.add((v, u))
 
         def find_matchings(unmatched: List[int]):
+            """Generates all possible perfect matchings for the given nodes."""
             if not unmatched:
                 yield []
             else:

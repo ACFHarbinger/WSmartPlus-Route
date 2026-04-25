@@ -193,6 +193,7 @@ def augment_prize_collecting_graph(
     aug_dist = np.full((n_augmented, n_augmented), float("inf"))
 
     def get_dummy(i: int) -> int:
+        """Returns the index of the dummy node for node i."""
         return n_original + i - 1
 
     for i in range(1, n_original):
@@ -282,6 +283,7 @@ def decode_augmented_tour(tour: List[int], n_original: int) -> List[List[int]]:
 
         # In ATSP tour, we look for entry -> exit transitions
         def get_entry(i_exit: int) -> int:
+            """Finds the corresponding entry node for a given exit node."""
             return n_original + i_exit - 1
 
         for idx in range(len(tour) - 1):

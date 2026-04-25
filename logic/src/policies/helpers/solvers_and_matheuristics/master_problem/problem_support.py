@@ -170,7 +170,14 @@ class MasterProblemSupport(Protocol):
         """
         ...
 
-    def save_basis(self) -> Optional[Tuple[List[int], List[int]]]: ...
+    def save_basis(self) -> Optional[Tuple[List[int], List[int]]]:
+        """Saves the current basis status of RMP variables and constraints.
+
+        Returns:
+            Optional[Tuple[List[int], List[int]]]: (vbasis, cbasis) status arrays,
+                                                or None if no model exists.
+        """
+        ...
 
     def restore_basis(self, vbasis: List[int], cbasis: List[int]) -> None:
         """Restores the RMP basis from saved status arrays.
@@ -192,15 +199,65 @@ class MasterProblemSupport(Protocol):
         lci_node_alphas: Optional[Dict[FrozenSet[int], Dict[int, float]]] = None,
         branching_constraints: Optional[List["AnyBranchingConstraint"]] = None,
         rc_tolerance: float = 1e-5,
-    ) -> int: ...
+    ) -> int:
+        """Scan the global pool for profitable columns under current duals and branching.
 
-    def calculate_reduced_cost(self: MasterProblemSupport, route: Route, dual_values: Dict[str, Any]) -> float: ...
+        Args:
+            node_duals (Dict[int, float]): Base duals from coverage and vehicle limits.
+            rcc_duals (Dict[FrozenSet[int], float]): Current Root-Capacity Cut duals.
+            sri_duals (Dict[FrozenSet[int], float]): Current Subset-Row Inequality duals.
+            edge_clique_duals (Dict[Tuple[int, int], float]): Current Edge Clique cut duals.
+            lci_duals (Optional[Dict[FrozenSet[int], float]]): Current Lifted Cover Inequality duals.
+            lci_node_alphas (Optional[Dict[FrozenSet[int], Dict[int, float]]]): Node lifting coefficients.
+            branching_constraints (Optional[List[AnyBranchingConstraint]]): Active branching constraints.
+            rc_tolerance (float): Threshold to prevent injection of insignificant columns.
 
-    def set_phase(self: MasterProblemSupport, phase: int) -> None: ...
+        Returns:
+            int: Number of routes re-activated and added to the RMP.
+        """
+        ...
 
-    def deduplicate_column_pool(self: MasterProblemSupport, tol: float = 1e-6) -> int: ...
+    def calculate_reduced_cost(self: MasterProblemSupport, route: Route, dual_values: Dict[str, Any]) -> float:
+        """Calculates the reduced cost of a route using current dual values.
 
-    def has_artificial_variables_active(self: MasterProblemSupport, tol: float = 1e-6) -> bool: ...
+        Args:
+            route (Route): The route to evaluate.
+            dual_values (Dict[str, Any]): Dictionary of dual components.
+
+        Returns:
+            float: The calculated reduced cost.
+        """
+        ...
+
+    def set_phase(self: MasterProblemSupport, phase: int) -> None:
+        """Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).
+
+        Args:
+            phase (int): 1 for Feasibility, 2 for Optimality.
+        """
+        ...
+
+    def deduplicate_column_pool(self: MasterProblemSupport, tol: float = 1e-6) -> int:
+        """Prune mathematically equivalent routes from the global column pool.
+
+        Args:
+            tol (float): Numerical tolerance for profit comparison.
+
+        Returns:
+            int: Number of redundant routes removed.
+        """
+        ...
+
+    def has_artificial_variables_active(self: MasterProblemSupport, tol: float = 1e-6) -> bool:
+        """Check whether any artificial variable is non-zero in the current solution.
+
+        Args:
+            tol (float): Threshold below which a variable value is considered zero.
+
+        Returns:
+            bool: True if at least one artificial variable is active (indicates infeasibility).
+        """
+        ...
 
     # Constraint (cut) management methods
     def add_edge_clique_cut(
@@ -209,12 +266,33 @@ class MasterProblemSupport(Protocol):
         v: int,
         coefficients: Optional[Dict[int, float]] = None,
         rhs: float = 1.0,
-    ) -> bool: ...
+    ) -> bool:
+        """Adds an Edge Clique Cut to the master problem.
+
+        Args:
+            u (int): First node of the edge.
+            v (int): Second node of the edge.
+            coefficients (Optional[Dict[int, float]]): Mapping of node to its coefficient in the clique.
+            rhs (float): Right-hand side of the inequality.
+
+        Returns:
+            bool: True if the cut was successfully added.
+        """
+        ...
 
     def add_subset_row_cut(
         self: MasterProblemSupport,
         node_set: Union[List[int], Set[int], FrozenSet[int]],
-    ) -> bool: ...
+    ) -> bool:
+        """Adds a Subset-Row Inequality (SRI) cut to the master problem.
+
+        Args:
+            node_set (Union[List[int], Set[int], FrozenSet[int]]): The set of nodes in the inequality.
+
+        Returns:
+            bool: True if the cut was successfully added.
+        """
+        ...
 
     def add_capacity_cut(
         self: MasterProblemSupport,
@@ -223,7 +301,20 @@ class MasterProblemSupport(Protocol):
         coefficients: Optional[Dict[int, float]] = None,
         is_global: bool = True,
         _skip_pool: bool = False,
-    ) -> bool: ...
+    ) -> bool:
+        """Adds a Root-Capacity Cut (RCC) or generalized capacity cut.
+
+        Args:
+            node_list (List[int]): The set of nodes involved in the cut.
+            rhs (float): Right-hand side of the inequality.
+            coefficients (Optional[Dict[int, float]]): Variable coefficients.
+            is_global (bool): Whether the cut is globally valid across the B&B tree.
+            _skip_pool (bool): Whether to skip adding to the global cut pool.
+
+        Returns:
+            bool: True if the cut was successfully added.
+        """
+        ...
 
     def add_lci_cut(
         self: MasterProblemSupport,
@@ -232,9 +323,32 @@ class MasterProblemSupport(Protocol):
         coefficients: Dict[int, float],
         node_alphas: Optional[Dict[int, float]] = None,
         arc: Optional[Tuple[int, int]] = None,
-    ) -> bool: ...
+    ) -> bool:
+        """Adds a Lifted Cover Inequality (LCI) cut to the master problem.
 
-    def add_set_packing_capacity_cut(self: MasterProblemSupport, node_list: List[int], rhs: float) -> bool: ...
+        Args:
+            node_list (List[int]): The cover set nodes.
+            rhs (float): Right-hand side.
+            coefficients (Dict[int, float]): Coefficients for coverage variables.
+            node_alphas (Optional[Dict[int, float]]): Lifting coefficients.
+            arc (Optional[Tuple[int, int]]): Branching arc associated with the cut.
+
+        Returns:
+            bool: True if the cut was successfully added.
+        """
+        ...
+
+    def add_set_packing_capacity_cut(self: MasterProblemSupport, node_list: List[int], rhs: float) -> bool:
+        """Adds a capacity cut specifically for set packing formulations.
+
+        Args:
+            node_list (List[int]): Nodes in the cut set.
+            rhs (float): Right-hand side.
+
+        Returns:
+            bool: True if the cut was successfully added.
+        """
+        ...
 
     def add_sec_cut(
         self: MasterProblemSupport,
@@ -245,7 +359,22 @@ class MasterProblemSupport(Protocol):
         node_i: int = -1,
         node_j: int = -1,
         facet_form: str = "2.1",
-    ) -> bool: ...
+    ) -> bool:
+        """Adds a Subtour Elimination Constraint (SEC).
+
+        Args:
+            node_list (Union[List[int], Set[int], FrozenSet[int]]): Nodes in the subtour.
+            rhs (float): Right-hand side.
+            cut_name (str): Name for the constraint.
+            global_cut (bool): Whether the cut is globally valid.
+            node_i (int): Specific node i for facet-defining forms.
+            node_j (int): Specific node j for facet-defining forms.
+            facet_form (str): Type of facet-defining inequality to use.
+
+        Returns:
+            bool: True if the cut was successfully added.
+        """
+        ...
 
     def _count_crossings(self: MasterProblemSupport, route: Route, node_set: FrozenSet[int]) -> int: ...
 
@@ -262,7 +391,18 @@ class MasterProblemSupport(Protocol):
         route_values: Dict[int, float],
         routes: List[Route],
         max_cuts: int = 5,
-    ) -> int: ...
+    ) -> int:
+        """Identifies and adds violated Root-Capacity Cuts using the separation heuristic.
+
+        Args:
+            route_values (Dict[int, float]): Current fractional values of route variables.
+            routes (List[Route]): Active routes in the RMP.
+            max_cuts (int): Maximum number of cuts to add in one pass.
+
+        Returns:
+            int: Number of violated cuts added.
+        """
+        ...
 
     def _find_customer_components(self, arc_flow: Dict[Tuple[int, int], float]) -> List[Set[int]]:
         """Identifies connected components of customers in the fractional support graph.

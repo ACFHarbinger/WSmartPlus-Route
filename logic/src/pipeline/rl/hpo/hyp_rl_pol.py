@@ -1,3 +1,11 @@
+"""
+LSTM-based Policy Network for Hyp-RL.
+
+This module provides the HypRLPolicy class which processes the history of
+evaluated hyperparameter configurations and their rewards to generate the
+next configuration for evaluation.
+"""
+
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np

@@ -75,6 +75,7 @@ class RegretPreprocessor:
     """
 
     def __init__(self, params: RegretParams, n_bins: int, horizon: int):
+        """__init__ docstring."""
         self.params = params
         self.n_bins = n_bins
         self.horizon = horizon
@@ -87,6 +88,7 @@ class RegretPreprocessor:
 
     @property
     def phase(self) -> str:
+        """phase docstring."""
         return self._phase
 
     def build_plan(self, early_regret: np.ndarray) -> RegretPlan:

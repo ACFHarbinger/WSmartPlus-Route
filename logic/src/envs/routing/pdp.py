@@ -47,6 +47,7 @@ class PDPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
+        """Initialize the PDP environment."""
         generator_params = generator_params or {}
         if generator is None:
             generator = PDPGenerator(**generator_params, device=device)

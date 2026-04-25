@@ -1,3 +1,7 @@
+"""
+LNS-MIP policy implementation.
+"""
+
 import copy
 import math
 import random
@@ -37,6 +41,12 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the LNS-MIP policy.
+
+        Args:
+            config: Optional Hydra configuration.
+        """
         super().__init__(config)
         self.params = LNSMIPParams.from_config(config or {})
         self.rng = random.Random(self.params.seed)
@@ -153,6 +163,7 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
         return new_plan
 
     def _accept(self, best_profit: float, new_profit: float, temp: float) -> bool:
+        """Determines whether to accept a new solution based on SA criteria."""
         if new_profit > best_profit:
             return True
         if self.params.acceptance == "sa":

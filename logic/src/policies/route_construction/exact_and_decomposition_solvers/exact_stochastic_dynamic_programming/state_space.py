@@ -1,3 +1,7 @@
+"""
+State space management for Stochastic Dynamic Programming.
+"""
+
 import itertools
 from typing import Dict, List, Tuple, Union
 
@@ -12,6 +16,14 @@ class StateSpaceManager:
     """
 
     def __init__(self, num_nodes: int, discrete_levels: int, max_fill_rate: float):
+        """
+        Initializes the state space manager.
+
+        Args:
+            num_nodes: Total number of nodes.
+            discrete_levels: Number of discrete fill levels per bin.
+            max_fill_rate: Maximum fill rate used for transition modeling.
+        """
         self.num_nodes = num_nodes
         self.L = discrete_levels
         # Build 1D transition probabilities for a single bin

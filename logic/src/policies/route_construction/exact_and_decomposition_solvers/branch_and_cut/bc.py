@@ -1079,6 +1079,7 @@ class BranchAndCutSolver:
         history_components = []
 
         def find(i):
+            """Find set representative with path compression."""
             if parent[i] == i:
                 return i
             parent[i] = find(parent[i])

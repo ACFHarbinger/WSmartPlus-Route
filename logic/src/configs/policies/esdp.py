@@ -1,3 +1,5 @@
+"""Configuration for the Exact Stochastic Dynamic Programming solver."""
+
 from dataclasses import dataclass
 
 

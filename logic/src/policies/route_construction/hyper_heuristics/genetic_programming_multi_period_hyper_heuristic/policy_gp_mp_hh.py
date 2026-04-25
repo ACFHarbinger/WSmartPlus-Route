@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 import copy
 import random
 from typing import Any, Dict, List, Optional, Tuple
@@ -50,6 +54,7 @@ class GPMPHHPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """__init__ docstring."""
         super().__init__(config)
         self.params = GP_MP_HH_Params.from_config(config)
         self.pop_size = self.params.pop_size

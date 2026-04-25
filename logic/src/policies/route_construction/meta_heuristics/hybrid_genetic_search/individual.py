@@ -1,5 +1,3 @@
-from typing import List, Optional, Set
-
 """
 HGS Individual Module.
 
@@ -14,6 +12,8 @@ Example:
     >>> from logic.src.policies.hybrid_genetic_search.individual import Individual
     >>> ind = Individual(genotype=[1, 5, 2, ...], cost=100.0)
 """
+
+from typing import List, Optional, Set
 
 
 class Individual:
