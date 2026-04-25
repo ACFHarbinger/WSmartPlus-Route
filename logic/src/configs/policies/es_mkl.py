@@ -2,6 +2,15 @@
 (μ,κ,λ) Evolution Strategy configuration with age-based selection.
 
 Parents exceeding age κ are excluded from selection, preventing stagnation.
+
+Attributes:
+    MuKappaLambdaESConfig: Configuration for (μ,κ,λ) Evolution Strategy policy.
+
+Example:
+    >>> from configs.policies.es_mkl import MuKappaLambdaESConfig
+    >>> config = MuKappaLambdaESConfig()
+    >>> config.mu
+    15
 """
 
 from dataclasses import dataclass
@@ -16,6 +25,30 @@ class MuKappaLambdaESConfig:
     """Configuration for (μ,κ,λ) Evolution Strategy policy.
 
     Evolution strategy with age-limited parent survival for long-term optimization.
+
+    Attributes:
+        mu (int): Number of parents.
+        kappa (int): Maximum age (generations).
+        lambda_ (int): Number of offspring.
+        rho (int): Recombination participants.
+        tau_local (float): Local learning rate.
+        tau_global (float): Global learning rate.
+        initial_sigma (float): Initial mutation standard deviation.
+        min_sigma (float): Minimum mutation standard deviation.
+        max_sigma (float): Maximum mutation standard deviation.
+        recombination_type (str): Type of recombination.
+        bounds_min (Optional[float]): Minimum bound for decision variables.
+        bounds_max (Optional[float]): Maximum bound for decision variables.
+        n_removal (int): Number of routes to remove.
+        stagnation_limit (int): Stagnation limit.
+        local_search_iterations (int): Number of local search iterations.
+        max_iterations (int): Maximum number of iterations.
+        time_limit (float): Time limit in seconds.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        seed (Optional[int]): Seed for the random number generator.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+        route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.
     """
 
     # Population parameters (μ,κ,λ)

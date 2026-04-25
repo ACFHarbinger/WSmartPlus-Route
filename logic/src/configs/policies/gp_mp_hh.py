@@ -1,5 +1,14 @@
 """
 Configuration for the Genetic Programming Multi-Period Hyper-Heuristic (GP-MP-HH).
+
+Attributes:
+    GP_MP_HHConfig: Configuration for the GP-MP-HH Constructive Heuristic Generator policy.
+
+Example:
+    >>> from configs.policies.gp_mp_hh import GP_MP_HHConfig
+    >>> config = GP_MP_HHConfig()
+    >>> config.pop_size
+    10
 """
 
 from dataclasses import dataclass

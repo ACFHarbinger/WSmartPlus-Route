@@ -1,5 +1,20 @@
 """
 SCA (Sine Cosine Algorithm) configuration for Hydra.
+
+Attributes:
+    SCAConfig: Configuration for the Sine Cosine Algorithm (SCA) policy.
+
+Example:
+    >>> from configs.policies.sca import SCAConfig
+    >>> config = SCAConfig()
+    >>> config.pop_size
+    20
+    >>> config.max_iterations
+    200
+    >>> config.time_limit
+    60.0
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass, field

@@ -1,5 +1,22 @@
 """
 TS (Tabu Search) configuration for Hydra.
+
+Attributes:
+    TSConfig: Configuration for the Tabu Search (TS) policy.
+
+Example:
+    >>> from configs.policies.ts import TSConfig
+    >>> config = TSConfig()
+    >>> config.max_iterations
+    5000
+    >>> config.time_limit
+    60.0
+    >>> config.vrpp
+    True
+    >>> config.mandatory_selection
+    []
+    >>> config.route_improvement
+    []
 """
 
 from dataclasses import dataclass, field
@@ -10,7 +27,40 @@ from logic.src.configs.policies.other.acceptance_criteria import AcceptanceConfi
 
 @dataclass
 class TSConfig:
-    """Configuration for the Tabu Search policy."""
+    """Configuration for the Tabu Search policy.
+
+    Attributes:
+        tabu_tenure: Tenure for the short-term memory (number of iterations to keep moves tabu).
+        dynamic_tenure: Whether to dynamically adjust tabu tenure during search.
+        min_tenure: Minimum tabu tenure value when dynamic tenure is enabled.
+        max_tenure: Maximum tabu tenure value when dynamic tenure is enabled.
+        aspiration_enabled: Whether to allow moves that violate tabu status if they improve the solution.
+        intensification_enabled: Whether to use intensification (focusing on high-performing regions).
+        diversification_enabled: Whether to use diversification (exploring new regions).
+        intensification_interval: Number of iterations between intensification phases.
+        diversification_interval: Number of iterations between diversification phases.
+        elite_size: Number of elite solutions to maintain for intensification.
+        frequency_penalty_weight: Weight for frequency-based penalties in long-term memory.
+        candidate_list_enabled: Whether to use candidate lists to limit neighborhood exploration.
+        candidate_list_size: Maximum number of candidates to consider from the neighborhood.
+        oscillation_enabled: Whether to use strategic oscillation to escape local optima.
+        feasibility_tolerance: Tolerance for infeasibility when using strategic oscillation.
+        max_iterations: Maximum number of iterations to run the search.
+        max_iterations_no_improve: Maximum number of iterations without improvement before stopping.
+        n_removal: Number of routes/sequences to remove in each iteration (for destroying and rebuilding).
+        n_llh: Number of local search operators to apply in each iteration.
+        time_limit: Maximum time in seconds to run the search.
+        use_swap: Whether to include swap moves in the neighborhood.
+        use_relocate: Whether to include relocate moves in the neighborhood.
+        use_2opt: Whether to include 2-opt moves in the neighborhood.
+        use_insertion: Whether to include insertion moves in the neighborhood.
+        seed: Random seed for reproducibility.
+        vrpp: Whether the problem is a Vehicle Routing Problem with Profits.
+        profit_aware_operators: Whether to use profit-aware considerations in neighborhood operators.
+        mandatory_selection: List of mandatory node selection strategies to apply.
+        route_improvement: List of route improvement strategies to apply.
+        acceptance_criterion: Configuration for the acceptance criterion (e.g., simulated annealing).
+    """
 
     # Short-term memory (Recency-based)
     tabu_tenure: int = 7

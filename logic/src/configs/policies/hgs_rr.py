@@ -1,5 +1,14 @@
 """
 HGS-RR (Hybrid Genetic Search with Ruin-and-Recreate) configuration.
+
+Attributes:
+    HGSRRConfig: Configuration for the HGS-RR policy.
+
+Example:
+    >>> from configs.policies.hgs_rr import HGSRRConfig
+    >>> config = HGSRRConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field

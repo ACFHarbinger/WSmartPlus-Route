@@ -1,5 +1,14 @@
 """
 Configuration for the Adaptive Kernel Search (AKS) matheuristic.
+
+Attributes:
+    AdaptiveKernelSearchConfig: Attributes for AKS configuration.
+
+Example:
+    >>> from configs.policies.aks import AdaptiveKernelSearchConfig
+    >>> config = AdaptiveKernelSearchConfig()
+    >>> config.time_limit
+    300.0
 """
 
 from dataclasses import dataclass

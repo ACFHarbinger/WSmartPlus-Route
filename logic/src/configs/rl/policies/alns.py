@@ -1,5 +1,22 @@
 """
 ALNS (Adaptive Large Neighborhood Search) configuration for expert policy training.
+
+Attributes:
+    ALNSConfig: Configuration for ALNS algorithm.
+
+Example:
+    alns_config = ALNSConfig(
+        time_limit=60.0,
+        max_iterations=5000,
+        start_temp=100.0,
+        cooling_rate=0.995,
+        reaction_factor=0.1,
+        min_removal=1,
+        max_removal_pct=0.3,
+        engine="custom",
+        mandatory_selection=[],
+        route_improvement=[],
+    )
 """
 
 from dataclasses import dataclass

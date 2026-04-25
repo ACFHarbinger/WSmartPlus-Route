@@ -1,5 +1,23 @@
 """
 HPO Config module.
+
+Attributes:
+    HPOConfig: Configuration for hyperparameter optimization.
+
+Example:
+    hpo_config = HPOConfig(
+        method="dehbo",
+        metric="reward",
+        n_trials=50,
+        n_epochs_per_trial=10,
+        num_workers=4,
+        search_space={
+            "rl.entropy_weight": {"type": "float", "low": 0.0, "high": 0.1},
+            "optim.lr": {"type": "float", "low": 1e-5, "high": 1e-3, "log": True},
+        },
+        graph=GraphConfig(),
+        reward=ObjectiveConfig(),
+    )
 """
 
 from dataclasses import dataclass, field

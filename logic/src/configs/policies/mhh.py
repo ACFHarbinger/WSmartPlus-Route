@@ -1,5 +1,16 @@
 """
 Configuration for the Matheuristic Hyper-Heuristic (MHH).
+
+Attributes:
+    MHHConfig: Configuration for the Matheuristic Hyper-Heuristic (MHH) policy.
+
+Example:
+    >>> from configs.policies.mhh import MHHConfig
+    >>> config = MHHConfig()
+    >>> config.iters
+    10
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass

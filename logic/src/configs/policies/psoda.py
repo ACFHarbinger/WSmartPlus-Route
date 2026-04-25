@@ -3,6 +3,21 @@ Particle Swarm Optimization with Velocity Momentum configuration.
 
 **TRUE PSO** implementation with inertia-weighted velocity updates.
 Replaces the deceptive "Firefly Algorithm" which lacked velocity momentum.
+
+Attributes:
+    DistancePSOConfig: Configuration for the Particle Swarm Optimization (PSO) policy.
+
+Example:
+    >>> from configs.policies.psoda import DistancePSOConfig
+    >>> config = DistancePSOConfig()
+    >>> config.population_size
+    20
+    >>> config.max_iterations
+    500
+    >>> config.time_limit
+    60.0
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass
@@ -28,6 +43,8 @@ class DistancePSOConfig:
         Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization."
         Ai, T. J., & Kachitvichyanukul, V. (2009). "A particle swarm optimization
         for the vehicle routing problem with simultaneous pickup and delivery."
+    Attributes:
+        None
     """
 
     # Swarm Configuration

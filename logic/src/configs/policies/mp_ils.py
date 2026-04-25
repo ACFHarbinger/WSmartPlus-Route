@@ -1,5 +1,20 @@
 """
 Configuration for the Multi-Period Iterated Local Search (MP-ILS).
+
+Attributes:
+    MP_ILS_Config: Configuration for the Multi-Period Iterated Local Search (MP-ILS) policy.
+
+Example:
+    >>> from configs.policies.mp_ils import MP_ILS_Config
+    >>> config = MP_ILS_Config()
+    >>> config.iters
+    50
+    >>> config.perturb_size
+    3
+    >>> config.seed
+    42
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass

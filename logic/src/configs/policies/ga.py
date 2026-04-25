@@ -1,5 +1,14 @@
 """
 GA (Genetic Algorithm) configuration for Hydra.
+
+Attributes:
+    GAConfig: Configuration for the Genetic Algorithm policy.
+
+Example:
+    >>> from configs.policies.ga import GAConfig
+    >>> config = GAConfig()
+    >>> config.pop_size
+    20
 """
 
 from dataclasses import dataclass, field
@@ -8,7 +17,22 @@ from typing import Any, List, Optional
 
 @dataclass
 class GAConfig:
-    """Configuration for the Genetic Algorithm policy."""
+    """Configuration for the Genetic Algorithm policy.
+
+    Attributes:
+        pop_size (int): Number of individuals in the population.
+        max_generations (int): Maximum number of generations.
+        crossover_rate (float): Probability of crossover.
+        mutation_rate (float): Probability of mutation.
+        tournament_size (int): Size of the tournament selection.
+        n_removal (int): Number of routes to remove.
+        time_limit (float): Time limit in seconds.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        seed (Optional[int]): Seed for the random number generator.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+        route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.
+    """
 
     pop_size: int = 30
     max_generations: int = 100

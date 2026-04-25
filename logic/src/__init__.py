@@ -7,4 +7,10 @@ This package contains the core intelligence and simulation logic, organized into
 - modules/: Atomic neural components (Attention, Normalization).
 - policies/: Classical heuristics and OR solvers.
 - pipeline/: Training, evaluation, and simulation orchestration.
+
+Attributes:
+    None
+
+Example:
+    None
 """

@@ -1,4 +1,14 @@
-"""Configuration for the Constraint Programming (CP-SAT) policy."""
+"""Configuration for the Constraint Programming (CP-SAT) policy.
+
+Attributes:
+    CPSATConfig: Attributes for CP-SAT configuration.
+
+Example:
+    >>> from configs.policies.cp_sat import CPSATConfig
+    >>> config = CPSATConfig()
+    >>> config.time_limit
+    300.0
+"""
 
 from dataclasses import dataclass
 from typing import List, Optional

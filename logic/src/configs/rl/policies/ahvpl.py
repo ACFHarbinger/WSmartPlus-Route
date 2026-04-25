@@ -1,5 +1,19 @@
 """
 AHVPL (Augmented Hybrid Volleyball Premier League) configuration for expert policy training.
+
+Attributes:
+    AHVPLConfig: Configuration for AHVPL algorithm.
+
+Example:
+    ahvpl_config = AHVPLConfig(
+        time_limit=60.0,
+        max_iterations=20,
+        n_teams=10,
+        sub_rate=0.2,
+        aco_iterations=1,
+        crossover_rate=0.7,
+        nb_elite=5,
+    )
 """
 
 from dataclasses import dataclass

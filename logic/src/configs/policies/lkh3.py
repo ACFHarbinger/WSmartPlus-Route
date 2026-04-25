@@ -4,6 +4,17 @@ LKH-3 (Lin-Kernighan-Helsgaun 3) configuration for Hydra.
 Reference:
     Helsgaun, K. (2017). An extension of the LKH-TSP solver for constrained
     traveling salesman and vehicle routing problems.
+
+Attributes:
+    LKH3Config: Configuration for the LKH-3 policy.
+
+Example:
+    >>> from configs.policies.lkh3 import LKH3Config
+    >>> config = LKH3Config()
+    >>> config.time_limit
+    60.0
+    >>> config.max_trials
+    1000
 """
 
 from dataclasses import dataclass, field

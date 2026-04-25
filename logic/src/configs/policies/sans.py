@@ -1,5 +1,34 @@
 """
 SANS (Simulated Annealing Neighborhood Search) configuration.
+
+Attributes:
+    SANSConfig: Configuration for the Simulated Annealing Neighborhood Search (SANS) policy.
+
+Example:
+    >>> from configs.policies.sans import SANSConfig
+    >>> config = SANSConfig()
+    >>> config.engine
+    'new'
+    >>> config.time_limit
+    60.0
+    >>> config.seed
+    42
+    >>> config.perc_bins_can_overflow
+    0.0
+    >>> config.T_min
+    0.01
+    >>> config.T_init
+    75.0
+    >>> config.iterations_per_T
+    5000
+    >>> config.alpha
+    0.95
+    >>> config.combination
+    None
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
 """
 
 from dataclasses import dataclass

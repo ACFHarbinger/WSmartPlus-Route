@@ -1,5 +1,14 @@
 """
 HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration for Hydra.
+
+Attributes:
+    HGSALNSConfig: Configuration for the HGS-ALNS policy.
+
+Example:
+    >>> from configs.policies.hgs_alns import HGSALNSConfig
+    >>> config = HGSALNSConfig()
+    >>> config.hgs.n_removal
+    10
 """
 
 from dataclasses import dataclass, field
@@ -16,6 +25,8 @@ class HGSALNSConfig:
 
     Uses ALNS for education phase and HGS for routing phase, combining the strengths
     of both metaheuristics.
+    Attributes:
+        None
     """
 
     # HGS-ALNS specific parameters

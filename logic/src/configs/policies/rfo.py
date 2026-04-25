@@ -1,5 +1,26 @@
 """
 Configuration for the Relax-and-Fix-and-Optimize (RFO) matheuristic.
+
+Attributes:
+    RFOConfig: Configuration for the Relax-and-Fix-and-Optimize (RFO) policy.
+
+Example:
+    >>> from configs.policies.rfo import RFOConfig
+    >>> config = RFOConfig()
+    >>> config.window_size
+    3
+    >>> config.step_size
+    2
+    >>> config.mip_time
+    60.0
+    >>> config.mip_gap
+    0.01
+    >>> config.vrpp
+    True
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
 """
 
 from dataclasses import dataclass

@@ -1,5 +1,14 @@
 """
 KGLS (Knowledge-Guided Local Search) configuration dataclasses.
+
+Attributes:
+    KGLSConfig: Configuration for the Knowledge-Guided Local Search policy.
+
+Example:
+    >>> from configs.policies.kgls import KGLSConfig
+    >>> config = KGLSConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field
@@ -10,7 +19,21 @@ from .abc import ABCConfig
 
 @dataclass
 class KGLSConfig(ABCConfig):
-    """Configuration for the Knowledge-Guided Local Search algorithm."""
+    """Configuration for the Knowledge-Guided Local Search algorithm.
+
+    Attributes:
+        time_limit (float): Time limit in seconds.
+        num_perturbations (int): Number of perturbations.
+        neighborhood_size (int): Size of the neighborhood.
+        local_search_iterations (int): Number of local search iterations.
+        moves (List[str]): List of moves to apply.
+        penalization_cycle (List[str]): Cycle of penalization criteria.
+        seed (Optional[int]): Random seed for reproducibility.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        mandatory_selection (Optional[List[Any]]): Mandatory customers/requests selection.
+        route_improvement (Optional[List[Any]]): Route improvement strategies.
+    """
 
     time_limit: float = 60.0
     num_perturbations: int = 3

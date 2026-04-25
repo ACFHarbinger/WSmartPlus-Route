@@ -1,5 +1,14 @@
 """
 Configuration for the Column Generation Heuristic (CGH).
+
+Attributes:
+    CGHConfig: Attributes for CGH configuration.
+
+Example:
+    >>> from configs.policies.cgh import CGHConfig
+    >>> config = CGHConfig()
+    >>> config.cg_iters
+    10
 """
 
 from dataclasses import dataclass

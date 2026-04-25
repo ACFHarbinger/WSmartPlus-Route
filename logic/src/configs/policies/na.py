@@ -1,5 +1,16 @@
 """
 Neural policy configuration.
+
+Attributes:
+    NeuralAgentConfig: Configuration for the Neural Agent policy.
+
+Example:
+    >>> from configs.policies.na import NeuralAgentConfig
+    >>> config = NeuralAgentConfig()
+    >>> config.seed
+    None
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass, field

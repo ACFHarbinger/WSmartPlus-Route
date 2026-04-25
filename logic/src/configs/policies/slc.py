@@ -1,5 +1,24 @@
 """
 SLC (Soccer League Competition) configuration for Hydra.
+
+Attributes:
+    SLCConfig: Configuration for the Soccer League Competition (SLC) policy.
+
+Example:
+    >>> from configs.policies.slc import SLCConfig
+    >>> config = SLCConfig()
+    >>> config.n_teams
+    5
+    >>> config.team_size
+    4
+    >>> config.max_iterations
+    50
+    >>> config.vrpp
+    True
+    >>> config.mandatory_selection
+    []
+    >>> config.route_improvement
+    []
 """
 
 from dataclasses import dataclass, field

@@ -3,6 +3,15 @@ Cluster-First Route-Second (CF-RS) configuration schemas.
 
 This module defines the Hydra-compatible configuration dataclasses for the CF-RS
 routing policy, following the project's standard configuration architecture.
+
+Attributes:
+    CFRSConfig: Attributes for CF-RS configuration.
+
+Example:
+    >>> from configs.policies.cf_rs import CFRSConfig
+    >>> config = CFRSConfig()
+    >>> config.num_clusters
+    0
 """
 
 from dataclasses import dataclass

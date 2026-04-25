@@ -1,4 +1,16 @@
-"""RL algorithm configuration."""
+"""RL algorithm configuration.
+
+Attributes:
+    RLConfig: Configuration for RL algorithms.
+
+Example:
+    RLConfig(
+        algorithm='reinforce',
+        baseline='rollout',
+        entropy_weight=0.0,
+        max_grad_norm=1.0,
+    )
+"""
 
 from dataclasses import dataclass, field
 

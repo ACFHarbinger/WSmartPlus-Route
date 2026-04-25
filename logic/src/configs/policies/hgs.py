@@ -1,5 +1,14 @@
 """
 HGS (Hybrid Genetic Search) configuration.
+
+Attributes:
+    HGSConfig: Configuration for the HGS (Hybrid Genetic Search) policy.
+
+Example:
+    >>> from configs.policies.hgs import HGSConfig
+    >>> config = HGSConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass

@@ -1,5 +1,18 @@
 """
 SISR (Slack Induction by String Removal) configuration.
+
+Attributes:
+    SISRConfig: Configuration for the Slack Induction by String Removal (SISR) policy.
+
+Example:
+    >>> from configs.policies.sisr import SISRConfig
+    >>> config = SISRConfig()
+    >>> config.time_limit
+    10.0
+    >>> config.max_iterations
+    1000
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass

@@ -1,5 +1,14 @@
 """
-AHVPL (Augmented Hybrid Volleyball Premier League) configuration for Hydra.
+AHVPL (Augmented Hybrid Volleyball Premier League) configuration.
+
+Attributes:
+    AHVPLConfig: Attributes for AHVPL configuration.
+
+Example:
+    >>> from configs.policies.ahvpl import AHVPLConfig
+    >>> config = AHVPLConfig()
+    >>> config.n_teams
+    10
 """
 
 from dataclasses import dataclass, field
@@ -17,6 +26,22 @@ class AHVPLConfig:
 
     Extends HVPL with HGS integration parameters for diversity-driven
     crossover and bi-criteria fitness evaluation.
+
+    Attributes:
+        n_teams: Number of teams in the VPL league.
+        max_iterations: Maximum number of iterations for the VPL algorithm.
+        sub_rate: Substitution rate for the VPL algorithm.
+        time_limit: Time limit for the VPL algorithm in seconds.
+        alns_elite_iterations: Number of iterations for the ALNS elite group.
+        alns_not_coached_iterations: Number of iterations for the ALNS not coached group.
+        seed: Random seed for the VPL algorithm.
+        vrpp: Whether the VPL algorithm is used for VRPP problems.
+        profit_aware_operators: Whether to use profit-aware operators in the VPL algorithm.
+        hgs: Configuration for HGS integration.
+        aco: Configuration for ACO integration.
+        alns: Configuration for ALNS integration.
+        mandatory_selection: List of mandatory nodes to select.
+        route_improvement: List of route improvement strategies.
     """
 
     # VPL League Parameters

@@ -1,5 +1,18 @@
 """
 Simulation HPO Config module.
+
+Attributes:
+    SimHPOConfig: Configuration for simulation policy hyperparameter optimization.
+
+Example:
+    sim_hpo_config = SimHPOConfig(
+        method="tpe",
+        metric="profit",
+        n_trials=20,
+        num_workers=1,
+        policy_name="alns",
+        graph=GraphConfig(),
+    )
 """
 
 from dataclasses import dataclass, field

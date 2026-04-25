@@ -1,5 +1,30 @@
 """
 SWC-TCF (Smart Waste Collection - Two-Commodity Flow) policy configuration.
+
+Attributes:
+    SWCTCFConfig: Configuration for the Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy.
+
+Example:
+    >>> from configs.policies.swc_tcf import SWCTCFConfig
+    >>> config = SWCTCFConfig()
+    >>> config.Omega
+    0.1
+    >>> config.delta
+    0.0
+    >>> config.psi
+    1.0
+    >>> config.time_limit
+    600.0
+    >>> config.seed
+    None
+    >>> config.engine
+    'gurobi'
+    >>> config.framework
+    'ortools'
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
 """
 
 from dataclasses import dataclass

@@ -2,6 +2,15 @@
 Differential Evolution (DE/rand/1/bin) configuration.
 
 **TRUE DE** replacing the Artificial Bee Colony (ABC) algorithm.
+
+Attributes:
+    DEConfig: Attributes for DE configuration.
+
+Example:
+    >>> from configs.policies.de import DEConfig
+    >>> config = DEConfig()
+    >>> config.pop_size
+    50
 """
 
 from dataclasses import dataclass
@@ -42,6 +51,8 @@ class DEConfig:
         Karaboga, D. (2005). "An idea based on honey bee swarm for numerical
         optimization." Technical Report TR06.
         [Note: ABC is DE with fitness-proportionate selection]
+    Attributes:
+        None
     """
 
     # Population Configuration

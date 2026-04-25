@@ -1,5 +1,20 @@
 """
 Meta-RL Config module.
+
+Attributes:
+    MetaRLConfig: Configuration for meta-reinforcement learning pipeline.
+
+Example:
+    meta_rl_config = MetaRLConfig(
+        use_meta=True,
+        meta_strategy="rnn",
+        meta_lr=1e-3,
+        meta_hidden_dim=64,
+        meta_history_length=10,
+        hrl_threshold=0.9,
+        graph=GraphConfig(),
+        reward=ObjectiveConfig(),
+    )
 """
 
 from dataclasses import dataclass, field

@@ -4,6 +4,15 @@
 Strictly follows the generational evolutionary algorithm terminology where:
 - μ (mu): Parent population size.
 - λ (lambda): Offspring population size.
+
+Attributes:
+    MuCommaLambdaESConfig: Attributes for ES-MCL configuration.
+
+Example:
+    >>> from configs.policies.es_mcl import MuCommaLambdaESConfig
+    >>> config = MuCommaLambdaESConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass
@@ -19,6 +28,19 @@ class MuCommaLambdaESConfig:
 
     The (μ,λ) scheme is a non-elitist generational strategy where the offspring
     entirely replace the parents.
+
+    Attributes:
+        mu (int): Number of parents.
+        lambda_ (int): Number of offspring.
+        n_removal (int): Number of routes to remove.
+        max_iterations (int): Maximum number of iterations.
+        local_search_iterations (int): Number of local search iterations.
+        time_limit (float): Time limit in seconds.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        seed (Optional[int]): Seed for the random number generator.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+        route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.
     """
 
     mu: int = 15

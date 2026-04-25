@@ -1,5 +1,22 @@
 """
 PSOMA (Particle Swarm Optimization Memetic Algorithm) configuration for Hydra.
+
+Attributes:
+    PSOMAConfig: Configuration for the PSOMA policy.
+
+Example:
+    >>> from configs.policies.psoma import PSOMAConfig
+    >>> config = PSOMAConfig()
+    >>> config.pop_size
+    20
+    >>> config.max_iterations
+    200
+    >>> config.seed
+    None
+    >>> config.vrpp
+    True
+    >>> config.profit_aware_operators
+    False
 """
 
 from dataclasses import dataclass, field

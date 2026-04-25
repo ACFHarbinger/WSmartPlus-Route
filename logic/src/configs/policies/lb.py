@@ -1,5 +1,16 @@
 """
 Configuration for the Local Branching (LB) matheuristic.
+
+Attributes:
+    LocalBranchingConfig: Configuration for the Local Branching policy.
+
+Example:
+    >>> from configs.policies.lb import LocalBranchingConfig
+    >>> config = LocalBranchingConfig()
+    >>> config.time_limit
+    300.0
+    >>> config.k
+    10
 """
 
 from dataclasses import dataclass

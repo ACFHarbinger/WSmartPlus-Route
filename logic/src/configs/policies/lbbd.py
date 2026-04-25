@@ -1,4 +1,16 @@
-"""Configuration for the Logic-Based Benders Decomposition (LBBD) policy."""
+"""Configuration for the Logic-Based Benders Decomposition (LBBD) policy.
+
+Attributes:
+    LBBDConfig: Configuration for the Logic-Based Benders Decomposition (LBBD) policy.
+
+Example:
+    >>> from configs.policies.lbbd import LBBDConfig
+    >>> config = LBBDConfig()
+    >>> config.time_limit
+    300.0
+    >>> config.k
+    10
+"""
 
 from dataclasses import dataclass
 from typing import Optional
@@ -8,6 +20,27 @@ from typing import Optional
 class LBBDConfig:
     """
     Configuration for the Logic-Based Benders Decomposition (LBBD) policy.
+
+    Attributes:
+        num_days (int): Number of days for multi-day horizon.
+        stochastic_master (bool): Whether to model multiple scenarios explicitly in the Master Problem.
+        mean_increment (float): Mean fractional increment per day (0.0 to 1.0).
+        num_scenarios (int): Number of scenarios for SAA in Subproblem routing cost estimation (if used).
+        max_iterations (int): Maximum number of iterations.
+        benders_gap (float): Benders gap tolerance.
+        time_limit (float): Time limit in seconds.
+        subproblem_timeout (float): Time limit for subproblem.
+        mip_gap (float): MIP gap tolerance.
+        waste_weight (float): Weight for waste.
+        cost_weight (float): Weight for cost.
+        overflow_penalty (float): Penalty for overflow.
+        use_nogood_cuts (bool): Whether to use Nogood cuts for feasibility.
+        use_optimality_cuts (bool): Whether to use logic-based optimality cuts for travel cost.
+        seed (Optional[int]): Seed for random number generator.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        mandatory_selection (Optional[List[Any]]): Mandatory customers/requests selection.
+        route_improvement (Optional[List[Any]]): Route improvement strategies.
     """
 
     # Multi-day horizon

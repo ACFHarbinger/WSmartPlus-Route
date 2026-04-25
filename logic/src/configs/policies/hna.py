@@ -1,5 +1,14 @@
 """
 Configuration dataclass for the HNA policy (simulator-callable wrapper config).
+
+Attributes:
+    HNAPolicyConfig: Configuration for the HNA policy.
+
+Example:
+    >>> from configs.policies.hna import HNAPolicyConfig
+    >>> config = HNAPolicyConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from __future__ import annotations

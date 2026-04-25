@@ -1,5 +1,20 @@
 """
 TSP (Traveling Salesman Problem) policy configuration.
+
+Attributes:
+    TSPConfig: Configuration for the Traveling Salesman Problem (TSP) policy.
+
+Example:
+    >>> from configs.policies.tsp import TSPConfig
+    >>> config = TSPConfig()
+    >>> config.cache
+    True
+    >>> config.time_limit
+    60.0
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
 """
 
 from dataclasses import dataclass

@@ -1,5 +1,14 @@
 """
 Configuration for the Adaptive Memory Programming Hyper-Heuristic (AMP-HH).
+
+Attributes:
+    AMPHHConfig: Attributes for AMP-HH configuration.
+
+Example:
+    >>> from configs.policies.amphh import AMPHHConfig
+    >>> config = AMPHHConfig()
+    >>> config.mem_size
+    10
 """
 
 from dataclasses import dataclass

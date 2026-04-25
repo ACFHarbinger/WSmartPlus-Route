@@ -10,6 +10,19 @@ Paper mappings (Section 3, Table 1):
     - qualityLB        = quality_lb = 0
     - Reward           = +1 (additive, RL1)
     - Penalty          = −1 (RL1), ÷2 (RL2), √ (RL3)
+
+Attributes:
+    RLGDHHConfig: Configuration for the RL-GD-HH policy.
+
+Example:
+    >>> from configs.policies.rl_gd_hh import RLGDHHConfig
+    >>> config = RLGDHHConfig()
+    >>> config.max_iterations
+    5000
+    >>> config.time_limit
+    60.0
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass, field
@@ -25,6 +38,22 @@ class RLGDHHConfig:
 
     The values defined here reproduce the best-performing configuration
     from Ozcan et al. (2010) unless otherwise noted.
+
+    Attributes:
+        max_iterations: Maximum number of iterations.
+        time_limit: Time limit for the algorithm in seconds.
+        seed: Random seed.
+        reward_improvement: Reward for improving the solution.
+        penalty_worsening: Penalty for worsening the solution.
+        punishment_type: Type of punishment.
+        utility_upper_bound: Upper bound for utility.
+        min_utility: Minimum utility.
+        initial_utility: Initial utility.
+        quality_lb: Lower bound for quality.
+        vrpp: Whether to use VRPP.
+        mandatory_selection: List of mandatory nodes.
+        route_improvement: List of route improvements.
+        acceptance_criterion: Acceptance criterion configuration.
     """
 
     # --- Search Control ---
