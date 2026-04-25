@@ -1,5 +1,11 @@
 """
 Actions package for simulation day execution.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from .base import SimulationAction, _flatten_config

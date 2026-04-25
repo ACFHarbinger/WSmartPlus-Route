@@ -1,15 +1,24 @@
 """pareto_front.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    ParetoFront: Class that maintains a set of non-dominated solutions.
 
 Example:
-    >>> import pareto_front
+    >>> from pareto_front import ParetoFront
+    >>> pareto_front = ParetoFront(max_size=10)
+    >>> pareto_front.add_solution(solution)
+    >>> pareto_front.solutions
+    [solution]
 """
 
 
 class ParetoFront:
-    """Maintains a set of non-dominated solutions."""
+    """Maintains a set of non-dominated solutions.
+
+    Attributes:
+        solutions: List of ParetoSolution objects.
+        max_size: Maximum number of solutions to keep.
+    """
 
     def __init__(self, max_size=50):
         """

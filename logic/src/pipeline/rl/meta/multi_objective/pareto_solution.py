@@ -1,17 +1,27 @@
 """pareto_solution.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    ParetoSolution: Represents a solution on the Pareto front.
 
 Example:
-    >>> import pareto_solution
+    >>> from pareto_solution import ParetoSolution
+    >>> solution = ParetoSolution(weights, objectives, reward, model_id)
+    >>> solution.dominates(other)
+    True
 """
 
 import copy
 
 
 class ParetoSolution:
-    """Represents a solution on the Pareto front."""
+    """Represents a solution on the Pareto front.
+
+    Attributes:
+        weights: Weight configuration dict.
+        objectives: Objective values dict.
+        reward: Total reward.
+        model_id: Optional model identifier.
+    """
 
     def __init__(self, weights, objectives, reward, model_id=None):
         """

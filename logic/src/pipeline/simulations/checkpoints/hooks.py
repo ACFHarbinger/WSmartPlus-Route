@@ -1,5 +1,15 @@
 """
 Checkpoint hooks for simulation lifecycle.
+
+This module provides the CheckpointHook class, which orchestrates the
+timing of checkpoint saves and manages state during simulation errors.
+
+Attributes:
+    CheckpointHook: Orchestrator for checkpoint timing and error handling.
+
+Example:
+    >>> # hook = CheckpointHook(checkpoint, 5, state_getter)
+    >>> # hook.after_day()
 """
 
 import contextlib
@@ -18,15 +28,22 @@ except ImportError:
 class CheckpointHook:
     """
     Orchestrates checkpoint timing and error handling during simulation.
+
+    Attributes:
+        checkpoint: The checkpoint object managing persistence.
+        checkpoint_interval: How often to save checkpoints (in days).
+        day: Current simulation day.
+        tic: Timestamp of when the current day started (for performance metrics).
+        state_getter: Callable to retrieve the current simulation state for saving.
     """
 
     def __init__(self, checkpoint, checkpoint_interval: int, state_getter: Optional[Callable[[], Any]] = None):
         """Initialize Class.
 
         Args:
-            checkpoint (Any): Description of checkpoint.
-            checkpoint_interval (int): Description of checkpoint_interval.
-            state_getter (Optional[Callable[[], Any]]): Description of state_getter.
+            checkpoint: The SimulationCheckpoint instance.
+            checkpoint_interval: Frequency of checkpoints in days.
+            state_getter: Function to retrieve the current simulation state.
         """
         self.checkpoint = checkpoint
         self.checkpoint_interval = checkpoint_interval
@@ -38,7 +55,7 @@ class CheckpointHook:
         """Get current day.
 
         Returns:
-            Any: Description.
+            The current simulation day index.
         """
         return self.day
 
@@ -46,7 +63,7 @@ class CheckpointHook:
         """Get checkpoint info.
 
         Returns:
-            Any: Description.
+            Dictionary with checkpoint instance and interval.
         """
         return {"checkpoint": self.checkpoint, "interval": self.checkpoint_interval}
 
@@ -54,7 +71,7 @@ class CheckpointHook:
         """Set timer.
 
         Args:
-            tic (float): Description of tic.
+            tic: Performance counter timestamp.
         """
         self.tic = tic
 
@@ -62,7 +79,7 @@ class CheckpointHook:
         """Set state getter.
 
         Args:
-            state_getter (Callable[[], Any]): Description of state_getter.
+            state_getter: The callable to fetch simulation state.
         """
         self.state_getter = state_getter
 
@@ -70,7 +87,7 @@ class CheckpointHook:
         """Before day.
 
         Args:
-            day (int): Description of day.
+            day: The day index about to start.
         """
         self.day = day
 
@@ -78,8 +95,8 @@ class CheckpointHook:
         """After day.
 
         Args:
-            tic (Optional[float]): Description of tic.
-            delete_previous (bool): Description of delete_previous.
+            tic: Performance counter timestamp.
+            delete_previous: If True, delete the last checkpoint before saving new one.
         """
         previous_checkpoint_day = self.checkpoint.find_last_checkpoint_day()
         if tic:
@@ -99,10 +116,10 @@ class CheckpointHook:
         """On error.
 
         Args:
-            error (Exception): Description of error.
+            error: The exception that triggered the crash.
 
         Returns:
-            Any: Description of return value.
+            Dictionary with crash diagnostics and partial results.
         """
         execution_time = time.process_time() - self.tic if self.tic else 0
         day = self.get_current_day()
@@ -147,8 +164,8 @@ class CheckpointHook:
         """On completion.
 
         Args:
-            policy (Optional[str]): Description of policy.
-            sample_id (Optional[int]): Description of sample_id.
+            policy: Optional policy name for cleanup.
+            sample_id: Optional sample ID for cleanup.
         """
         if self.checkpoint:
             self.checkpoint.clear(policy, sample_id)

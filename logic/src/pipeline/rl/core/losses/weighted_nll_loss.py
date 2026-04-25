@@ -1,4 +1,13 @@
-"""Weighted Negative Log-Likelihood loss for advantage-weighted imitation."""
+"""Weighted Negative Log-Likelihood loss for advantage-weighted imitation.
+
+Attributes:
+    weighted_nll_loss: Weighted negative log-likelihood loss function.
+
+Example:
+    >>> from logic.src.pipeline.rl.core.losses import weighted_nll_loss
+    >>> weighted_nll_loss
+    <function weighted_nll_loss at 0x...>
+"""
 
 from __future__ import annotations
 

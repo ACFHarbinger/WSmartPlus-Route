@@ -1,5 +1,11 @@
 """
 RL Pipeline module for WSmart-Route.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from logic.src.pipeline.rl.common.base import RL4COLitModule

@@ -1,6 +1,18 @@
 """
 Route improvement utilities.
 Includes route decoding, efficiency calculation, and lightweight optimization.
+
+Attributes:
+    EfficiencyOptimizer: Optimizes routes as a route improvement step.
+    decode_routes: Converts action sequences to clean route lists on CPU.
+    calculate_efficiency: Computes kg/km efficiency metric.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.route_improvement import EfficiencyOptimizer, decode_routes, calculate_efficiency
+    >>> optimizer = EfficiencyOptimizer(problem)
+    >>> routes = optimizer.optimize(actions, num_nodes)
+    >>> efficiency = calculate_efficiency(routes, dist_matrix, waste, capacity)
+    >>> print(efficiency)
 """
 
 from typing import List
@@ -9,27 +21,47 @@ import torch
 
 
 class EfficiencyOptimizer:
-    """Optimizes routes as a route improvement step."""
+    """Optimizes routes as a route improvement step.
+
+    Attributes:
+        problem: Problem description.
+    """
 
     def __init__(self, problem, **kwargs):
         """
         Initialize EfficiencyOptimizer.
 
         Args:
-            problem: Description for problem.
-            **kwargs: Description for **kwargs.
+            problem: Problem description.
+            kwargs: Additional keyword arguments.
         """
         self.problem = problem
 
     def optimize(self, routes: List[torch.Tensor], **kwargs):
-        """Refine routes using local search or heuristics."""
+        """Refine routes using local search or heuristics.
+
+        Args:
+            routes: List of routes to optimize.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Optimized routes.
+        """
         # This matches the legacy EfficiencyOptimizer which might run 2-opt
         # We can link to our new vectorized policies here if needed
         return routes
 
 
 def decode_routes(actions: torch.Tensor, num_nodes: int) -> List[List[int]]:
-    """Convert action sequences to clean route lists on CPU."""
+    """Convert action sequences to clean route lists on CPU.
+
+    Args:
+        actions: Tensor of action sequences.
+        num_nodes: Number of nodes in each route.
+
+    Returns:
+        List of decoded routes.
+    """
     routes = []
     actions_cpu = actions.cpu()
     for action in actions_cpu:
@@ -43,6 +75,14 @@ def calculate_efficiency(routes, dist_matrix, waste, capacity):
     """
     Compute kg/km efficiency metric.
     Efficiency = Total Waste Collected / Total Distance Traveled.
+    Args:
+        routes: List of routes.
+        dist_matrix: Distance matrix.
+        waste: Waste at each node.
+        capacity: Vehicle capacity.
+
+    Returns:
+        Efficiency metric.
     """
     total_waste = 0.0
     total_dist = 0.0

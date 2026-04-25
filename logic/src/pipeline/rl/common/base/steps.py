@@ -1,5 +1,11 @@
 """
 Training/Validation step logic for RL4COLitModule.
+
+Attributes:
+    StepMixin: Mixin for training, validation, and test steps.
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -24,7 +30,17 @@ logger = get_pylogger(__name__)
 
 
 class StepMixin:
-    """Mixin for training, validation, and test steps."""
+    """Mixin for training, validation, and test steps.
+
+    Attributes:
+        env: Environment for data generation.
+        policy: Policy for data generation.
+        baseline: Type of baseline for variance reduction ('rollout', 'exponential', 'critic', etc.).
+        device: Device for data generation.
+        mandatory_selector: Optional vectorized selector for mandatory bin selection.
+        _current_baseline_val: Current baseline value.
+        last_out: Last output from the policy.
+    """
 
     def __init__(self) -> None:
         """Initialize Class.
@@ -122,9 +138,10 @@ class StepMixin:
         Compute RL loss.
 
         Args:
-            td: TensorDict with environment state.
-            out: Policy output dictionary.
-            batch_idx: Current batch index.
+            td: TensorDict with problem instance data.
+            out: Output dictionary from the policy.
+            batch_idx: Batch index.
+            env: The RL environment.
 
         Returns:
             Loss tensor.
@@ -250,8 +267,8 @@ class StepMixin:
         Execute a single training step.
 
         Args:
-            *args: Positional arguments (batch, batch_idx).
-            **kwargs: Additional keyword arguments.
+            args: Positional arguments (batch, batch_idx).
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: The computed loss.
@@ -278,8 +295,8 @@ class StepMixin:
         Execute a single validation step.
 
         Args:
-            *args: Positional arguments (batch, batch_idx).
-            **kwargs: Additional keyword arguments.
+            args: Positional arguments (batch, batch_idx).
+            kwargs: Additional keyword arguments.
 
         Returns:
             dict: Output dictionary with metrics.
@@ -293,8 +310,8 @@ class StepMixin:
         Execute a single test step.
 
         Args:
-            *args: Positional arguments (batch, batch_idx).
-            **kwargs: Additional keyword arguments.
+            args: Positional arguments (batch, batch_idx).
+            kwargs: Additional keyword arguments.
 
         Returns:
             dict: Output dictionary with metrics.

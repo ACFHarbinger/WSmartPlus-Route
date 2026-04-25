@@ -1,6 +1,19 @@
 """
 Imitation Learning algorithm implementation.
 Trains a policy to mimic an expert solver (e.g., HGS, Local Search).
+
+Attributes:
+    ImitationLearning: Imitation Learning algorithm implementation.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import ImitationLearning
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> imitation_learning = ImitationLearning(env, agent)
+    >>> imitation_learning
+    ImitationLearning(env=<COEnv>, policy=<COPolicy>, baseline='none', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
 """
 
 from __future__ import annotations
@@ -47,6 +60,12 @@ class ImitationLearning(RL4COLitModule):
     - On-the-fly expert data generation or pre-computed dataset support.
     - Configurable Loss (NLL, Weighted NLL, KL, JS).
     - Support for multiple expert types.
+
+    Attributes:
+        expert_policy: The expert policy used to generate expert actions.
+        expert_name: The name of the expert policy.
+        loss_fn: The loss function used to compute the loss.
+        loss_fn_name: The name of the loss function.
     """
 
     def __init__(
@@ -62,10 +81,12 @@ class ImitationLearning(RL4COLitModule):
         Initialize ImitationLearning module.
 
         Args:
-            policy_config: Expert policy configuration object (HGSConfig, ALNSConfig, etc.).
-            env_name: Environment name for the expert policy.
-            loss_fn: Name of loss function to use ('nll', 'kl', 'js', etc.).
-            **kwargs: Arguments passed to RL4COLitModule.
+            policy_config: Expert policy configuration (HGSConfig, ALNSConfig, etc.).
+            env_name: Environment name for the policy.
+            loss_fn: Loss function to use ('nll', 'weighted_nll', 'kl', 'reverse_kl', 'js').
+            seed: Random seed for reproducibility.
+            device: Device to run the policy on.
+            kwargs: Additional arguments to pass to the parent class.
         """
         # Baseline is not used in IL, but we keep the structure
         kwargs["baseline"] = "none"

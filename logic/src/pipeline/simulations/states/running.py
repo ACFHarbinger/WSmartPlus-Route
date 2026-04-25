@@ -1,10 +1,16 @@
-"""running.py module.
+"""
+Simulation Running State.
+
+This module provides the RunningState class, which orchestrates the main
+day-by-day simulation loop and manages checkpoints.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    RunningState: State responsible for the simulation execution loop.
 
 Example:
-    >>> import running
+    >>> # from logic.src.pipeline.simulations.states.running import RunningState
+    >>> # state = RunningState()
+    >>> # state.handle(ctx)
 """
 
 from __future__ import annotations
@@ -35,10 +41,18 @@ if TYPE_CHECKING:
 
 
 class RunningState(SimState):
-    """State handles the day-by-day simulation loop."""
+    """State handles the day-by-day simulation loop.
+
+    Attributes:
+        None
+    """
 
     def handle(self, ctx: SimulationContext) -> None:
-        """Handle the day-by-day simulation loop."""
+        """Handle the day-by-day simulation loop.
+
+        Args:
+            ctx: The simulation context object.
+        """
         sim = ctx.cfg.sim
         realtime_log_path = os.path.join(
             ctx.results_dir,
@@ -63,6 +77,13 @@ class RunningState(SimState):
             ctx.transition_to(None)
 
     def _run_simulation_days(self, ctx, iterator, hook, realtime_log_path):
+        """
+        Args:
+            ctx: The simulation context object.
+            iterator: Range of days to simulate.
+            hook: Checkpoint hook for state persistence.
+            realtime_log_path: Path for saving daily logs.
+        """
         log_freq = int(getattr(ctx.cfg.sim, "tracking_log_freq", 1))
         lineage = (
             DataLineageCallback(ctx.pol_name, ctx.sample_id, log_freq=log_freq)
@@ -91,7 +112,14 @@ class RunningState(SimState):
                 ctx.overall_progress.update(1)
 
     def _get_current_policy_config(self, ctx):
-        """Standardizes policy config resolution from structured context."""
+        """Standardizes policy config resolution from structured context.
+
+        Args:
+            ctx: The simulation context object.
+
+        Returns:
+            Dictionary containing resolved configuration for the current day.
+        """
         current_policy_config = {}  # type: ignore[var-annotated]
 
         # 1. START WITH GLOBAL CONFIGS (mandatory, route_improvement)
@@ -114,6 +142,16 @@ class RunningState(SimState):
         return current_policy_config
 
     def _create_day_context(self, ctx, day, current_policy_config, realtime_log_path):
+        """
+        Args:
+            ctx: The simulation context object.
+            day: Current simulation day.
+            current_policy_config: Resolved configuration for the policy.
+            realtime_log_path: Path for saving daily logs.
+
+        Returns:
+            A new SimulationDayContext object for the day.
+        """
         sim = ctx.cfg.sim
         assert ctx.dist_tup is not None
         (distance_matrix, paths_between_states, dm_tensor, distancesC) = ctx.dist_tup
@@ -154,6 +192,11 @@ class RunningState(SimState):
         )
 
     def _update_ctx_from_day_context(self, ctx, day_context):
+        """
+        Args:
+            ctx: The simulation context object.
+            day_context: The SimulationDayContext object after day execution.
+        """
         ctx.new_data = day_context.new_data
         ctx.coords = day_context.coords
         ctx.bins = day_context.bins
@@ -165,6 +208,13 @@ class RunningState(SimState):
                 ctx.counter.value += 1
 
     def _update_metrics(self, ctx, day, output_dict, dlog):
+        """
+        Args:
+            ctx: The simulation context object.
+            day: Current simulation day.
+            output_dict: Output dictionary from the policy.
+            dlog: Daily log dictionary.
+        """
         if dlog is not None:
             for key, val in dlog.items():
                 ctx.daily_log[key].append(val)

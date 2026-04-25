@@ -1,4 +1,21 @@
-"""Time-aware Reinforcement Learning training."""
+"""Time-aware Reinforcement Learning training.
+
+This algorithm optimizes for solution generation time by incorporating time
+as a factor in the reward signal.
+
+Attributes:
+    TimeOptimizedREINFORCE: REINFORCE variation that optimizes for solution generation time.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import TimeOptimizedREINFORCE
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> time_optimized_reinforce = TimeOptimizedREINFORCE(env, agent)
+    >>> time_optimized_reinforce
+    TimeOptimizedREINFORCE(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
+"""
 
 from typing import TYPE_CHECKING, Optional
 
@@ -15,6 +32,9 @@ from .reinforce import REINFORCE
 class TimeOptimizedREINFORCE(REINFORCE):
     """
     REINFORCE variation that optimizes for solution generation time.
+
+    Attributes:
+        time_sensitivity: Weight for the time penalty.
     """
 
     def __init__(
@@ -26,8 +46,8 @@ class TimeOptimizedREINFORCE(REINFORCE):
         Initialize TimeOptimizedREINFORCE.
 
         Args:
-            time_sensitivity: Weight for time penalty. If > 0, penalizes slower inference.
-            **kwargs: Arguments passed to REINFORCE.
+            time_sensitivity: Weight for the time penalty (default: 0.0).
+            kwargs: Additional arguments to pass to the parent class (REINFORCE).
         """
         super().__init__(**kwargs)
         self.time_sensitivity = time_sensitivity
@@ -45,6 +65,15 @@ class TimeOptimizedREINFORCE(REINFORCE):
     ) -> torch.Tensor:
         """
         Compute REINFORCE loss with time penalty.
+
+        Args:
+            td: Input tensor dictionary containing state information.
+            out: Dictionary containing reward and log likelihood.
+            batch_idx: Index of the current batch.
+            env: Environment instance.
+
+        Returns:
+            The computed loss for logging.
         """
         reward = out["reward"]
         log_likelihood = out["log_likelihood"]

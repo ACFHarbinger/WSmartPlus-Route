@@ -1,5 +1,13 @@
 """
 Custom PyTorch Lightning Trainer for WSmart-Route.
+
+Attributes:
+    WSTrainer: Extended Trainer with WSmart-Route specific features.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.trainer import WSTrainer
+    >>> trainer = WSTrainer()
+    >>> trainer.fit(model, train_dataloader, val_dataloader)
 """
 
 from __future__ import annotations
@@ -42,6 +50,27 @@ class WSTrainer(pl.Trainer):
     - Checkpointing
     - Progress bars
     - Logging
+
+    Attributes:
+        max_epochs: Maximum number of epochs.
+        accelerator: Accelerator to use.
+        devices: Number of devices to use.
+        gradient_clip_val: Gradient clipping value.
+        log_every_n_steps: Number of steps between logs.
+        check_val_every_n_epoch: Number of epochs between validation checks.
+        project_name: Project name for logging.
+        experiment_name: Experiment name for logging.
+        callbacks: List of callbacks to use.
+        logger: Logger to use.
+        enable_progress_bar: Whether to enable the progress bar.
+        model_weights_path: Path to save model weights.
+        logs_dir: Directory to save logs.
+        precision: Precision to use.
+        matmul_precision: Matrix multiplication precision to use.
+        disable_jit_profiling: Whether to disable JIT profiling.
+        auto_ddp: Whether to use automatic DDP.
+        reload_dataloaders_every_n_epochs: Number of epochs between dataloader reloads.
+        tracking_cfg: Tracking configuration.
     """
 
     def __init__(
@@ -71,6 +100,8 @@ class WSTrainer(pl.Trainer):
         """
         Initialize WSTrainer with RL-specific optimizations.
 
+
+
         Args:
             max_epochs: Maximum number of training epochs.
             accelerator: Hardware accelerator ('auto', 'gpu', 'cpu').
@@ -90,7 +121,7 @@ class WSTrainer(pl.Trainer):
             disable_jit_profiling: Disable JIT profiling for memory optimization.
             auto_ddp: Auto-configure DDP for multi-GPU.
             reload_dataloaders_every_n_epochs: Reload dataloaders every N epochs (for RL).
-            **kwargs: Additional Trainer arguments.
+            kwargs: Additional Trainer arguments.
         """
         # RL4CO Optimization 1: Disable JIT profiling (memory optimization)
         if disable_jit_profiling:
@@ -150,7 +181,17 @@ class WSTrainer(pl.Trainer):
         model_weights_path: Optional[str] = None,
         logger: Optional[Union[Logger, bool]] = None,
     ) -> list[Callback]:
-        """Add default callbacks if not present."""
+        """Add default callbacks if not present.
+
+        Args:
+            callbacks: List of callbacks to add.
+            enable_progress_bar: Whether to enable the progress bar.
+            model_weights_path: Path to save model weights.
+            logger: Logger instance.
+
+        Returns:
+            List of callbacks.
+        """
         callback_types = {type(c) for c in callbacks}
 
         # Add checkpoint callback
@@ -206,7 +247,16 @@ class WSTrainer(pl.Trainer):
         experiment_name: Optional[str],
         logs_dir: Optional[str] = None,
     ) -> Logger:
-        """Create default WandB logger."""
+        """Create default WandB logger.
+
+        Args:
+            project_name: Project name for logging.
+            experiment_name: Experiment name for logging.
+            logs_dir: Directory for logs.
+
+        Returns:
+            Logger instance.
+        """
         try:
             return WandbLogger(
                 project=project_name,

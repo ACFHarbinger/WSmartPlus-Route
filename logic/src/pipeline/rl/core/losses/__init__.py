@@ -3,6 +3,20 @@ Modular loss functions for imitation learning and policy optimization.
 
 This module provides reusable loss functions that can be composed
 to build custom training objectives for RL and IL algorithms.
+
+Attributes:
+    js_divergence_loss: JS divergence loss function.
+    kl_divergence_loss: KL divergence loss function.
+    nll_loss: Negative log-likelihood loss function.
+    reverse_kl_divergence_loss: Reverse KL divergence loss function.
+    weighted_nll_loss: Weighted negative log-likelihood loss function.
+
+Example:
+    >>> from logic.src.pipeline.rl.core.losses import js_divergence_loss, kl_divergence_loss
+    >>> js_divergence_loss
+    <function js_divergence_loss at 0x...>
+    >>> kl_divergence_loss
+    <function kl_divergence_loss at 0x...>
 """
 
 from .js_divergence_loss import js_divergence_loss

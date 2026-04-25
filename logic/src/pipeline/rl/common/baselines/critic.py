@@ -1,5 +1,14 @@
 """
 Neural critic-based baselines.
+
+Attributes:
+    CriticBaseline: Learned critic baseline.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.baselines import CriticBaseline
+    >>> baseline = CriticBaseline()
+    >>> baseline.eval()
+    tensor(0.0)
 """
 
 from __future__ import annotations
@@ -16,14 +25,21 @@ from .base import Baseline
 
 
 class CriticBaseline(Baseline):
-    """Learned critic baseline."""
+    """Learned critic baseline.
+
+    Attributes:
+        critic: Neural network that outputs baseline values.
+    """
 
     def __init__(self, critic: Optional[nn.Module] = None, **kwargs):
         """
         Initialize CriticBaseline.
 
+
+
         Args:
-            critic: Critic neural network module.
+            critic: Neural network that outputs baseline values.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.critic = critic
@@ -47,11 +63,23 @@ class CriticBaseline(Baseline):
         return self.critic(td).squeeze(-1)
 
     def get_learnable_parameters(self) -> list:
-        """Get learnable parameters for the critic network."""
+        """Get learnable parameters for the critic network.
+
+        Returns:
+            List of learnable parameters for the critic network.
+        """
         return list(self.critic.parameters()) if self.critic is not None else []
 
     def state_dict(self, *args, **kwargs):
-        """Compatibility state_dict."""
+        """Compatibility state_dict.
+
+        Args:
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            State dictionary of the critic baseline.
+        """
         sd = super().state_dict(*args, **kwargs)
         if self.critic is not None:
             sd["critic"] = self.critic.state_dict()

@@ -4,6 +4,15 @@ LSTM-based Policy Network for Hyp-RL.
 This module provides the HypRLPolicy class which processes the history of
 evaluated hyperparameter configurations and their rewards to generate the
 next configuration for evaluation.
+
+Attributes:
+    HypRLPolicy: LSTM-based policy network for Hyp-RL.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import HypRLPolicy
+    >>> policy = HypRLPolicy({})
+    >>> policy
+    HypRLPolicy(search_space={}, state_dim=64, hidden_dim=128, n_layers=2, normalization='layer', activation='relu', device=device(type='cpu'))
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -25,6 +34,18 @@ class HypRLPolicy(nn.Module):
 
     Processes the history of evaluated configurations and their rewards,
     then generates the next configuration to evaluate.
+
+    Attributes:
+        search_space: Search space.
+        state_dim: Dimension of state embeddings.
+        hidden_dim: Hidden dimension of LSTM.
+        n_layers: Number of LSTM layers.
+        normalization: Normalization type.
+        activation: Activation function.
+        device: Device.
+        config_encoder: Hyperparameter encoder.
+        lstm: LSTM layer.
+        param_heads: Parameter heads for generating parameters.
     """
 
     def __init__(

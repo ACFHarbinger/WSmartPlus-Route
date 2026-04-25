@@ -15,6 +15,9 @@ class BatchRewardScaler:
     Per-batch reward scaler (no running statistics).
 
     Normalizes each batch independently.
+
+    Attributes:
+        eps: Numerical stability constant.
     """
 
     def __init__(self, eps: float = 1e-8):
@@ -27,7 +30,14 @@ class BatchRewardScaler:
         self.eps = eps
 
     def __call__(self, scores: torch.Tensor) -> torch.Tensor:
-        """Normalize scores within batch using population statistics."""
+        """Normalize scores within batch using population statistics.
+
+        Args:
+            scores: The rewards scores to normalize.
+
+        Returns:
+            The normalized reward scores.
+        """
         mean = scores.mean()
         std = scores.std(correction=0)
         # Handle constant or near-constant batches to avoid numerical instability

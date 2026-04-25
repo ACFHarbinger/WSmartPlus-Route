@@ -1,10 +1,13 @@
 """mean.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    MeanBaseline: Mean baseline.
 
 Example:
-    >>> import mean
+    >>> from logic.src.pipeline.rl.common.baselines import MeanBaseline
+    >>> baseline = MeanBaseline()
+    >>> baseline.eval()
+    tensor(0.0)
 """
 
 from typing import Any, Optional
@@ -22,10 +25,17 @@ class MeanBaseline(Baseline):
     Uses the mean reward of the current batch as the baseline value.
     Zero computational overhead but limited variance reduction.
     Useful as a simple default or for debugging.
+
+    Attributes:
+        None
     """
 
     def __init__(self, **kwargs):
-        """Initialize MeanBaseline."""
+        """Initialize MeanBaseline.
+
+        Args:
+            kwargs: Description of kwargs.
+        """
         super().__init__()
 
     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]

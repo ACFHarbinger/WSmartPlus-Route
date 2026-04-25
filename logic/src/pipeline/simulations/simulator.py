@@ -24,6 +24,16 @@ Functions:
     single_simulation: Execute one simulation run
     sequential_simulations: Execute batch of runs sequentially
     display_log_metrics: Format and display aggregated results
+
+Attributes:
+    _lock: Multiprocessing Lock for file I/O synchronization.
+    _counter: Multiprocessing Value for overall progress tracking.
+    _shared_metrics: Multiprocessing Manager.dict for real-time stats.
+
+Example:
+    >>> from logic.src.pipeline.simulations.simulator import sequential_simulations
+    >>> # Run a sequential batch (pseudo-code)
+    >>> # log, log_std, failed = sequential_simulations(cfg, device, indices, samples, weights, lock)
 """
 
 from __future__ import annotations
@@ -119,7 +129,11 @@ def init_single_sim_worker(
 
 
 def _initialize_worker_repository(cfg: Config) -> None:
-    """Initialize the singleton repository instance in a worker process."""
+    """Initialize the singleton repository instance in a worker process.
+
+    Args:
+        cfg: The configuration object.
+    """
     load_ds = cfg.load_dataset
     if load_ds is not None and set_repository_from_path(str(load_ds)):
         return
@@ -273,7 +287,7 @@ class SimpleCounter:
         Initializes the simple counter.
 
         Args:
-            val: Initial value.
+            val: Initial value. Defaults to 0.
         """
         self.value = val
 
@@ -295,13 +309,13 @@ class ProgressUpdater:
     Calls the process_display_updates function to update the progress bar.
 
     Attributes:
-        display: The display object to update.
+        display: The display object to update (SimulationMonitor).
         shared_metrics: The shared metrics dictionary to update.
         log_tmp: The temporary log dictionary to update.
         last_reported_days: The last reported days dictionary to update.
         policy_names: The list of policy names.
-        loop_tic: The loop tic value.
-        counter: The counter object.
+        loop_tic: The loop start timestamp.
+        counter: The counter object (SimpleCounter).
         process_display_updates: The function to update the display.
     """
 

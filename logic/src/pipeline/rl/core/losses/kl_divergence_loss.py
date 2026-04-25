@@ -1,4 +1,16 @@
-"""KL Divergence loss for policy distillation."""
+"""KL Divergence loss for policy distillation.
+
+Attributes:
+    kl_divergence_loss: KL divergence loss function.
+    reverse_kl_divergence_loss: Reverse KL divergence loss function.
+
+Example:
+    >>> from logic.src.pipeline.rl.core.losses import kl_divergence_loss, reverse_kl_divergence_loss
+    >>> kl_divergence_loss
+    <function kl_divergence_loss at 0x...>
+    >>> reverse_kl_divergence_loss
+    <function reverse_kl_divergence_loss at 0x...>
+"""
 
 from __future__ import annotations
 

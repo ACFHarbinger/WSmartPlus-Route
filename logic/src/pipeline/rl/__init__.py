@@ -13,6 +13,16 @@ Core Modules:
 Registries:
 - ``RL_ALGORITHM_REGISTRY``: Maps algorithm names to Lightning module classes.
 - ``get_rl_algorithm(name)``: Factory function for looking up algorithm classes.
+
+Attributes:
+    RL_ALGORITHM_REGISTRY (dict): Maps algorithm names to Lightning module classes.
+    get_rl_algorithm (function): Factory function for looking up algorithm classes.
+
+Example:
+    >>> from logic.src.pipeline.rl import get_rl_algorithm
+    >>> algorithm_class = get_rl_algorithm("ppo")
+    >>> algorithm = algorithm_class(env, model, loss_fn, optimizer, max_steps)
+    >>> algorithm.train()
 """
 
 from logic.src.pipeline.rl.core import (

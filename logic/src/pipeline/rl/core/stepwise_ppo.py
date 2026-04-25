@@ -3,6 +3,19 @@ Stepwise PPO implementation.
 
 This algorithm decomposes the solution construction/improvement into
 individual steps and provides reward signals for each transition.
+
+Attributes:
+    StepwisePPO: Stepwise PPO algorithm.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import StepwisePPO
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> stepwise_ppo = StepwisePPO(env, agent)
+    >>> stepwise_ppo
+    StepwisePPO(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True, ppo_epochs=10, eps_clip=0.2, mini_batch_size=0.25, gamma=0.99, gae_lambda=0.95)
 """
 
 from __future__ import annotations
@@ -24,6 +37,16 @@ class StepwisePPO(RL4COLitModule):
     Decomposes the sequence generation into individual MDP steps.
     Each node selection or local search move is treated as a transition
     with its own reward (e.g., incremental distance reduction).
+
+    Attributes:
+        ppo_epochs: Number of PPO epochs.
+        eps_clip: Clipping parameter for PPO.
+        value_loss_weight: Weight for the value function loss.
+        entropy_weight: Weight for the entropy bonus.
+        max_grad_norm: Maximum gradient norm for clipping.
+        mini_batch_size: Size of mini-batches for PPO updates.
+        gamma: Discount factor.
+        gae_lambda: Factor for generalized advantage estimation.
     """
 
     def __init__(
@@ -43,16 +66,16 @@ class StepwisePPO(RL4COLitModule):
         Initialize StepwisePPO.
 
         Args:
-            critic: Critic network for value estimation at each step.
-            ppo_epochs: Number of optimization epochs per rollout.
-            eps_clip: PPO clipping parameter.
-            value_loss_weight: Weight for value function loss.
-            entropy_weight: Weight for entropy bonus.
-            max_grad_norm: Gradient clipping norm.
-            mini_batch_size: Batch size for PPO updates.
+            critic: Critic network.
+            ppo_epochs: Number of PPO epochs.
+            eps_clip: Clipping parameter for PPO.
+            value_loss_weight: Weight for the value function loss.
+            entropy_weight: Weight for the entropy bonus.
+            max_grad_norm: Maximum gradient norm for clipping.
+            mini_batch_size: Size of mini-batches for PPO updates.
             gamma: Discount factor.
-            gae_lambda: GAE lambda parameter.
-            **kwargs: Arguments for RL4COLitModule.
+            gae_lambda: Factor for generalized advantage estimation.
+            kwargs: Additional arguments to pass to the parent class (RL4COLitModule).
         """
         super().__init__(**kwargs)
         self.critic = critic
@@ -69,7 +92,15 @@ class StepwisePPO(RL4COLitModule):
         self.automatic_optimization = False
 
     def training_step(self, batch: TensorDict, batch_idx: int):
-        """Execute one StepwisePPO training step."""
+        """Execute one StepwisePPO training step.
+
+        Args:
+            batch: Input tensor dictionary containing state information.
+            batch_idx: Index of the current batch.
+
+        Returns:
+            The computed loss for logging.
+        """
         env = self.env
         td = env.reset(batch)
 
@@ -192,7 +223,14 @@ class StepwisePPO(RL4COLitModule):
         return loss
 
     def _process_experiences(self, experiences: list) -> TensorDict:
-        """Compute GAE advantages and returns."""
+        """Compute GAE advantages and returns.
+
+        Args:
+            experiences: List of experiences.
+
+        Returns:
+            TensorDict containing experiences with GAE advantages and returns.
+        """
         rewards = torch.stack([e["reward"] for e in experiences], dim=1)  # [B, T]
         values = torch.stack([e["value"] for e in experiences], dim=1)  # [B, T]
         dones = torch.stack([e["done"] for e in experiences], dim=1)  # [B, T]

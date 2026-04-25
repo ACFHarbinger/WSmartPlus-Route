@@ -3,6 +3,19 @@ Abstract base class for Hyperparameter Optimization backends.
 
 Provides shared logic for interpreting typed search space specifications
 and applying sampled parameter values to the structured Config object.
+
+Attributes:
+    CS: ConfigSpace library.
+    ParamSpec: Type alias for parameter specification.
+    BaseHPO: Abstract base class for HPO algorithms.
+    normalise_search_space: Normalise search space.
+    apply_params: Apply parameters to config.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import BaseHPO
+    >>> hpo = BaseHPO(cfg, objective_fn)
+    >>> hpo
+    <logic.src.pipeline.rl.hpo.base.BaseHPO object at 0x...>
 """
 
 from abc import ABC, abstractmethod

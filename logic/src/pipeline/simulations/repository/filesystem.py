@@ -1,5 +1,15 @@
 """
 File-based implementation of SimulationRepository.
+
+This module provides the FileSystemRepository class, which loads simulation
+data from local CSV, Excel, and JSON files.
+
+Attributes:
+    FileSystemRepository: Repository sourcing data from the local filesystem.
+
+Example:
+    >>> # repo = FileSystemRepository(data_root_dir=".")
+    >>> # depot = repo.get_depot("Rio Maior")
 """
 
 import contextlib
@@ -26,6 +36,9 @@ class FileSystemRepository(SimulationRepository):
     Loads data from CSV, Excel, and JSON files stored in the project's
     data/wsr_simulator directory. Supports multiple geographic areas
     and waste types with area-specific file naming conventions.
+
+    Attributes:
+        default_data_dir: The default path for data resolution.
     """
 
     def __init__(self, data_root_dir):
@@ -41,10 +54,10 @@ class FileSystemRepository(SimulationRepository):
         """get data dir.
 
         Args:
-            override_dir (Any): Description of override_dir.
+            override_dir: Optional path to override the default data directory.
 
         Returns:
-            Any: Description of return value.
+            The resolved data directory path.
         """
         return override_dir if override_dir else self.default_data_dir
 
@@ -53,6 +66,16 @@ class FileSystemRepository(SimulationRepository):
     ) -> List[List[int]]:
         """
         Implementation of get_indices that persists generated indices to JSON.
+
+        Args:
+            filename: Path to the index file within bins_selection.
+            n_samples: Number of samples to generate/load.
+            n_nodes: Number of nodes per sample.
+            data_size: Total size of the source data.
+            lock: Optional file lock.
+
+        Returns:
+            A list of lists containing bin indices for each sample.
         """
         _indices_source = "file"
         graphs_file_path = os.path.join(self.default_data_dir, "bins_selection", filename)
@@ -102,6 +125,13 @@ class FileSystemRepository(SimulationRepository):
     def get_depot(self, area: Any, data_dir: Optional[str] = None) -> pd.DataFrame:
         """
         Implementation of get_depot that reads from Facilities.csv.
+
+        Args:
+            area: Name of the geographic area.
+            data_dir: Optional path to the data directory.
+
+        Returns:
+            Pandas DataFrame containing depot coordinates and initial state.
         """
         src_area = area.translate(str.maketrans("", "", "-_ ")).lower()
         d_dir = self._get_data_dir(data_dir)
@@ -123,6 +153,16 @@ class FileSystemRepository(SimulationRepository):
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Implementation of get_simulator_data that handles area-specific file logic.
+
+        Args:
+            number_of_bins: Number of bins to load.
+            area: Name of the geographic area.
+            waste_type: Type of waste.
+            lock: Optional file lock.
+            data_dir: Optional path to the data directory.
+
+        Returns:
+            Tuple containing (stats_df, coordinates_df).
         """
         d_dir = self._get_data_dir(data_dir)
         src_area = area.translate(str.maketrans("", "", "-_ ")).lower()
@@ -168,6 +208,16 @@ class FileSystemRepository(SimulationRepository):
                 lock.release()
 
     def _get_mixrmbac_data(self, d_dir: str, number_of_bins: int, src_area: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Get data for mixrmbac area.
+
+        Args:
+            d_dir: Root data directory.
+            number_of_bins: Target bin count.
+            src_area: Normalized area name.
+
+        Returns:
+            Tuple containing (stats_df, coordinates_df).
+        """
         if number_of_bins <= 20:
             data = pd.read_excel(os.path.join(d_dir, "bins_waste", "StockAndAccumulationRate - small.xlsx"))
             bins_coordinates = pd.read_excel(os.path.join(d_dir, "coordinates", "Coordinates - small.xlsx"))
@@ -183,6 +233,17 @@ class FileSystemRepository(SimulationRepository):
     def _get_riomaior_data(
         self, d_dir: str, number_of_bins: int, src_area: str, wtype: Optional[str]
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Get data for Rio Maior area.
+
+        Args:
+            d_dir: Root data directory.
+            number_of_bins: Target bin count.
+            src_area: Normalized area name.
+            wtype: Waste type filter string.
+
+        Returns:
+            Tuple containing (stats_df, coordinates_df).
+        """
         assert number_of_bins <= 317, f"Number of bins for area {src_area} must be <= 317"
         if number_of_bins == 104:
             df = pd.read_csv(os.path.join(d_dir, "bins_waste", "Rio_Maior_Sensores_2021_2024_cleaned_104.csv"))
@@ -219,6 +280,17 @@ class FileSystemRepository(SimulationRepository):
     def _get_figueiradafoz_data(
         self, d_dir: str, number_of_bins: int, src_area: str, wtype: Optional[str]
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Get data for Figueira da Foz area.
+
+        Args:
+            d_dir: Root data directory.
+            number_of_bins: Target bin count.
+            src_area: Normalized area name.
+            wtype: Waste type filter string.
+
+        Returns:
+            Tuple containing (stats_df, coordinates_df).
+        """
         data = self._preprocess_county_date(pd.read_csv(os.path.join(d_dir, "out_crude_rate[figdafoz].csv")))
         assert number_of_bins <= 1094, f"Number of bins for area {src_area} must be <= 1094"
         coords_tmp = pd.read_csv(os.path.join(d_dir, "coordinates", "out_info[figdafoz].csv"))
@@ -241,6 +313,16 @@ class FileSystemRepository(SimulationRepository):
         return data, bins_coordinates
 
     def _get_both_areas_data(self, d_dir: str, number_of_bins: int, src_area: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Get data for both areas combined.
+
+        Args:
+            d_dir: Root data directory.
+            number_of_bins: Target bin count.
+            src_area: Normalized area name.
+
+        Returns:
+            Tuple containing (stats_df, coordinates_df).
+        """
         wsrs_data = pd.read_excel(os.path.join(d_dir, "bins_waste", "StockAndAccumulationRate.xlsx"))
         wsba_data = self._preprocess_county_data(
             self._preprocess_county_date(
@@ -294,7 +376,15 @@ class FileSystemRepository(SimulationRepository):
         return cast(pd.DataFrame, data), cast(pd.DataFrame, bins_coordinates)
 
     def _preprocess_county_date(self, data: pd.DataFrame, date_str: str = "Date") -> pd.DataFrame:
-        """preprocess county date."""
+        """Preprocess county date.
+
+        Args:
+            data: Raw DataFrame with date column.
+            date_str: Name of the column containing dates.
+
+        Returns:
+            DataFrame indexed by date with integer column names.
+        """
         data[date_str] = pd.to_datetime(data[date_str], format="%Y-%m-%d")
         data = data.set_index(date_str)
         data = data.round()
@@ -302,7 +392,14 @@ class FileSystemRepository(SimulationRepository):
         return data
 
     def _preprocess_county_data(self, data: pd.DataFrame) -> pd.DataFrame:
-        """preprocess county data."""
+        """Preprocess county data for simulation.
+
+        Args:
+            data: Pivoted DataFrame with bin levels.
+
+        Returns:
+            DataFrame containing normalized Stock and Accum_Rate for each bin.
+        """
 
         def __get_stock(col):
             """Helper to extract initial stock from time series column."""
