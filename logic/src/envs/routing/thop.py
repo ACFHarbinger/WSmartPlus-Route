@@ -23,6 +23,16 @@ Speed model (Chagas & Wagner 2020)
 
 where w is the current carried weight and W is the knapsack capacity.
 Travel time from city i to j: t(i,j) = dist(i,j) / v(w_current).
+
+Attributes:
+    NAME: Environment identifier string ``"thop"``.
+    name: Alias for NAME used by the registry.
+    node_dim: Number of node features (x, y, weight, profit) = 4.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("thop", num_loc=15)
+    >>> td = env.reset()
 """
 
 from __future__ import annotations
@@ -54,6 +64,11 @@ class ThOPEnv(RL4COEnvBase):
       mask[0]     — depot return (always valid after step > 0)
       mask[1..m]  — item k (valid when not yet picked, capacity allows,
                              and time round-trip is feasible)
+
+    Attributes:
+        NAME: Environment identifier string ``"thop"``.
+        name: Alias for NAME used by the registry.
+        node_dim: Number of node features (x, y, weight, profit) = 4.
     """
 
     NAME: str = "thop"
@@ -68,7 +83,14 @@ class ThOPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
-        """Initialize the ThOP environment."""
+        """Initialize the ThOP environment.
+
+        Args:
+            generator: Pre-built ThOPGenerator; created from generator_params if None.
+            generator_params: Keyword arguments forwarded to ThOPGenerator constructor.
+            device: Torch device for tensor placement.
+            kwargs: Additional arguments forwarded to RL4COEnvBase.
+        """
         generator_params = generator_params or {}
         if generator is None:
             generator = ThOPGenerator(**generator_params, device=device)
@@ -79,7 +101,17 @@ class ThOPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialise ThOP episode state from a generated instance."""
+        """Initialise ThOP episode state from a generated instance.
+
+        Args:
+            td: TensorDict produced by the generator, containing ``locs``
+                (customer coordinates) and ``depot`` tensors.
+
+        Returns:
+            TensorDict: Initialised state with ``current_node``, ``visited``,
+                ``tour``, ``tour_length``, ``first_node``, ``reward``,
+                ``terminated``, and ``truncated`` fields.
+        """
         if "item_picked" in td.keys():
             return td
 
@@ -107,6 +139,19 @@ class ThOPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """Execute action and update state for ThOP.
+
+        Args:
+            td: Current state TensorDict containing ``action``, ``current_city``,
+                ``current_time``, ``current_weight``, ``item_picked``, ``locs``,
+                ``depot``, ``item_city``, ``item_weights``, ``capacity``,
+                ``v_max``, and ``v_min`` fields.
+
+        Returns:
+            TensorDict: Updated state with ``current_time``, ``current_weight``,
+                ``item_picked``, ``current_city``, ``tour``, ``tour_length``,
+                ``reward``, ``terminated``, and ``truncated`` fields.
+        """
         return OpsMixin._step(self, td)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -118,6 +163,16 @@ class ThOPEnv(RL4COEnvBase):
 
         Travel time uses the speed model v(w) = v_max - (w/W)*(v_max-v_min)
         evaluated at the weight *before* the item is added to the knapsack.
+        Args:
+            td: Current state TensorDict containing ``action``, ``current_city``,
+                ``current_time``, ``current_weight``, ``item_picked``, ``locs``,
+                ``depot``, ``item_city``, ``item_weights``, ``capacity``,
+                ``v_max``, and ``v_min`` fields.
+
+        Returns:
+            TensorDict: Updated state with ``current_time``, ``current_weight``,
+                ``item_picked``, ``current_city``, ``tour``, ``tour_length``,
+                ``reward``, ``terminated``, and ``truncated`` fields.
         """
         action = td["action"]
         if action.dim() > 1:
@@ -175,7 +230,14 @@ class ThOPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Episode ends when the thief returns to the depot (city 0) after ≥1 step."""
+        """Episode ends when the thief returns to the depot (city 0) after ≥1 step.
+
+        Args:
+            td: Current state TensorDict.
+
+        Returns:
+            torch.Tensor: Boolean tensor of shape ``(batch,)`` indicating terminated episodes.
+        """
         i_raw = td.get("i", torch.zeros(td.batch_size, dtype=torch.long, device=td.device))
         step = i_raw.squeeze(-1) if i_raw.dim() > 1 else i_raw
         return (td["current_city"] == 0) & (step > 0)
@@ -192,6 +254,13 @@ class ThOPEnv(RL4COEnvBase):
 
         The depot (action 0) is always valid once the episode has started
         (step > 0), and is forced valid if no items can be selected.
+
+        Args:
+            td: Current state TensorDict.
+
+        Returns:
+            torch.Tensor: Boolean mask of shape ``[batch, num_items + 1]`` where
+                ``True`` indicates a valid action.
         """
         locs = td["locs"]  # [B, n+1, 2]
         item_city = td["item_city"]  # [B, m]
@@ -264,5 +333,14 @@ class ThOPEnv(RL4COEnvBase):
         return torch.cat([depot_valid.unsqueeze(-1), item_mask], dim=-1)
 
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Total profit of all items collected during the episode."""
+        """Total profit of all items collected during the episode.
+
+        Args:
+            td: Final state TensorDict containing ``item_profits`` and
+                ``item_picked``.
+            actions: Optional tour action sequence (unused).
+
+        Returns:
+            torch.Tensor: Total profit per batch element, shape ``(batch,)``.
+        """
         return (td["item_profits"] * td["item_picked"].float()).sum(dim=-1)

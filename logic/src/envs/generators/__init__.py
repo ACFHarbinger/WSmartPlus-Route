@@ -1,5 +1,16 @@
 """
 Problem instance generators sub-package.
+
+Attributes:
+    GENERATOR_REGISTRY (dict[str, type[Generator]]): Registry of available generators.
+    get_generator: Factory function for getting a generator.
+
+Examples:
+    >>> from src.envs.generators import get_generator
+    >>> generator = get_generator("vrpp", num_loc=20)
+    >>> problem = generator.generate()
+    >>> problem
+    <ProblemInstance: ...>
 """
 
 from typing import Any
@@ -40,9 +51,11 @@ def get_generator(name: str, **kwargs: Any) -> Generator:
     """
     Get a generator by name.
 
+
+
     Args:
         name: Generator name (e.g., "vrpp", "wcvrp", "tsp", "irp", "atsp", "cvrp").
-        **kwargs: Generator configuration parameters.
+        kwargs: Generator configuration parameters.
 
     Returns:
         Configured Generator instance.

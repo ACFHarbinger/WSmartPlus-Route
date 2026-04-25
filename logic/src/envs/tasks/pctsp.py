@@ -1,5 +1,22 @@
 """
 PCTSP problem definition for offline evaluation.
+
+Attributes:
+    PCTSP: Prize-Collecting TSP (PCTSP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.pctsp import PCTSP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+    ...     "penalty": torch.tensor([[0.0, 10.0]]),
+    ...     "real_prize": torch.tensor([[0.0, 10.0]]),
+    ...     "depot": torch.tensor([0.0]),
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 0]]])
+    >>> length, cost_dict, _ = PCTSP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([-2.0])
 """
 
 from __future__ import annotations
@@ -16,6 +33,9 @@ class PCTSP(BaseProblem):
     Prize-Collecting TSP (PCTSP).
 
     Objective: saved_penalties - (tour_length + remaining_penalties).
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "pctsp"

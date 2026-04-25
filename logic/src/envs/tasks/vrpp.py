@@ -1,5 +1,23 @@
 """
 VRPP and CVRPP problem definitions.
+
+Attributes:
+    VRPP: Vehicle Routing Problem with Profits (VRPP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.vrpp import VRPP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+    ...     "waste": torch.tensor([[0.0, 10.0]]),
+    ...     "depot": torch.tensor([0.0]),
+    ...     "cost_km": 1.0,
+    ...     "revenue_kg": 2.0,
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 0]]])
+    >>> length, cost_dict, _ = VRPP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([-2.0])
 """
 
 import torch
@@ -11,7 +29,11 @@ from logic.src.envs.tasks.base import BaseProblem
 class VRPP(BaseProblem):
     """
     Vehicle Routing Problem with Profits (VRPP).
+
     Objective: Maximize Profit (Revenue - Cost).
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "vrpp"

@@ -1,12 +1,19 @@
 """
 Base problem definition and legacy constants.
+
+Attributes:
+    BaseProblem: Class definition of BaseProblem.
+
+Example:
+    None
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import torch
+import torch.nn as nn
 from tensordict import TensorDict
 
 from logic.src.envs import get_env
@@ -17,13 +24,23 @@ from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 class BaseProblem:
     """
     Legacy base class for routing problems.
+
+    Attributes:
+        NAME: Name of the problem
     """
 
     NAME: str = "base"
 
     @staticmethod
     def validate_tours(pi: torch.Tensor) -> bool:
-        """Validates tours (no duplicates except depot)."""
+        """Validates tours (no duplicates except depot).
+
+        Args:
+            pi: Tensor of tours to validate, shape (batch, sequence_length)
+
+        Returns:
+            bool: True if tours are valid, False otherwise
+        """
         if pi.size(-1) <= 1:
             return True
         sorted_pi: torch.Tensor = pi.data.sort(1)[0]
@@ -37,7 +54,20 @@ class BaseProblem:
         pi: torch.Tensor,
         dist_matrix: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """Calculates tour length."""
+        """Calculates tour length.
+
+        Args:
+            dataset (Dict[str, Any]): Dataset containing node locations and optionally edges.
+                Expected keys: 'locs' (Tensor[batch, num_nodes, 2]) or 'edges' (Tensor[batch, num_nodes, num_nodes]).
+                'depot' (Tensor[batch, 2]) is also supported.
+            pi (torch.Tensor): Tensor of tours to validate, shape (batch, sequence_length).
+                Tours should include depot at start/end if applicable.
+            dist_matrix (Optional[torch.Tensor]): Optional precomputed distance matrix,
+                shape (batch, num_nodes, num_nodes) or (num_nodes, num_nodes).
+
+        Returns:
+            torch.Tensor: Tensor of tour lengths, shape (batch,)
+        """
         if pi.size(-1) <= 1:
             return torch.zeros(pi.size(0), device=pi.device)
 
@@ -84,8 +114,26 @@ class BaseProblem:
         return length
 
     @classmethod
-    def beam_search(cls, input, beam_size, cost_weights, model=None, **kwargs):
-        """Beam search bridge."""
+    def beam_search(
+        cls,
+        input: Union[ITraversable, TensorDict],
+        beam_size: int,
+        cost_weights: Union[torch.Tensor, List[float], float, Dict[str, float]],
+        model: Optional[nn.Module] = None,
+        **kwargs: Any,
+    ) -> TensorDict:
+        """Beam search bridge.
+
+        Args:
+            input (Union[ITraversable, TensorDict]): Input data, can be ITraversable or TensorDict.
+            beam_size (int): Number of beams for beam search.
+            cost_weights (Union[torch.Tensor, List[float], float, Dict[str, float]]): Weights for cost calculation.
+            model (Optional[nn.Module]): Model to use for beam search.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            TensorDict: TensorDict containing the best tours found by beam search.
+        """
         from logic.src.utils.decoding import beam_search as beam_search_func
 
         assert model is not None
@@ -108,6 +156,15 @@ class BaseProblem:
         """
         Bridge to RL4CO environments.
         Initializes a TensorDict from the input and returns a state wrapper.
+        Args:
+            input_data (Any): Input data.
+            edges (Any): Edges data.
+            cost_weights (Any): Weights for cost calculation.
+            dist_matrix (Any): Distance matrix.
+            kwargs (Any): Additional keyword arguments.
+
+        Returns:
+            Any: State wrapper.
         """
         env_name = cls.NAME
         if isinstance(input_data, ITraversable):
@@ -134,7 +191,14 @@ class BaseProblem:
 
     @staticmethod
     def _get_batch_info(input_data: Any) -> tuple[int, torch.device]:
-        """Extract batch size and device from input data."""
+        """Extract batch size and device from input data.
+
+        Args:
+            input_data: Input data.
+
+        Returns:
+            tuple[int, torch.device]: Batch size and device.
+        """
         bs = 1
         device = torch.device("cpu")
         for k in ["loc", "locs", "waste"]:
@@ -146,7 +210,16 @@ class BaseProblem:
 
     @classmethod
     def _prepare_td_from_traversable(cls, input_data: Any, bs: int, device: torch.device) -> TensorDict:
-        """Create a TensorDict from an ITraversable object."""
+        """Create a TensorDict from an ITraversable object.
+
+        Args:
+            input_data: Input data.
+            bs: Batch size.
+            device: Device.
+
+        Returns:
+            TensorDict: TensorDict containing the batched input data.
+        """
         td_data = {}
         for k, v in input_data.items():
             if torch.is_tensor(v):
@@ -158,7 +231,14 @@ class BaseProblem:
 
     @staticmethod
     def _map_key(k: str) -> str:
-        """Map legacy keys to environment keys."""
+        """Map legacy keys to environment keys.
+
+        Args:
+            k (str): Key to map.
+
+        Returns:
+            str: Mapped key.
+        """
         if k == "loc":
             return "locs"
         if k in ["wastes"]:
@@ -167,7 +247,15 @@ class BaseProblem:
 
     @staticmethod
     def _batch_tensor(v: torch.Tensor, bs: int) -> torch.Tensor:
-        """Ensure tensor has correct batch dimension."""
+        """Ensure tensor has correct batch dimension.
+
+        Args:
+            v (torch.Tensor): Tensor to batch.
+            bs (int): Batch size.
+
+        Returns:
+            torch.Tensor: Tensor with correct batch dimension.
+        """
         if v.dim() >= 1 and v.size(0) == bs:
             return v
         if v.dim() >= 2:
@@ -176,7 +264,15 @@ class BaseProblem:
 
     @staticmethod
     def _ensure_required_keys(td: TensorDict, env_name: str, edges: Any, dist_matrix: Any, **kwargs: Any) -> None:
-        """Ensure all required keys are present in the TensorDict."""
+        """Ensure all required keys are present in the TensorDict.
+
+        Args:
+            td (TensorDict): TensorDict to check.
+            env_name (str): Environment name.
+            edges (Any): Edges data.
+            dist_matrix (Any): Distance matrix.
+            kwargs (Any): Additional keyword arguments.
+        """
         bs = td.batch_size[0]
         if "dist" not in td.keys() and dist_matrix is not None:
             td["dist"] = dist_matrix

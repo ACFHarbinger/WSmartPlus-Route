@@ -1,5 +1,24 @@
 """
 IRP problem definition for offline evaluation.
+
+Attributes:
+    IRP: Inventory Routing Problem (IRP) definition.
+
+Example:
+    >>> import torch
+    >>> from logic.src.envs.tasks.irp import IRP
+    >>> dataset = {
+    ...     "locs": torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+    ...     "demand": torch.tensor([[0.0, 1.0]]),
+    ...     "holding_cost": torch.tensor([[0.0, 1.0]]),
+    ...     "stockout": torch.tensor([[0.0, 1.0]]),
+    ...     "routing_cost": torch.tensor([2.0]),
+    ...     "depot": torch.tensor([0.0]),
+    ... }
+    >>> pi = torch.tensor([[[0, 1, 0]]])
+    >>> length, cost_dict, _ = IRP.get_costs(dataset, pi)
+    >>> print(length)
+    tensor([4.0])
 """
 
 from __future__ import annotations
@@ -18,6 +37,9 @@ class IRP(BaseProblem):
     Offline cost computation for multi-period IRP solutions.
     The cost is the sum of routing distance plus holding costs minus any
     stockout penalty savings, evaluated from a completed IRPEnv episode state.
+
+    Attributes:
+        NAME: Environment name identifier.
     """
 
     NAME = "irp"

@@ -3,6 +3,16 @@ VRPP Environment implementation.
 
 Vehicle Routing Problem with Profits: Select profitable subset
 of nodes to visit while minimizing travel cost.
+
+Attributes:
+    NAME: Environment identifier string ``"vrpp"``.
+    name: Alias for NAME used by the registry.
+    node_dim: Number of node features (x, y, waste, profit) = 4.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("vrpp", num_loc=50)
+    >>> td = env.reset()
 """
 
 from __future__ import annotations
@@ -23,6 +33,11 @@ class VRPPEnv(RL4COEnvBase):
 
     The agent must select which nodes to visit to maximize
     total waste collected minus travel cost.
+
+    Attributes:
+        NAME: Environment identifier string ``"vrpp"``.
+        name: Alias for NAME used by the registry.
+        node_dim: Number of node features (x, y, waste, profit) = 4.
     """
 
     NAME = "vrpp"
@@ -50,7 +65,7 @@ class VRPPEnv(RL4COEnvBase):
             revenue_kg: Optional revenue per kg (overrides waste_weight).
             cost_km: Optional cost per km (overrides cost_weight).
             device: Device for torch tensors ('cpu' or 'cuda').
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         generator_params = generator_params or kwargs
         if generator is None:
@@ -148,6 +163,18 @@ class VRPPEnv(RL4COEnvBase):
         return tensordict
 
     def _step(self, tensordict: TensorDict) -> TensorDict:
+        """Execute action and update state for VRPP.
+
+        Args:
+            tensordict: Current state TensorDict containing ``action``, ``current_node``,
+                ``visited``, ``tour``, ``tour_length``, ``collected_waste``,
+                ``locs``, ``depot``, ``waste``, ``revenue_kg``, and ``cost_km`` fields.
+
+        Returns:
+            TensorDict: Updated state with ``current_node``, ``visited``,
+                ``tour``, ``tour_length``, ``collected_waste``, ``reward``,
+                ``terminated``, and ``truncated`` fields.
+        """
         return OpsMixin._step(self, tensordict)
 
     def _step_instance(self, tensordict: TensorDict) -> TensorDict:
@@ -294,6 +321,7 @@ class VRPPEnv(RL4COEnvBase):
                 - locs (Tensor): Location coordinates, shape (batch, num_nodes, 2)
                 - depot (Tensor): Depot coordinates, shape (batch, 2)
                 - visited (BoolTensor): Visit status for each node, shape (batch, num_nodes)
+            actions (Optional[torch.Tensor]): Optional tour action sequence ``(batch, tour_len)`` (unused).
 
         Returns:
             Tensor: Reward for each batch, shape (batch,)

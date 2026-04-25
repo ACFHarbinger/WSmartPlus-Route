@@ -4,6 +4,16 @@ SCWCVRP Environment implementation.
 Stochastic Capacitated Waste Collection Vehicle Routing Problem:
 Agent sees noisy estimates of bin fill levels but collects real waste.
 Rewards are based on real waste levels and overflows.
+
+Attributes:
+    NAME: Environment identifier string ``"swcvrp"``.
+    name: Alias for NAME used by the registry.
+    node_dim: Node feature dimension — 2 for (x, y) coordinates.
+
+Example:
+    >>> from logic.src.envs.routing import get_env
+    >>> env = get_env("swcvrp", num_loc=20)
+    >>> td = env.reset(batch_size=[4])
 """
 
 from __future__ import annotations
@@ -23,6 +33,10 @@ class SCWCVRPEnv(WCVRPEnv):
 
     The agent must collect waste from bins based on noisy observations.
     The real waste level is used for reward calculation (overflows).
+
+    Attributes:
+        name: Alias for NAME used by the registry.
+        generator_params: Keyword arguments forwarded to SCWCVRPGenerator constructor.
     """
 
     name: str = "scwcvrp"
@@ -37,7 +51,17 @@ class SCWCVRPEnv(WCVRPEnv):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
-        """Initialize SCWCVRPEnv."""
+        """Initialize SCWCVRPEnv.
+
+        Args:
+            generator: Data generator for the environment.
+            generator_params: Parameters for the data generator.
+            overflow_penalty: Description of overflow_penalty.
+            waste_weight: Description of waste_weight.
+            cost_weight: Description of cost_weight.
+            device: Torch device to place tensors on.
+            kwargs: Additional keyword arguments.
+        """
         generator_params = generator_params or kwargs
         if generator is None:
             generator = SCWCVRPGenerator(**generator_params, device=device)
@@ -53,7 +77,17 @@ class SCWCVRPEnv(WCVRPEnv):
         )
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialize SWCVRP episode state."""
+        """Initialize SWCVRP episode state.
+
+        Args:
+            td: TensorDict produced by the generator, containing ``locs``
+                (customer coordinates) and ``depot`` tensors.
+
+        Returns:
+            TensorDict: Initialised state with ``current_node``, ``visited``,
+                ``tour``, ``tour_length``, ``first_node``, ``reward``,
+                ``terminated``, and ``truncated`` fields.
+        """
         if self.generator is None:
             raise ValueError(f"Generator for {self.name} is not initialized. Initialize with an instance first.")
         td = super()._reset_instance(td)
@@ -69,7 +103,18 @@ class SCWCVRPEnv(WCVRPEnv):
         return td
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
-        """Execute action and update state with real waste collection."""
+        """Execute action and update state with real waste collection.
+
+        Args:
+            td: Current state containing ``action``, ``current_node``,
+                ``capacity``, ``current_load``, ``real_waste``, ``locs``,
+                and ``depot`` tensors.
+
+        Returns:
+            TensorDict: Updated state with incremented ``tour_length``, updated
+                ``visited`` mask, ``current_node`` set to the selected action,
+                and the action appended to ``tour``.
+        """
         action = td["action"]
         is_not_depot = action != 0
 
@@ -103,6 +148,13 @@ class SCWCVRPEnv(WCVRPEnv):
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Compute SCWCVRP reward based on REAL waste levels and collection.
+        Args:
+            td: Final state TensorDict containing ``total_real_collected``,
+                ``tour_length``, ``current_node``, ``locs``, and ``depot``.
+            actions: Optional tour action sequence ``(batch, tour_len)`` (unused).
+
+        Returns:
+            torch.Tensor: Scalar reward per batch element, shape ``(batch,)``.
         """
         # We use total_real_collected instead of total_collected
         collection = td["total_real_collected"]

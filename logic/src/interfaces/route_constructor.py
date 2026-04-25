@@ -68,7 +68,7 @@ class IRouteConstructor(ABC):
         Execute the policy to generate a route.
 
         Args:
-            **kwargs: Context dictionary containing simulation state.
+            kwargs: Context dictionary containing simulation state.
                 May include ``search_context`` (a ``SearchContext`` from
                 Phase 1) and ``multi_day_context`` (historical data).
 

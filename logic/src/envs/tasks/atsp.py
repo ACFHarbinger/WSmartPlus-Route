@@ -1,5 +1,12 @@
 """
 ATSP problem definition for offline evaluation.
+
+Attributes:
+    ATSP: Class definition of ATSP.
+
+Example:
+    >>> from logic.src.envs import TSPEnv
+    >>> env = TSPEnv(num_nodes=20, generator_params={"num_nodes": 20})
 """
 
 from __future__ import annotations
@@ -16,6 +23,9 @@ class ATSP(BaseProblem):
     Asymmetric Traveling Salesman Problem (ATSP).
 
     Cost = total asymmetric tour length (including closing edge).
+
+    Attributes:
+        NAME: Name of the problem
     """
 
     NAME = "atsp"

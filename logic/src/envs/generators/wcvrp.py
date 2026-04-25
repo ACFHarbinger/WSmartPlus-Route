@@ -1,5 +1,39 @@
 """
 WCVRP problem generator.
+
+Attributes:
+    WCVRPGenerator: WCVRPGenerator class.
+
+Example:
+    >>> from logic.src.envs.generators import WCVRPGenerator
+    >>> generator = WCVRPGenerator(num_loc=50)
+    >>> instance = generator.generate()
+    >>> instance
+    TensorDict(
+        {
+            'locs': TensorDict(
+                # ... customer locations (shape: [*B, 50, 2]) ...
+            ),
+            'depot': TensorDict(
+                # ... depot location (shape: [*B, 2]) ...
+            ),
+            'waste': TensorDict(
+                # ... waste at each location (shape: [*B, 50]) ...
+            ),
+            'capacity': TensorDict(
+                # ... vehicle capacity (shape: [*B]) ...
+            ),
+            'max_waste': TensorDict(
+                # ... max waste per vehicle (shape: [*B]) ...
+            ),
+            'cost_km': TensorDict(
+                # ... cost per km (shape: [*B]) ...
+            ),
+            'revenue_kg': TensorDict(
+                # ... revenue per kg (shape: [*B]) ...
+            )
+        }
+    )
 """
 
 from __future__ import annotations
@@ -22,6 +56,19 @@ class WCVRPGenerator(Generator):
     - Bin fill levels that can change over time
     - Collection thresholds
     - Cost structure for collection
+
+    Attributes:
+        num_loc: Number of customer locations.
+        min_loc: Minimum coordinate value.
+        max_loc: Maximum coordinate value.
+        loc_distribution: Distribution for location generation.
+        min_fill: Minimum waste fill level.
+        max_fill: Maximum waste fill level.
+        fill_distribution: Distribution for fill level generation.
+        capacity: Vehicle capacity.
+        cost_km: Cost per kilometer.
+        revenue_kg: Revenue per kilogram.
+        depot_type: Depot placement strategy.
     """
 
     def __init__(
@@ -64,7 +111,7 @@ class WCVRPGenerator(Generator):
             data_dir: Directory for grid data.
             indices: Indices for grid generation.
             generator: Generator for random number generation.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(num_loc, min_loc, max_loc, loc_distribution, device, generator, **kwargs)
 
@@ -87,7 +134,21 @@ class WCVRPGenerator(Generator):
             pass
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
-        """Generate WCVRP instances."""
+        """Generate WCVRP instances.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with:
+                locs: [*B, num_loc, 2]     — customer locations
+                depot: [*B, 2]              — depot location
+                waste: [*B, num_loc]        — waste at each location
+                capacity: [*B]               — vehicle capacity
+                max_waste: [*B]             — max waste per vehicle
+                cost_km: [*B]               — cost per km
+                revenue_kg: [*B]            — revenue per kg
+        """
         # Generate locations
         locs = self._generate_locations(batch_size)
 
@@ -114,7 +175,14 @@ class WCVRPGenerator(Generator):
         )
 
     def _generate_depot(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate depot location based on depot_type."""
+        """Generate depot location based on depot_type.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with depot location (shape: [*B, 2]).
+        """
         if self.depot_type == "center":
             center = (self.max_loc + self.min_loc) / 2
             return torch.full((*batch_size, 2), center, device=self.device)
@@ -126,7 +194,14 @@ class WCVRPGenerator(Generator):
             raise ValueError(f"Unknown depot type: {self.depot_type}")
 
     def _generate_fill_levels(self, batch_size: tuple[int, ...]) -> torch.Tensor:
-        """Generate bin fill levels."""
+        """Generate bin fill levels.
+
+        Args:
+            batch_size: Batch size.
+
+        Returns:
+            TensorDict with fill levels (shape: [*B, num_loc]).
+        """
         # Use common utility for consistency
         from logic.src.data.generators.waste import generate_waste
 

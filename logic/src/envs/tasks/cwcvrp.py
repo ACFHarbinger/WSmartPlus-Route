@@ -1,7 +1,7 @@
 """cwcvrp.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    CWCVRP: Capacitated WCVRP task, adding per-trip capacity enforcement to WCVRP.
 
 Example:
     >>> import cwcvrp
@@ -11,6 +11,10 @@ from .wcvrp import WCVRP
 
 
 class CWCVRP(WCVRP):
-    """Capacitated WCVRP."""
+    """Capacitated WCVRP.
+
+    Attributes:
+        NAME: Environment name identifier.
+    """
 
     NAME = "cwcvrp"

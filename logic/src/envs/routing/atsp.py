@@ -7,6 +7,14 @@ Unlike the symmetric TSP there is no depot; the agent picks its own start.
 
 Reward:  -(total tour cost including the closing edge last→first)
 Done:    all N nodes have been visited
+
+Attributes:
+    ATSPEnv: RL4CO environment for the Asymmetric Traveling Salesman Problem.
+
+Example:
+    >>> from logic.src.envs.routing import ATSPEnv
+    >>> env = ATSPEnv()
+    >>> td = env.reset(batch_size=[4])
 """
 
 from __future__ import annotations
@@ -29,6 +37,10 @@ class ATSPEnv(RL4COEnvBase):
     coordinates.  No depot exists: the agent starts at whichever node it
     selects first and must return there at the end (closing edge handled
     in reward computation).
+
+    Attributes:
+        NAME: Environment identifier string ``"atsp"``.
+        node_dim: Node feature dimension (0 — no spatial coordinates).
     """
 
     NAME: str = "atsp"
@@ -42,7 +54,14 @@ class ATSPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
-        """Initialize the ATSP environment."""
+        """Initialize the ATSP environment.
+
+        Args:
+            generator: Pre-built ATSPGenerator; created from generator_params if None.
+            generator_params: Keyword arguments forwarded to ATSPGenerator constructor.
+            device: Torch device for tensor placement.
+            kwargs: Additional arguments forwarded to RL4COEnvBase.
+        """
         generator_params = generator_params or {}
         if generator is None:
             generator = ATSPGenerator(**generator_params, device=device)
@@ -53,7 +72,14 @@ class ATSPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialise ATSP episode state."""
+        """Initialise ATSP episode state.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         if "visited" in td.keys():
             return td
 
@@ -83,6 +109,14 @@ class ATSPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _step(self, td: TensorDict) -> TensorDict:
+        """Delegate to OpsMixin._step, which calls _step_instance.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         return OpsMixin._step(self, td)
 
     def _step_instance(self, td: TensorDict) -> TensorDict:
@@ -91,6 +125,11 @@ class ATSPEnv(RL4COEnvBase):
 
         Uses the asymmetric cost matrix to look up the travel cost from
         the current node to the selected action node.
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
         """
         action = td["action"]
         if action.dim() > 1:
@@ -124,11 +163,25 @@ class ATSPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:
-        """Done when all N nodes have been visited."""
+        """Done when all N nodes have been visited.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         return td["visited"].all(dim=-1)
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
-        """All unvisited nodes are valid actions."""
+        """All unvisited nodes are valid actions.
+
+        Args:
+            td: Input TensorDict containing the environment state.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
+        """
         return ~td["visited"]
 
     def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
@@ -137,6 +190,12 @@ class ATSPEnv(RL4COEnvBase):
 
         The closing edge goes from the last visited node back to the first
         node selected (stored in ``td["first_node"]``).
+        Args:
+            td: Input TensorDict containing the environment state.
+            actions: Tensor of actions to take.
+
+        Returns:
+            Updated TensorDict or tensor containing the result.
         """
         cost_matrix = td["cost_matrix"]
         bs = td.batch_size
