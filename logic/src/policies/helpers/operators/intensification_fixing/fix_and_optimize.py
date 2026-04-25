@@ -1,5 +1,4 @@
-"""
-Fix-and-Optimize (Sub-MIP) Intensification Operator.
+"""Fix-and-Optimize (Sub-MIP) Intensification Operator.
 
 Selects a subset of routes to optimise exactly while holding the remainder
 fixed.  The "free" routes' customers are extracted and handed to Gurobi as a
@@ -12,26 +11,31 @@ Selection strategy:
     designated "free" and submitted to the sub-MIP.  All other routes remain
     fixed and are appended unchanged to the final plan.
 
-Sub-MIP formulation (CVRP — Miller-Tucker-Zemlin):
-    Variables  x[i,j] ∈ {0,1}  (arc traversal), u[i] ∈ [demand_i, Q]  (MTZ load).
-    Objective  Minimize Σ d[i,j] · x[i,j].
-    Constraints:
-        Σ_j x[i,j] = 1  ∀ customer i      (depart each customer once)
-        Σ_i x[i,j] = 1  ∀ customer j      (enter each customer once)
-        Σ_j x[0,j] = K_free               (exactly K_free vehicles from depot)
-        u[j] ≥ u[i] + demand[j] − Q(1 − x[i,j])   ∀ i,j ∈ customers  (MTZ)
+Sub-MIP formulation (CVRP -- Miller-Tucker-Zemlin)::
 
-Sub-MIP formulation (VRPP):
-    Additional binary y[i] ∈ {0,1} (whether customer i is visited).
-    Objective  Maximize Σ waste[i]·R·y[i] − Σ d[i,j]·C·x[i,j].
-    Flow conservation uses y[i] instead of 1:  Σ_j x[i,j] = y[i].
-    MTZ:  u[j] ≥ u[i] + demand[j] − Q(1 − x[i,j])  (same as CVRP).
+    Variables  x[i,j] in {0,1}  (arc traversal), u[i] in [demand_i, Q]  (MTZ load).
+    Objective  Minimize Sum d[i,j] * x[i,j].
+    Constraints:
+        Sum_j x[i,j] = 1  for all customer i      (depart each customer once)
+        Sum_i x[i,j] = 1  for all customer j      (enter each customer once)
+        Sum_j x[0,j] = K_free                     (exactly K_free vehicles from depot)
+        u[j] >= u[i] + demand[j] - Q(1 - x[i,j]) for all i,j in customers (MTZ)
+
+Sub-MIP formulation (VRPP)::
+
+    Additional binary y[i] in {0,1} (whether customer i is visited).
+    Objective  Maximize Sum waste[i]*R*y[i] - Sum d[i,j]*C*x[i,j].
+    Flow conservation uses y[i] instead of 1:  Sum_j x[i,j] = y[i].
+    MTZ:  u[j] >= u[i] + demand[j] - Q(1 - x[i,j])  (same as CVRP).
 
 If Gurobi finds no feasible integer solution within *time_limit* the original
 free routes are returned unchanged as a fallback.
 
+Attributes:
+    None
+
 Requirements:
-    Gurobi Optimizer ≥ 11.0 with a valid licence.
+    Gurobi Optimizer >= 11.0 with a valid licence.
 
 Example:
     >>> from logic.src.policies.helpers.operators.intensification import fix_and_optimize
@@ -52,7 +56,15 @@ from gurobipy import GRB
 
 
 def _route_distance(route: List[int], dist_matrix: np.ndarray) -> float:
-    """Total travel distance of *route* (depot-inclusive round trip)."""
+    """Total travel distance of *route* (depot-inclusive round trip).
+
+    Args:
+        route: List of customer node IDs (depot implicit at index 0).
+        dist_matrix: Square distance matrix with depot at index 0.
+
+    Returns:
+        Total route distance as a float.
+    """
     if not route:
         return 0.0
     cost = float(dist_matrix[0, route[0]])
@@ -69,7 +81,18 @@ def _route_profit(
     R: float,
     C: float,
 ) -> float:
-    """Net profit of *route*: revenue − C · distance."""
+    """Net profit of *route*: revenue minus C times distance.
+
+    Args:
+        route: List of customer node IDs.
+        dist_matrix: Square distance matrix with depot at index 0.
+        wastes: Node demand lookup used to compute revenue.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+
+    Returns:
+        Net profit as a float (revenue - C * distance).
+    """
     revenue = sum(wastes.get(n, 0.0) for n in route) * R
     return revenue - _route_distance(route, dist_matrix) * C
 

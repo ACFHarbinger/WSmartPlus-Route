@@ -42,6 +42,9 @@ class MandatorySelectionAction(SimulationAction):
 
         Args:
             context: Shared dictionary containing simulation state.
+
+        Returns:
+            None
         """
         # Early exit if neural network explicitly predicts selection
         model_name = ""

@@ -1,14 +1,20 @@
-"""
-Separation algorithms for cutting planes in Branch-and-Price-and-Cut.
+"""Separation algorithms for cutting planes in Branch-and-Price-and-Cut.
 
 Finds violated inequalities (RCC, SEC, SRI, LCI) from fractional LP solutions.
 These inequalities strengthen the Lower Bound (z_LP) by cutting off fractional
 points that cannot be represented as convex combinations of integer feasible
 routes.
 
-Reference:
-    - Lysgaard, Letchford, and Eglese (2004) for RCC/SEC.
-    - Jepsen et al. (2008) for Subset-Row Inequalities.
+Attributes:
+    SeparationEngine: Core engine for identifying violated inequalities.
+    Inequality: Base class for valid inequalities.
+    PCSubtourEliminationCut: Subtour elimination constraint for profitable VRP.
+    CapacityCut: Rounded Capacity Cut (RCC) representation.
+    CombInequality: Comb inequality representation.
+
+Example:
+    >>> engine = SeparationEngine(n_nodes=50, capacity=100)
+    >>> cuts = engine.separate(x_star, y_star)
 """
 
 from __future__ import annotations

@@ -1,21 +1,20 @@
-"""
-Steepest-Descent Node-Exchange (Swap) Intensification Operator.
+"""Steepest-Descent Node-Exchange (Swap) Intensification Operator.
 
-Evaluates every pairwise swap of customer nodes — both within a route
-(intra-route) and across different routes (inter-route) — and applies the
+Evaluates every pairwise swap of customer nodes -- both within a route
+(intra-route) and across different routes (inter-route) -- and applies the
 globally best improving exchange at each iteration, repeating until a strict
 swap local minimum is reached.
 
-Swapping two non-adjacent nodes u and v changes exactly four boundary edges:
+Swapping two non-adjacent nodes u and v changes exactly four boundary edges::
 
-    Original:  …prev_u → u → next_u… and …prev_v → v → next_v…
-    After:     …prev_u → v → next_u… and …prev_v → u → next_v…
+    Original:  ...prev_u -> u -> next_u... and ...prev_v -> v -> next_v...
+    After:     ...prev_u -> v -> next_u... and ...prev_v -> u -> next_v...
 
-    Δ = d[prev_u,v] + d[v,next_u] + d[prev_v,u] + d[u,next_v]
-      − d[prev_u,u] − d[u,next_u] − d[prev_v,v] − d[v,next_v]
+    delta = d[prev_u,v] + d[v,next_u] + d[prev_v,u] + d[u,next_v]
+          - d[prev_u,u] - d[u,next_u] - d[prev_v,v] - d[v,next_v]
 
-Adjacent same-route nodes (|p_u − p_v| = 1) are skipped here because their
-reversal is exactly the 2-opt move of a 2-node segment — already covered by
+Adjacent same-route nodes (|p_u - p_v| = 1) are skipped here because their
+reversal is exactly the 2-opt move of a 2-node segment -- already covered by
 :func:`~intensification.steepest_two_opt.two_opt_steepest`.
 
 Inter-route swaps are subject to capacity feasibility: both receiving routes
@@ -24,6 +23,9 @@ must still satisfy the load limit after the exchange.
 Because every swap preserves the set of visited customers, revenue is unchanged.
 The CVRP and VRPP stopping conditions are therefore equivalent, with the delta
 scaled by C for unit consistency.
+
+Attributes:
+    None
 
 Example:
     >>> from logic.src.policies.helpers.operators.intensification import node_exchange_steepest

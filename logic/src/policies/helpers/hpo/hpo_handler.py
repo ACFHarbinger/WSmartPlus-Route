@@ -6,6 +6,9 @@ including parameter sampling, simulation execution, and metric calculation.
 It supports multi-process parallel optimization and integrates with the
 MLflow tracking system.
 
+Attributes:
+    logger: Logger instance for HPO operations.
+
 Functions:
     objective: The objective function passed to Optuna for trial evaluation.
     run_hpo_sim: Orchestrates the parallel HPO process.

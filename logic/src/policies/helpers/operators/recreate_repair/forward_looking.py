@@ -34,6 +34,13 @@ References
 ----------
 Coelho, L. C., Cordeau, J.-F., & Laporte, G. (2012). "The inventory-routing
 problem with transshipment." Computers & Operations Research, 39(11).
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.recreate_repair.forward_looking import forward_looking_insertion
+    >>> new_routes = forward_looking_insertion(horizon_routes, removed, dist, wastes, cap, R, C)
 """
 
 from __future__ import annotations

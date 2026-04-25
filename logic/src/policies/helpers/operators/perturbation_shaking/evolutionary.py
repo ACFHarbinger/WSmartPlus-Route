@@ -126,6 +126,21 @@ def evolutionary_perturbation_profit(
 ) -> List[List[int]]:
     """
     Micro-evolutionary perturbation for VRPP (Profit Maximization).
+
+    Args:
+        routes: Full global solution.
+        distance_matrix: N x N distance matrix.
+        capacity: Vehicle capacity constraint.
+        wastes: Node demands/wastes.
+        revenue: Revenue per unit of waste collected.
+        cost_unit: Cost per unit of distance.
+        target_routes: The specific routes to be optimized.
+        pop_size: GA population size.
+        n_generations: GA generations.
+        rng: Random generator.
+
+    Returns:
+        List[List[int]]: The updated global solution with improved profit.
     """
     if rng is None:
         rng = Random()
@@ -213,6 +228,14 @@ def evolutionary_perturbation_profit(
 
 
 def _decode_chromosome(seq: List[int]) -> List[List[int]]:
+    """Decodes a chromosome into a list of routes using -1 as depot markers.
+
+    Args:
+        seq: The chromosome (node sequence with -1 markers).
+
+    Returns:
+        List[List[int]]: Decoded routes.
+    """
     routes: List[List[int]] = []
     current_route: List[int] = []
     for gene in seq:
@@ -228,6 +251,17 @@ def _decode_chromosome(seq: List[int]) -> List[List[int]]:
 def _eval_cvrp_chromosome(
     seq: List[int], d: np.ndarray, cap: float, wastes: Union[Dict[int, float], np.ndarray]
 ) -> float:
+    """Evaluates the cost of a CVRP chromosome with capacity penalties.
+
+    Args:
+        seq: The chromosome.
+        d: Distance matrix.
+        cap: Capacity constraint.
+        wastes: Node demands.
+
+    Returns:
+        Total cost including distance and capacity violations.
+    """
     routes = _decode_chromosome(seq)
     total_cost = 0.0
     penalty = 0.0
@@ -244,6 +278,19 @@ def _eval_cvrp_chromosome(
 def _eval_vrpp_chromosome(
     seq: List[int], d: np.ndarray, cap: float, wastes: Union[Dict[int, float], np.ndarray], R: float, C: float
 ) -> float:
+    """Evaluates the profit of a VRPP chromosome with capacity penalties.
+
+    Args:
+        seq: The chromosome.
+        d: Distance matrix.
+        cap: Capacity.
+        wastes: Node profits/demands.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+
+    Returns:
+        Total profit (Revenue - Cost) minus capacity penalties.
+    """
     routes = _decode_chromosome(seq)
     total_profit = 0.0
     penalty = 0.0
@@ -261,7 +308,15 @@ def _eval_vrpp_chromosome(
 
 
 def _map_target_to_global(routes: List[List[int]], targets: List[List[int]]) -> List[int]:
-    """Identify indices of provided sub-routes in the global solution."""
+    """Identify indices of provided sub-routes in the global solution.
+
+    Args:
+        routes: The full global solution.
+        targets: Sub-routes to find.
+
+    Returns:
+        List of indices in `routes` where `targets` were found.
+    """
     indices = []
     temp_full = [r[:] for r in routes]
     for tr in targets:
@@ -275,7 +330,16 @@ def _map_target_to_global(routes: List[List[int]], targets: List[List[int]]) -> 
 
 
 def _apply_to_solution(routes: List[List[int]], indices: List[int], best_seq: List[int]) -> List[List[int]]:
-    """Integrates optimized sub-routes back into the full solution."""
+    """Integrates optimized sub-routes back into the full solution.
+
+    Args:
+        routes: Original full solution.
+        indices: Global indices to replace.
+        best_seq: Optimized chromosome segment.
+
+    Returns:
+        New full solution with updated routes.
+    """
     new_solution = [r[:] for r in routes]
     new_parts = _decode_chromosome(best_seq)
     for i, idx in enumerate(indices):
@@ -287,6 +351,16 @@ def _apply_to_solution(routes: List[List[int]], indices: List[int], best_seq: Li
 
 
 def _order_crossover(p1: List[int], p2: List[int], rng: Random) -> List[int]:
+    """Performs Order Crossover (OX1) on two chromosomes.
+
+    Args:
+        p1: First parent.
+        p2: Second parent.
+        rng: Random generator.
+
+    Returns:
+        A new child chromosome.
+    """
     n = len(p1)
     if n < 2:
         return list(p1)
@@ -318,6 +392,13 @@ def _order_crossover(p1: List[int], p2: List[int], rng: Random) -> List[int]:
 
 
 def _mutate_swap(seq: List[int], rng: Random, prob: float) -> None:
+    """Randomly swaps two genes in a chromosome.
+
+    Args:
+        seq: The chromosome (mutated in-place).
+        rng: Random generator.
+        prob: Mutation probability.
+    """
     if len(seq) > 1 and rng.random() < prob:
         i, j = rng.sample(range(len(seq)), 2)
         seq[i], seq[j] = seq[j], seq[i]
@@ -327,12 +408,30 @@ def _mutate_swap(seq: List[int], rng: Random, prob: float) -> None:
 
 
 def _get_waste_val(wastes: Union[Dict[int, float], np.ndarray], node: int) -> float:
+    """Safe retrieval of waste/demand value for a node.
+
+    Args:
+        wastes: Demands as dict or array.
+        node: Node index.
+
+    Returns:
+        Waste value for the node.
+    """
     if isinstance(wastes, dict):
         return wastes.get(node, 0.0)
     return float(wastes[node]) if node < len(wastes) else 0.0
 
 
 def _sequence_cost(d: np.ndarray, seq: List[int]) -> float:
+    """Calculates total distance cost of a sequence (depot included).
+
+    Args:
+        d: Distance matrix.
+        seq: Node sequence.
+
+    Returns:
+        Total distance cost.
+    """
     cost = d[0, seq[0]]
     for i in range(len(seq) - 1):
         cost += d[seq[i], seq[i + 1]]
@@ -342,6 +441,18 @@ def _sequence_cost(d: np.ndarray, seq: List[int]) -> float:
 def _sequence_profit(
     seq: List[int], d: np.ndarray, wastes: Union[Dict[int, float], np.ndarray], R: float, C: float
 ) -> float:
+    """Calculates total profit of a sequence (depot included).
+
+    Args:
+        seq: Node sequence.
+        d: Distance matrix.
+        wastes: Node demands/profits.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+
+    Returns:
+        Total profit.
+    """
     dist = d[0, seq[0]]
     rev = _get_waste_val(wastes, seq[0]) * R
     for i in range(len(seq) - 1):

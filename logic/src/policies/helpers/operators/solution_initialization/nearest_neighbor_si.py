@@ -1,5 +1,12 @@
 """
 Common initialization heuristic for building geographically compact routes.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
+    >>> routes = build_nn_routes(nodes, mandatory_nodes, wastes, capacity, dist_matrix, R, C)
 """
 
 from random import Random
@@ -31,17 +38,18 @@ def build_nn_routes(
     that fits the capacity. This creates tight geographic clusters.
 
     Args:
-        nodes: Complete list of potential nodes.
-        mandatory_nodes: Nodes that MUST be visited.
-        wastes: Dictionary of node wastes.
-        capacity: Maximum capacity of a route.
-        dist_matrix: Distance matrix.
-        R: Revenue multiplier.
-        C: Cost multiplier.
-        rng: Optional random number generator.
+        nodes (List[int]): Complete list of potential nodes.
+        mandatory_nodes (List[int]): Nodes that MUST be visited.
+        wastes (Dict[int, float]): Dictionary of node wastes.
+        capacity (float): Maximum capacity of a route.
+        dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        rng (Optional[Random]): Optional random number generator.
+        prune_unprofitable (bool): Whether to prune unprofitable routes.
 
     Returns:
-        List of generated routes.
+        List[List[int]]: List of generated routes (depot excluded).
     """
     if rng is None:
         rng = Random()

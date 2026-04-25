@@ -1,5 +1,4 @@
-"""
-Inter-Period Destroy Operators for Multi-Period ALNS.
+"""Inter-Period Destroy Operators for Multi-Period ALNS.
 
 Implements horizon-aware removal operators that operate on the full T-day
 chromosome ``horizon_routes: List[List[List[int]]]``, enabling ALNS to
@@ -19,10 +18,20 @@ pattern_removal
     node and is analogous to Coelho et al. (2012) "path removal" extended
     to the inventory routing literature.
 
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.destroy_ruin.multi_period import (
+    ...     shift_visit_removal, pattern_removal
+    ... )
+    >>> new_horizon, removed = shift_visit_removal(horizon_routes, n_remove=3)
+    >>> new_horizon, removed = pattern_removal(horizon_routes, n_remove=2)
+
 References
 ----------
 Coelho, L. C., Cordeau, J.-F., & Laporte, G. (2012). "The inventory-routing
-problem with transshipment." Computers & Operations Research, 39(11), 2537–2548.
+problem with transshipment." Computers & Operations Research, 39(11), 2537-2548.
 """
 
 from __future__ import annotations
@@ -165,6 +174,9 @@ def shaw_horizon_removal(
         dist_matrix: Distance matrix.
         p: Shaw randomness parameter.
         rng: Random number generator.
+
+    Returns:
+        Tuple of (modified_horizon, removed_visits).
     """
     if rng is None:
         rng = _random.Random()
@@ -223,6 +235,9 @@ def urgency_aware_removal(
         wastes: Current fill levels (used as urgency indicator).
         fill_threshold: Urgency threshold tau.
         rng: Random number generator.
+
+    Returns:
+        Tuple of (modified_horizon, removed_visits).
     """
     if rng is None:
         rng = _random.Random()

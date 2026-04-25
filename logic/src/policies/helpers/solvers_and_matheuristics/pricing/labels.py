@@ -1,5 +1,11 @@
-"""
-Dynamic programming labels for RCSPP.
+"""Dynamic programming labels for RCSPP.
+
+Attributes:
+    Label: Dynamic programming state for the RCSPP solver.
+
+Example:
+    >>> label = Label(reduced_cost=10.0, node=1, load=5.0)
+    >>> is_feasible = label.is_feasible(capacity=100.0)
 """
 
 from __future__ import annotations
@@ -16,6 +22,19 @@ class Label:
     Represents a partial path from the depot to the current node with
     accumulated resources.  Labels are ordered by reduced cost for efficient
     dominance checking (higher is better for the maximisation objective).
+
+    Attributes:
+        reduced_cost (float): Accumulated reduced cost.
+        node (int): Current node index.
+        load (float): Accumulated load (waste collected).
+        visited (Set[int]): Nodes visited in the partial path.
+        ng_memory (Set[int]): Memory state for ng-route relaxation.
+        rf_unmatched (FrozenSet[int]): Unmatched Ryan-Foster nodes.
+        parent (Optional[Label]): Pointer to the previous label in the path.
+        sri_state (Tuple[int, ...]): State for Subset-Row Inequalities.
+
+    Example:
+        >>> l = Label(10.0, 1, 5.0)
     """
 
     # Primary sort key — higher reduced cost is preferred.
@@ -63,6 +82,15 @@ class Label:
         4. Smaller or equal subset of visited/ng-memory nodes
         5. Subset-row inequality state compatibility
         6. Ryan-Foster conflict set compatibility
+
+        Args:
+            other: Label to compare against.
+            use_ng: Whether to use ng-route memory for dominance.
+            epsilon: Numerical tolerance for comparisons.
+            sri_dual_values: Dual values for active SRIs.
+
+        Returns:
+            True if this label dominates the other.
         """
         if self.node != other.node:
             return False
@@ -93,11 +121,22 @@ class Label:
             return self.visited.issubset(other.visited)
 
     def is_feasible(self, capacity: float) -> bool:
-        """Check if the label satisfies resource constraints."""
+        """Check if the label satisfies resource constraints.
+
+        Args:
+            capacity: Maximum vehicle capacity.
+
+        Returns:
+            True if feasible, False otherwise.
+        """
         return self.load <= capacity
 
     def reconstruct_path(self) -> List[int]:
-        """Backtrack from the current label to the start node to recover the full route."""
+        """Backtrack from the current label to the start node to recover the full route.
+
+        Returns:
+            List of node indices in the full path.
+        """
         if self.parent is None:
             return [self.node]
         return self.parent.reconstruct_path() + [self.node]

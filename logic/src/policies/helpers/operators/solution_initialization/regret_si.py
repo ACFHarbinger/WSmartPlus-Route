@@ -1,6 +1,13 @@
 """
 Regret-based insertion heuristic for VRPP initialization.
 
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.solution_initialization.regret_si import build_regret_routes
+    >>> routes = build_regret_routes(dist_matrix, wastes, capacity, R, C)
+
 Reference:
     Potvin, J.-Y., & Rousseau, J.-M. (1993). A parallel route building algorithm
     for the vehicle routing and time window problem.
@@ -33,7 +40,20 @@ def _best_insertion_cost(
 
     delta_cost = insertion distance increase minus marginal revenue.
     Lower is better (more profitable insertion).
-    Returns (inf, -1, -1) if no feasible insertion exists.
+
+    Args:
+        node (int): Node ID to insert.
+        routes (List[List[int]]): Current routes.
+        loads (List[float]): Current route loads.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Node wastes.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+
+    Returns:
+        Tuple[float, int, int]: (best_delta_cost, route_idx, position).
+            Returns (inf, -1, -1) if no feasible insertion exists.
     """
     node_waste = wastes.get(node, 0.0)
     node_rev = node_waste * R
@@ -83,17 +103,17 @@ def build_regret_routes(
     Insert the node with the highest regret first.
 
     Args:
-        dist_matrix:     (N+1)×(N+1) distance matrix.
-        wastes:          {node_id → fill level}.
-        capacity:        Vehicle capacity Q.
-        R:               Revenue per unit waste.
-        C:               Cost per unit distance.
-        mandatory_nodes: Nodes that must be visited.
-        regret_k:        Number of alternatives to compare (k=2 is standard).
-        rng:             Random generator (used for tie-breaking).
+        dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+        wastes (Dict[int, float]): {node_id → fill level}.
+        capacity (float): Vehicle capacity Q.
+        R (float): Revenue per unit waste.
+        C (float): Cost per unit distance.
+        mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        regret_k (int): Number of alternatives to compare (k=2 is standard).
+        rng (Optional[random.Random]): Random generator (used for tie-breaking).
 
     Returns:
-        List of routes (depot excluded).
+        List[List[int]]: List of routes (depot excluded).
     """
     if rng is None:
         rng = random.Random()

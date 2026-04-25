@@ -206,7 +206,14 @@ def genetic_transformation_profit(
 
 
 def _extract_edges(solution: List[List[int]]) -> Set[Tuple[int, int]]:
-    """Extract all directed edges from a solution (including depot connections)."""
+    """Extract all directed edges from a solution (including depot connections).
+
+    Args:
+        solution: List of routes.
+
+    Returns:
+        Set of directed edges as (u, v) tuples.
+    """
     edges: Set[Tuple[int, int]] = set()
     for route in solution:
         if not route:

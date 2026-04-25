@@ -1,5 +1,19 @@
-"""
-Branching strategies and heuristics for VRPP Column Generation.
+"""Branching strategies and heuristics for VRPP Column Generation.
+
+This module provides various branching strategies including edge-based,
+Ryan-Foster node-pair, and advanced divergence branching with spatial partitioning.
+
+Attributes:
+    EdgeBranching: Strategy for branching on fractional arcs.
+    MultiEdgePartitionBranching: Advanced divergence branching with spatial fleet partitioning.
+    RyanFosterBranching: Strategy for branching on node pairs.
+    FleetSizeBranching: Strategy for branching on total fleet usage.
+    NodeVisitationBranching: Strategy for branching on optional node visitation.
+
+Example:
+    >>> arc, flow = EdgeBranching.find_branching_arc(routes, route_values)
+    >>> if arc:
+    ...     left, right = EdgeBranching.create_child_nodes(parent, arc[0], arc[1], flow)
 """
 
 from __future__ import annotations
@@ -23,11 +37,14 @@ if TYPE_CHECKING:
 
 class EdgeBranching:
     """
-    Edge-based branching: select the most-fractional arc and split on it.
-
     Produces two child nodes:
         left  → x_{uv} = 1  (arc MUST be used)
         right → x_{uv} = 0  (arc is FORBIDDEN)
+
+    Attributes:
+        compute_arc_flow: Static method to aggregate fractional arc flows.
+        find_branching_arc: Static method to select the best arc to branch on.
+        create_child_nodes: Static method to generate child B&B nodes.
     """
 
     @staticmethod
@@ -95,17 +112,18 @@ class EdgeBranching:
         v: int,
         flow: float = 0.5,
     ) -> Tuple["BranchNode", "BranchNode"]:
-        """
-        Create left (must-use) and right (forbidden) child nodes.
+        """Create left (must-use) and right (forbidden) child nodes.
 
         Args:
             parent: The node being branched.
             u: Arc origin.
             v: Arc destination.
+            flow: Fractional flow on the arc (used for priority hints).
 
         Returns:
             (left_child, right_child)
         """
+
         from logic.src.policies.helpers.solvers_and_matheuristics.common.node import BranchNode
 
         left_bc = EdgeBranchingConstraint(u, v, must_use=True)
@@ -159,11 +177,14 @@ class MultiEdgePartitionBranching:
        strength, calculated as the fractional flow persistence across the split:
        $\sigma(d) = \sum_{(d,v) \in S_1} \bar{x}_{dv}$
 
-    Theoretical Rationale:
-    ----------------------
     Spatial fleet partitioning separates the routing topology into convex
     geographic polygons. By forbidding arc sets rather than single edges,
     it globally restricts the anonymous fleet, enforcing a strong bound.
+
+    Attributes:
+        find_divergence_node: Static method to identify a divergence node.
+        find_multiple_divergence_nodes: Static method for multi-candidate support.
+        create_child_nodes: Static method to generate child B&B nodes.
     """
 
     @staticmethod
@@ -364,9 +385,20 @@ class MultiEdgePartitionBranching:
         tol: float = 1e-5,
         n_nodes: int = 0,
     ) -> List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
+        """Implement proper multi-candidate support (Fix 19).
+
+        Args:
+            routes: All routes in the master problem.
+            route_values: Current LP solution {route_index: λ_k}.
+            node_coords: Spatial coordinates for fallback partitioning.
+            limit: Maximum number of candidates to find.
+            tol: Integrality tolerance.
+            n_nodes: Number of customer nodes.
+
+        Returns:
+            List of branching candidates (divergence node, arc sets, score).
         """
-        Implement proper multi-candidate support (Fix 19).
-        """
+
         candidates = []
         remaining_route_values = dict(route_values)
 
@@ -394,18 +426,19 @@ class MultiEdgePartitionBranching:
         arc_set_2: List[Tuple[int, int]],
         strength: float = 0.5,
     ) -> Tuple["BranchNode", "BranchNode"]:
-        """
-        Create two child nodes that forbid different arc sets.
+        """Create two child nodes that forbid different arc sets.
 
         Args:
             parent: The node being branched.
             divergence_node: The node where divergence occurs.
             arc_set_1: First set of outgoing arcs to forbid.
             arc_set_2: Second set of outgoing arcs to forbid.
+            strength: Measured divergence strength for priority hints.
 
         Returns:
             (left_child, right_child)
         """
+
         from logic.src.policies.helpers.solvers_and_matheuristics.common.node import BranchNode
 
         # Child 1: Forbid arcs in arc_set_1
@@ -477,10 +510,11 @@ class RyanFosterBranching:
     Ryan-Foster branching is polyhedrally stronger than simple edge-based
     branching for VRPs with identical vehicles (anonymous fleet). By
     constraining node pairs, the search space is partitioned without
-    inducing the massive symmetry issues of arc-fixing. Furthermore, it is
-    easily enforced in the RCSPP pricing subproblem by forbidding or
-    requiring specific label transitions without increasing state space
-    complexity.
+    inducing the massive symmetry issues of arc-fixing.
+
+    Attributes:
+        find_branching_pair: Static method to identify the best node pair to branch on.
+        create_child_nodes: Static method to generate child B&B nodes.
 
     Reference: Ryan & Foster (1981), Proposition 1.
     """
@@ -584,7 +618,12 @@ class RyanFosterBranching:
 
 
 class FleetSizeBranching:
-    """Logic for branching on the total fleet size."""
+    """Logic for branching on the total fleet size.
+
+    Attributes:
+        find_fleet_branching: Static method to check if fleet usage is fractional.
+        create_child_nodes: Static method to generate child B&B nodes.
+    """
 
     @staticmethod
     def find_fleet_branching(
@@ -607,7 +646,16 @@ class FleetSizeBranching:
 
     @staticmethod
     def create_child_nodes(parent: "BranchNode", fleet_usage: float) -> Tuple["BranchNode", "BranchNode"]:
-        """Create floor (lower branch) and ceiling (upper branch) child nodes."""
+        """Create floor (lower branch) and ceiling (upper branch) child nodes.
+
+        Args:
+            parent: The node being branched.
+            fleet_usage: Current fractional fleet usage.
+
+        Returns:
+            (lower_branch, upper_branch) child nodes.
+        """
+
         from logic.src.policies.helpers.solvers_and_matheuristics.common.node import BranchNode
 
         floor = math.floor(fleet_usage + 1e-6)
@@ -628,7 +676,12 @@ class FleetSizeBranching:
 
 
 class NodeVisitationBranching:
-    """Logic for branching on optional node visitation."""
+    """Logic for branching on optional node visitation.
+
+    Attributes:
+        find_node_branching: Static method to find fractional node visitation.
+        create_child_nodes: Static method to generate child B&B nodes.
+    """
 
     @staticmethod
     def find_node_branching(
@@ -656,7 +709,17 @@ class NodeVisitationBranching:
 
     @staticmethod
     def create_child_nodes(parent: "BranchNode", node: int, visitation: float) -> Tuple["BranchNode", "BranchNode"]:
-        """Create v_i = 0 and v_i = 1 child nodes."""
+        """Create v_i = 0 and v_i = 1 child nodes.
+
+        Args:
+            parent: The node being branched.
+            node: Index of the optional customer node.
+            visitation: Current fractional visitation value.
+
+        Returns:
+            (left_child, right_child) child nodes.
+        """
+
         from logic.src.policies.helpers.solvers_and_matheuristics.common.node import BranchNode
 
         left = BranchNode(

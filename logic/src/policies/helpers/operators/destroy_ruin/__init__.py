@@ -1,5 +1,4 @@
-"""
-Destroy Operators Package.
+"""Destroy Operators Package.
 
 This package contains implementations of removal heuristics for ALNS, including
 random, worst-case, cluster-based, Shaw (relatedness), string, route, neighbor,
@@ -9,6 +8,9 @@ Also includes profit-based variants for VRPP problems: random_profit_removal,
 cluster_profit_removal, worst_profit_removal, shaw_profit_removal,
 neighbor_profit_removal, historical_profit_removal, string_profit_removal,
 sector_profit_removal, and route_profit_removal.
+
+Attributes:
+    None
 
 Example:
     >>> from logic.src.policies.helpers.operators.destroy import random_removal

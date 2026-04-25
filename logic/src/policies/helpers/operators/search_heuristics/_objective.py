@@ -12,14 +12,14 @@ get_cost(tour, distance_matrix) -> float
 is_better(c1, c2) -> bool
     Simple cost comparison: True iff c1 strictly beats c2.
 
-Typical usage
--------------
->>> from logic.src.policies.helpers.operators.heuristics._objective import (
-...     get_cost, is_better
-... )
->>> cost = get_cost(tour, dist)
->>> if is_better(cost, best_cost):
-...     best_tour = tour[:]
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics._objective import get_cost, is_better
+    >>> cost = get_cost(tour, dist)
+    >>> if is_better(cost, best_cost):
+    ...     best_tour = tour[:]
 """
 
 from __future__ import annotations
@@ -55,9 +55,13 @@ def get_cost(
 
 
 def is_better(c1: float, c2: float) -> bool:
-    """
-    Simple cost comparison for TSP.
+    """Simple cost comparison for TSP.
 
-    Returns True iff c1 strictly beats c2.
+    Args:
+        c1: First cost.
+        c2: Second cost.
+
+    Returns:
+        bool: True if c1 strictly beats c2.
     """
     return c1 < c2 - 1e-6

@@ -1,5 +1,4 @@
-"""
-Contextual Multi-Armed Bandit for Crossover Operator Selection.
+"""Contextual Multi-Armed Bandit for Crossover Operator Selection.
 
 This module implements contextual bandits (LinUCB, Thompson Sampling) for
 dynamically selecting crossover operators based on population context.
@@ -23,6 +22,13 @@ Algorithms:
     3. **ε-Greedy Contextual** - Baseline
        - Simple ε-greedy with context-aware rewards
 
+Attributes:
+    ContextFeatureExtractor: Class for extracting context features from population state.
+
+Example:
+    >>> extractor = ContextFeatureExtractor()
+    >>> features = extractor.extract_features(p1, p2, population, iteration=100)
+
 Reference:
     Li et al., "A Contextual-Bandit Approach to Personalized News Article Recommendation", WWW 2010.
     Agrawal & Goyal, "Thompson Sampling for Contextual Bandits with Linear Payoffs", ICML 2013.
@@ -39,10 +45,20 @@ from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search
 class ContextFeatureExtractor:
     """
     Extracts context features from parent individuals and population state.
+
+    Attributes:
+        diversity_history: History of population diversity measures.
+        improvement_history: History of improvement scores.
     """
 
     def __init__(self, diversity_history_size: int = 10, improvement_history_size: int = 10):
-        """Initialize feature extractor."""
+        """Initialize feature extractor.
+
+        Args:
+            diversity_history_size: Size of diversity history buffer.
+            improvement_history_size: Size of improvement history buffer.
+        """
+
         self.diversity_history: Deque[float] = deque(maxlen=diversity_history_size)
         self.improvement_history: Deque[float] = deque(maxlen=improvement_history_size)
 
@@ -120,7 +136,14 @@ class ContextFeatureExtractor:
         return np.array(features, dtype=np.float64)
 
     def _calculate_population_diversity(self, population: List[Individual]) -> float:
-        """Calculate average genetic diversity in population."""
+        """Calculate average genetic diversity in population.
+
+        Args:
+            population: List of individuals in the current population.
+
+        Returns:
+            Average genetic diversity score.
+        """
         if len(population) < 2:
             return 0.0
 
@@ -138,7 +161,15 @@ class ContextFeatureExtractor:
         return total_distance / max(count, 1)
 
     def _individual_diversity(self, ind: Individual, population: List[Individual]) -> float:
-        """Calculate average distance of individual to population."""
+        """Calculate average distance of individual to population.
+
+        Args:
+            ind: The individual to measure diversity for.
+            population: List of individuals to compare against.
+
+        Returns:
+            Average genetic distance to the rest of the population.
+        """
         if len(population) <= 1:
             return 0.0
 
@@ -156,5 +187,10 @@ class ContextFeatureExtractor:
         return total_distance / max(count, 1)
 
     def update_improvement(self, improvement: float):
-        """Update improvement history."""
+        """Update improvement history.
+
+        Args:
+            improvement: Improvement score to record.
+
+        """
         self.improvement_history.append(improvement)

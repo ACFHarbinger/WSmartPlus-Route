@@ -21,6 +21,12 @@ Tier-2 (recursive ejection chains, depth up to n_EC=3) is invoked.
 
 Gamma sparsification probabilistically filters neighbor evaluations.
 
+Attributes:
+    FILOLocalSearch: Implementation of the FILO Local Search algorithm.
+
+Example:
+    >>> from logic.src.policies.helpers.local_search import FILOLocalSearch
+
 References:
     Accorsi & Vigo (2021) Section 4.4, 4.5, and 4.6.
 """
@@ -41,16 +47,20 @@ EJCH_MAX_DEPTH: int = 3  # Maximum ejection chain recursion depth
 class FILOLocalSearch(LocalSearch):
     """Localized HRVND with O(1) state tracking, RVND, and gamma sparsification.
 
-    **Key data structures (maintained incrementally):**
-
-    - ``node_to_route_pos``: ``Dict[int, Tuple[int, int]]`` mapping each node
-      to its ``(route_idx, position_idx)``.  Replaces O(N) ``_find_node``.
-    - ``route_loads``: ``List[float]`` storing the current load of each route.
-      Replaces O(N) ``sum(waste...)`` calls.
+    Attributes:
+        node_to_route_pos (Dict[int, Tuple[int, int]]): mapping each node
+            to its ``(route_idx, position_idx)``.  Replaces O(N) ``_find_node``.
+        _route_loads (List[float]): storing the current load of each route.
+            Replaces O(N) ``sum(waste...)`` calls.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """Initialize FILO Local Search."""
+        """Initialize FILO Local Search.
+
+        Args:
+            args (Any): Variable length argument list.
+            kwargs (Any): Arbitrary keyword arguments.
+        """
         super().__init__(*args, **kwargs)
         self._node_gamma: Dict[int, float] = {}
         self.node_to_route_pos: Dict[int, Tuple[int, int]] = {}
@@ -75,12 +85,23 @@ class FILOLocalSearch(LocalSearch):
             self._route_loads.append(load)
 
     def _rebuild_route_positions(self, ri: int) -> None:
-        """Rebuild position indices for a single route.  Cost: O(|route|)."""
+        """Rebuild position indices for a single route.  Cost: O(|route|).
+
+        Args:
+            ri (int): Index of the route to rebuild.
+        """
         for pi, node in enumerate(self.routes[ri]):
             self.node_to_route_pos[node] = (ri, pi)
 
     def _find_node(self, u: int) -> Tuple[int, int]:
-        """O(1) lookup for node position via inverse mapping."""
+        """O(1) lookup for node position via inverse mapping.
+
+        Args:
+            u (int): Node ID to find.
+
+        Returns:
+            Tuple[int, int]: (route_idx, position_idx) of the node, or (-1, -1) if not found.
+        """
         return self.node_to_route_pos.get(u, (-1, -1))
 
     # ------------------------------------------------------------------
@@ -88,7 +109,18 @@ class FILOLocalSearch(LocalSearch):
     # ------------------------------------------------------------------
 
     def _get_gain_relocate(self, u: int, ri: int, pi: int, rj: int, pj: int) -> float:
-        """Cost delta for moving *u* from route *ri* to position *pj* in *rj*."""
+        """Cost delta for moving *u* from route *ri* to position *pj* in *rj*.
+
+        Args:
+            u (int): Node to move.
+            ri (int): Current route index.
+            pi (int): Current position index in route ri.
+            rj (int): Target route index.
+            pj (int): Target position index in route rj.
+
+        Returns:
+            float: Cost delta (gain) of the relocate move.
+        """
         route_i, route_j = self.routes[ri], self.routes[rj]
         prev_i = route_i[pi - 1] if pi > 0 else 0
         nxt_i = route_i[pi + 1] if pi < len(route_i) - 1 else 0
@@ -100,7 +132,19 @@ class FILOLocalSearch(LocalSearch):
         return (insertion - removal) * self.C
 
     def _get_gain_swap(self, u: int, ri: int, pi: int, v: int, rj: int, pj: int) -> float:
-        """Cost delta for swapping nodes *u* and *v*."""
+        """Cost delta for swapping nodes *u* and *v*.
+
+        Args:
+            u (int): First node to swap.
+            ri (int): Route index of first node.
+            pi (int): Position index of first node.
+            v (int): Second node to swap.
+            rj (int): Route index of second node.
+            pj (int): Position index of second node.
+
+        Returns:
+            float: Cost delta (gain) of the swap move.
+        """
         if ri == rj and abs(pi - pj) == 1:
             p1, p2 = min(pi, pj), max(pi, pj)
             r = self.routes[ri]
@@ -125,7 +169,16 @@ class FILOLocalSearch(LocalSearch):
         return (new_u_in_j + new_v_in_i - old_u - old_v) * self.C
 
     def _get_gain_2opt(self, ri: int, pi: int, pj: int) -> float:
-        """Cost delta for reversing segment ``routes[ri][pi..pj]``."""
+        """Cost delta for reversing segment ``routes[ri][pi..pj]``.
+
+        Args:
+            ri (int): Route index.
+            pi (int): Start position index of the segment.
+            pj (int): End position index of the segment.
+
+        Returns:
+            float: Cost delta (gain) of the 2-opt move.
+        """
         if pi >= pj:
             return 0.0
         route = self.routes[ri]
@@ -136,7 +189,17 @@ class FILOLocalSearch(LocalSearch):
         return (new - old) * self.C
 
     def _get_gain_tails(self, ri: int, pi: int, rj: int, pj: int) -> float:
-        """Cost delta for swapping tails ``routes[ri][pi:]`` <-> ``routes[rj][pj:]``."""
+        """Cost delta for swapping tails ``routes[ri][pi:]`` <-> ``routes[rj][pj:]``.
+
+        Args:
+            ri (int): First route index.
+            pi (int): Start position of tail in first route.
+            rj (int): Second route index.
+            pj (int): Start position of tail in second route.
+
+        Returns:
+            float: Cost delta (gain) of the tails swap.
+        """
         route_i, route_j = self.routes[ri], self.routes[rj]
         u, v = route_i[pi], route_j[pj]
         prev_u = route_i[pi - 1] if pi > 0 else 0
@@ -146,7 +209,15 @@ class FILOLocalSearch(LocalSearch):
         return (new - old) * self.C
 
     def _get_gain_split(self, ri: int, pi: int) -> float:
-        """Cost delta for splitting route *ri* at position *pi*."""
+        """Cost delta for splitting route *ri* at position *pi*.
+
+        Args:
+            ri (int): Route index.
+            pi (int): Position index to split the route at.
+
+        Returns:
+            float: Cost delta (gain) of the split move.
+        """
         route = self.routes[ri]
         u = route[pi]
         prev_u = route[pi - 1] if pi > 0 else 0
@@ -159,7 +230,14 @@ class FILOLocalSearch(LocalSearch):
     # ------------------------------------------------------------------
 
     def _gamma_neighbors(self, u: int) -> List[int]:
-        """Return neighbors of *u* filtered by gamma sparsification."""
+        """Return neighbors of *u* filtered by gamma sparsification.
+
+        Args:
+            u (int): Node ID to get neighbors for.
+
+        Returns:
+            List[int]: Filtered list of neighbors.
+        """
         gamma_u = self._node_gamma.get(u, 1.0)
         return [v for v in self.neighbors[u][:K_NEIGHBORS] if random.random() <= gamma_u]
 
@@ -168,7 +246,14 @@ class FILOLocalSearch(LocalSearch):
     # ------------------------------------------------------------------
 
     def _try_relocate(self, active_nodes: Set[int]) -> bool:
-        """Exhaustively search for the best relocate move in the SVC kernel."""
+        """Exhaustively search for the best relocate move in the SVC kernel.
+
+        Args:
+            active_nodes (Set[int]): Set of active node IDs to search.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         best_gain, best_move = 0.0, None
         for u in active_nodes:
             ri, pi = self._find_node(u)
@@ -200,7 +285,14 @@ class FILOLocalSearch(LocalSearch):
         return False
 
     def _try_swap(self, active_nodes: Set[int]) -> bool:
-        """Exhaustively search for the best swap move in the SVC kernel."""
+        """Exhaustively search for the best swap move in the SVC kernel.
+
+        Args:
+            active_nodes (Set[int]): Set of active node IDs to search.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         best_gain, best_move = 0.0, None
         for u in active_nodes:
             ri, pi = self._find_node(u)
@@ -236,7 +328,14 @@ class FILOLocalSearch(LocalSearch):
         return False
 
     def _try_2opt(self, active_nodes: Set[int]) -> bool:
-        """Exhaustively search for the best 2-opt move in the SVC kernel."""
+        """Exhaustively search for the best 2-opt move in the SVC kernel.
+
+        Args:
+            active_nodes (Set[int]): Set of active node IDs to search.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         best_gain, best_move = 0.0, None
         for u in active_nodes:
             ri, pi = self._find_node(u)
@@ -260,7 +359,14 @@ class FILOLocalSearch(LocalSearch):
         return False
 
     def _try_tails(self, active_nodes: Set[int]) -> bool:
-        """Exhaustively search for the best tails (2-opt*) move in the SVC kernel."""
+        """Exhaustively search for the best tails (2-opt*) move in the SVC kernel.
+
+        Args:
+            active_nodes (Set[int]): Set of active node IDs to search.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         best_gain, best_move = 0.0, None
         for u in active_nodes:
             ri, pi = self._find_node(u)
@@ -293,7 +399,14 @@ class FILOLocalSearch(LocalSearch):
         return False
 
     def _try_split(self, active_nodes: Set[int]) -> bool:
-        """Exhaustively search for the best split move in the SVC kernel."""
+        """Exhaustively search for the best split move in the SVC kernel.
+
+        Args:
+            active_nodes (Set[int]): Set of active node IDs to search.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         best_gain, best_move = 0.0, None
         for u in active_nodes:
             if random.random() > self._node_gamma.get(u, 1.0):
@@ -327,7 +440,14 @@ class FILOLocalSearch(LocalSearch):
     # ------------------------------------------------------------------
 
     def _try_ejection_chain(self, active_nodes: Set[int]) -> bool:  # type: ignore[override]
-        """Attempt a recursive ejection chain from an SVC vertex."""
+        """Attempt a recursive ejection chain from an SVC vertex.
+
+        Args:
+            active_nodes (Set[int]): Set of active node IDs to search.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         for u in active_nodes:
             ri, pi = self._find_node(u)
             if ri == -1:
@@ -344,7 +464,18 @@ class FILOLocalSearch(LocalSearch):
         depth: int,
         visited: Set[int],
     ) -> bool:
-        """Recursively eject node *u* from route *ri*, displacing others."""
+        """Recursively eject node *u* from route *ri*, displacing others.
+
+        Args:
+            u (int): Node ID to eject.
+            ri (int): Route index of the node.
+            pi (int): Position index of the node.
+            depth (int): Remaining depth of the recursion.
+            visited (Set[int]): Set of visited nodes to prevent cycles.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         if depth <= 0:
             return False
         visited = visited | {u}
@@ -421,7 +552,16 @@ class FILOLocalSearch(LocalSearch):
         return False
 
     def _place_displaced(self, v: int, depth: int, visited: Set[int]) -> bool:
-        """Try to place displaced node *v* via direct insertion or cascade."""
+        """Try to place displaced node *v* via direct insertion or cascade.
+
+        Args:
+            v (int): Node ID to place.
+            depth (int): Remaining depth of the recursion.
+            visited (Set[int]): Set of visited nodes to prevent cycles.
+
+        Returns:
+            bool: True if a move was made, False otherwise.
+        """
         w_v = self.waste.get(v, 0.0)
 
         # Phase A: Direct feasible insertion

@@ -1,5 +1,4 @@
-"""
-Subgradient optimisation for the Lagrangian multiplier λ.
+"""Subgradient optimisation for the Lagrangian multiplier λ.
 
 The Lagrangian relaxation of the capacity constraint yields the dual function:
 
@@ -28,6 +27,13 @@ References:
 
     Fisher, M. L. (1981). The Lagrangian Relaxation Method for Solving Integer
     Programming Problems. Management Science, 27(1), 1–18.
+
+Attributes:
+    run_subgradient: Polyak-step subgradient loop for minimizing dual functions.
+    _nearest_neighbour_tour_cost: Greedy tour evaluator for lower bounds.
+
+Example:
+    >>> lam, ub, lb, hist = run_subgradient(dist, w, cap, R, C, params=p)
 """
 
 import time

@@ -31,7 +31,16 @@ def _get_farthest_node(
     routes: List[List[int]],
     dist_matrix: np.ndarray,
 ) -> Optional[int]:
-    """Find the unassigned node farthest from any current route or depot."""
+    """Find the unassigned node farthest from any current route or depot.
+
+    Args:
+        unassigned: Nodes not yet in a route.
+        routes: List of current routes.
+        dist_matrix: Distance matrix.
+
+    Returns:
+        Optional[int]: Index of the farthest node, or None if none.
+    """
     farthest_node = None
     max_min_distance = -1.0
 
@@ -62,7 +71,23 @@ def _find_cheapest_insertion(
     R: Optional[float] = None,
     C: Optional[float] = None,
 ) -> Tuple[int, int, float]:
-    """Find the cheapest insertion position for a node."""
+    """Find the cheapest insertion position for a node.
+
+    Args:
+        farthest_node: Node to insert.
+        routes: Current routes.
+        loads: Current route loads.
+        dist_matrix: Distance matrix.
+        capacity: Vehicle capacity.
+        node_waste: Node demand.
+        revenue: Node revenue.
+        is_mandatory: Mandatory status.
+        R: Revenue multiplier (optional).
+        C: Cost multiplier (optional).
+
+    Returns:
+        Tuple[int, int, float]: (best_route_idx, best_pos, best_cost).
+    """
     best_cost = float("inf")
     best_route_idx = -1
     best_pos = -1
@@ -96,7 +121,19 @@ def _find_nearest_insertion(
     capacity: float,
     node_waste: float,
 ) -> Tuple[int, int, float]:
-    """Find the nearest insertion position for a node."""
+    """Find the nearest insertion position for a node.
+
+    Args:
+        farthest_node: Node to insert.
+        routes: Current routes.
+        loads: Current route loads.
+        dist_matrix: Distance matrix.
+        capacity: Vehicle capacity.
+        node_waste: Node demand.
+
+    Returns:
+        Tuple[int, int, float]: (best_route_idx, best_pos, best_cost).
+    """
     best_cost = float("inf")
     best_route_idx = -1
     best_pos = -1

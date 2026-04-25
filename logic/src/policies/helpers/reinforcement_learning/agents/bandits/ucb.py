@@ -1,5 +1,18 @@
-"""
-UCB Bandit Module.
+"""UCB Bandit Module.
+
+This module implements various Upper Confidence Bound (UCB) bandit algorithms,
+including standard UCB1, Discounted UCB for non-stationary environments, and
+Sliding Window UCB for volatile environments.
+
+Attributes:
+    UCBBandit: Standard UCB1 bandit agent.
+    DiscountedUCBBandit: UCB variant that discounts old rewards.
+    SlidingWindowUCBBandit: UCB variant using a fixed-size sliding window.
+
+Example:
+    >>> from logic.src.policies.helpers.reinforcement_learning.agents.bandits.ucb import UCBBandit
+    >>> agent = UCBBandit(n_arms=3, c=2.0)
+    >>> action = agent.select_action(state=None, rng=agent.rng)
 """
 
 from collections import deque
@@ -17,6 +30,9 @@ class UCBBandit(BanditAgent):
     The UCB1 algorithm implements 'optimism in the face of uncertainty' by
     adding a confidence bonus to the estimated value of each arm. This bonus
     decreases as the arm is selected more frequently.
+
+    Attributes:
+        c: Exploration parameter (controls the width of the confidence interval).
     """
 
     def __init__(self, n_arms: int, c: float = 2.0, seed: Optional[int] = None, history_size: int = 50):
@@ -78,6 +94,12 @@ class DiscountedUCBBandit(BanditAgent):
     Useful for non-stationary environments where the optimal action may change
     over time. Uses a discount factor 'gamma' to slowly decay the contribution
     of past observations.
+
+    Attributes:
+        c: Exploration parameter.
+        gamma: Discount factor (0 < gamma <= 1).
+        discounted_counts: Discounted sum of selections for each arm.
+        discounted_rewards: Discounted sum of rewards for each arm.
     """
 
     def __init__(
@@ -159,6 +181,11 @@ class SlidingWindowUCBBandit(BanditAgent):
 
     Handles volatile environments by selecting arms based only on the most
     recent 'window_size' observations.
+
+    Attributes:
+        window_size: Number of past observations to consider.
+        c: Exploration parameter.
+        windows: List of deques containing rewards for each arm within the window.
     """
 
     def __init__(

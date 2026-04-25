@@ -1,6 +1,13 @@
 """
 GRASP construction heuristic for VRPP initialization.
 
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.solution_initialization.grasp_si import build_grasp_routes
+    >>> routes = build_grasp_routes(dist_matrix, wastes, capacity, R, C)
+
 Reference:
     Feo, T. A., & Resende, M. G. C. (1995). Greedy randomized adaptive search
     procedures. Journal of Global Optimization, 6(2), 109-133.
@@ -36,17 +43,17 @@ def build_grasp_routes(
     Select uniformly from the RCL.
 
     Args:
-        dist_matrix:     (N+1)×(N+1) distance matrix.
-        wastes:          {node_id → fill level}.
-        capacity:        Vehicle capacity Q.
-        R:               Revenue per unit waste.
-        C:               Cost per unit distance.
-        mandatory_nodes: Nodes that must be visited.
-        alpha:           RCL greediness: 0.0 = fully greedy, 1.0 = fully random.
-        rng:             Random generator.
+        dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+        wastes (Dict[int, float]): {node_id → fill level}.
+        capacity (float): Vehicle capacity Q.
+        R (float): Revenue per unit waste.
+        C (float): Cost per unit distance.
+        mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        alpha (float): RCL greediness: 0.0 = fully greedy, 1.0 = fully random.
+        rng (Optional[random.Random]): Random generator.
 
     Returns:
-        List of routes (depot excluded).
+        List[List[int]]: List of routes (depot excluded).
     """
     if rng is None:
         rng = random.Random()

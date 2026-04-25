@@ -78,7 +78,18 @@ def _select_route(
     wastes: Optional[Dict[int, float]],
     rng: Random,
 ) -> int:
-    """Return the index of the route to remove."""
+    """Return the index of the route to remove.
+
+    Args:
+        routes: Current solution (list of routes).
+        strategy: Selection strategy string.
+        dist_matrix: Distance matrix (optional, required for some strategies).
+        wastes: Waste lookup (optional, required for 'profitable' strategy).
+        rng: Random number generator.
+
+    Returns:
+        Index of the route selected for removal, or -1 if no route is available.
+    """
     non_empty = [(i, r) for i, r in enumerate(routes) if r]
     if not non_empty:
         return -1
@@ -120,7 +131,15 @@ def _select_route(
 
 
 def _route_cost(route: List[int], dist_matrix: np.ndarray) -> float:
-    """Compute total edge cost of depot → route → depot."""
+    """Compute total edge cost of depot -> route -> depot.
+
+    Args:
+        route: Sequence of customer node IDs.
+        dist_matrix: Distance matrix with depot at index 0.
+
+    Returns:
+        Total route travel cost as a float.
+    """
     if not route:
         return 0.0
     cost = dist_matrix[0, route[0]]
@@ -182,7 +201,20 @@ def _select_profit_route(
     C: float,
     rng: Random,
 ) -> int:
-    """Select route index to remove based on profit-oriented strategy."""
+    """Select route index to remove based on profit-oriented strategy.
+
+    Args:
+        routes: Current solution (list of routes).
+        strategy: Profit-based selection strategy string.
+        dist_matrix: Distance matrix with depot at index 0.
+        wastes: Waste/profit values for each node.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        rng: Random number generator.
+
+    Returns:
+        Index of the route selected for removal, or -1 if no route is available.
+    """
     non_empty = [(i, r) for i, r in enumerate(routes) if r]
     if not non_empty:
         return -1

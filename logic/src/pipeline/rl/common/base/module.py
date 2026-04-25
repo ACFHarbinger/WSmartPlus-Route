@@ -84,7 +84,9 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             val_dataset_path: Optional path to a pre-saved validation dataset.
             train_dataset_path: Optional path to a pre-saved training dataset.
             batch_size: Batch size for training and validation.
-            num_workers: Number of workers for data loading.
+            num_workers: Number of data loading workers.
+            persistent_workers: If True, the data loader will not shutdown the worker processes after a dataset has been consumed once.
+            pin_memory: If True, the data loader will copy Tensors into device pinned memory before returning them.
             mandatory_selector: Optional vectorized selector for mandatory bin selection.
             kwargs: Additional keyword arguments.
         """

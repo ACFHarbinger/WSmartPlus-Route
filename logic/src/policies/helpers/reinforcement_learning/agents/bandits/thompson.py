@@ -1,5 +1,15 @@
-"""
-Thompson Sampling Bandit Module.
+"""Thompson Sampling Bandit Module.
+
+This module implements the Thompson Sampling bandit algorithm, which uses Beta
+distribution priors for each arm's success probability.
+
+Attributes:
+    ThompsonSamplingBandit: Bandit agent using Thompson Sampling.
+
+Example:
+    >>> from logic.src.policies.helpers.reinforcement_learning.agents.bandits.thompson import ThompsonSamplingBandit
+    >>> agent = ThompsonSamplingBandit(n_arms=3)
+    >>> action = agent.select_action(state=None, rng=agent.rng)
 """
 
 from typing import Any, Dict, Optional
@@ -16,6 +26,10 @@ class ThompsonSamplingBandit(BanditAgent):
     Uses Beta distribution priors for each arm's success probability.
     Selects actions by sampling from the posterior and playing the arm
     with the highest sampled success rate.
+
+    Attributes:
+        alphas: Success counts for each arm (Beta distribution alpha parameter).
+        betas: Failure counts for each arm (Beta distribution beta parameter).
     """
 
     def __init__(

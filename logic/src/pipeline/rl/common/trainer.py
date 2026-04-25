@@ -121,6 +121,7 @@ class WSTrainer(pl.Trainer):
             disable_jit_profiling: Disable JIT profiling for memory optimization.
             auto_ddp: Auto-configure DDP for multi-GPU.
             reload_dataloaders_every_n_epochs: Reload dataloaders every N epochs (for RL).
+            tracking_cfg: Optional configuration for experiment tracking.
             kwargs: Additional Trainer arguments.
         """
         # RL4CO Optimization 1: Disable JIT profiling (memory optimization)

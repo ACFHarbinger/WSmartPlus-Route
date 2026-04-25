@@ -5,7 +5,7 @@ This module provides the local search implementation specifically for
 Hybrid Genetic Search (HGS). It applies operators to HGS 'Individual' objects.
 
 Attributes:
-    None
+    HGSLocalSearch: HGS-specific local search implementation.
 
 Example:
     >>> from logic.src.policies.helpers.local_search.local_search_hgs import HGSLocalSearch
@@ -29,6 +29,9 @@ if TYPE_CHECKING:
 class HGSLocalSearch(LocalSearch):
     """
     Local Search module for HGS.
+
+    Attributes:
+        None
     """
 
     def __init__(
@@ -56,6 +59,12 @@ class HGSLocalSearch(LocalSearch):
     def optimize(self, solution: "Individual") -> "Individual":
         """
         Iteratively improve an individual using local search operators.
+
+        Args:
+            solution: The individual to optimize.
+
+        Returns:
+            The optimized individual.
         """
         if not solution.routes:
             return solution

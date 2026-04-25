@@ -1,5 +1,16 @@
-"""
-Exp3 Bandit Module.
+"""Exp3 Bandit Module.
+
+This module implements the EXP3 (Exponential-weight algorithm for Exploration
+and Exploitation) bandit algorithm, which is designed for adversarial
+environments.
+
+Attributes:
+    EXP3Agent: Bandit agent using the EXP3 policy.
+
+Example:
+    >>> from logic.src.policies.helpers.reinforcement_learning.agents.bandits.exp3 import EXP3Agent
+    >>> agent = EXP3Agent(n_arms=3, gamma=0.1)
+    >>> action = agent.select_action(state=None, rng=agent.rng)
 """
 
 from typing import Any, Dict, Optional
@@ -16,6 +27,11 @@ class EXP3Agent(BanditAgent):
     Exponential-weight algorithm for Exploration and Exploitation. Designed to
     handle adversarial environments where the rewards are not drawn from a
     fixed distribution.
+
+    Attributes:
+        gamma: Exploration parameter.
+        weights: Exponential weights for each arm.
+        probs: Current probability distribution over arms.
     """
 
     def __init__(

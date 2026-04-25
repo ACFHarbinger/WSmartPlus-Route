@@ -1,5 +1,4 @@
-"""
-Evolutionary Mutation Operators Package.
+"""Evolutionary Mutation Operators Package.
 
 This package implements post-crossover mutation operators for genetic algorithms
 applied to VRP solutions. These operators apply localized, stochastic changes to
@@ -34,6 +33,11 @@ Operators:
     - de_best_1_mutation
         DE/best/1 variant: uses the population-best as the base vector.
         Faster convergence than DE/rand/1 at the cost of diversity.
+
+Attributes:
+    EVOLUTIONARY_MUTATION_OPERATORS (Dict[str, Callable]): Registry mapping
+        operator names to their corresponding mutation functions.
+    EVOLUTIONARY_MUTATION_NAMES (List[str]): Sorted list of operator names.
 
 Example:
     >>> from logic.src.policies.helpers.operators.evolutionary_mutation import (

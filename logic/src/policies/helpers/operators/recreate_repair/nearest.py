@@ -33,7 +33,16 @@ def _get_nearest_node(
     routes: List[List[int]],
     dist_matrix: np.ndarray,
 ) -> Optional[int]:
-    """Find the unassigned node nearest to any current route or depot."""
+    """Find the unassigned node nearest to any current route or depot.
+
+    Args:
+        unassigned: Nodes not yet in a route.
+        routes: List of current routes.
+        dist_matrix: Distance matrix.
+
+    Returns:
+        Optional[int]: Index of the nearest node, or None if none.
+    """
     nearest_node = None
     min_distance = float("inf")
 
@@ -66,7 +75,23 @@ def _find_cheapest_insertion(
     R: Optional[float] = None,
     C: float = 1.0,
 ) -> Tuple[int, int, float]:
-    """Find the cheapest insertion position for a node."""
+    """Find the cheapest insertion position for a node.
+
+    Args:
+        node: Node to insert.
+        routes: List of current routes.
+        loads: List of current route loads.
+        dist_matrix: Distance matrix.
+        capacity: Vehicle capacity.
+        node_waste: Node demand.
+        revenue: Node revenue.
+        is_mandatory: Mandatory status.
+        R: Revenue multiplier (optional).
+        C: Cost multiplier.
+
+    Returns:
+        Tuple[int, int, float]: (best_route_idx, best_pos, best_cost).
+    """
     best_cost = float("inf")
     best_route_idx = -1
     best_pos = -1
@@ -177,7 +202,19 @@ def _find_cheapest_insertion_dist(
     capacity: float,
     node_waste: float,
 ) -> Tuple[int, int, float]:
-    """Find the cheapest insertion position for a node (distance only)."""
+    """Find the cheapest insertion position for a node (distance only).
+
+    Args:
+        node: Node to insert.
+        routes: Current routes.
+        loads: Current route loads.
+        dist_matrix: Distance matrix.
+        capacity: Vehicle capacity.
+        node_waste: Node demand.
+
+    Returns:
+        Tuple[int, int, float]: (best_route_idx, best_pos, best_cost).
+    """
     best_cost = float("inf")
     best_route_idx = -1
     best_pos = -1
@@ -211,8 +248,21 @@ def nearest_profit_insertion(
     mandatory_nodes: Optional[List[int]] = None,
     expand_pool: bool = False,
 ) -> List[List[int]]:
-    """
-    Nearest insertion with explicit profit maximization for VRPP.
+    """Nearest insertion with explicit profit maximization for VRPP.
+
+    Args:
+        routes: Partial routes.
+        removed_nodes: List of unassigned node indices.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary mapping node index to waste/demand.
+        capacity: Maximum vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        mandatory_nodes: List of mandatory node indices.
+        expand_pool: If True, consider all unvisited nodes.
+
+    Returns:
+        List[List[int]]: Updated routes.
     """
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(node, 0.0) for node in route) for route in routes]

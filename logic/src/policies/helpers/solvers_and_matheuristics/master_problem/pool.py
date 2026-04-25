@@ -1,5 +1,13 @@
 """
 Global Cut Pool for Branch-and-Price-and-Cut.
+
+Attributes:
+    CutInfo: Metadata describing a generated valid inequality.
+    GlobalCutPool: Centralized repository for globally valid inequalities.
+
+Example:
+    >>> pool = GlobalCutPool()
+    >>> pool.add_cut("rcc", (frozenset({1, 2}), 2.0))
 """
 
 from __future__ import annotations
@@ -13,7 +21,15 @@ if TYPE_CHECKING:
 
 @dataclass
 class CutInfo:
-    """Metadata describing a generated valid inequality."""
+    """
+    Metadata describing a generated valid inequality.
+
+    Attributes:
+        type (str): Type of cut (e.g., 'rcc', 'sec', 'sri', 'lci').
+        data (Any): Cut-specific data (node-set, RHS, lifting coeffs, etc.).
+        active (bool): Whether the cut is active.
+        violation (float): The violation amount of the cut.
+    """
 
     type: str  # e.g., 'rcc', 'sec', 'sri', 'lci'
     data: Any  # node-set, RHS, lifting coeffs, etc.
@@ -41,12 +57,27 @@ class GlobalCutPool:
         the B&B tree. If these were dynamic (e.g., stochastic demands handled at
         internal nodes), the RHS of purely node-set-based cuts could change,
         invalidating the global mathematical integrity of this archive.
+
+    Attributes:
+        rcc_cuts: Dictionary mapping node sets to their RHS values.
+        sri_cuts: Set of node sets with SRI cuts.
+        active_sri_vectors: Active SRI coefficient vectors.
+        sec_cuts: Set of node sets with SEC Form 2.1 cuts.
+        edge_clique_cuts: Set of edges with Edge Clique cuts.
+        lci_cuts: Dictionary mapping node sets to LCI cut data.
+        lci_arcs: Arcs associated with LCI cuts.
     """
 
     def __init__(self) -> None:
         """Initializes empty global cut registries.
 
         Sets up dictionaries and sets for RCC, SRI, SEC, Edge Clique, and LCI cuts.
+
+        Args:
+            None
+
+        Returns:
+            None
         """
         # RCC: maps node_set -> original rhs (2*ceil(demand/Q))
         self.rcc_cuts: Dict[FrozenSet[int], float] = {}
@@ -63,14 +94,17 @@ class GlobalCutPool:
         self.lci_arcs: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = {}
 
     def add_cut(self, cut_type: str, data: Any) -> None:
-        """Archives a globally valid cut in the pool.
+        """Archive a globally valid cut in the pool.
 
         Only archives cuts that are valid at EVERY node in the B&B tree.
         Node-local cuts must not be added here.
 
         Args:
-            cut_type (str): Type of cut ("rcc", "sri", "sec_2.1", "edge_clique", "lci").
-            data (Any): Cut-specific data (node-sets, coefficients, etc.).
+            cut_type: Type of cut ("rcc", "sri", "sec_2.1", "edge_clique", "lci").
+            data: Cut-specific data (node-sets, coefficients, etc.).
+
+        Returns:
+            None
         """
 
         if cut_type == "rcc":
@@ -105,16 +139,17 @@ class GlobalCutPool:
             self.lci_arcs[node_set] = arc
 
     def apply_to_master(self, master: MasterProblemSupport) -> int:
-        """Injects all pooled global cuts into a fresh Master Problem instance.
+        """Inject all pooled global cuts into a fresh Master Problem instance.
 
         Typically called when entering a new B&B node to tighten the root relaxation.
 
         Args:
-            master (MasterProblemSupport): MasterProblem instance to receive the cuts.
+            master: MasterProblem instance to receive the cuts.
 
         Returns:
-            int: Number of cuts successfully applied.
+            Number of cuts successfully applied.
         """
+
         added = 0
         # RCC: replay with the stored (correct) RHS, not a hard-coded value.
         for node_set, rhs in self.rcc_cuts.items():

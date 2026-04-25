@@ -3,6 +3,13 @@ Guided Ejection Search (GES) Operator Module.
 
 This module implements the Guided Ejection Search heuristic, which ejects
 an entire route and reinserts its nodes greedily into the remaining routes.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics.guided_ejection_search import apply_ges
+    >>> new_routes = apply_ges(routes, dist_matrix, wastes, capacity, rng)
 """
 
 import random

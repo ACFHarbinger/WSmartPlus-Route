@@ -1,8 +1,14 @@
-"""
-Enhanced K-Sparse ACO Solver with Q-Learning for Local Search Operator Selection.
+"""Enhanced K-Sparse ACO Solver with Q-Learning for Local Search Operator Selection.
 
 This module extends the standard K-Sparse ACO with Q-Learning reinforcement learning
 to dynamically select the most effective local search operators for route improvement.
+
+Attributes:
+    KSparseACOQLSolver: Main solver class implementing ACO-QL.
+
+Example:
+    >>> solver = KSparseACOQLSolver(dist_matrix, wastes, capacity, R, C, params, rl_params)
+    >>> best_routes, profit, cost = solver.solve()
 
 Reference:
     Watkins & Dayan, "Q-Learning", Machine Learning, 1992.
@@ -33,6 +39,21 @@ from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimizati
 class KSparseACOQLSolver:
     """
     Enhanced K-Sparse ACO with Q-Learning for local search operator selection.
+
+    Attributes:
+        dist_matrix: Problem distance matrix.
+        wastes: Dictionary of node waste demands.
+        capacity: Vehicle capacity.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance traveled.
+        params: Configuration parameters for ACO.
+        mandatory_nodes: Nodes that must be visited.
+        pheromone: Sparse pheromone matrix.
+        ls_manager: Manager for local search operations.
+        ls_operators: List of available local search operators.
+        agent: Q-Learning RL agent for operator selection.
+        feature_extractor: State feature extractor for the RL agent.
+        improvement_history: History of solution improvement rates.
     """
 
     def __init__(
@@ -46,7 +67,19 @@ class KSparseACOQLSolver:
         rl_params: Any,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """Initialize enhanced ACO-QL solver."""
+        """Initialize enhanced ACO-QL solver.
+
+        Args:
+            dist_matrix: Problem distance matrix.
+            wastes: Dictionary of node waste demands.
+            capacity: Vehicle capacity.
+            R: Revenue per unit of waste collected.
+            C: Cost per unit of distance traveled.
+            params: Configuration parameters for ACO.
+            rl_params: Hyperparameters for the Q-Learning agent.
+            mandatory_nodes: Nodes that must be visited.
+        """
+
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -138,7 +171,12 @@ class KSparseACOQLSolver:
         self.improvement_history: Deque[float] = deque(maxlen=rl_params.qlearning_history_size)
 
     def _nearest_neighbor_cost(self) -> float:
-        """Compute nearest neighbor heuristic cost."""
+        """Compute nearest neighbor heuristic cost.
+
+        Returns:
+            float: Total cost of the nearest neighbor route.
+        """
+
         visited = set([0])
         current = 0
         cost = 0.0
@@ -159,7 +197,12 @@ class KSparseACOQLSolver:
         return cost
 
     def _build_candidate_lists(self) -> Dict[int, List[int]]:
-        """Build k-nearest neighbor candidate lists."""
+        """Build k-nearest neighbor candidate lists.
+
+        Returns:
+            Dict[int, List[int]]: Dictionary mapping each node to its k-nearest neighbors.
+        """
+
         candidates: Dict[int, List[int]] = {}
         k = min(self.params.k_sparse, len(self.nodes))
 
@@ -178,7 +221,8 @@ class KSparseACOQLSolver:
         local search to improve the initial solution.
 
         Returns:
-            Tuple of (routes, profit, cost) for the NN-initialized solution.
+            Tuple[List[List[int]], float, float]: Tuple of (routes, profit, cost) for the solution.
+
         """
         # Build initial routes using NN heuristic
         nn_routes = build_nn_routes(
@@ -209,7 +253,10 @@ class KSparseACOQLSolver:
 
         The algorithm is seeded with a Nearest Neighbor heuristic solution
         to provide a strong starting point for the ACO search.
+        Returns:
+            Tuple[List[List[int]], float, float]: Tuple of (best_routes, best_profit, best_cost).
         """
+
         # Initialize with NN heuristic for strong starting solution
         best_routes, best_profit, best_cost = self._initialize_with_nn_heuristic()
         start_time = time.process_time()
@@ -278,6 +325,7 @@ class KSparseACOQLSolver:
             routes (List[List[int]]): Initial routes for local search.
             iteration (int): Current global iteration of the ACO algorithm.
 
+
         Returns:
             List[List[int]]: Improved routes after local search.
         """
@@ -339,10 +387,11 @@ class KSparseACOQLSolver:
         Apply the specified local search operator.
 
         Args:
-            operator_name: Name of the operator to apply.
+            operator_name (str): Name of the operator to apply.
+
 
         Returns:
-            True if the operator improved the solution.
+            bool: True if the operator improved the solution.
         """
         # Exchange operators
         if operator_name == "or_opt":
@@ -379,7 +428,13 @@ class KSparseACOQLSolver:
             return False
 
     def _global_pheromone_update(self, best_routes: List[List[int]], best_cost: float):
-        """ACS global pheromone update."""
+        """ACS global pheromone update.
+
+        Args:
+            best_routes: Routes of the best ant.
+            best_cost: Total cost of the best routes.
+        """
+
         if not best_routes or best_cost <= 0:
             return
 
@@ -395,7 +450,15 @@ class KSparseACOQLSolver:
             self.pheromone.deposit_edge(route[-1], 0, delta)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost."""
+        """Calculate total routing cost.
+
+        Args:
+            routes: Routes to evaluate.
+
+        Returns:
+            float: Total distance-based cost.
+        """
+
         total = 0.0
         for route in routes:
             if not route:

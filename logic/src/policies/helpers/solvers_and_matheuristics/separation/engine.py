@@ -1,5 +1,4 @@
-"""
-Separation Algorithms for VRPP Cutting Planes.
+"""Separation Algorithms for VRPP Cutting Planes.
 
 Implements exact and heuristic separation procedures for identifying violated
 valid inequalities in the VRPP linear programming relaxation.
@@ -17,6 +16,13 @@ References:
     - Prize-Collecting Subtour Elimination Constraints (PC-SEC) follow Fischetti et al. (1997)
     - Capacity Constraints and fractional separation follow Lysgaard et al. (2004)
     - Comb inequalities are disabled in favor of Gurobi's internal polyhedral cuts
+
+Attributes:
+    SeparationEngine: Core engine for identifying violated inequalities.
+
+Example:
+    >>> engine = SeparationEngine(model, enable_heuristic_rcc_separation=True)
+    >>> cuts = engine.separate_fractional(x_star, y_star)
 """
 
 from __future__ import annotations
@@ -37,22 +43,20 @@ from logic.src.policies.helpers.solvers_and_matheuristics.separation.inequality 
 
 
 class SeparationEngine:
-    """
-    Separation algorithms for finding violated inequalities.
+    """Separation algorithms for finding violated inequalities.
 
     Implements exact and heuristic separation procedures for identifying violated
     valid inequalities in the VRPP linear programming relaxation.
 
-    Configuration:
-        USE_COMB_CUTS: If True, enable custom comb inequality separation.
-                       Default False - Gurobi's internal polyhedral cuts are preferred.
+    Attributes:
+        model: VRPPModel instance.
+        pool (List[Inequality]): Pool of stored inequalities.
+        enable_heuristic_rcc_separation (bool): Whether to enable RCC separation.
+        enable_comb_cuts (bool): Whether to enable comb inequality separation.
 
-        enable_heuristic_rcc_separation: If True, enable (heuristic) fractional capacity separation.
-                       Default False for instances with n > 75 (see CVRPSEP note below).
-
-    Note:
-        State-of-the-art implementations typically rely on shrinking heuristics (such as
-        Lysgaard's CVRPSEP C++ library) to scale to N > 100.
+    Example:
+        >>> engine = SeparationEngine(model)
+        >>> violated_cuts = engine.separate_integer(x_vals)
     """
 
     # Global toggle for comb inequality separation
@@ -75,6 +79,8 @@ class SeparationEngine:
         Args:
             model: VRPPModel instance.
             enable_heuristic_rcc_separation: Whether to enable heuristic connected-component RCC separation.
+            enable_comb_cuts: Whether to enable comb inequality separation.
+
         """
         self.model = model
         self.pool: List[Inequality] = []  # Pool of stored inequalities
@@ -101,6 +107,8 @@ class SeparationEngine:
             y_vals: Integer node visit values from MIP solution.
             max_cuts: Maximum number of cuts to return.
             iteration: Current iteration number.
+            sec_only: Whether to only separate Subtour Elimination Constraints.
+
 
         Returns:
             List of violated inequalities sorted by degree of violation.
@@ -130,8 +138,7 @@ class SeparationEngine:
         iteration: int = 0,
         node_count: int = 0,
     ) -> List[Inequality]:
-        """
-        Exact separation for fractional LP nodes (MIPNODE callback).
+        """Exact separation for fractional LP nodes (MIPNODE callback).
 
         WARNING: This is a heuristic separation procedure based on connected
         components of the LP support graph. It finds violated RCCs only for
@@ -140,7 +147,18 @@ class SeparationEngine:
         solving a max-flow problem per candidate set (see Padberg & Rinaldi 1991;
         Lysgaard et al. 2004). The enable_heuristic_rcc_separation parameter
         does NOT switch to exact separation — it enables this heuristic.
+
+        Args:
+            x_vals: Fractional edge values from LP solution.
+            y_vals: Fractional node visit values from LP solution.
+            max_cuts: Maximum number of cuts to return.
+            iteration: Current iteration number.
+            node_count: Number of nodes in the B&B tree explored so far.
+
+        Returns:
+            List of violated inequalities sorted by degree of violation.
         """
+
         self.pool = []
 
         # Strategy: More aggressive separation at root node
@@ -223,15 +241,25 @@ class SeparationEngine:
         violated.sort()  # Sort by violation descending
         return violated[:max_cuts]
 
-    def _separate_subtours_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
+    def _separate_subtours_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+        """Heuristic subtour elimination using connected components and greedy expansion.
+
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
         """
-        Heuristic subtour elimination using connected components and greedy expansion.
-        """
+
         self._separate_disconnected_components(x_vals, y_vals)
         self._separate_weak_subtours(x_vals, y_vals)
 
-    def _separate_disconnected_components(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
-        """Separate subtours based on disconnected components in the support graph."""
+    def _separate_disconnected_components(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+        """Separate subtours based on disconnected components in the support graph.
+
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
+        """
+
         threshold = 0.5
         support_edges = [(i, j) for idx, (i, j) in enumerate(self.model.edges) if x_vals[idx] >= threshold]
 
@@ -270,8 +298,14 @@ class SeparationEngine:
             if violation > 0.01:
                 self.pool.append(PCSubtourEliminationCut(component, violation))
 
-    def _separate_weak_subtours(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
-        """Separate subtours by greedily expanding sets with high internal connectivity."""
+    def _separate_weak_subtours(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+        """Separate subtours by greedily expanding sets with high internal connectivity.
+
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
+        """
+
         threshold_weak = 0.1
         n = self.model.n_nodes
         graph_weak = np.zeros((n, n))
@@ -309,7 +343,16 @@ class SeparationEngine:
                     self.pool.append(PCSubtourEliminationCut(node_set, violation))
 
     def _get_cut_value(self, node_set: Set[int], x_vals: np.ndarray) -> float:
-        """Compute the sum of x values for edges in the cut delta(S)."""
+        """Compute the sum of x values for edges in the cut delta(S).
+
+        Args:
+            node_set: Set of nodes in the component.
+            x_vals: Edge values.
+
+        Returns:
+            The capacity of the cut delta(S).
+        """
+
         cut_edges = self.model.delta(node_set)
         return sum(
             x_vals[self.model.edge_to_idx[(min(e), max(e))]]
@@ -317,12 +360,16 @@ class SeparationEngine:
             if (min(e), max(e)) in self.model.edge_to_idx
         )
 
-    def _separate_capacity_cuts(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
-        """
-        Separate capacity inequalities using demand-based clustering.
+    def _separate_capacity_cuts(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+        """Separate capacity inequalities using demand-based clustering.
 
         For sets S with high demand, check if enough vehicles (edges crossing cut) exist.
+
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
         """
+
         # Try different seed nodes and grow sets based on demand
         for seed in self.model.customers:
             # Skip if seed node not visited
@@ -387,11 +434,16 @@ class SeparationEngine:
         y_vals: Optional[np.ndarray],
         root_node: bool = False,
         max_cuts: int = 50,
-    ):
-        """
-        Max-Flow-based heuristic separation of Rounded Capacity Cuts (RCCs) for CVRP/VRPP.
+    ) -> None:
+        """Max-Flow-based heuristic separation of Rounded Capacity Cuts (RCCs).
 
-        Mathematical Motivation:
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
+            root_node: Whether to run exhaustive separation.
+            max_cuts: Maximum number of cuts to identify.
+
+        Mathematical Formulation:
         -------------------------
         The Rounded Capacity Cut (RCC) is defined as:
             Σ_{i ∈ S, j ∉ S} x_{ij} ≥ 2 * ⌈d(S) / Q⌉
@@ -489,14 +541,20 @@ class SeparationEngine:
                 self.pool.append(CapacityCut(set(cut_set), total_demand, self.model.capacity, violation))
                 added += 1
 
-    def _separate_pcsec_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False):
-        """
-        Exact prize-collecting subtour separation using minimum cut (max-flow).
+    def _separate_pcsec_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False) -> None:
+        """Exact prize-collecting subtour separation using minimum cut (max-flow).
+
         Fischetti et al. (1997), Section 3.1: GSEC_SEP.
 
         Finds violated PC-SECs by solving max-flow problems between a reference
         source node s and the depot.
+
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
+            root_node: Whether to run exhaustive separation.
         """
+
         n = self.model.n_nodes
         adj = np.zeros((n, n))
         for idx, (i, j) in enumerate(self.model.edges):
@@ -584,8 +642,8 @@ class SeparationEngine:
                     self.pool.append(cut)
 
     def _extract_min_cut(self, capacity: np.ndarray, flow: np.ndarray, source: int, sink: int) -> Set[int]:
-        """
-        Extract source-side of minimum cut using BFS on residual graph.
+        """Extract source-side of minimum cut using BFS on residual graph.
+
         Paper Section 3.1: the cut set is the set of nodes reachable from
         the source in the residual graph.
 
@@ -598,6 +656,7 @@ class SeparationEngine:
         Returns:
             Set of nodes reachable from source in the residual graph.
         """
+
         residual = capacity - flow
         visited: Set[int] = set()
         queue = [source]
@@ -612,31 +671,22 @@ class SeparationEngine:
 
         return visited
 
-    def _separate_comb_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
-        """
-        Heuristic comb inequality separation (Theorem 2.3 from Fischetti et al. 1997).
+    def _separate_comb_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+        """Heuristic comb inequality separation.
 
         **NOTE: This method is DISABLED by default (USE_COMB_CUTS = False).**
 
-        Rationale for disabling:
-            - Custom comb separation is heuristic and may miss optimal cuts
-            - Gurobi's internal polyhedral cuts (Clique, Cover, etc.) are highly optimized
-            - Unoptimized Python-level comb separation adds computational overhead
-            - For this Natural Edge Formulation, SEC + RCC cuts are sufficient
+        Algorithm (Fischetti et al. 1997, Theorem 2.3):
+        1. Identifies candidate handles from high-degree nodes in support graph.
+        2. Grows handles using greedy BFS.
+        3. Finds teeth that have exactly one node in the handle.
+        4. Evaluates violation and adds to pool.
 
-        A comb inequality is defined by:
-        - Handle H: A node subset
-        - Teeth T_1, ..., T_s: Node subsets where |T_j ∩ H| = 1 for all j
-
-        The inequality is:
-        ∑_{e ∈ E(H)} x_e + ∑_{j=1}^{s} ∑_{e ∈ E(T_j)} x_e ≤ |H| + ∑_{j} |T_j| - (s+1)/2
-
-        This implementation:
-        1. Identifies candidate handles from high-degree nodes in support graph
-        2. Grows handles using greedy BFS
-        3. Finds teeth that have exactly one node in the handle
-        4. Evaluates violation and adds to pool
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
         """
+
         # In VRPP, comb inequalities are less common and tricky with node selection
         # For now, skip if any node in support graph for this handle/teeth is unvisited
         # This is a simplification.
@@ -916,9 +966,8 @@ class SeparationEngine:
 
         return violation
 
-    def _separate_gsec_h2(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
-        """
-        Kruskal-based Heuristic (GSEC_H2) for GSEC separation.
+    def _separate_gsec_h2(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+        """Kruskal-based Heuristic (GSEC_H2) for GSEC separation.
 
         Algorithm:
         1. Sort edges e with x_e* > 0 in descending order.
@@ -926,7 +975,15 @@ class SeparationEngine:
         3. For each merge (Va, Vb), evaluate GSEC violation for S = Va U Vb.
         4. GSEC: sum_{e in delta(S)} x_e >= 2(y_i + y_j - 1)
            where i in S and j not in S have highest y* values.
+
+        Args:
+            x_vals: Edge values.
+            y_vals: Node visit values.
+
+        Returns:
+            None.
         """
+
         # Step 1: Edge Sorting
         support_edges = []
         for idx, (i, j) in enumerate(self.model.edges):
@@ -986,11 +1043,17 @@ class SeparationEngine:
                 if violation > 0.01:
                     self.pool.append(PCSubtourEliminationCut(set(new_component), violation))
 
-    def _strengthen_pool(self, ineq_list: List[Inequality], x_vals: np.ndarray, y_vals: Optional[np.ndarray]):
-        """
-        Apply Procedure PCSEC_BUILD to all subtour sets.
+    def _strengthen_pool(self, ineq_list: List[Inequality], x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+        """Apply Procedure PCSEC_BUILD to all subtour sets.
+
         Refines sets S and selects the strongest facet form (2.1, 2.2, 2.3).
+
+        Args:
+            ineq_list: List of inequalities to strengthen.
+            x_vals: Edge values.
+            y_vals: Node visit values.
         """
+
         for i in range(len(ineq_list)):
             cut = ineq_list[i]
             if not isinstance(cut, PCSubtourEliminationCut):
@@ -1052,10 +1115,19 @@ class SeparationEngine:
                 cut.local_only = True  # Depends on y_i, y_j, mark local
 
     def _refine_pcsec_build(self, s_set: Set[int], x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> Set[int]:
-        """
-        Procedure PCSEC_BUILD (Fischetti et al. 1997, Section 3.1).
+        """Procedure PCSEC_BUILD (Fischetti et al. 1997, Section 3.1).
+
         Attempts to refine the set S by moving nodes to minimize cut value sum_{e in delta(S)} x_e.
+
+        Args:
+            s_set: Initial set of nodes.
+            x_vals: Edge values.
+            y_vals: Node visit values.
+
+        Returns:
+            Refined set of nodes.
         """
+
         refined_s = set(s_set)
         improved = True
 

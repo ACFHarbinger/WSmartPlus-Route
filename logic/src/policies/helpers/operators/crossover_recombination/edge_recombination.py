@@ -1,4 +1,21 @@
-"""Edge Recombination Crossover (ERX)."""
+"""
+Edge Recombination Crossover (ERX)
+
+References:
+    Nagata & Bräysy, "Edge assembly-based memetic algorithm", 2009.
+
+Attributes:
+    edge_recombination_crossover: ERX operator.
+    capacity_aware_erx: C-ERX operator.
+    _get_individual_class: Lazy import of Individual class.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+    >>> operator = edge_recombination_crossover(
+    ...    Individual(giant_tour=[1, 2, 3, 4]),
+    ...    Individual(giant_tour=[4, 3, 2, 1]),
+    ... )
+"""
 
 from __future__ import annotations
 
@@ -15,7 +32,12 @@ if TYPE_CHECKING:
 
 
 def _get_individual_class() -> type:
-    """Lazy import of Individual to avoid circular import at module init."""
+    """
+    Lazy import of Individual to avoid circular import at module init.
+
+    Returns:
+        type: Individual class.
+    """
     from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
 
     return Individual
@@ -108,6 +130,15 @@ def edge_recombination_crossover(
 
 
 def _get_physical_edges(routes: List[List[int]]) -> Set[Tuple[int, int]]:
+    """
+    Get physical edges from routes.
+
+    Args:
+        routes: List of routes.
+
+    Returns:
+        Set of physical edges.
+    """
     edges: Set[Tuple[int, int]] = set()
     for route in routes:
         if not route:
@@ -134,6 +165,20 @@ def capacity_aware_erx(
     Capacity-Aware Edge Recombination Crossover (C-ERX).
     Adapts the classical ERX for VRPP by walking the physical adjacency matrix of
     both parents while strictly enforcing vehicle capacity and using profit tie-breakers.
+
+    Args:
+        p1: First parent individual.
+        p2: Second parent individual.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary mapping node indices to their waste values.
+        capacity: Maximum capacity of each vehicle.
+        R: Revenue factor.
+        C: Cost factor.
+        rng: Random number generator.
+        mandatory_nodes: List of nodes that MUST be visited.
+
+    Returns:
+        Child individual.
     """
     if rng is None:
         rng = random.Random()

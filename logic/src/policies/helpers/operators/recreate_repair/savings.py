@@ -12,6 +12,13 @@ Reference:
 
 Score metric: S = (d(0,u) + d(u,0)) - (d(i,u) + d(u,j) - d(i,j))
 Constraint: savings S must be maximized.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.recreate_repair.savings import savings_insertion
+    >>> new_routes = savings_insertion(routes, removed, dist, wastes, cap)
 """
 
 from typing import Dict, List, Optional
@@ -42,6 +49,7 @@ def savings_insertion(
         wastes: Dictionary mapping node ID to waste volume.
         capacity: Maximum vehicle capacity.
         mandatory_nodes: Nodes that must be routed regardless of profit.
+        expand_pool: If True, consider all unvisited nodes.
 
     Returns:
         List[List[int]]: Updated routes.
@@ -149,6 +157,7 @@ def savings_profit_insertion(
         C: Cost multiplier (currency/km).
         mandatory_nodes: Nodes that MUST be served regardless of profit.
         depot: The index representing the depot (default 0).
+        expand_pool: If True, consider all unvisited nodes.
 
     Returns:
         List[List[int]]: Solution with nodes re-inserted into routes.

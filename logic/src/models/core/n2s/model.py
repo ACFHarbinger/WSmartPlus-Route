@@ -53,7 +53,7 @@ class N2S(nn.Module):
             embed_dim: Dimensionality of node features.
             num_heads: Number of attention heads.
             k_neighbors: Number of candidate neighbors to consider per node.
-            **policy_kwargs: Additional arguments for N2SPolicy.
+            policy_kwargs: Additional arguments for N2SPolicy.
         """
         super().__init__()
         if policy is None:
