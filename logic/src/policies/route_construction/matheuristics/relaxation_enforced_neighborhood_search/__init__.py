@@ -12,9 +12,14 @@ Key Components:
       high-level routing policy workflow.
     - run_rens_gurobi: functional wrapper for quick optimization calls.
 
+Attributes:
+    RENSPolicy: The RENS policy.
+    run_rens_gurobi: The RENS solver wrapper.
+
 Example:
-    >>> policy = RENSPolicy(config=hydra_cfg)
-    >>> tour, distance, metadata = policy.execute(**env_state)
+    >>> from logic.src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens import RENSPolicy
+    >>> rens_policy = RENSPolicy()
+    >>> tour, distance, metadata = rens_policy.execute(**env_state)
 """
 
 from .policy_rens import RENSPolicy

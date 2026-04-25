@@ -1,19 +1,24 @@
 """
 Local Search Package.
 
-This package contains implementations of local search algorithms used to refine
-initial solutions. It includes a base class (`LocalSearch`) and specific
-implementations for ACO and HGS.
+This package provides implementations of various local search algorithms for
+vehicle routing problems, including:
+- ACOLocalSearch: Ant Colony Optimization based local search.
+- HGSLocalSearch: Hulman-Gobbi Simplex (HGS) based local search.
+- LocalSearch: Base class for all local search implementations.
 
 Attributes:
-    ACOLocalSearch (class): Local search for Ant Colony Optimization.
-    HGSLocalSearch (class): Local search for Hybrid Genetic Search.
-    LocalSearch (class): Abstract base class for local search.
+    ACOLocalSearch: ACO-based local search implementation.
+    HGSLocalSearch: HGS-based local search implementation.
+    LocalSearch: Abstract base class for local search algorithms.
 
 Example:
-    >>> from logic.src.policies.local_search import HGSLocalSearch
-    >>> ls = HGSLocalSearch(dist_matrix, waste, capacity, R, C, params)
-    >>> optimized_solution = ls.optimize(solution)
+    >>> from logic.src.policies.helpers.local_search import HGSLocalSearch
+    >>> from logic.src.policies.wrappers.base import PolicyConfig
+    >>> config = PolicyConfig()
+    >>> hgs = HGSLocalSearch(config)
+    >>> solution = hgs.search(best_solution, current_cost)
+    >>> print(f"Improved cost: {solution.cost}")
 """
 
 from .local_search_aco import ACOLocalSearch

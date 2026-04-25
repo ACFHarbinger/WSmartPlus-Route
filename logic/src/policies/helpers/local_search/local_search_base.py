@@ -6,7 +6,7 @@ It handles common initialization, neighbor lists, and provides wrappers
 for atomic move operators.
 
 Attributes:
-    None
+    LocalSearch: Abstract base class for local search algorithms.
 
 Example:
     >>> # Cannot be instantiated directly
@@ -52,9 +52,32 @@ from logic.src.policies.helpers.operators.intra_route_local_search.k_permutation
 
 
 class LocalSearch(ABC):
-    """
-    Abstract base class for Local Search algorithms.
-    Provides common infrastructure for neighbor lists and move operators.
+    """Abstract base class for Local Search algorithms.
+
+    Provides common infrastructure for neighbor lists, move operators, and
+    acceptance criteria management for routing optimization.
+
+    Attributes:
+        d (np.ndarray): Distance matrix.
+        waste (Dict[int, float]): Dictionary mapping node IDs to their waste/demand.
+        Q (float): Vehicle capacity.
+        R (float): Revenue factor per unit of waste collected.
+        C (float): Cost factor per unit of distance traveled.
+        params (Any): Configuration parameters for the local search.
+        penalty_capacity (float): Current penalty factor for capacity violations.
+        random (random.Random): Local random number generator.
+        acceptance_criterion (IAcceptanceCriterion): Strategy for move acceptance.
+        neighbors (Dict[int, List[int]]): Granular neighbor list for each node.
+        node_map (Dict[int, Tuple[int, int]]): Maps node IDs to (route_idx, pos).
+        route_loads (List[float]): Cached total waste for each route.
+        routes (List[List[int]]): Current set of routes in the solution.
+        top_insertions (Dict[int, Dict[int, List[Tuple[float, int]]]]): Cache of
+            best insertion positions for each node into each route.
+        x_coords (Optional[np.ndarray]): X-coordinates for polar sector calculations.
+        y_coords (Optional[np.ndarray]): Y-coordinates for polar sector calculations.
+        route_sectors (Dict[int, Optional[Tuple[float, float]]]): Cached polar
+            sectors (min_angle, max_angle) for each route.
+        current_profit (float): Current objective value (total profit).
     """
 
     def __init__(
@@ -69,19 +92,18 @@ class LocalSearch(ABC):
         penalty_capacity: float = 1.0,
         acceptance_criterion: Optional[IAcceptanceCriterion] = None,
     ):
-        """
-        Initialize Local Search base class.
+        """Initialize Local Search base class.
 
         Args:
-            dist_matrix: The distance matrix between nodes.
-            waste: A dictionary mapping node IDs to their waste amounts.
-            capacity: The maximum capacity of a vehicle.
-            R: A parameter, likely related to route cost or penalty.
-            C: A parameter, likely related to route cost or penalty.
-            params: An object containing additional parameters for the local search,
-                    such as time_limit.
-            neighbors: Optional pre-computed neighbor map to avoid redundant sorting.
-            penalty_capacity: Penalty coefficient for capacity violations (Vidal 2022).
+            dist_matrix (np.ndarray): N x N distance matrix.
+            waste (Dict[int, float]): Dictionary of node waste demands.
+            capacity (float): Vehicle load capacity.
+            R (float): Reward factor for collected waste.
+            C (float): Cost factor for travel distance.
+            params (Any): Hyperparameters and configuration.
+            neighbors (Optional[Dict[int, List[int]]]): Precomputed granular neighbors. Defaults to None.
+            penalty_capacity (float): Initial capacity violation penalty weight. Defaults to 1.0.
+            acceptance_criterion (Optional[IAcceptanceCriterion]): Custom acceptance strategy. Defaults to None.
         """
         self.d = np.array(dist_matrix)
         self.waste = waste
@@ -141,8 +163,13 @@ class LocalSearch(ABC):
 
     @abstractmethod
     def optimize(self, solution: Any) -> Any:
-        """
-        Optimize the given solution.
+        """Optimize the given solution.
+
+        Args:
+            solution (Any): The initial solution to optimize.
+
+        Returns:
+            Any: The optimized solution.
         """
         pass
 
@@ -218,6 +245,14 @@ class LocalSearch(ABC):
             )
 
     def _calc_load_fresh(self, r: List[int]) -> float:
+        """Calculate total load of a route.
+
+        Args:
+            r (List[int]): The sequence of node IDs in the route.
+
+        Returns:
+            float: Sum of waste for all nodes in the route.
+        """
         return sum(self.waste.get(x, 0) for x in r)
 
     def _compute_top_insertions(self, route_idx: Optional[int] = None):
@@ -260,7 +295,14 @@ class LocalSearch(ABC):
                 self.top_insertions[node][r_idx] = insertion_costs[:3]
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Calculate total distance of all routes."""
+        """Calculate total distance of all routes.
+
+        Args:
+            routes (List[List[int]]): List of routes, where each route is a list of node IDs.
+
+        Returns:
+            float: Total distance traveled across all routes, including returns to depot.
+        """
         total = 0.0
         for r in routes:
             if not r:
@@ -275,7 +317,14 @@ class LocalSearch(ABC):
         return total
 
     def _should_try_operator(self, op_name: str) -> bool:
-        """Check if the operator should be tried based on target_neighborhood filter."""
+        """Check if the operator should be tried based on target_neighborhood filter.
+
+        Args:
+            op_name (str): Name of the operator (e.g., 'relocate', 'swap').
+
+        Returns:
+            bool: True if the operator should be executed, False otherwise.
+        """
         target = getattr(self, "_target_neighborhood", "all")
         return target == "all" or target == op_name
 
@@ -284,6 +333,13 @@ class LocalSearch(ABC):
         Return the (min_angle, max_angle) polar sector of a route in radians,
         measured from depot (node 0). Returns None for empty routes.
         Uses caching to avoid redundant calculations.
+
+        Args:
+            route_idx (int): Index of the route in `self.routes`.
+
+        Returns:
+            Optional[Tuple[float, float]]: (min_angle, max_angle) in radians,
+                or None if route is empty.
         """
         if route_idx in self.route_sectors:
             return self.route_sectors[route_idx]
@@ -312,6 +368,14 @@ class LocalSearch(ABC):
     def accept_move(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         """
         Consult the registered acceptance criterion to decide if a move should be applied.
+
+        Args:
+            current_obj (float): Objective value of the current solution.
+            candidate_obj (float): Objective value of the proposed solution.
+            **kwargs (Any): Additional context for the acceptance decision.
+
+        Returns:
+            bool: True if the move should be accepted, False otherwise.
         """
         if self.acceptance_criterion is None:
             return candidate_obj > current_obj + 1e-4
@@ -321,6 +385,12 @@ class LocalSearch(ABC):
     def step_move(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         """
         Perform internal state updates (e.g., cooling, counting) after a move decision.
+
+        Args:
+            current_obj (float): Objective value before the move attempt.
+            candidate_obj (float): Objective value after the move attempt.
+            accepted (bool): Whether the move was actually accepted and applied.
+            **kwargs (Any): Additional context for the step update.
         """
         if self.acceptance_criterion is not None:
             self.acceptance_criterion.step(
@@ -328,7 +398,15 @@ class LocalSearch(ABC):
             )
 
     def _sectors_overlap(self, s1: Optional[Tuple[float, float]], s2: Optional[Tuple[float, float]]) -> bool:
-        """Return True if two polar sectors overlap, handling the ±π wraparound."""
+        """Return True if two polar sectors overlap, handling the ±π wraparound.
+
+        Args:
+            s1 (Optional[Tuple[float, float]]): First polar sector.
+            s2 (Optional[Tuple[float, float]]): Second polar sector.
+
+        Returns:
+            bool: True if the sectors overlap (including circular wraparound).
+        """
         if s1 is None or s2 is None:
             return True
         # Standard interval overlap
@@ -345,6 +423,13 @@ class LocalSearch(ABC):
         """
         Attempt all applicable move operators on the (u, v) pair.
         Returns True if any improving move was applied.
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+
+        Returns:
+            bool: True if any move was successfully applied.
         """
         u_loc = self.node_map.get(u)
         v_loc = self.node_map.get(v)
@@ -369,7 +454,19 @@ class LocalSearch(ABC):
             return self._process_intra_route(u, v, r_u, p_u, r_v, p_v)
 
     def _process_inter_route(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        """Process moves between different routes."""
+        """Process moves between different routes.
+
+        Args:
+            u (int): Node from the first route.
+            v (int): Node from the second route.
+            r_u (int): Index of the first route.
+            p_u (int): Position of node `u` in `r_u`.
+            r_v (int): Index of the second route.
+            p_v (int): Position of node `v` in `r_v`.
+
+        Returns:
+            bool: True if an improving inter-route move was applied.
+        """
         if (
             self._should_try_operator("relocate") or self._should_try_operator("inter_relocate")
         ) and self._move_relocate(u, v, r_u, p_u, r_v, p_v):
@@ -398,7 +495,19 @@ class LocalSearch(ABC):
         )
 
     def _process_intra_route(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
-        """Process moves within the same route."""
+        """Process moves within the same route.
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+            r_u (int): Index of the route containing both nodes.
+            p_u (int): Position of node `u`.
+            r_v (int): Position of node `v`.
+            p_v (int): Alias for `p_v` (redundant but kept for API consistency).
+
+        Returns:
+            bool: True if an improving intra-route move was applied.
+        """
         if (
             self._should_try_operator("relocate") or self._should_try_operator("intra_relocate")
         ) and self._move_relocate(u, v, r_u, p_u, r_v, p_v):
@@ -436,51 +545,236 @@ class LocalSearch(ABC):
             self._compute_top_insertions(route_idx=ri)
 
     def _get_load_cached(self, ri: int) -> float:
+        """Get cached total load of a route.
+
+        Args:
+            ri (int): Route index.
+
+        Returns:
+            float: Cached total load of the route.
+        """
         return self.route_loads[ri]
 
     def _move_relocate(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Relocate a node to a new position.
+
+        Args:
+            u (int): Node ID to relocate.
+            v (int): Target neighbor node ID.
+            r_u (int): Current route index of `u`.
+            p_u (int): Current position of `u`.
+            r_v (int): Target route index.
+            p_v (int): Target position (usually after `v`).
+
+        Returns:
+            bool: True if the relocate move was accepted.
+        """
         return move_relocate(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_swap(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Swap two nodes.
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+            r_u (int): Route index of `u`.
+            p_u (int): Position of `u`.
+            r_v (int): Route index of `v`.
+            p_v (int): Position of `v`.
+
+        Returns:
+            bool: True if the swap move was accepted.
+        """
         return move_swap(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_swap_star(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply SWAP* operator (best insertion swap).
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+            r_u (int): Route index of `u`.
+            p_u (int): Position of `u`.
+            r_v (int): Route index of `v`.
+            p_v (int): Position of `v`.
+
+        Returns:
+            bool: True if the SWAP* move was accepted.
+        """
         return move_swap_star(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_3opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, rng: random.Random) -> bool:
+        """Apply intra-route 3-opt move.
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+            r_u (int): Route index.
+            p_u (int): First position.
+            r_v (int): Route index (same as `r_u`).
+            p_v (int): Second position.
+            rng (random.Random): Random number generator for tie-breaking.
+
+        Returns:
+            bool: True if the 3-opt move was accepted.
+        """
         return move_3opt_intra(self, u, v, r_u, p_u, r_v, p_v, rng)
 
     def _move_2opt_star(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply inter-route 2-opt* move.
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+            r_u (int): First route index.
+            p_u (int): First position.
+            r_v (int): Second route index.
+            p_v (int): Second position.
+
+        Returns:
+            bool: True if the 2-opt* move was accepted.
+        """
         return move_2opt_star(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_2opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply intra-route 2-opt move.
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+            r_u (int): Route index.
+            p_u (int): First position.
+            r_v (int): Route index (same as `r_u`).
+            p_v (int): Second position.
+
+        Returns:
+            bool: True if the intra-route 2-opt move was accepted.
+        """
         return move_2opt_intra(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_or_opt(self, r_idx: int, pos: int, chain_len: int) -> bool:
+        """Apply Or-opt move.
+
+        Args:
+            r_idx (int): Route index.
+            pos (int): Starting position.
+            chain_len (int): Length of the chain to relocate.
+
+        Returns:
+            bool: True if the Or-opt move was accepted.
+        """
         return move_or_opt(self, r_idx, pos, chain_len)
 
     def _move_cross(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply Cross move.
+
+        Args:
+            u (int): First node ID.
+            v (int): Second node ID.
+            r_u (int): First route index.
+            p_u (int): First position.
+            r_v (int): Second route index.
+            p_v (int): Second position.
+
+        Returns:
+            bool: True if the Cross move was accepted.
+        """
         return move_cross(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_shift_2_0(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply Shift(2,0) move (relocate two nodes).
+
+        Args:
+            r_u (int): Source route index.
+            p_u (int): Starting position of the 2-node chain.
+            r_v (int): Target route index.
+            p_v (int): Target insertion position.
+
+        Returns:
+            bool: True if the Shift(2,0) move was accepted.
+        """
         return shift_2_0(self, r_u, p_u, r_v, p_v)
 
     def _move_swap_2_1(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply Swap(2,1) move (swap 2 nodes with 1 node).
+
+        Args:
+            r_u (int): First route index.
+            p_u (int): Starting position of the 2-node chain.
+            r_v (int): Second route index.
+            p_v (int): Position of the single node.
+
+        Returns:
+            bool: True if the Swap(2,1) move was accepted.
+        """
         return swap_2_1(self, r_u, p_u, r_v, p_v)
 
     def _move_swap_2_2(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply Swap(2,2) move (swap two pairs of nodes).
+
+        Args:
+            r_u (int): First route index.
+            p_u (int): Starting position of the first 2-node chain.
+            r_v (int): Second route index.
+            p_v (int): Starting position of the second 2-node chain.
+
+        Returns:
+            bool: True if the Swap(2,2) move was accepted.
+        """
         return swap_2_2(self, r_u, p_u, r_v, p_v)
 
     def _try_cross_exchange(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply Cross-Exchange operator.
+
+        Args:
+            r_u (int): First route index.
+            p_u (int): First position.
+            r_v (int): Second route index.
+            p_v (int): Second position.
+
+        Returns:
+            bool: True if the Cross-Exchange move was accepted.
+        """
         return cross_exchange(self, r_u, p_u, 1, r_v, p_v, 1)
 
     def _try_improved_cross_exchange(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply Improved Cross-Exchange operator.
+
+        Args:
+            r_u (int): First route index.
+            p_u (int): First position.
+            r_v (int): Second route index.
+            p_v (int): Second position.
+
+        Returns:
+            bool: True if the Improved Cross-Exchange move was accepted.
+        """
         return improved_cross_exchange(self, r_u, p_u, 1, r_v, p_v, 1)
 
     def _try_lambda_interchange(self, r_u: int, r_v: int) -> bool:
+        """Apply Lambda-Interchange operator.
+
+        Args:
+            r_u (int): First route index.
+            r_v (int): Second route index.
+
+        Returns:
+            bool: True if the Lambda-Interchange move was accepted.
+        """
         return lambda_interchange(self, getattr(self.params, "lambda_max", 2))
 
     def _try_cyclic_transfer(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Apply Cyclic Transfer move (3-route exchange).
+
+        Args:
+            r_u (int): First route index.
+            p_u (int): First position.
+            r_v (int): Second route index.
+            p_v (int): Second position.
+
+        Returns:
+            bool: True if the Cyclic Transfer move was accepted.
+        """
         if len(self.routes) < 3:
             return False
         candidates = [r for r in range(len(self.routes)) if r != r_u and r != r_v and self.routes[r]]
@@ -491,19 +785,60 @@ class LocalSearch(ABC):
         return cyclic_transfer(self, [(r_u, p_u), (r_v, p_v), (r_w, p_w)])
 
     def _try_exchange_chains(self, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Try applying various Exchange Chain operators.
+
+        Args:
+            r_u (int): First route index.
+            p_u (int): First position.
+            r_v (int): Second route index.
+            p_v (int): Second position.
+
+        Returns:
+            bool: True if any Exchange Chain move was accepted.
+        """
         if exchange_2_0(self, r_u, p_u, r_v, p_v):
             return True
         return bool(exchange_2_1(self, r_u, p_u, r_v, p_v))
 
     def _try_ejection_chain(self, r_u: int) -> bool:
+        """Docstring.
+
+        Args:
+            r_u (int): Starting route index for the ejection chain.
+
+        Returns:
+            bool: True if the Ejection Chain move was accepted.
+        """
         return ejection_chain(self, r_u)
 
     def _move_relocate_chain(self, u: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """Docstring.
+
+        Args:
+            u (int): Starting node ID for the chain.
+            r_u (int): Source route index.
+            p_u (int): Starting position in `r_u`.
+            r_v (int): Target route index.
+            p_v (int): Target position in `r_v`.
+
+        Returns:
+            bool: True if the Relocate Chain move was accepted.
+        """
         if relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=2):
             return True
         return bool(relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=3))
 
     def _move_three_permutation(self, u: int, r_u: int, p_u: int) -> bool:
+        """Apply 3-Permutation move.
+
+        Args:
+            u (int): Node ID to permute.
+            r_u (int): Route index.
+            p_u (int): Position of node `u`.
+
+        Returns:
+            bool: True if the 3-Permutation move was accepted.
+        """
         return three_permutation(self, r_u, p_u)
 
     def _move_unrouted_insert(self, node: int, route_idx: int, _hint_pos: int) -> bool:
@@ -515,12 +850,12 @@ class LocalSearch(ABC):
         Uses penalized search: considers both profit gain and capacity penalties.
 
         Args:
-            node: Unvisited node to potentially insert.
-            route_idx: Route to insert into.
-            _hint_pos: Position hint (near a neighbor), currently unused.
+            node (int): Unvisited node to potentially insert.
+            route_idx (int): Route to insert into.
+            _hint_pos (int): Position hint (unused).
 
         Returns:
-            bool: True if insertion improves penalized profit, False otherwise.
+            bool: True if insertion improves penalized profit.
         """
         route = self.routes[route_idx]
 

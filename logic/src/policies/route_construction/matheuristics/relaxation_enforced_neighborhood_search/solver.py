@@ -1,5 +1,12 @@
 """
 Relaxation Enforced Neighborhood Search (RENS) solver.
+
+Attributes:
+    run_rens_gurobi: The RENS solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.solver import run_rens_gurobi
+    >>> run_rens_gurobi(distance_matrix=..., wastes={}, capacity=1e9, R=1.0, C=1.0, mandatory_nodes=[])
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -105,6 +112,11 @@ def _apply_restrictions(model: gp.Model, x: Dict[Tuple[int, int], gp.Var], y: Di
     The neighborhood is defined by fixing all variables that are
     integer-valued in the LP solution to those values, and
     restricting the remaining variables to be binary.
+
+    Args:
+        model: The Gurobi model.
+        x: The x variables.
+        y: The y variables.
     """
     # 1. Collect fractional variables for potential neighborhood expansion if needed
     fractional = []
@@ -154,6 +166,20 @@ def run_rens_gurobi(
     2. Solve LP to find fractional optimal values.
     3. Fix variables with integer values in LP solution.
     4. Solve a restricted MIP on the remaining binary variables.
+
+    Args:
+        dist_matrix: Pairwise node distances.
+        wastes: Demand/waste levels at each node.
+        capacity: Maximum vehicle load.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: Nodes that must be visited.
+        time_limit: Overall time limit.
+        lp_time_limit: Time limit for LP relaxation.
+        mip_gap: MIP optimality gap.
+        seed: Random seed.
+        env: Optional Gurobi environment.
+        recorder: Optional telemetry recorder.
 
     Returns:
         Tuple of (full_tour, objective_profit_value, primary_travel_cost).

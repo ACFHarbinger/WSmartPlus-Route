@@ -51,15 +51,21 @@ Dependencies
 - :class:`TourAdapter` from ``._tour_adapter`` to wrap tours for operator calls.
 - :func:`double_bridge` from the shared perturbation operator package.
 
-Typical usage
--------------
->>> from logic.src.policies.helpers.operators.heuristics._tour_construction import (
-...     _initialize_tour, _double_bridge_kick, _2opt_gain, _3opt_gains
-... )
->>> tour = _initialize_tour(dist, initial_tour=None)
->>> gain = _2opt_gain(t1, t2, t3, t4, dist)
->>> if gain > 1e-6:
-...     tour = _double_bridge_kick(tour, dist, rng)
+Attributes:
+    KoptTopologyFactory: Factory for generating k-opt topologies.
+    merge_tours: Helper function for merging tours.
+    merge_tours_ip: Helper function for merging tours using IP.
+    merge_tours_best: Helper function for merging tours using best-first search.
+    build_tour_from_segments: Helper function for building tours from segments.
+
+Example:
+    >>> from logic.src.policies.helpers.operators.heuristics._tour_construction import (  # noqa: E402
+    ...     _initialize_tour, _double_bridge_kick, _2opt_gain, _3opt_gains
+    ... )
+    >>> tour = _initialize_tour(dist, initial_tour=None)
+    >>> gain = _2opt_gain(t1, t2, t3, t4, dist)
+    >>> if gain > 1e-6:
+    ...     tour = _double_bridge_kick(tour, dist, rng)
 """
 
 from __future__ import annotations
@@ -381,7 +387,15 @@ def _initialize_tour(
 
 
 def _get_tour_array(start_node: int, tour_dict: Dict[int, int]) -> List[int]:
-    """Retrieve the tour as a list starting from `start_node`."""
+    """Retrieve the tour as a list starting from `start_node`.
+
+    Args:
+        start_node: Starting node.
+        tour_dict: Tour dictionary.
+
+    Returns:
+        Tour list.
+    """
     tour = [start_node]
     curr = tour_dict[start_node]
     while curr != start_node:
@@ -394,6 +408,9 @@ class KoptTopologyFactory:
     """
     Programmatic generator for exhaustive non-sequential k-opt topologies.
     Memoizes the exact valid Hamiltonian reconnections to avoid hardcoding.
+
+    Attributes:
+        _cache: Cache for storing valid topologies.
     """
 
     _cache: Dict[int, List[List[Tuple[int, int]]]] = {}
@@ -410,6 +427,12 @@ class KoptTopologyFactory:
         - 3-opt: 7 (including 2-opt sub-moves as requested)
         - 4-opt: 25 pure
         - 5-opt: exhaustive pure valid Hamiltonian reconnections
+
+        Args:
+            k: Number of edges to remove (k-opt).
+
+        Returns:
+            List of valid topologies.
         """
         if k in cls._cache:
             return cls._cache[k]
@@ -596,6 +619,16 @@ def _2opt_gain(
     NOTE: For lexicographic objectives, this function only computes ΔC (cost change).
     The caller must separately evaluate ΔP (penalty change) to determine if the
     move should be accepted. See _should_accept_kopt_move() for the full logic.
+
+    Args:
+        t1: Node 1.
+        t2: Node 2.
+        t3: Node 3.
+        t4: Node 4.
+        d: Distance matrix.
+
+    Returns:
+        Exact distance gain for a 2-opt move.
     """
     return d[t1, t2] + d[t3, t4] - d[t1, t3] - d[t2, t4]
 
@@ -678,6 +711,18 @@ def _3opt_gains(
     The calling code in _try_3opt_move deliberately excludes them because
     the preceding _try_2opt_move search has already proven them unprofitable
     for the current (i, j) pair.
+
+    Args:
+        t1: Node 1.
+        t2: Node 2.
+        t3: Node 3.
+        t4: Node 4.
+        t5: Node 5.
+        t6: Node 6.
+        d: Distance matrix.
+
+    Returns:
+        List of exact gains for all seven non-trivial 3-opt reconnection cases.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6]
     return [
@@ -715,6 +760,20 @@ def _4opt_gains(
     Removes edges (t1,t2), (t3,t4), (t5,t6), (t7,t8).
 
     Returns a list of three gain values (indices 0–2).
+
+    Args:
+        t1: Node 1.
+        t2: Node 2.
+        t3: Node 3.
+        t4: Node 4.
+        t5: Node 5.
+        t6: Node 6.
+        t7: Node 7.
+        t8: Node 8.
+        d: Distance matrix.
+
+    Returns:
+        List of exact gains for the three 4-opt reconnection cases.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8]
     return [
@@ -749,6 +808,22 @@ def _5opt_gains(
     sequential 5-opt moves central to Helsgaun (2000), Section 4.3.
     The full 5-opt exhaustive enumeration has 60 non-trivial cases;
     only these 5 representative patterns are evaluated for efficiency.
+
+    Args:
+        t1: Node 1.
+        t2: Node 2.
+        t3: Node 3.
+        t4: Node 4.
+        t5: Node 5.
+        t6: Node 6.
+        t7: Node 7.
+        t8: Node 8.
+        t9: Node 9.
+        t10: Node 10.
+        d: Distance matrix.
+
+    Returns:
+        List of exact gains for the five 5-opt reconnection cases.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8] + d[t9, t10]
     return [

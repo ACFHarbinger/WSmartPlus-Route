@@ -1,5 +1,26 @@
 """
 Search space definitions for simulation policies.
+
+This module contains the default hyperparameter search spaces for all supported
+simulation policies, including ALNS, HGS, ACO, and SISR. Each policy's search
+space is defined as a dictionary with parameter names as keys and their HPO
+specifications as values.
+
+Attributes:
+    POLICY_SEARCH_SPACES: Dictionary mapping policy names to their search spaces.
+
+Functions:
+    get_search_space: Retrieves the search space for a specific policy.
+
+Example:
+    >>> from logic.src.policies.helpers.hpo import get_search_space
+    >>> alns_space = get_search_space("alns")
+    >>> print(alns_space)
+    {
+        'max_iterations': {'type': 'int', 'low': 500, 'high': 10000, 'step': 500},
+        'start_temp': {'type': 'float', 'low': 1.0, 'high': 500.0, 'log': True},
+        ...
+    }
 """
 
 from typing import Any, Dict
@@ -43,9 +64,10 @@ def get_search_space(policy_name: str) -> Dict[str, Dict[str, Any]]:
     """Get the search space for a specific policy.
 
     Args:
-        policy_name: Name of the policy (e.g., 'alns', 'hgs').
+        policy_name (str): Name of the policy (e.g., 'alns', 'hgs').
 
     Returns:
-        Search space dictionary.
+        Dict[str, Dict[str, Any]]: The search space specification dictionary for
+            the requested policy, or an empty dictionary if not found.
     """
     return POLICY_SEARCH_SPACES.get(policy_name.lower(), {})

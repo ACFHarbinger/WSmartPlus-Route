@@ -1,5 +1,13 @@
 """
 Relax-and-Fix and Optimize (RFO) policy implementation.
+
+Attributes:
+    RelaxFixOptimizePolicy: The RFO policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo import RelaxFixOptimizePolicy
+    >>> rfo_policy = RelaxFixOptimizePolicy()
+    >>> tour, distance, metadata = rfo_policy.execute(**env_state)
 """
 
 import math
@@ -53,6 +61,8 @@ class RelaxFixOptimizePolicy(BaseMultiPeriodRoutingPolicy):
     - **Step 3**: Extractions the resulting routing plan for the current day.
 
     Registry key: ``"rfo"``
+    Attributes:
+        None
     """
 
     def __init__(self, config: Any = None):
@@ -72,6 +82,17 @@ class RelaxFixOptimizePolicy(BaseMultiPeriodRoutingPolicy):
     def _setup_multi_day_model(
         self, problem: ProblemContext, int_days: set, relaxed_days: set, fixed_plan: Dict[int, List[int]]
     ):
+        """Docstring.
+
+        Args:
+            problem: Description of problem.
+            int_days: Description of int_days.
+            relaxed_days: Description of relaxed_days.
+            fixed_plan: Description of fixed_plan.
+
+        Returns:
+            Description of return value.
+        """
         model = gp.Model("RFO")
         model.setParam("OutputFlag", 0)
         model.setParam("TimeLimit", self.mip_time)
@@ -142,6 +163,15 @@ class RelaxFixOptimizePolicy(BaseMultiPeriodRoutingPolicy):
     def _run_multi_period_solver(
         self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """Docstring.
+
+        Args:
+            problem: Description of problem.
+            multi_day_ctx: Description of multi_day_ctx.
+
+        Returns:
+            Description of return value.
+        """
         D = problem.horizon
         fixed_plan: Dict[int, List[int]] = {}
 

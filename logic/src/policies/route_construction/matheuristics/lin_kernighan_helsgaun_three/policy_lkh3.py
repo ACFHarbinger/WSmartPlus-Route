@@ -7,6 +7,20 @@ policy interface used by the WSmart+ Route simulator.
 Reference:
     Helsgaun, K. (2017). An extension of the LKH-TSP solver for constrained
     traveling salesman and vehicle routing problems.
+
+Attributes:
+    LKH3Policy: LKH-3 policy class.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.policy_lkh3 import LKH3Policy
+    >>> policy = LKH3Policy()
+    >>> policy
+    LKH3Policy(
+        config=None,
+        random_seed=None,
+        config_loaded=False,
+        policy_config_data=None,
+    )
 """
 
 import time
@@ -43,6 +57,9 @@ class LKH3Policy(BaseRoutingPolicy):
     Solves the CVRP/TSP sub-problem via the Lin-Kernighan-Helsgaun 3
     iterated local-search heuristic with POPMUSIC candidate generation,
     k-opt moves (k = 2..5), and IP-based tour merging.
+
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Union[LKH3Config, Dict[str, Any]]] = None):
@@ -55,10 +72,19 @@ class LKH3Policy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return LKH3Config class.
+
+        Returns:
+            LKH3Config class.
+        """
         return LKH3Config
 
     def _get_config_key(self) -> str:
-        """Return config key for LKH-3."""
+        """Return config key for LKH-3.
+
+        Returns:
+            str: The config key for LKH-3.
+        """
         return "lkh3"
 
     def _tour_to_routes(self, tour: List[int]) -> List[List[int]]:
@@ -104,22 +130,17 @@ class LKH3Policy(BaseRoutingPolicy):
         through graph augmentation (dummy nodes/edges) and can use ALNS for
         intensification within the LKH framework.
 
+
+
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix (local indices).
-            sub_wastes (Dict[int, float]): Mapping of local node indices to
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                LKH-3 parameters (runs, max_trials, max_k_opt, etc.) and ALNS settings.
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix (np.ndarray): Distance matrix for the sub-problem.
+            sub_wastes (Dict[int, float]): Dictionary of wastes for the sub-problem.
+            capacity (float): Capacity of the vehicles.
+            revenue (float): Revenue from the routes.
+            cost_unit (float): Cost per unit of distance.
+            values (Dict[str, Any]): Additional values for the sub-problem.
+            mandatory_nodes (List[int]): List of mandatory nodes for the sub-problem.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Tuple[List[List[int]], float, float]: A 3-tuple containing:

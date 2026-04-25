@@ -8,6 +8,13 @@ optimizes them.
 Reference:
     Taillard, É., & Voss, S. (2002). "POPMUSIC: a metaheuristic for routing
     problems". Metaheuristics: theory, research and applications, 185-200.
+
+Attributes:
+    run_popmusic: Function to solve VRPP using POPMUSIC matheuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver import run_popmusic
+    >>> routes, total_cost, total_profit, info_dict = run_popmusic(**env_state)
 """
 
 import inspect
@@ -60,27 +67,29 @@ def run_popmusic(  # noqa: C901
     """
     Solve VRPP using POPMUSIC matheuristic.
 
+
+
     Args:
-        coords: Node coordinates.
-        mandatory: List of bin indices to collect.
-        distance_matrix: Distances between nodes.
-        n_vehicles: Number of vehicles available.
-        subproblem_size: Total number of routes per subproblem, including the seed
-        (seed + r-1 neighbours). Corresponds to r in Algorithm 1 of Taillard &
-        Voß (2018). Default 3 means seed + 2 nearest neighbours.
-        max_iterations: Optional[int] = None,  # None = run until U is empty (paper default)
-        base_solver: Solver for subproblems.
-        base_solver_config: Configuration for base_solver.
-        cluster_solver: Solver for cluster initialization.
-        cluster_solver_config: Configuration for cluster initialization solver.
-        initial_solver: Initial solution generation method.
-        seed: Random seed.
-        wastes: Node wastes.
-        capacity: Vehicle capacity.
-        R: Revenue multiplier.
-        C: Cost multiplier.
-        vrpp: Whether to use expansion pool for VRPP.
+        coords: Coordinates of nodes.
+        mandatory: List of mandatory nodes.
+        distance_matrix: Distance matrix.
+        n_vehicles: Number of vehicles.
+        subproblem_size: Number of nodes in each subproblem.
+        max_iterations: Maximum number of iterations.
+        base_solver: Name of the base solver to use for solving subproblems.
+        base_solver_config: Configuration for the base solver.
+        cluster_solver: Name of the cluster solver to use for clustering.
+        cluster_solver_config: Configuration for the cluster solver.
+        initial_solver: Name of the initial solver to use for building initial routes.
+        seed: Random seed for reproducibility.
+        wastes: Waste levels for each node.
+        capacity: Description of capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        vrpp: Whether to solve the VRPP.
         profit_aware_operators: Whether to use profit-aware operators.
+        k_prox: Number of nearest neighbors to consider for clustering.
+        seed_strategy: Strategy for seeding clusters.
 
     Returns:
         Tuple of (routes, total_cost, total_profit, info_dict).
@@ -353,7 +362,26 @@ def _optimize_subproblem(
     vrpp: bool = True,
     profit_aware_operators: bool = False,
 ) -> Tuple[List[List[int]], float]:
-    """Optimize subproblem using the selected base_solver."""
+    """Optimize subproblem using the selected base_solver.
+
+    Args:
+        base_solver: Name of the base solver to use for solving subproblems.
+        base_solver_config: Configuration for the base solver.
+        subproblem_nodes: Nodes in the subproblem.
+        distance_matrix: Distance matrix.
+        wastes_dict: Waste levels for each node.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        neighborhood_indices: Indices of nodes in the neighborhood.
+        mandatory: Mandatory nodes.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve the VRPP.
+        profit_aware_operators: Whether to use profit-aware operators.
+
+    Returns:
+        Tuple of (routes, total_cost, total_profit, info_dict).
+    """
     time_limit = 1.0
 
     # Extract the relevant config if it's nested (POPMUSICSubSolverConfig or dict)
@@ -418,7 +446,23 @@ def _optimize_with_fast_tsp(
     seed: int,
     vrpp: bool = False,
 ) -> Tuple[List[List[int]], float]:
-    """Optimize subproblem using FastTSP and greedy split."""
+    """Optimize subproblem using FastTSP and greedy split.
+
+    Args:
+        subproblem_nodes: Nodes in the subproblem.
+        distance_matrix: Distance matrix.
+        wastes_dict: Waste levels for each node.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        config: Configuration for FastTSP.
+        time_limit: Time limit for optimization.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve the VRPP.
+
+    Returns:
+        Tuple of (routes, total_cost, total_profit, info_dict).
+    """
     actual_time_limit = time_limit
     if config and hasattr(config, "time_limit"):
         actual_time_limit = config.time_limit
@@ -457,7 +501,26 @@ def _optimize_with_hgs(
     profit_aware_operators: bool = False,
     subproblem_nodes: Optional[List[int]] = None,
 ) -> Tuple[List[List[int]], float]:
-    """Optimize subproblem using Hybrid Genetic Search (HGS)."""
+    """Optimize subproblem using Hybrid Genetic Search (HGS).
+
+    Args:
+        distance_matrix: Distance matrix.
+        wastes_dict: Waste levels for each node.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        neighborhood_indices: Indices of nodes in the neighborhood.
+        mandatory: Mandatory nodes.
+        config: Configuration for HGS.
+        time_limit: Time limit for optimization.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve the VRPP.
+        profit_aware_operators: Whether to use profit-aware operators.
+        subproblem_nodes: Nodes in the subproblem.
+
+    Returns:
+        Tuple of (routes, total_cost, total_profit, info_dict).
+    """
     # Ensure subproblem isolation: only optimize nodes in the subproblem
     if subproblem_nodes is None:
         raise ValueError("subproblem_nodes must be provided for HGS optimization")
@@ -529,7 +592,25 @@ def _optimize_with_alns(
     profit_aware_operators: bool = False,
     subproblem_nodes: Optional[List[int]] = None,
 ) -> Tuple[List[List[int]], float]:
-    """Optimize subproblem using Adaptive Large Neighborhood Search (ALNS)."""
+    """Optimize subproblem using Adaptive Large Neighborhood Search (ALNS).
+
+    Args:
+        distance_matrix: Distance matrix.
+        wastes_dict: Waste levels for each node.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        mandatory: Mandatory nodes.
+        config: Configuration for ALNS.
+        time_limit: Time limit for optimization.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve the VRPP.
+        profit_aware_operators: Whether to use profit-aware operators.
+        subproblem_nodes: Nodes in the subproblem.
+
+    Returns:
+        Tuple of (routes, total_cost, total_profit, info_dict).
+    """
     # Ensure subproblem isolation: only optimize nodes in the subproblem
     if subproblem_nodes is None:
         raise ValueError("subproblem_nodes must be provided for ALNS optimization")
@@ -596,7 +677,18 @@ def _optimize_with_alns(
 def find_route_neighbors(
     seed_idx: int, centroids: List[np.ndarray], k: int, kdtree: Optional[KDTree] = None, k_prox: int = 0
 ) -> List[int]:
-    """Find k nearest route indices to the seed route based on centroids."""
+    """Find k nearest route indices to the seed route based on centroids.
+
+    Args:
+        seed_idx: Index of the seed route.
+        centroids: Centroids of all routes.
+        k: Number of nearest routes to find.
+        kdtree: KD-Tree for proximity search.
+        k_prox: Number of neighbors to consider.
+
+    Returns:
+        List of nearest route indices.
+    """
     if len(centroids) <= k:
         return list(range(len(centroids)))
 
@@ -622,7 +714,16 @@ def find_route_neighbors(
 
 
 def split_tour(tour: List[int], k: int, distance_matrix: np.ndarray) -> List[List[int]]:
-    """Simple greedy split of a giant tour into k routes."""
+    """Simple greedy split of a giant tour into k routes.
+
+    Args:
+        tour: The tour to split (list of node indices).
+        k: The number of routes to split into.
+        distance_matrix: Distance matrix.
+
+    Returns:
+        List of routes (each route is a list of node indices starting and ending with 0).
+    """
     nodes = [n for n in tour if n != 0]
     if not nodes:
         return [[0, 0] for _ in range(k)]
