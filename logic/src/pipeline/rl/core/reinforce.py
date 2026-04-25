@@ -5,6 +5,19 @@ Reference:
     Williams, R. J. (1992).
     Simple statistical gradient-following algorithms for connectionist reinforcement learning.
     Machine learning, 8(3-4), 229-256.
+
+Attributes:
+    REINFORCE: REINFORCE algorithm.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import REINFORCE
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> reinforce = REINFORCE(env, agent)
+    >>> reinforce
+    REINFORCE(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
 """
 
 from typing import TYPE_CHECKING, Optional
@@ -29,6 +42,12 @@ class REINFORCE(RL4COLitModule):
         Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning.
         Machine Learning, 8(3-4), 229-256.
         https://doi.org/10.1007/BF00992696
+
+    Attributes:
+        policy: Policy network.
+        critic: Critic network.
+        entropy_weight: Weight for entropy bonus.
+        max_grad_norm: Maximum gradient norm for clipping.
     """
 
     def __init__(
@@ -42,9 +61,10 @@ class REINFORCE(RL4COLitModule):
         Initialize REINFORCE module.
 
         Args:
-            entropy_weight: Weight for entropy bonus in loss.
-            max_grad_norm: Maximum gradient norm for clipping.
-            **kwargs: Arguments passed to RL4COLitModule.
+            entropy_weight: Weight for the entropy bonus (default: 0.0).
+            max_grad_norm: Maximum gradient norm for clipping (default: 1.0).
+            lr_critic: Learning rate for the critic optimizer (default: 1e-4).
+            kwargs: Additional arguments to pass to the parent class (RL4COLitModule).
         """
         super().__init__(**kwargs)
         self.entropy_weight = entropy_weight
@@ -61,6 +81,15 @@ class REINFORCE(RL4COLitModule):
         Compute REINFORCE loss.
 
         Loss = -E[(R - b) * log π(a|s)]
+
+        Args:
+            td: Input tensor dictionary containing state information.
+            out: Output dictionary from the policy containing 'reward', 'log_likelihood', and optionally 'entropy'.
+            batch_idx: Index of the current batch.
+            env: Environment instance for baseline evaluation (optional).
+
+        Returns:
+            Computed policy gradient loss tensor.
         """
         reward = out["reward"]
         log_likelihood = out["log_likelihood"]
@@ -96,7 +125,11 @@ class REINFORCE(RL4COLitModule):
         return loss
 
     def on_before_optimizer_step(self, optimizer):
-        """Gradient clipping."""
+        """Gradient clipping.
+
+        Args:
+            optimizer: PyTorch optimizer instance about to step.
+        """
         if self.max_grad_norm > 0:
             torch.nn.utils.clip_grad_norm_(
                 self.policy.parameters(),  # type: ignore[attr-defined]

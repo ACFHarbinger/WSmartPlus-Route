@@ -1,5 +1,14 @@
 """
 Multi-Objective Reinforcement Learning (MORL) Weight Optimizer.
+
+Attributes:
+    MORLWeightOptimizer: Class that implements multi-objective weight optimization.
+
+Example:
+    >>> from .weight_optimizer import MORLWeightOptimizer
+    >>> optimizer = MORLWeightOptimizer({})
+    >>> optimizer.propose_weights()
+    {}
 """
 
 import copy
@@ -13,7 +22,17 @@ from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
 
 class MORLWeightOptimizer(WeightAdjustmentStrategy):
-    """Pareto-based multi-objective weight optimizer."""
+    """Pareto-based multi-objective weight optimizer.
+
+    Attributes:
+        initial_weights: Initial weight configuration.
+        weight_names: Names of the weights.
+        objective_names: Names of the objectives.
+        history_window: Number of past performance samples to keep.
+        exploration_factor: Probability of applying random perturbations.
+        adaptation_rate: Rate of weight adjustment based on performance.
+        pareto_front: Pareto front maintained by the optimizer.
+    """
 
     def __init__(
         self,
@@ -28,6 +47,8 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         """
         Initialize MORLWeightOptimizer.
 
+
+
         Args:
             initial_weights: Initial weight configuration.
             weight_names: Names of weight components to optimize.
@@ -35,7 +56,7 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
             history_window: Window size for performance history.
             exploration_factor: Probability of random exploration.
             adaptation_rate: Rate of weight perturbation.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         if objective_names is None:
             objective_names = ["waste_efficiency", "overflow_rate"]
@@ -67,7 +88,14 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         return self.current_weights
 
     def _calculate_objectives(self, metrics):
-        """Calculate objectives for the Pareto front (compatibility)."""
+        """Calculate objectives for the Pareto front (compatibility).
+
+        Args:
+            metrics: Metrics dict containing objective values.
+
+        Returns:
+            dict[str, float]: Dictionary of normalized objective values.
+        """
         den1 = metrics.get("tour_length", metrics.get("cost", 1))
         waste_eff = metrics.get("waste_collected", metrics.get("collection", 0)) / den1 if den1 != 0 else 0
 
@@ -76,7 +104,12 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         return {"waste_efficiency": waste_eff, "overflow_rate": overflow_rate}
 
     def update_performance_history(self, metrics, reward):
-        """Update performance history (compatibility)."""
+        """Update performance history (compatibility).
+
+        Args:
+            metrics: Metrics dict with objective values.
+            reward: Observed reward.
+        """
         self.feedback(reward, metrics)
 
     def feedback(self, reward, metrics, day=None, step=None):
@@ -96,7 +129,17 @@ class MORLWeightOptimizer(WeightAdjustmentStrategy):
         self.pareto_front.add_solution(sol)
 
     def update_weights(self, metrics=None, reward=None, day=None, step=None):
-        """Update weights (compatibility)."""
+        """Update weights (compatibility).
+
+        Args:
+            metrics: Metrics dict with objective values.
+            reward: Observed reward.
+            day: Current day (optional).
+            step: Current step (optional).
+
+        Returns:
+            dict[str, float]: Proposed weights.
+        """
         if reward is not None and metrics is not None:
             self.feedback(reward, metrics, day, step)
         return self.propose_weights()

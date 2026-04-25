@@ -1,5 +1,12 @@
 """
 Action for daily bin filling.
+
+Attributes:
+    FillAction: Command to execute daily bin filling.
+
+Example:
+    >>> # action = FillAction()
+    >>> # action.execute(context)
 """
 
 from typing import Any, Dict
@@ -13,10 +20,18 @@ class FillAction(SimulationAction):
 
     Queries the bin management object to update fill levels based on
     either stochastic generation or empirical data from files.
+
+    Attributes:
+        None
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
-        """Execute daily bin filling."""
+        """
+        Execute daily bin filling.
+
+        Args:
+            context: Shared dictionary containing simulation state.
+        """
         bins = context["bins"]
         day = context["day"]
 

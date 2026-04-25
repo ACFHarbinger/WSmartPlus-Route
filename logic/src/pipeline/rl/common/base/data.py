@@ -1,5 +1,11 @@
 """
 Data logic for RL4COLitModule.
+
+Attributes:
+    DataMixin: Mixin for data loading logic.
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -21,7 +27,23 @@ logger = get_pylogger(__name__)
 
 
 class DataMixin:
-    """Mixin for data loading logic."""
+    """Mixin for data loading logic.
+
+    Attributes:
+        env: Environment for data generation.
+        policy: Policy for data generation.
+        train_data_size: Size of training data.
+        val_data_size: Size of validation data.
+        val_dataset_path: Path to validation dataset.
+        train_dataset_path: Path to training dataset.
+        batch_size: Batch size.
+        num_workers: Number of workers.
+        persistent_workers: Whether to use persistent workers.
+        pin_memory: Whether to pin memory.
+        local_rank: Local rank.
+        train_dataset: Training dataset.
+        val_dataset: Validation dataset.
+    """
 
     def __init__(self) -> None:
         """Initialize Class.

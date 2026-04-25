@@ -1,5 +1,11 @@
 """
 Main RL4COLitModule class assembling all mixins.
+
+Attributes:
+    RL4COLitModule: Base PyTorch Lightning module for RL training.
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -36,6 +42,8 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
 
     This module handles:
     - Metric logging
+    Attributes:
+        None
     """
 
     cfg: Optional[Config] = None
@@ -78,7 +86,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             batch_size: Batch size for training and validation.
             num_workers: Number of workers for data loading.
             mandatory_selector: Optional vectorized selector for mandatory bin selection.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         pl.LightningModule.__init__(self)
         DataMixin.__init__(self)

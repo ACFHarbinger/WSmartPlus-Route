@@ -1,5 +1,15 @@
 """
 Meta-Learning Strategy Registry.
+
+Attributes:
+    META_STRATEGY_REGISTRY (dict[str, type[WeightAdjustmentStrategy]]): Dictionary of meta-learning strategies.
+    get_meta_strategy (callable): Function to get meta-learning strategy by name.
+
+Example:
+    >>> from logic.src.pipeline.rl.meta import get_meta_strategy
+    >>> strategy = get_meta_strategy("bandit")
+    >>> strategy
+    <logic.src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit object at 0x...>
 """
 
 from typing import Dict, Type
@@ -22,7 +32,15 @@ META_STRATEGY_REGISTRY: Dict[str, Type[WeightAdjustmentStrategy]] = {
 
 
 def get_meta_strategy(name: str, **kwargs) -> WeightAdjustmentStrategy:
-    """Get meta-learning strategy by name."""
+    """Get meta-learning strategy by name.
+
+    Args:
+        name: Name of the meta-learning strategy to retrieve.
+        kwargs: Additional keyword arguments to pass to the strategy constructor.
+
+    Returns:
+        WeightAdjustmentStrategy: The meta-learning strategy.
+    """
     strategy_cls = META_STRATEGY_REGISTRY.get(name.lower())
     if strategy_cls is None:
         raise ValueError(f"Unknown meta strategy: {name}")

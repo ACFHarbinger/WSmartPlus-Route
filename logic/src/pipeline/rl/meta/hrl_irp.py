@@ -29,6 +29,15 @@ References
 Bello, I., Pham, H., Le, Q. V., Norouzi, M., & Bengio, S. (2016).
 "Neural combinatorial optimization with reinforcement learning."
 ICLR 2017 Workshop.
+
+Attributes:
+    HRLIRPModule: A multi-period IRP Lightning module extending HRLModule.
+
+Example:
+    >>> from logic.src.pipeline.rl.meta import HRLIRPModule
+    >>> hrl_irp_module = HRLIRPModule()
+    >>> hrl_irp_module
+    <logic.src.pipeline.rl.meta.hrl_irp.HRLIRPModule object at 0x...>
 """
 
 from __future__ import annotations
@@ -82,7 +91,7 @@ class HRLIRPModule(HRLModule):
             overflow_penalty: Per-unit overflow penalty.
             ppo_epochs: PPO inner epochs.
             entropy_coef: Entropy bonus coefficient.
-            **kwargs: Forwarded to ``HRLModule.__init__``.
+            kwargs: Forwarded to ``HRLModule.__init__``.
         """
         super().__init__(**kwargs)
         self.horizon = horizon

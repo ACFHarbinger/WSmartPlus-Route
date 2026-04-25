@@ -1,10 +1,16 @@
-"""initializing.py module.
+"""
+Simulation Initialization State.
+
+This module provides the InitializingState class, which handles the setup of
+data, models, and environments before the simulation loop begins.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    InitializingState: State responsible for simulation setup.
 
 Example:
-    >>> import initializing
+    >>> # from logic.src.pipeline.simulations.states.initializing import InitializingState
+    >>> # state = InitializingState()
+    >>> # state.handle(ctx)
 """
 
 from __future__ import annotations
@@ -44,10 +50,18 @@ if TYPE_CHECKING:
 
 
 class InitializingState(SimState):
-    """State handles the initialization of simulation data (graph, models, etc.)."""
+    """State handles the initialization of simulation data (graph, models, etc.).
+
+    Attributes:
+        None
+    """
 
     def handle(self, ctx: SimulationContext) -> None:
-        """Handle initialization of simulation state."""
+        """Handle initialization of simulation state.
+
+        Args:
+            ctx: The simulation context object.
+        """
         # Seeding for reproducibility (covers both sequential and parallel runs)
         seed = ctx.cfg.sim.seed
         random.seed(seed)
@@ -82,6 +96,12 @@ class InitializingState(SimState):
         ctx.transition_to(RunningState())
 
     def _setup_logging_and_dirs(self, ctx: SimulationContext) -> None:
+        """
+
+        Args:
+            ctx: The simulation context object.
+        """
+
         def _safe_get(obj: Any, path: str, default: Any = None) -> Any:
             try:
                 for part in path.split("."):
@@ -114,6 +134,11 @@ class InitializingState(SimState):
             logger.info(f"Results directory already exists: {ctx.results_dir}")
 
     def _load_all_configurations(self, ctx: SimulationContext) -> None:
+        """
+
+        Args:
+            ctx: The simulation context object.
+        """
         ctx.config = {}
 
         def _safe_get(obj: Any, path: str, default: Any = None) -> Any:
@@ -139,6 +164,11 @@ class InitializingState(SimState):
 
     def _load_neural_configs(self, ctx: SimulationContext) -> None:
         # Priority 1: policy_cfg (new structured format)
+        """
+
+        Args:
+            ctx: The simulation context object.
+        """
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
@@ -169,11 +199,24 @@ class InitializingState(SimState):
                 print(f"\n[WARNING] Failed to load neural config {neural_cfg_path}: {e}")
 
     def _setup_capacities(self, ctx: SimulationContext) -> None:
+        """
+
+        Args:
+            ctx: The simulation context object.
+        """
         sim = ctx.cfg.sim
         capacities, _, _, _, _ = load_area_and_waste_type_params(sim.graph.area, sim.graph.waste_type)
         ctx.vehicle_capacity = capacities
 
     def _load_checkpoint_if_needed(self, ctx: SimulationContext) -> Tuple[Optional[Any], int]:
+        """
+
+        Args:
+            ctx: The simulation context object.
+
+        Returns:
+            Tuple of (saved_state, last_day_indexed).
+        """
         saved_state, last_day = (None, 0)
         if ctx.cfg.sim.resume and ctx.checkpoint is not None:
             saved_state, last_day = ctx.checkpoint.load_state()
@@ -182,6 +225,11 @@ class InitializingState(SimState):
         return saved_state, last_day
 
     def _setup_models(self, ctx: SimulationContext) -> None:
+        """
+
+        Args:
+            ctx: The simulation context object.
+        """
         # If policy config was not correctly loaded in __init__ (common when passing paths in config_path)
         # we re-link it here from the correctly loaded context config registry.
         if not ctx.pol_cfg and ctx.pol_name in ctx.config:
@@ -257,6 +305,12 @@ class InitializingState(SimState):
             self.configs = None  # type: ignore[assignment]
 
     def _restore_state(self, ctx: SimulationContext, saved_state: Any, last_day: int) -> None:
+        """
+        Args:
+            ctx: The simulation context object.
+            saved_state: The state object loaded from the checkpoint.
+            last_day: The index of the last completed day.
+        """
         (
             ctx.new_data,
             ctx.coords,
@@ -273,6 +327,13 @@ class InitializingState(SimState):
         ctx.start_day = last_day + 1
 
     def _initialize_new_state(self, ctx: SimulationContext, data: Any, bins_coordinates: Any, depot: Any) -> None:
+        """
+        Args:
+            ctx: The simulation context object.
+            data: Raw graph/bin data.
+            bins_coordinates: DataFrame of bin coordinates.
+            depot: Depot location information.
+        """
         sim = ctx.cfg.sim
 
         ctx.new_data, ctx.coords = process_data(data, bins_coordinates, depot, ctx.indices)
@@ -330,6 +391,11 @@ class InitializingState(SimState):
         ctx.daily_log = {key: [] for key in DAY_METRICS}
 
     def _initialize_bins(self, ctx: SimulationContext) -> None:
+        """
+
+        Args:
+            ctx: The simulation context object.
+        """
         sim = ctx.cfg.sim
         data_dist = sim.data_distribution
         if "gamma" in data_dist:

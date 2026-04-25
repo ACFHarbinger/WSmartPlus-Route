@@ -3,6 +3,19 @@ GDPO: Group reward-Decoupled Normalization Policy Optimization.
 
 This module implements the GDPO algorithm which normalizes reward components
 independently before aggregation to prevent reward collapse in multi-objective RL.
+
+Attributes:
+    GDPO: GDPO algorithm implementation.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import GDPO
+    >>> from logic.src.envs import GDPOEnv
+    >>> from logic.src.models import GDPOPPOAgent
+    >>> env = GDPOEnv()
+    >>> agent = GDPOPPOAgent(env)
+    >>> gdpo = GDPO(env, agent)
+    >>> gdpo
+    GDPO(env=<GDPOEnv>, policy=<GDPOPPOAgent>, baseline='rollout', baseline_kwargs={'val_dataset': 'val', 'update_every': 10, 'use_rollouts': True}, actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
 """
 
 from typing import TYPE_CHECKING, List, Optional
@@ -22,6 +35,13 @@ class GDPO(REINFORCE):
 
     Each objective channel is normalized independently (Z-scored) across the group/batch
     before being aggregated into the final advantage signal.
+
+    Attributes:
+        objective_keys: List of reward keys to normalize and aggregate.
+        objective_weights: Optional weights for each objective.
+        conditional_key: Optional key for conditional masking.
+        renormalize_aggregated: Whether to re-normalize the aggregated advantage.
+        weights_tensor: Tensor buffer for objective weights.
     """
 
     weights_tensor: torch.Tensor
@@ -44,7 +64,7 @@ class GDPO(REINFORCE):
             gdpo_conditional_key: Optional key for conditional gating (e.g., "feasibility").
                                   If provided, rewards are only optimized if this condition is met (value=1).
             gdpo_renormalize: Whether to re-normalize the final aggregated advantage.
-            **kwargs: Standard REINFORCE arguments.
+            kwargs: Standard REINFORCE arguments.
         """
         super().__init__(**kwargs)
         self.objective_keys = gdpo_objective_keys
@@ -71,6 +91,15 @@ class GDPO(REINFORCE):
     ) -> torch.Tensor:
         """
         Compute GDPO loss using decoupled normalization.
+
+        Args:
+            td: TensorDict containing the batch data.
+            out: Dictionary containing the output of the policy, including 'log_likelihood' and raw rewards.
+            batch_idx: Index of the current batch.
+            env: Optional environment instance.
+
+        Returns:
+            GDPO loss.
         """
         log_likelihood = out["log_likelihood"]
 

@@ -1,10 +1,16 @@
-"""context.py module.
+"""
+Simulation State Machine Context.
+
+This module provides the SimulationContext class, which manages the lifecycle
+of a single simulation run through its various states (Initializing, Running, Finishing).
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    SimulationContext: The main context object for simulation state management.
 
 Example:
-    >>> import context
+    >>> from logic.src.pipeline.simulations.states.base.context import SimulationContext
+    >>> # context = SimulationContext(cfg, device, indices, sample_id, pol_id, weights, vars)
+    >>> # result = context.run()
 """
 
 from __future__ import annotations
@@ -31,12 +37,28 @@ if TYPE_CHECKING:
 
 
 class SimulationContext:
-    """
-    Context object for the Simulation State Machine.
+    """Context for simulation state machine.
 
-    Stores the simulation configuration and runtime state. All simulation
-    states access configuration via ``self.cfg.sim.*`` (typed) instead of
-    the legacy ``self.args[...]`` dict pattern.
+    Attributes:
+        cfg: Root configuration object (Config or DictConfig).
+        device: Torch device for computations.
+        indices: Subset of bin indices for this simulation sample.
+        sample_id: Unique identifier for the simulation sample/seed.
+        pol_id: Index of the policy in the configuration's policy list.
+        model_weights_path: Path to pretrained neural model weights, if applicable.
+        lock: Optional threading.Lock for synchronized operations.
+        counter: Shared counter for progress tracking across samples.
+        overall_progress: Progress bar/updater object.
+        shared_metrics: Shared dictionary for real-time metric reporting.
+        exec_time: Total execution time of the simulation.
+        start_time: Start timestamp of the simulation run.
+        end_time: End timestamp of the simulation run.
+        pol_name: Extracted name of the policy.
+        pol_cfg: Policy-specific configuration dictionary.
+        current_state: The current SimState object.
+        result: Dictionary containing the final simulation results.
+        data_dir: Path to the simulator data directory.
+        results_dir: Path to the simulation results assets directory.
     """
 
     lock: Optional[threading.Lock]
@@ -53,7 +75,11 @@ class SimulationContext:
 
     @property
     def policy(self) -> str:
-        """Alias for pol_name for backward compatibility."""
+        """Alias for pol_name for backward compatibility.
+
+        Returns:
+            The extracted policy name.
+        """
         return self.pol_name
 
     def __init__(
@@ -69,13 +95,13 @@ class SimulationContext:
         """Initialize Class.
 
         Args:
-            cfg (Config): Typed Hydra configuration.
-            device (torch.device): Description of device.
-            indices (List[int]): Description of indices.
-            sample_id (int): Description of sample_id.
-            pol_id (int): Description of pol_id.
-            model_weights_path (Optional[str]): Description of model_weights_path.
-            variables_dict (Dict[str, Any]): Description of variables_dict.
+            cfg: Typed Hydra configuration or OmegaConf DictConfig.
+            device: Target torch device.
+            indices: List of bin indices for this sample.
+            sample_id: Sample/seed identifier.
+            pol_id: Policy index in cfg.sim.full_policies.
+            model_weights_path: Path to pretrained model weights.
+            variables_dict: Dictionary containing shared resources (lock, counter, etc.).
         """
         self.cfg = cfg
         self.device = device
@@ -136,8 +162,8 @@ class SimulationContext:
         """continue init.
 
         Args:
-            variables_dict (Dict[str, Any]): Description of variables_dict.
-            pol_id (int): Description of pol_id.
+            variables_dict: Dictionary containing shared resources.
+            pol_id: Policy index.
         """
         self.start_day: int = 1
         self.checkpoint: Optional[SimulationCheckpoint] = None
@@ -164,7 +190,7 @@ class SimulationContext:
         """Transition to.
 
         Args:
-            state (Optional[SimState]): Description of state.
+            state: The SimState object to transition to.
         """
         self.current_state = state
         if self.current_state is not None:
@@ -174,7 +200,7 @@ class SimulationContext:
         """Run.
 
         Returns:
-            Any: Description.
+            The final result dictionary from the simulation.
         """
         while self.current_state is not None:
             self.current_state.handle(self)
@@ -184,7 +210,7 @@ class SimulationContext:
         """Get current state tuple.
 
         Returns:
-            Any: Description.
+            A tuple of core simulation state components.
         """
         return (
             self.new_data,

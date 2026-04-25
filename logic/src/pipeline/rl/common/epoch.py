@@ -2,6 +2,29 @@
 Epoch-level utilities for RL training.
 Includes expanded dataset handling, validation metric computation,
 and time-based training (train_time) logic.
+
+Attributes:
+    prepare_epoch (function): Prepare dataset for a new epoch by handling baseline wrapping and temporal metadata injection.
+    regenerate_dataset (function): Regenerate training dataset using environment generator.
+    compute_validation_metrics (function): Compute rich validation metrics beyond simple reward.
+    _add_reward_metric (function): Add mean reward to metrics.
+    _add_costs_metrics (function): Add detailed cost breakdown from environment if available.
+    _add_efficiency_metric (function): Compute efficiency ratio (kg/km) from waste and distance.
+    _add_overflow_metrics (function): Add constraint violation counts (overflows) from environment if available.
+    _build_visited_mask (function): Build a boolean mask of visited nodes from accumulated epoch actions.
+    _get_next_day_waste (function): Determine the next day's waste from pre-generated data or on-the-fly generation.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.epoch import prepare_epoch, regenerate_dataset, compute_validation_metrics
+    >>>
+    >>> # Prepare dataset for a new epoch
+    >>> dataset = prepare_epoch(model, env, baseline, dataset, epoch)
+    >>>
+    >>> # Regenerate training dataset
+    >>> new_dataset = regenerate_dataset(env, size)
+    >>>
+    >>> # Compute validation metrics
+    >>> metrics = compute_validation_metrics(out, batch, env)
 """
 
 from typing import Any, Dict, List, Optional
@@ -28,6 +51,17 @@ def prepare_epoch(
     """
     Prepare dataset for a new epoch.
     Handles baseline wrapping and temporal metadata injection.
+
+    Args:
+        model: The PyTorch Lightning module instance.
+        env: The environment instance.
+        baseline: The baseline instance.
+        dataset: The dataset instance.
+        epoch: The current epoch number.
+        phase: The current phase (train, val, test).
+
+    Returns:
+        The prepared dataset for the current epoch.
     """
     # 1. Inject temporal metadata (current_day) for time-based training
     if hasattr(dataset, "data") and isinstance(dataset.data, TensorDict):
@@ -52,6 +86,13 @@ def regenerate_dataset(
 ) -> Optional[Dataset]:
     """
     Regenerate training dataset using environment generator.
+
+    Args:
+        env: The environment instance.
+        size: The number of samples to generate.
+
+    Returns:
+        The regenerated dataset.
     """
     if hasattr(env, "generator"):
         # Pre-generate for efficiency
@@ -66,6 +107,14 @@ def regenerate_dataset(
 def compute_validation_metrics(out: Dict, batch: TensorDict, env: Any) -> Dict[str, float]:
     """
     Compute rich validation metrics beyond simple reward.
+
+    Args:
+        out: The output from the model.
+        batch: The input batch.
+        env: The environment instance.
+
+    Returns:
+        Dictionary of computed validation metrics.
     """
     metrics: Dict[str, float] = {}
     _add_reward_metric(metrics, out)
@@ -76,13 +125,25 @@ def compute_validation_metrics(out: Dict, batch: TensorDict, env: Any) -> Dict[s
 
 
 def _add_reward_metric(metrics: Dict[str, float], out: Dict) -> None:
-    """Add mean reward to metrics."""
+    """Add mean reward to metrics.
+
+    Args:
+        metrics: The metrics dictionary to update.
+        out: The output from the model.
+    """
     if "reward" in out:
         metrics["val/reward"] = out["reward"].mean().item()
 
 
 def _add_costs_metrics(metrics: Dict[str, float], out: Dict, batch: TensorDict, env: Any) -> None:
-    """Add detailed cost breakdown from environment if available."""
+    """Add detailed cost breakdown from environment if available.
+
+    Args:
+        metrics: The metrics dictionary to update.
+        out: The output from the model.
+        batch: The input batch.
+        env: The environment instance.
+    """
     if hasattr(env, "get_costs") and "actions" in out:
         costs = env.get_costs(batch, out["actions"])
         for key, val in costs.items():
@@ -91,7 +152,11 @@ def _add_costs_metrics(metrics: Dict[str, float], out: Dict, batch: TensorDict, 
 
 
 def _add_efficiency_metric(metrics: Dict[str, float]) -> None:
-    """Compute efficiency ratio (kg/km) from waste and distance."""
+    """Compute efficiency ratio (kg/km) from waste and distance.
+
+    Args:
+        metrics: The metrics dictionary to update.
+    """
     if "val/efficiency" not in metrics and "val/waste" in metrics and "val/dist" in metrics:
         avg_waste = metrics["val/waste"]
         avg_dist = metrics["val/dist"]
@@ -100,7 +165,14 @@ def _add_efficiency_metric(metrics: Dict[str, float]) -> None:
 
 
 def _add_overflow_metrics(metrics: Dict[str, float], out: Dict, batch: TensorDict, env: Any) -> None:
-    """Add constraint violation counts (overflows) if available."""
+    """Add constraint violation counts (overflows) if available.
+
+    Args:
+        metrics: The metrics dictionary to update.
+        out: The output from the model.
+        batch: The input batch.
+        env: The environment instance.
+    """
     if hasattr(env, "get_num_overflows") and "actions" in out:
         overflows = env.get_num_overflows(batch, out["actions"])
         metrics["val/overflows"] = overflows.float().mean().item()
@@ -109,7 +181,17 @@ def _add_overflow_metrics(metrics: Dict[str, float], out: Dict, batch: TensorDic
 def _build_visited_mask(
     epoch_actions: List[torch.Tensor], batch_size: int, num_nodes: int, device: torch.device
 ) -> torch.Tensor:
-    """Build a boolean mask of visited nodes from accumulated epoch actions."""
+    """Build a boolean mask of visited nodes from accumulated epoch actions.
+
+    Args:
+        epoch_actions: List of action tensors from the epoch.
+        batch_size: The batch size.
+        num_nodes: The number of nodes.
+        device: The device to build the mask on.
+
+    Returns:
+        A boolean mask indicating which nodes were visited.
+    """
     visited_mask = torch.zeros((batch_size, num_nodes + 1), dtype=torch.bool, device=device)
     if not epoch_actions:
         return visited_mask
@@ -140,7 +222,21 @@ def _get_next_day_waste(
     key: str = "waste",
     generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
-    """Determine the next day's waste from pre-generated data or on-the-fly generation."""
+    """Determine the next day's waste from pre-generated data or on-the-fly generation.
+
+    Args:
+        td: The input TensorDict containing pre-generated sequences.
+        current_fill: The current fill levels of the trucks.
+        day: The current day.
+        env: The environment instance.
+        batch_size: The batch size.
+        device: The device.
+        key: Key for the waste data (default: "waste").
+        generator: Random number generator for on-the-fly generation.
+
+    Returns:
+        The waste levels for the next day.
+    """
     next_day_waste = torch.zeros_like(current_fill)
     if generator is None:
         generator = torch.Generator(device=device)

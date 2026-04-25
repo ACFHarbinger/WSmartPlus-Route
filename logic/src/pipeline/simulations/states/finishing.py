@@ -1,10 +1,16 @@
-"""finishing.py module.
+"""
+Simulation Finishing State.
+
+This module provides the FinishingState class, which handles the final
+aggregation and persistence of simulation results.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    FinishingState: State responsible for simulation cleanup and reporting.
 
 Example:
-    >>> import finishing
+    >>> # from logic.src.pipeline.simulations.states.finishing import FinishingState
+    >>> # state = FinishingState()
+    >>> # state.handle(ctx)
 """
 
 from __future__ import annotations
@@ -34,13 +40,19 @@ if TYPE_CHECKING:
 
 
 class FinishingState(SimState):
-    """State handles final result aggregation and persistence."""
+    """
+    State handles final result aggregation and persistence.
+
+    Attributes:
+        None
+    """
 
     def handle(self, ctx: SimulationContext) -> None:
-        """Handle.
+        """
+        Finalizes simulation, computes aggregate metrics, and saves logs.
 
         Args:
-            ctx (SimulationContext): Description of ctx.
+            ctx: The simulation context object.
         """
         sim = ctx.cfg.sim
         assert ctx.bins is not None
@@ -158,6 +170,12 @@ def _log_result_artifacts(ctx: Any, sim: Any, log_path: str, daily_log_path: str
     * ``result`` — primary JSON summary (per-sample full log or mean log)
     * ``result`` — per-day JSON log for this ``(policy, sample)`` pair
     * ``result`` — Excel fill-history matrix with metadata tag ``fill_history``
+
+    Args:
+        ctx: The simulation context object.
+        sim: Root configuration object.
+        log_path: Path to the main log file.
+        daily_log_path: Path to the daily log file.
     """
     with contextlib.suppress(Exception):
         run = get_active_run()

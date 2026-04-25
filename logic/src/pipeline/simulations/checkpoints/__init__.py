@@ -1,5 +1,10 @@
-"""
-Checkpointing system for long-running simulations.
+"""Checkpointing system for long-running simulations.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from pathlib import Path

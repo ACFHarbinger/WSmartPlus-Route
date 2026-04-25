@@ -1,5 +1,12 @@
 """
 Action for simulation logging.
+
+Attributes:
+    LogAction: Command to record daily simulation results.
+
+Example:
+    >>> # action = LogAction()
+    >>> # action.execute(context)
 """
 
 from typing import Any, Dict
@@ -13,10 +20,18 @@ from logic.src.tracking.logging.log_utils import send_daily_output_to_gui
 class LogAction(SimulationAction):
     """
     Records daily simulation metrics and outputs results.
+
+    Attributes:
+        None
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
-        """Log daily results and update GUI."""
+        """
+        Log daily results and update GUI.
+
+        Args:
+            context: Shared dictionary containing simulation state.
+        """
         tour = context["tour"]
         km = context["cost"]
         total_collected = context["total_collected"]

@@ -4,6 +4,20 @@ Differential Evolution Hyperband (DEHB) wrapper.
 Extends :class:`BaseHPO` to optimise hyperparameters via the DEHB algorithm,
 supporting float, int, and categorical parameter types through the shared
 typed search-space specification.
+
+Attributes:
+    DifferentialEvolutionHyperband: DEHB HPO algorithm.
+    CS: ConfigSpace library.
+    ParamSpec: Type alias for parameter specification.
+    BaseHPO: Abstract base class for HPO algorithms.
+    normalise_search_space: Normalise search space.
+    apply_params: Apply parameters to config.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband
+    >>> dehb_hpo = DifferentialEvolutionHyperband(cfg, objective_fn)
+    >>> dehb_hpo
+    <logic.src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband object at 0x...>
 """
 
 import time
@@ -28,6 +42,8 @@ class DifferentialEvolutionHyperband(BaseHPO):
     This wrapper builds a ``ConfigSpace.ConfigurationSpace`` from the typed
     search-space dict and delegates the optimisation loop to the upstream
     :class:`dehb.DEHB` solver.
+    Attributes:
+        None
     """
 
     def __init__(
@@ -54,7 +70,7 @@ class DifferentialEvolutionHyperband(BaseHPO):
             eta: Halving rate.
             n_workers: Number of workers.
             output_path: Path for logs and results.
-            **kwargs: Extra arguments forwarded to :class:`dehb.DEHB`.
+            kwargs: Extra arguments forwarded to :class:`dehb.DEHB`.
         """
         super().__init__(cfg, objective_fn, search_space)
 

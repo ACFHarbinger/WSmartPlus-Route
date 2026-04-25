@@ -1,6 +1,15 @@
 """
 Cost Weight Manager using Temporal Difference (TD) Learning.
 Robust implementation for adaptive multi-objective weight management.
+
+Attributes:
+    CostWeightManager: Manager for TD-based cost weight adjustment.
+
+Example:
+    >>> from logic.src.pipeline.rl.meta.td_learning import CostWeightManager
+    >>> cost_weight_manager = CostWeightManager()
+    >>> cost_weight_manager
+    <logic.src.pipeline.rl.meta.td_learning.CostWeightManager object at 0x...>
 """
 
 from __future__ import annotations
@@ -40,7 +49,18 @@ class CostWeightManager(WeightAdjustmentStrategy):
         seed: int = 42,
         **kwargs,
     ):
-        """Initialize TDLearningWeightOptimizer."""
+        """Initialize TDLearningWeightOptimizer.
+
+        Args:
+            initial_weights: Initial cost weights.
+            learning_rate: Learning rate for TD updates.
+            gamma: Discount factor for TD updates.
+            epsilon: Exploration rate for epsilon-greedy policy.
+            n_bins: Number of bins for discretizing weights.
+            weight_bounds: Bounds for cost weights.
+            seed: Random seed for reproducibility.
+            kwargs: Additional keyword arguments.
+        """
         super().__init__()
         # Handle positional arguments from old API
         if isinstance(initial_weights, float):
@@ -98,13 +118,23 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.rng = random.Random(seed)
 
     def get_current_weights(self) -> Dict[str, float]:
-        """Return the current continuous weights."""
+        """Return the current continuous weights.
+
+        Returns:
+            dict[str, float]: Current cost weights.
+        """
         return self.weights.copy()
 
     def propose_weights(self, context=None) -> Dict[str, float]:
         """
         Propose weights for the next epoch.
         This is where the 'Action' is taken (changing weights).
+
+        Args:
+            context: Context information for weight proposal.
+
+        Returns:
+            dict[str, float]: Proposed cost weights for the next epoch.
         """
         # Current state
         self._discretize(self.weights)
@@ -155,6 +185,12 @@ class CostWeightManager(WeightAdjustmentStrategy):
         Update V(s) based on the observed reward signal.
 
         V(s_t) <- V(s_t) + alpha * [R_{t+1} + gamma * V(s_{t+1}) - V(s_t)]
+
+        Args:
+            reward: Reward received from the environment.
+            metrics: Metrics from the environment.
+            day: Day of the week.
+            step: Step within the day.
         """
         if self.expected_reward is None:
             self.expected_reward = reward
@@ -183,8 +219,16 @@ class CostWeightManager(WeightAdjustmentStrategy):
         # Decrease epsilon over time
         self.epsilon *= 0.995
 
-    def update_weights(self, reward, cost_components=None):
-        """Update weights (compatibility)."""
+    def update_weights(self, reward: float, cost_components: Optional[Dict[str, float]] = None) -> Dict[str, float]:
+        """Update weights (compatibility).
+
+        Args:
+            reward: Reward received from the environment.
+            cost_components: Cost components from the environment.
+
+        Returns:
+            dict[str, float]: Updated cost weights.
+        """
         self.feedback(reward, metrics=None)
 
         # Test expected Weight INCREASE/DECREASE logic
@@ -217,6 +261,12 @@ class CostWeightManager(WeightAdjustmentStrategy):
         """
         Convert continuous weights to a discrete tuple key.
         Sorts keys to ensure consistent ordering.
+
+        Args:
+            weights: Weights to discretize.
+
+        Returns:
+            Tuple of ints representing discretized weights.
         """
         keys = sorted(weights.keys())
         indices = []
@@ -231,16 +281,29 @@ class CostWeightManager(WeightAdjustmentStrategy):
         return tuple(indices)
 
     def _apply_change(self, key: str, delta: float):
-        """Apply additive change to weight with clipping."""
+        """Apply additive change to weight with clipping.
+
+        Args:
+            key: Name of the weight to update.
+            delta: Change to apply to the weight.
+        """
         low, high = self.weight_bounds[key]
         self.weights[key] = max(low, min(high, self.weights[key] + delta))
 
-    def state_dict(self):
-        """Get state dictionary."""
+    def state_dict(self) -> Dict[str, Any]:
+        """Get state dictionary.
+
+        Returns:
+            dict[str, Any]: State dictionary.
+        """
         return {"values": self.values, "weights": self.weights, "epsilon": self.epsilon}
 
-    def load_state_dict(self, state_dict):
-        """Load state dictionary."""
+    def load_state_dict(self, state_dict: Dict[str, Any]):
+        """Load state dictionary.
+
+        Args:
+            state_dict: State dictionary to load.
+        """
         self.values = state_dict["values"]
         self.weights = state_dict["weights"]
         self.epsilon = state_dict.get("epsilon", self.epsilon)

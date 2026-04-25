@@ -1,5 +1,14 @@
 """
 Contextual Bandit Approach for Weight Configuration Selection.
+
+Attributes:
+    WeightContextualBandit: A contextual bandit approach for dynamically selecting weight configurations.
+
+Example:
+    >>> from logic.src.pipeline.rl.meta import WeightContextualBandit
+    >>> weight_contextual_bandit = WeightContextualBandit()
+    >>> weight_contextual_bandit
+    <logic.src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit object at 0x...>
 """
 
 import math
@@ -16,6 +25,30 @@ from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 class WeightContextualBandit(WeightAdjustmentStrategy):
     """
     A contextual bandit approach for dynamically selecting weight configurations.
+
+    Attributes:
+        seed: Seed for random number generator.
+        rng: Random number generator.
+        np_rng: Numpy random number generator.
+        num_days: Number of days.
+        weight_ranges: Ranges of weights.
+        weight_configs: Weight configurations.
+        num_configs: Number of configurations.
+        context_features: Features of contexts.
+        features_aggregation: Aggregation method of features.
+        exploration_strategy: Exploration strategy.
+        exploration_factor: Exploration factor.
+        alpha: Alpha values for Thompson sampling.
+        beta: Beta values for Thompson sampling.
+        trials: Number of trials.
+        total_trials: Total number of trials.
+        rewards: Rewards for each configuration.
+        window_size: Window size for reward tracking.
+        current_config_idx: Index of current configuration.
+        current_config: Current configuration.
+        contexts: Contexts.
+        context_rewards: Rewards for each context.
+        history: History of configurations.
     """
 
     def __init__(
@@ -46,7 +79,7 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
             weight_ranges: Dict mapping weight names to (min, max) ranges.
             window_size: Sliding window size for reward tracking.
             seed: Random seed for reproducibility.
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         self.seed = seed
         self.rng = random.Random(seed)
@@ -82,7 +115,14 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         self.history: List[Dict[str, Any]] = []
 
     def _get_context_features(self, dataset):
-        """Extract context features from dataset (compatibility)."""
+        """Extract context features from dataset (compatibility).
+
+        Args:
+            dataset: The dataset to extract features from.
+
+        Returns:
+            Dict[str, float]: Dictionary of context features.
+        """
         data = dataset.data if hasattr(dataset, "data") else dataset
         waste_levels = torch.stack([inst["waste"] for inst in data])
         max_waste = torch.stack([inst["max_waste"] for inst in data])
@@ -96,11 +136,24 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
         return context
 
     def set_max_feature_values(self, max_vals):
-        """Set max feature values (compatibility)."""
+        """Set max feature values (compatibility).
+
+        Args:
+            max_vals: Dictionary of max feature values.
+        """
         pass
 
     def update(self, reward, metrics, context=None):
-        """Update bandit (compatibility)."""
+        """Update bandit (compatibility).
+
+        Args:
+            reward: Reward to update bandit with.
+            metrics: Metrics to update bandit with.
+            context: Context to update bandit with.
+
+        Returns:
+            Dict[str, float]: Description of return value.
+        """
         if context:
             self.contexts.append(context)
         self.feedback(reward, metrics)
@@ -170,6 +223,9 @@ class WeightContextualBandit(WeightAdjustmentStrategy):
     def get_current_weights(self, dataset=None) -> Dict[str, float]:
         """
         Get current weight configuration.
+
+        Args:
+            dataset: Optional dataset to extract features from.
 
         Returns:
             Dict[str, float]: Current weights.

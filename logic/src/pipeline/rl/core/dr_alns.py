@@ -1,14 +1,18 @@
 """
-DR-ALNS (Deep Reinforcement Learning - Adaptive Large Neighborhood Search)
-PyTorch Lightning Module.
+DR-ALNS (Deep Reinforcement Learning - Adaptive Large Neighborhood Search).
 
-Integrates DR-ALNS with the existing RL training pipeline using Gymnasium
-environments and PPO training.
+This module provides the DRALNSLitModule, which integrates the DR-ALNS
+framework with PyTorch Lightning for training neural neighborhood search
+controllers.
 
-Reference:
-    Reijnen, R., Zhang, Y., Lau, H. C., & Bukhsh, Z.
-    "Online Control of Adaptive Large Neighborhood Search Using Deep
-    Reinforcement Learning", AAAI 2024.
+Attributes:
+    DRALNSLitModule: Lightning module for DR-ALNS training.
+
+Example:
+    >>> # env = DRALNSEnv()
+    >>> # agent = DRALNSPPOAgent(env)
+    >>> # model = DRALNSLitModule(env, agent)
+    >>> # trainer.fit(model)
 """
 
 from __future__ import annotations
@@ -37,6 +41,21 @@ class DRALNSLitModule(pl.LightningModule):
 
     This module wraps the DR-ALNS PPO agent and Gymnasium environment
     into the Lightning training framework.
+
+    Attributes:
+        env: The DR-ALNS Gymnasium environment.
+        agent: The PPO agent network controlling ALNS operators.
+        instance_generator: Optional generator for problem instances.
+        lr: Optimizer learning rate.
+        gamma: Discount factor for rewards.
+        gae_lambda: Lambda factor for Generalized Advantage Estimation.
+        clip_epsilon: PPO clipping parameter.
+        value_loss_coef: Scaling factor for the value function loss.
+        entropy_coef: Scaling factor for the entropy bonus.
+        max_grad_norm: Gradient clipping threshold.
+        n_epochs: Number of PPO updates per experience batch.
+        n_steps_per_epoch: Steps to collect from environment per training epoch.
+        batch_size: Minibatch size for neural network updates.
     """
 
     def __init__(
@@ -59,6 +78,8 @@ class DRALNSLitModule(pl.LightningModule):
         """
         Initialize DR-ALNS Lightning module.
 
+
+
         Args:
             env: DR-ALNS Gymnasium environment.
             agent: PPO agent network.
@@ -73,6 +94,7 @@ class DRALNSLitModule(pl.LightningModule):
             n_steps_per_epoch: Steps to collect per training epoch.
             batch_size: Minibatch size for updates.
             instance_generator: Function to generate problem instances.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.save_hyperparameters(ignore=["env", "agent", "instance_generator"])
@@ -114,11 +136,11 @@ class DRALNSLitModule(pl.LightningModule):
         Instead, we collect experience by running the environment.
 
         Args:
-            batch: Unused (required by Lightning interface).
-            batch_idx: Batch index (unused).
+            batch: Unused batch object (required by Lightning).
+            batch_idx: Batch sequence index.
 
         Returns:
-            Total loss tensor.
+            Aggregated loss tensor for the current epoch.
         """
         # Collect experience
         self.collect_experience(self.n_steps_per_epoch)
@@ -270,7 +292,7 @@ class DRALNSLitModule(pl.LightningModule):
         Process the experience buffer to compute advantages and returns.
 
         Returns:
-            Tuple of (states, actions, log_probs, advantages, returns).
+            Tuple containing (states, actions, log_probs, advantages, returns).
         """
         # Stack experiences
         states = torch.stack(self.buffer_states).to(self.device)
@@ -334,7 +356,11 @@ class DRALNSLitModule(pl.LightningModule):
 
         return states, actions, log_probs, advantages, returns
 
-    def configure_optimizers(self):
-        """Configure optimizer for Lightning."""
+    def configure_optimizers(self) -> torch.optim.Optimizer:
+        """Configure optimizer for Lightning.
+
+        Returns:
+            PyTorch Adam optimizer instance.
+        """
         optimizer = Adam(self.agent.parameters(), lr=self.lr)
         return optimizer

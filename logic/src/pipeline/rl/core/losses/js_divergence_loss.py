@@ -1,4 +1,13 @@
-"""Jensen-Shannon Divergence loss for policy distillation."""
+"""Jensen-Shannon Divergence loss for policy distillation.
+
+Attributes:
+    js_divergence_loss: JS divergence loss function.
+
+Example:
+    >>> from logic.src.pipeline.rl.core.losses import js_divergence_loss
+    >>> js_divergence_loss
+    <function js_divergence_loss at 0x...>
+"""
 
 from __future__ import annotations
 

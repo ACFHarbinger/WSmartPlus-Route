@@ -5,6 +5,19 @@ Reference:
     Gao, C., Zheng, C., et al. (2025). Soft Adaptive Policy Optimization.
     arXiv preprint arXiv:2511.20347.
     https://arxiv.org/abs/2511.20347
+
+Attributes:
+    SAPO: Soft Adaptive Policy Optimization.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import SAPO
+    >>> from logic.src.envs import COEnv
+    >>> from logic.src.models import COPolicy
+    >>> env = COEnv()
+    >>> agent = COPolicy(env)
+    >>> sapo = SAPO(env, agent)
+    >>> sapo
+    SAPO(env=<COEnv>, policy=<COPolicy>, baseline='rollout', actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True, tau_pos=0.1, tau_neg=1.0)
 """
 
 from __future__ import annotations
@@ -26,6 +39,10 @@ class SAPO(PPO):
     Reference:
         Gao, C., Zheng, C., et al. (2025). Soft Adaptive Policy Optimization.
         arXiv:2511.20347. https://arxiv.org/abs/2511.20347
+
+    Attributes:
+        tau_pos: Positive advantage clipping coefficient.
+        tau_neg: Negative advantage clipping coefficient.
     """
 
     def __init__(
@@ -38,9 +55,9 @@ class SAPO(PPO):
         Initialize SAPO module.
 
         Args:
-            tau_pos: Temperature for positive advantages (aggressive updates).
-            tau_neg: Temperature for negative advantages (conservative updates).
-            **kwargs: Arguments passed to PPO.
+            tau_pos: Positive advantage clipping coefficient (default: 0.1).
+            tau_neg: Negative advantage clipping coefficient (default: 1.0).
+            kwargs: Additional arguments to pass to the parent class (PPO).
         """
         super().__init__(**kwargs)
         self.save_hyperparameters(ignore=["critic", "env", "policy", "kwargs", "generator"])
@@ -50,6 +67,13 @@ class SAPO(PPO):
     def calculate_actor_loss(self, ratio: torch.Tensor, advantage: torch.Tensor) -> torch.Tensor:
         """
         SAPO soft-gated objective.
+
+        Args:
+            ratio: Importance ratios.
+            advantage: Estimated advantages.
+
+        Returns:
+            The SAPO loss.
         """
         # Adaptive tau selection based on advantage sign
         tau = torch.where(advantage > 0, self.tau_pos, self.tau_neg)

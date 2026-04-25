@@ -1,5 +1,17 @@
 """
 Statistical prediction and scenario generation for waste bins.
+
+This module provides tools for predicting future bin fill levels and
+generating scenario trees for stochastic optimization.
+
+Attributes:
+    ScenarioTreeNode: Node in a scenario tree.
+    ScenarioTree: Tree structure of nodes.
+    ScenarioGenerator: Factory for creating scenario trees.
+
+Example:
+    >>> # generator = ScenarioGenerator(method="stochastic", horizon=7)
+    >>> # tree = generator.generate(current_wastes, bin_stats)
 """
 
 from dataclasses import dataclass, field
@@ -11,7 +23,15 @@ from scipy.stats import gamma  # pyrefly: ignore[missing-module-attribute]
 
 @dataclass
 class ScenarioTreeNode:
-    """A node in the scenario tree representing a state at a specific day."""
+    """A node in the scenario tree representing a state at a specific day.
+
+    Attributes:
+        day: Current day index in the horizon.
+        wastes: Numpy array of bin fill levels.
+        probability: Probability of this state occurring.
+        children: List of child nodes representing future states.
+        metadata: Additional diagnostic information.
+    """
 
     day: int
     wastes: np.ndarray  # Bin fill levels [0-100]
@@ -22,14 +42,27 @@ class ScenarioTreeNode:
 
 @dataclass
 class ScenarioTree:
-    """A collection of scenarios forming a tree structure."""
+    """A collection of scenarios forming a tree structure.
+
+    Attributes:
+        root: The starting state of the tree.
+        horizon: Prediction horizon in days.
+        num_bins: Number of bins in each state vector.
+    """
 
     root: ScenarioTreeNode
     horizon: int
     num_bins: int
 
     def get_scenarios_at_day(self, day: int) -> List[ScenarioTreeNode]:
-        """Flatten the tree at a specific depth to get a set of scenarios."""
+        """Flatten the tree at a specific depth to get a set of scenarios.
+
+        Args:
+            day: Depth in the tree to retrieve nodes from.
+
+        Returns:
+            List of ScenarioTreeNode objects at the specified depth.
+        """
         result = []
 
         def traverse(node: ScenarioTreeNode):
@@ -52,6 +85,13 @@ class ScenarioTree:
 class ScenarioGenerator:
     """
     Generates scenario trees for multi-period stochastic optimization.
+
+    Attributes:
+        method: The generation method (e.g., "stochastic", "perfect_oracle").
+        horizon: Simulation horizon.
+        seed: Random seed for stochastic generation.
+        distribution: Statistical distribution to use.
+        dist_kwargs: Parameters for the distribution.
     """
 
     def __init__(
@@ -125,7 +165,12 @@ class ScenarioGenerator:
         return ScenarioTree(root=root, horizon=self.horizon, num_bins=len(current_wastes))
 
     def _generate_oracle_path(self, root: ScenarioTreeNode, truth_generator: Any) -> None:
-        """Generate a single deterministic path using known future values."""
+        """Generate a single deterministic path using known future values.
+
+        Args:
+            root: Root node to build upon.
+            truth_generator: Object providing future ground truth values.
+        """
         current = root
         for t in range(1, self.horizon + 1):
             future_wastes = truth_generator.get_future_wastes(t)
@@ -134,7 +179,12 @@ class ScenarioGenerator:
             current = child
 
     def _generate_stochastic_tree(self, root: ScenarioTreeNode, bin_stats: Optional[Dict[str, np.ndarray]]) -> None:
-        """Generate branches based on statistical distributions."""
+        """Generate branches based on statistical distributions.
+
+        Args:
+            root: Root node to build upon.
+            bin_stats: Dictionary containing 'means' and 'stds' of fill rates.
+        """
         if bin_stats is None:
             # Fallback: static levels
             current = root

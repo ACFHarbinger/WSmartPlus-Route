@@ -1,5 +1,15 @@
 """
 RL Baselines sub-package.
+
+Attributes:
+    BASELINE_REGISTRY: Dictionary of baseline types.
+    get_baseline: Function to get baseline by name.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.baselines import get_baseline
+    >>> baseline = get_baseline("mean")
+    >>> baseline.eval()
+    tensor(0.0)
 """
 
 from __future__ import annotations
@@ -32,7 +42,16 @@ BASELINE_REGISTRY = {
 
 
 def get_baseline(name: str, policy: Optional[nn.Module] = None, **kwargs) -> Baseline:
-    """Get baseline by name."""
+    """Get baseline by name.
+
+    Args:
+        name: Name of the baseline.
+        policy: Policy for the baseline.
+        kwargs: Keyword arguments for the baseline.
+
+    Returns:
+        Baseline instance.
+    """
     if name not in BASELINE_REGISTRY:
         raise ValueError(f"Unknown baseline: {name}")
 

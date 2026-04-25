@@ -1,5 +1,11 @@
 """
 Optimization logic for RL4COLitModule.
+
+Attributes:
+    OptimizationMixin: Mixin for optimizer and scheduler configuration.
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -10,7 +16,15 @@ import torch
 
 
 class OptimizationMixin:
-    """Mixin for optimizer and scheduler configuration."""
+    """Mixin for optimizer and scheduler configuration.
+
+    Attributes:
+        policy: Policy for optimization.
+        optimizer_name: Name of the optimizer.
+        optimizer_kwargs: Keyword arguments for the optimizer.
+        lr_scheduler_name: Name of the learning rate scheduler.
+        lr_scheduler_kwargs: Keyword arguments for the scheduler.
+    """
 
     def __init__(self) -> None:
         """Initialize Class.
@@ -26,7 +40,11 @@ class OptimizationMixin:
         self.lr_scheduler_kwargs: dict
 
     def configure_optimizers(self) -> Any:
-        """Configure optimizer and optional scheduler."""
+        """Configure optimizer and optional scheduler.
+
+        Returns:
+            Optimizer or dict with optimizer and scheduler.
+        """
         optimizer: Any = None
         # Get optimizer
         if self.optimizer_name.lower() == "adam":

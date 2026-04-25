@@ -1,5 +1,14 @@
 """
 Exponential moving average baseline.
+
+Attributes:
+    ExponentialBaseline: Exponential moving average baseline.
+
+Example:
+    >>> from logic.src.pipeline.rl.common.baselines import ExponentialBaseline
+    >>> baseline = ExponentialBaseline()
+    >>> baseline.eval()
+    tensor(0.0)
 """
 
 from __future__ import annotations
@@ -15,6 +24,10 @@ from .base import Baseline
 class ExponentialBaseline(Baseline):
     """
     Moving average (exponential) baseline.
+
+    Attributes:
+        beta: Decay rate of the exponential moving average.
+        running_mean: Running mean of the rewards.
     """
 
     def __init__(self, beta: float = 0.8, exp_beta: Optional[float] = None, **kwargs):
@@ -24,7 +37,7 @@ class ExponentialBaseline(Baseline):
         Args:
             beta: Decay factor for exponential moving average.
             exp_beta: Alternative name for beta (matching RLConfig).
-            **kwargs: Additional arguments.
+            kwargs: Additional arguments.
         """
         super().__init__()
         self.beta = exp_beta if exp_beta is not None else beta

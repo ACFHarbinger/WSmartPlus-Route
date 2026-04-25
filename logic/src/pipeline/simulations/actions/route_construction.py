@@ -1,5 +1,15 @@
 """
 Action for routing policy execution.
+
+This module provides the RouteConstructionAction class, which invokes
+routing algorithms (HGS, ALNS, AM, etc.) to construct collection tours.
+
+Attributes:
+    RouteConstructionAction: Command for tour construction.
+
+Example:
+    >>> # action = RouteConstructionAction()
+    >>> # action.execute(context)
 """
 
 import random
@@ -18,10 +28,18 @@ from .base import SimulationAction, _flatten_config
 class RouteConstructionAction(SimulationAction):
     """
     Executes the routing policy to generate collection tours.
+
+    Attributes:
+        None
     """
 
     def execute(self, context: Dict[str, Any]) -> None:  # noqa: C901
-        """Execute the selected routing policy."""
+        """
+        Execute the selected routing policy.
+
+        Args:
+            context: Shared dictionary containing simulation state.
+        """
         # Ensure all adapters are imported so the registry is fully populated
         RouteConstructorFactory.ensure_registered()
 

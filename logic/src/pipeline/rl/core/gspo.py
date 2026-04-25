@@ -5,6 +5,19 @@ Reference:
     Zheng, C., Liu, S., Li, M., et al. (2025). Group Sequence Policy Optimization.
     arXiv preprint arXiv:2507.18071.
     https://arxiv.org/abs/2507.18071
+
+Attributes:
+    GSPO: GSPO algorithm implementation.
+
+Example:
+    >>> from logic.src.pipeline.rl.core import GSPO
+    >>> from logic.src.envs import GSPOEnv
+    >>> from logic.src.models import GSPOPPOAgent
+    >>> env = GSPOEnv()
+    >>> agent = GSPOPPOAgent(env)
+    >>> gspo = GSPO(env, agent)
+    >>> gspo
+    GSPO(env=<GSPOEnv>, policy=<GSPOPPOAgent>, baseline='rollout', baseline_kwargs={'val_dataset': 'val', 'update_every': 10, 'use_rollouts': True}, actor_optimizer='adam', actor_lr=0.0001, critic_optimizer='adam', critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)
 """
 
 from __future__ import annotations
@@ -37,6 +50,9 @@ class GSPO(PPO):
     Reference:
         Zheng, C., Liu, S., Li, M., et al. (2025). Group Sequence Policy Optimization.
         arXiv:2507.18071. https://arxiv.org/abs/2507.18071
+
+    Attributes:
+        use_sequence_normalization: Whether to use sequence-level importance ratio.
     """
 
     def __init__(
@@ -49,7 +65,7 @@ class GSPO(PPO):
 
         Args:
             use_sequence_normalization: If True, normalize importance ratio by sequence length.
-            **kwargs: Arguments passed to PPO.
+            kwargs: Arguments passed to PPO.
         """
         super().__init__(**kwargs)
         self.save_hyperparameters(ignore=["critic", "env", "policy", "kwargs", "generator"])
@@ -286,5 +302,14 @@ class GSPO(PPO):
         """
         Dummy implementation to satisfy abstract requirement.
         GSPO uses manual optimization in training_step.
+
+        Args:
+            td: TensorDict containing the batch data.
+            out: Dictionary containing the output of the policy.
+            batch_idx: Index of the current batch.
+            env: Optional environment instance.
+
+        Returns:
+            0.0 (dummy value)
         """
         return torch.tensor(0.0, device=td.device)

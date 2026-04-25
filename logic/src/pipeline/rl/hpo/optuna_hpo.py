@@ -1,5 +1,14 @@
 """
 Optuna HPO Integration.
+
+Attributes:
+    OptunaHPO: Optuna HPO class.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import OptunaHPO
+    >>> optuna_hpo = OptunaHPO(cfg, objective_fn)
+    >>> optuna_hpo
+    <logic.src.pipeline.rl.hpo.optuna_hpo.OptunaHPO object at 0x...>
 """
 
 from typing import Any, Callable, Dict, Optional
@@ -26,6 +35,14 @@ class OptunaHPO(BaseHPO):
       - float (with optional log scale and step)
       - int   (with optional step and log scale)
       - categorical (list of choices)
+
+    Attributes:
+        search_space: Search space.
+        embed_dim: Embedding dimension.
+        device: Device.
+        encoders: Encoding layers.
+        param_names: Parameter names.
+        choice_to_idx_maps: Choice to index maps.
     """
 
     def __init__(

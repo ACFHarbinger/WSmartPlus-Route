@@ -11,6 +11,16 @@ three-step ZenML pipeline:
 The pipeline is invoked from
 :func:`~logic.src.pipeline.features.train.hpo._run_hpo_via_zenml`
 when ``cfg.tracking.zenml_enabled`` is ``True``.
+
+Attributes:
+    ZenMLHPO: ZenML HPO pipeline class.
+    _ZENML_AVAILABLE: Whether ZenML is available.
+
+Example:
+    >>> from logic.src.pipeline.rl.hpo import ZenMLHPO
+    >>> zenml_hpo = ZenMLHPO(cfg)
+    >>> zenml_hpo
+    <logic.src.pipeline.rl.hpo.zenml_hpo.ZenMLHPO object at 0x...>
 """
 
 from __future__ import annotations
@@ -44,7 +54,14 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def prepare_hpo_config(config_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Pass-through: makes the serialised config a ZenML artifact."""
+        """Pass-through: makes the serialised config a ZenML artifact.
+
+        Args:
+            config_dict: Configuration dictionary.
+
+        Returns:
+            Configuration dictionary.
+        """
         return config_dict
 
     @step(experiment_tracker="mlflow_tracker")  # type: ignore[misc]
@@ -53,6 +70,12 @@ if _ZENML_AVAILABLE:
 
         ZenML tracking is disabled in the reconstructed config to prevent
         the inner :func:`run_hpo` from re-dispatching to this pipeline.
+
+        Args:
+            config_dict: Configuration dictionary.
+
+        Returns:
+            Best metric value.
         """
         cfg = OmegaConf.structured(Config)
         cfg = OmegaConf.merge(cfg, OmegaConf.create(config_dict))
@@ -68,7 +91,14 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def log_hpo_summary(best_val: float) -> float:
-        """Record the best HPO metric as a ZenML artifact."""
+        """Record the best HPO metric as a ZenML artifact.
+
+        Args:
+            best_val: Best metric value.
+
+        Returns:
+            Best metric value.
+        """
         logger.info(f"HPO complete — best metric: {best_val:.4f}")
         return best_val
 
@@ -78,7 +108,14 @@ if _ZENML_AVAILABLE:
 
     @zenml_pipeline(name="wsmart_route_hpo")  # type: ignore[misc]
     def _hpo_pipeline(config_dict: Dict[str, Any]) -> float:
-        """Three-step HPO pipeline."""
+        """Three-step HPO pipeline.
+
+        Args:
+            config_dict: Configuration dictionary.
+
+        Returns:
+            Best metric value.
+        """
         cfg_art = prepare_hpo_config(config_dict)
         best_val = run_hpo_step(cfg_art)
         return log_hpo_summary(best_val)
