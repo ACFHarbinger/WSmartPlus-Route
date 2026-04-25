@@ -591,7 +591,15 @@ class FleetSizeBranching:
         route_values: Dict[int, float],
         tol: float = 1e-4,
     ) -> Optional[float]:
-        """Check if sum of lambdas is fractional."""
+        """Checks if the total fleet usage (sum of lambdas) is fractional.
+
+        Args:
+            route_values (Dict[int, float]): Current LP solution {route_index: λ_k}.
+            tol (float): Integrality tolerance.
+
+        Returns:
+            Optional[float]: Total fleet usage if fractional, else None.
+        """
         fleet_usage = sum(route_values.values())
         if abs(fleet_usage - round(fleet_usage)) > tol:
             return fleet_usage
@@ -629,7 +637,17 @@ class NodeVisitationBranching:
         optional_nodes: Set[int],
         tol: float = 1e-4,
     ) -> Optional[Tuple[int, float]]:
-        """Find an optional node with fractional visitation."""
+        """Finds an optional node with fractional visitation.
+
+        Args:
+            routes (List[Route]): Column pool.
+            route_values (Dict[int, float]): Current LP solution {route_index: λ_k}.
+            optional_nodes (Set[int]): Indices of optional customers.
+            tol (float): Integrality tolerance.
+
+        Returns:
+            Optional[Tuple[int, float]]: (node_index, visitation_value) if fractional, else None.
+        """
         for node in sorted(optional_nodes):
             visitation = sum(val for idx, val in route_values.items() if node in routes[idx].node_coverage)
             if tol < visitation < 1.0 - tol:

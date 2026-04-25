@@ -45,6 +45,14 @@ def watch(
     if callback is None:
 
         def default_callback(old: Any, new: Any, frame: FrameType) -> None:
+            """
+            Default callback function that is called for each change in a variable.
+
+            Args:
+                old (Any): The old value of the variable.
+                new (Any): The new value of the variable.
+                frame (FrameType): The frame in which the variable changed.
+            """
             stack = traceback.extract_stack(frame)[:-1]
             caller = stack[-1]
             print(f"DEBUG → {var_name}: {old} → {new}")
@@ -58,6 +66,16 @@ def watch(
     old_value = [None]
 
     def tracer(frame: FrameType, event: str, arg: Any) -> Callable:
+        """
+        Function tracer.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Any: Description of return value.
+        """
         if event != "line" or frame is not caller_frame:
             return tracer
 

@@ -7,6 +7,8 @@ from typing import Any
 
 import optuna
 import torch
+from omegaconf import OmegaConf
+
 from logic.src import tracking as wst
 from logic.src.configs import Config
 from logic.src.constants import ROOT_DIR, SIM_METRICS
@@ -17,7 +19,6 @@ from logic.src.pipeline.simulations.repository import (
 )
 from logic.src.pipeline.simulations.simulator import sequential_simulations
 from logic.src.tracking.logging.pylogger import get_pylogger
-from omegaconf import OmegaConf
 
 logger = get_pylogger(__name__)
 

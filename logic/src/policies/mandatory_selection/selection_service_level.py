@@ -40,7 +40,7 @@ class ServiceLevelSelection(IMandatorySelectionStrategy):
         """Select bins that are statistically likely to overflow within the horizon.
 
         Args:
-            context (SelectionContext): The selection context providing current_fill, 
+            context (SelectionContext): The selection context providing current_fill,
                 accumulation_rates, and std_deviations.
 
         Returns:

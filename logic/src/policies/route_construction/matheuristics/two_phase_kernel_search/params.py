@@ -6,6 +6,28 @@ from typing import Any
 
 @dataclass
 class TPKSParams:
+    """
+    Parameters for the Two-Phase Kernel Search (TPKS) algorithm.
+
+    Attributes:
+        phase1_kernel_size: Initial kernel size for feasibility search.
+        phase1_bucket_size: Bucket size during Phase I expansion.
+        phase1_time_fraction: Fraction of time_limit for Phase I.
+        phase1_mip_node_limit: Node limit for Phase I MIP solves.
+        phase2_bucket_size_easy: Bucket size for easy instances in Phase II.
+        phase2_bucket_size_normal: Bucket size for normal instances in Phase II.
+        phase2_time_limit_per_bucket: Time limit per bucket in Phase II.
+        max_buckets: Maximum number of buckets in Phase II.
+        t_easy: Difficulty threshold (seconds) to distinguish easy/normal instances.
+        epsilon: Hardness parameter for fixing variables in Phase II (relaxation > 1 - ε).
+        time_limit: Total time limit for the algorithm.
+        mip_gap: MIP relative gap tolerance.
+        mip_limit_nodes: Node limit for all MIP solves.
+        initial_kernel_size: Fallback kernel size if phase1 var stats unavailable.
+        seed: Random seed for reproducibility.
+        engine: Solver engine to use (e.g., "gurobi", "cbc").
+    """
+
     # Phase I
     phase1_kernel_size: int = 30  # initial kernel for feasibility search
     phase1_bucket_size: int = 15  # bucket size during Phase I expansion

@@ -37,7 +37,11 @@ class ACOPolicy(BaseRoutingPolicy):
         return KSparseACOConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for ACO."""
+        """Returns the configuration key for the ACO policy.
+
+        Returns:
+            str: The registry key 'aco'.
+        """
         return "aco"
 
     def _run_solver(

@@ -5,6 +5,14 @@ Population of route solutions evolved via tournament selection, order
 crossover (OX), and random relocate mutation.  Elitism preserves the
 best individual across generations.
 
+Attributes:
+    GASolver (Type): Core solver class for the Genetic Algorithm.
+    GAParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = GASolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
 References:
     Holland, J. H. "Adaptation in Natural and Artificial Systems", 1975.
     Prins, C. "A simple and effective evolutionary
@@ -35,6 +43,15 @@ from .params import GAParams
 class GASolver:
     """
     Genetic Algorithm solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per kg traveled.
+        params (GAParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -67,7 +84,7 @@ class GASolver:
         Run GA optimisation.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

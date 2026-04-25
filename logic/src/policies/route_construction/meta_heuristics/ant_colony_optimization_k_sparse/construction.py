@@ -49,22 +49,21 @@ class SolutionConstructor:
         C: float = 1.0,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize Solution Constructor.
+        """Initializes the Solution Constructor for ACO ants.
 
         Args:
-            dist_matrix: Distance matrix between nodes.
-            wastes: Dictionary of node wastes.
-            capacity: Vehicle capacity.
-            pheromone: Sparse pheromone matrix.
-            eta: Heuristic information matrix (inverse of distances).
-            candidate_lists: Precomputed candidate lists for each node.
-            nodes: List of all nodes (excluding depot).
-            params: ACO parameters.
-            tau_0: Initial pheromone value.
-            R: Revenue multiplier.
-            C: Cost multiplier.
-            mandatory_nodes: List of mandatory node indices.
+            dist_matrix (np.ndarray): Distance matrix between nodes.
+            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+            capacity (float): Maximum vehicle collection capacity.
+            pheromone (SparsePheromoneTau): Sparse pheromone matrix.
+            eta (np.ndarray): Heuristic information matrix (inverse distances).
+            candidate_lists (Dict[int, List[int]]): K-nearest neighbor lists.
+            nodes (List[int]): List of all nodes (excluding depot).
+            params (KSACOParams): Algorithm-specific parameters.
+            tau_0 (float): Initial pheromone value.
+            R (float): Revenue multiplier.
+            C (float): Cost multiplier.
+            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes

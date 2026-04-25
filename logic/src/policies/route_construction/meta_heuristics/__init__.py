@@ -1,3 +1,10 @@
+"""Meta-heuristic routing policies.
+
+This package contains advanced iterative search algorithms including
+Evolutionary Strategies, Local Search meta-heuristics, and Swarm Intelligence
+approaches for solving the VRPP and its variants.
+"""
+
 from .adaptive_large_neighborhood_search import policy_alns as policy_alns
 from .adaptive_large_neighborhood_search_with_inter_period_operators import (
     policy_alns_ipo as policy_alns_ipo,

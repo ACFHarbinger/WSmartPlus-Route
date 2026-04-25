@@ -47,6 +47,7 @@ Example:
 """
 
 from logic.src.interfaces import IMandatorySelectionStrategy
+from logic.src.interfaces.context import SelectionContext
 from logic.src.models.policies.selection import (
     CombinedSelector,
     LastMinuteSelector,
@@ -60,10 +61,7 @@ from logic.src.models.policies.selection import (
     get_vectorized_selector,
 )
 
-from logic.src.interfaces.context import SelectionContext
-
 from .base import MandatorySelectionFactory, MandatorySelectionRegistry
-
 from .selection_bernoulli_random import BernoulliRandomSelection
 from .selection_combined import CombinedSelection
 from .selection_cvar import CVaRSelection
@@ -71,6 +69,7 @@ from .selection_deadline import DeadlineDrivenSelection
 from .selection_dispatcher_portfolio import PortfolioDispatcher
 from .selection_dispatcher_thompson import ThompsonDispatcher
 from .selection_filter_and_fan import FilterAndFanSelection
+from .selection_fptas_knapsack import FPTASKnapsackSelection
 from .selection_fractional_knapsack import FractionalKnapsackSelection
 from .selection_kmeans_sector import KMeansGeographicSectorSelection
 from .selection_lagrangian import LagrangianSelection
@@ -94,7 +93,6 @@ from .selection_submodular_greedy import SubmodularGreedySelection
 from .selection_supermodular_greedy import SupermodularGreedySelection
 from .selection_wasserstein import WassersteinRobustSelection
 from .selection_whittle import WhittleIndexSelection
-from .selection_fptas_knapsack import FPTASKnapsackSelection
 
 __all__ = [
     # Vectorized selectors for training

@@ -37,7 +37,11 @@ class FILOPolicy(BaseRoutingPolicy):
         return FILOConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for FILO."""
+        """Returns the configuration key for the FILO policy.
+
+        Returns:
+            str: The registry key 'filo'.
+        """
         return "filo"
 
     def _run_solver(

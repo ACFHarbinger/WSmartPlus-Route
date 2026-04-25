@@ -3,6 +3,17 @@ PSOMA Policy Adapter.
 
 Adapts the Particle Swarm Optimization Memetic Algorithm (PSOMA) to the
 agnostic BaseRoutingPolicy interface.
+
+Attributes:
+    PSOMAConfig (Type): Configuration schema for the PSOMA solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.psoma import PSOMAConfig
+    >>> config = PSOMAConfig(pop_size=20)
+    >>> policy = PSOMAPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -23,16 +34,36 @@ class PSOMAPolicy(BaseRoutingPolicy):
     PSOMA policy class.
 
     Visits bins using Particle Swarm Optimization with a memetic local-search step.
+
+    Attributes:
+        solver (PSOMAsSolver): Internal solver instance.
+        params (PSOMAParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[PSOMAConfig, Dict[str, Any]]] = None):
+        """Initializes the PSOMA policy.
+
+        Args:
+            config (Optional[Union[PSOMAConfig, Dict[str, Any]]]): Configuration
+                source for the Particle Swarm Optimization Memetic Algorithm.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for PSOMA.
+
+        Returns:
+            Optional[Type]: The PSOMAConfig class.
+        """
         return PSOMAConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the PSOMA policy.
+
+        Returns:
+            str: The registry key 'psoma'.
+        """
         return "psoma"
 
     def _run_solver(
@@ -71,7 +102,7 @@ class PSOMAPolicy(BaseRoutingPolicy):
                 PSOMA parameters (pop_size, omega, c1, c2, local_search_freq).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

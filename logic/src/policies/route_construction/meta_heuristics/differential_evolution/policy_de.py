@@ -2,6 +2,17 @@
 Policy adapter for Memetic Differential Evolution (MDE/rand/1/exp).
 
 Provides the interface between the MDE solver and the policy factory system.
+
+Attributes:
+    DEConfig (Type): Configuration schema for the DE solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.de import DEConfig
+    >>> config = DEConfig(pop_size=50)
+    >>> policy = DEPolicyAdapter(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -34,6 +45,10 @@ class DEPolicyAdapter(BaseRoutingPolicy):
         Storn, R., & Price, K. (1997). "Differential Evolution – A Simple and
         Efficient Heuristic for Global Optimization over Continuous Spaces."
         Journal of Global Optimization, 11(4), 341-359.
+
+    Attributes:
+        solver (DESolver): Internal solver instance.
+        params (DEParams): Algorithm parameters.
     """
 
     def __init__(self, config: Optional[Union[DEConfig, Dict[str, Any]]] = None):
@@ -41,15 +56,26 @@ class DEPolicyAdapter(BaseRoutingPolicy):
         Initialize DE policy adapter.
 
         Args:
-            config: DE configuration parameters. If None, uses defaults.
+            config (Optional[Union[DEConfig, Dict[str, Any]]]): DE configuration
+                parameters. If None, uses defaults.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for DE.
+
+        Returns:
+            Optional[Type]: The DEConfig class.
+        """
         return DEConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the DE policy.
+
+        Returns:
+            str: The registry key 'de'.
+        """
         return "de"
 
     def _run_solver(
@@ -86,7 +112,7 @@ class DEPolicyAdapter(BaseRoutingPolicy):
                 DE parameters (pop_size, mutation_factor, crossover_rate).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

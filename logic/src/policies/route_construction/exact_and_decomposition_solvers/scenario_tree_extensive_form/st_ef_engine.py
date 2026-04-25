@@ -20,6 +20,30 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 
+@dataclass
+class EngineNode:
+    """
+    Represents a node in the extensive-form optimization model.
+
+    Attributes:
+        id: Unique identifier for the node.
+        day: The day (time period) this node represents.
+        probability: The probability of reaching this node.
+        realization: The realization of waste increments for this node (relative to parent).
+        parent_id: The ID of the parent node.
+        children_ids: A list of IDs of the child nodes.
+        _sim_wastes: (Internal cache) The raw waste values from the simulation tree.
+    """
+
+    id: int
+    day: int
+    probability: float
+    realization: Dict[int, float]
+    parent_id: Optional[int] = None
+    children_ids: List[int] = field(default_factory=list)
+    _sim_wastes: Optional[List[float]] = None
+
+
 class ScenarioTreeExtensiveFormEngine:
     """
     Engine to parse a ScenarioTree and build the corresponding deterministic
@@ -332,15 +356,6 @@ class ScenarioTreeExtensiveFormEngine:
         """Convert simulation ScenarioTree (recursive) to flat solver tree."""
         flat = {}
         counter = [0]
-
-        @dataclass
-        class EngineNode:
-            id: int
-            day: int
-            probability: float
-            realization: Dict[int, float]
-            parent_id: Optional[int] = None
-            children_ids: List[int] = field(default_factory=list)
 
         def traverse(sim_node, parent_id=None):
             node_id = counter[0]

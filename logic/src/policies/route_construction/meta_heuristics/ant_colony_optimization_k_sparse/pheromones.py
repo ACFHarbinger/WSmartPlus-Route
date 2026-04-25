@@ -40,15 +40,14 @@ class SparsePheromoneTau:
     """
 
     def __init__(self, n_nodes: int, tau_0: float, scale: float, tau_min: float, tau_max: float):
-        """
-        Initialize sparse pheromone structure with scale-based pruning.
+        """Initializes the sparse pheromone structure with scale-based pruning.
 
         Args:
-            n_nodes: Total number of nodes (including depot).
-            tau_0: Initial pheromone value (becomes initial default_value).
-            scale: Precision parameter. Values within 10^-scale of default_value are pruned.
-            tau_min: Minimum pheromone bound (MMAS lower limit).
-            tau_max: Maximum pheromone bound (MMAS upper limit).
+            n_nodes (int): Total number of nodes (including depot).
+            tau_0 (float): Initial pheromone value (becomes initial default_value).
+            scale (float): Precision parameter for pruning edge values.
+            tau_min (float): Minimum pheromone bound (MMAS lower limit).
+            tau_max (float): Maximum pheromone bound (MMAS upper limit).
         """
         self.n_nodes = n_nodes
         self.scale = scale

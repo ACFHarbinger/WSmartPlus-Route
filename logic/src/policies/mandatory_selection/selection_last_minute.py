@@ -21,8 +21,8 @@ from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context import SearchContext, SelectionContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
-from .base.eoq import resolve_trigger_threshold
 from .base import MandatorySelectionRegistry
+from .base.eoq import resolve_trigger_threshold
 
 
 @GlobalRegistry.register(

@@ -1,3 +1,9 @@
+"""Miscellaneous route construction algorithms and orchestrators.
+
+Contains general-purpose routing policies like SRC and ARCO that do not fit
+strictly into the meta-heuristic or learning-based categories.
+"""
+
 from .adaptive_route_constructor_orchestrator import (
     AdaptiveRouteConstructorOrchestrator as AdaptiveRouteConstructorOrchestrator,
 )

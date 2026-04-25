@@ -51,7 +51,16 @@ class MuPlusLambdaESParams:
 
     @classmethod
     def from_config(cls, config: Any) -> MuPlusLambdaESParams:
-        """Build parameters from a configuration object."""
+        """Build parameters from a configuration object.
+
+        Args:
+            config (Any): A configuration source, typically a dictionary
+                or a Hydra DictConfig object containing ES parameters.
+
+        Returns:
+            MuPlusLambdaESParams: A validated parameters instance initialized
+                from the provided configuration.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
 

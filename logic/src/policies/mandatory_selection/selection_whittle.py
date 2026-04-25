@@ -43,7 +43,7 @@ class WhittleIndexSelection(IMandatorySelectionStrategy):
         """Rank bins by Whittle index and select top candidates.
 
         Args:
-            context (SelectionContext): The selection context providing current_fill, 
+            context (SelectionContext): The selection context providing current_fill,
                 accumulation_rates, and whittle parameters.
 
         Returns:

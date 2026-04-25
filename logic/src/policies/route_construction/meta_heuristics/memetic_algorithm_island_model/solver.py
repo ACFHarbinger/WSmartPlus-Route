@@ -20,7 +20,15 @@ Algorithm structure:
         c. Stagnation management: Regenerate stagnant islands
         d. Track global best solution
 
-Reference:
+Attributes:
+    MemeticAlgorithmIslandModelSolver (Type): Core solver class for MA-IM.
+    MemeticAlgorithmIslandModelParams (Type): Parameter dataclass for the solver.
+
+Example:
+    >>> solver = MemeticAlgorithmIslandModelSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+
+References:
     Moosavian, N., & Rppdsarou, B. K. (2014).
     "Soccer league competition algorithm: A novel meta-heuristic
     algorithm for optimal design of water distribution networks."
@@ -50,6 +58,15 @@ class MemeticAlgorithmIslandModelSolver:
     Memetic Algorithm with Island Model (MA-IM) solver for VRPP.
 
     EXACT COPY of SLC with rigorous nomenclature.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+        capacity (float): Maximum vehicle collection capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per kg traveled.
+        params (MemeticAlgorithmIslandModelParams): Algorithm-specific parameters.
+        mandatory_nodes (List[int]): Nodes that must be visited.
     """
 
     def __init__(
@@ -99,7 +116,7 @@ class MemeticAlgorithmIslandModelSolver:
         Execute the Memetic Island Model algorithm.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0

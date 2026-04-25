@@ -1,5 +1,16 @@
 """
 GLS (Guided Local Search) Policy Adapter.
+
+Attributes:
+    GLSConfig (Type): Configuration schema for the GLS solver.
+    BaseRoutingPolicy (Type): Abstract base for routing policies.
+    RouteConstructorRegistry (Type): Global registry for constructors.
+
+Example:
+    >>> from logic.src.configs.policies.gls import GLSConfig
+    >>> config = GLSConfig(lambda_param=1.0)
+    >>> policy = GLSPolicy(config)
+    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -24,16 +35,37 @@ from .solver import GLSSolver
 )
 @RouteConstructorRegistry.register("gls")
 class GLSPolicy(BaseRoutingPolicy):
-    """Guided Large Neighborhood Search (G-LNS) policy class."""
+    """Guided Large Neighborhood Search (G-LNS) policy class.
+
+    Attributes:
+        solver (GLSSolver): Internal solver instance.
+        params (GLSParams): Algorithm parameters.
+    """
 
     def __init__(self, config: Optional[Union[GLSConfig, Dict[str, Any]]] = None):
+        """Initializes the GLS policy.
+
+        Args:
+            config (Optional[Union[GLSConfig, Dict[str, Any]]]): Configuration
+                source for the Guided Local Search.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for GLS.
+
+        Returns:
+            Optional[Type]: The GLSConfig class.
+        """
         return GLSConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the GLS policy.
+
+        Returns:
+            str: The registry key 'gls'.
+        """
         return "gls"
 
     def _run_solver(
@@ -69,7 +101,7 @@ class GLSPolicy(BaseRoutingPolicy):
                 GLS parameters (lambda_param, alpha_param, penalty_cycles).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs (Any): Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

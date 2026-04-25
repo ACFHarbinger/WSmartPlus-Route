@@ -108,7 +108,7 @@ import logging
 import time
 import warnings
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import gurobipy as gp
 import numpy as np
@@ -131,7 +131,6 @@ from logic.src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.
     solve_uncapacitated_op,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
-from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
@@ -157,7 +156,11 @@ class BPCPruningException(Exception):
 
 
 def _reset_master_constraints(master: VRPPMasterProblem) -> None:
-    """Reset vehicle limits and node senses to their base problem state."""
+    """Resets vehicle limits and node senses to their base problem state.
+
+    Args:
+        master (VRPPMasterProblem): The master problem instance to reset.
+    """
     if master.model is None:
         return
 
@@ -183,7 +186,12 @@ def _reset_master_constraints(master: VRPPMasterProblem) -> None:
 
 
 def _apply_route_level_branching_filters(master: VRPPMasterProblem, bc: AnyBranchingConstraint) -> None:
-    """Apply route-level feasibility filters based on branching constraints."""
+    """Applies route-level feasibility filters based on branching constraints.
+
+    Args:
+        master (VRPPMasterProblem): The master problem instance.
+        bc (AnyBranchingConstraint): The branching constraint to apply.
+    """
     for route, var in zip(master.routes, master.lambda_vars, strict=False):
         if var.UB > 0.5 and not bc.is_route_feasible(route):
             var.UB = 0.0
@@ -343,13 +351,23 @@ def _solve_farkas_pricing_step(
     max_routes: int = 5,
     timeout: Optional[float] = None,
 ) -> Tuple[int, bool]:
-    """
-    Phase I Pricing: Solve RCSPP with the Farkas dual ray to restore feasibility.
+    """Phase I Pricing: Solve RCSPP with the Farkas dual ray to restore feasibility.
 
     Implements the 2-Phase method by resolving LP primary infeasibility without
     Big-M artificial variables. The Farkas ray identifies the direction of
     infeasibility, guiding the DP pricer to find columns that restore the
     mandatory coverage basis.
+
+    Args:
+        master (VRPPMasterProblem): The master problem instance.
+        pricing_solver (RCSPPSolver): The RCSPP solver for pricing.
+        branching_constraints (List[AnyBranchingConstraint]): Active branching constraints.
+        farkas_duals (Any): Dual values from the Farkas ray.
+        max_routes (int): Maximum number of routes to return.
+        timeout (Optional[float]): Time limit for the pricing step.
+
+    Returns:
+        Tuple[int, bool]: (Number of routes added, whether pricing was exhausted).
     """
     # Task 3/6: Extract forced nodes and RF conflicts for DP enforcement
     forced_nodes: Set[int] = set()
@@ -434,23 +452,22 @@ def _solve_pricing_step(
     rc_tolerance: float = 1e-5,
     timeout: Optional[float] = None,
 ) -> Tuple[int, bool]:
-    """
-    Phase II Pricing: Solve the RCSPP pricing subproblem for profitable columns.
+    """Phase II Pricing: Solve the RCSPP pricing subproblem for profitable columns.
 
     Utilizes the current dual signal—optionally stabilized via Exponential
     Dual Smoothing (Wentges 1997)—to identify routes with positive reduced cost.
 
     Args:
-        master: Master problem instance
-        pricing_solver: RCSPP solver for pricing
-        branching_constraints: Optional Ryan-Foster or Node Visitation constraints
-        max_routes: Max routes to return
-        optimality_gap: Basic gap
-        rc_tolerance: Minimum reduced cost to prevent epsilon deadlock
-
+        master (VRPPMasterProblem): Master problem instance.
+        pricing_solver (RCSPPSolver): RCSPP solver for pricing.
+        branching_constraints (Optional[List[AnyBranchingConstraint]]): Active branching constraints.
+        max_routes (int): Maximum number of routes to return.
+        optimality_gap (float): Target optimality gap.
+        rc_tolerance (float): Minimum reduced cost to accept a column.
+        timeout (Optional[float]): Time limit for the pricing step.
 
     Returns:
-        tuple (added, exhausted): Number of columns added and whether pricing was exhausted.
+        Tuple[int, bool]: (Number of columns added, whether pricing was exhausted).
     """
     dual_values = master.get_reduced_cost_coefficients()
 
@@ -515,7 +532,7 @@ def _detect_cycles(nodes: List[int]) -> List[Tuple[int, ...]]:
         nodes: Sequence of node IDs.
 
     Returns:
-        List of node tuples forming cycles.
+        List[Tuple[int, ...]]: List of node tuples forming cycles.
     """
     seen: Dict[int, int] = {}
     cycles: List[Tuple[int, ...]] = []
@@ -543,8 +560,8 @@ def _is_solution_integer(routes: List[Route], route_values: Dict[int, float], to
         tol: Numerical tolerance for integrality.
 
     Returns:
-        True if all fractional values are 0 or 1 AND every selected route
-        (λ_k > 0.5) is strictly elementary (no cycles).
+        bool: True if all fractional values are 0 or 1 AND every selected route
+            (λ_k > 0.5) is strictly elementary (no cycles).
     """
     for idx, val in route_values.items():
         # Task 13: Clamp all values to [0, 1] before testing to guard against
@@ -585,13 +602,20 @@ def _perform_strong_branching(  # noqa: C901
     current_node: Optional[BranchNode] = None,
     strong_branching_size: int = 5,
 ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
-    """
-    Fix 11: Restricted LP Heuristic for Divergence Branching.
+    """Evaluates branching candidates by solving child LP relaxations (lookahead).
 
-    Evaluates the top candidates by solving child LP relaxations (lookahead)
-    to select the branch that maximizes the estimated lower bound improvement.
+    Selects the branch that maximizes the estimated lower bound improvement.
     Note: This is a restricted lookahead that does NOT solve full column
     generation subproblems at children, only the sifted master problem.
+
+    Args:
+        master (VRPPMasterProblem): The master problem instance.
+        candidates (List[Tuple]): List of branching candidates.
+        current_node (Optional[BranchNode]): Current B&B node.
+        strong_branching_size (int): Number of candidates to evaluate.
+
+    Returns:
+        Optional[Tuple]: The best candidate selected by lookahead evaluation.
     """
     if not candidates:
         return None

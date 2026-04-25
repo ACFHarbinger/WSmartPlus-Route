@@ -36,9 +36,19 @@ class JointPolicyRegistry:
         Returns:
             Callable: A decorator that registers the subclass.
         """
+
         def decorator(subclass: Type[Any]):
+            """Internal decorator that adds the subclass to the registry mapping.
+
+            Args:
+                subclass (Type[Any]): The policy class to be registered.
+
+            Returns:
+                Type[Any]: The same subclass, enabling decorator chaining.
+            """
             cls._registry[name.lower()] = subclass
             return subclass
+
         return decorator
 
     @classmethod

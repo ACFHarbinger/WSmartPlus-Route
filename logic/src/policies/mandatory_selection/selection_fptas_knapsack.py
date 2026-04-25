@@ -107,9 +107,9 @@ from logic.src.policies.mandatory_selection.base import MandatorySelectionRegist
 # Module-level constants
 # ---------------------------------------------------------------------------
 
-_EPS_GUARD: float = 1e-9          # float comparison / zero-division guard
-_DIST_EPS: float = 1e-9           # insertion-distance lower-bound
-_MAX_DP_VALUES: int = 100_000     # DP table width ceiling (memory guard)
+_EPS_GUARD: float = 1e-9  # float comparison / zero-division guard
+_DIST_EPS: float = 1e-9  # insertion-distance lower-bound
+_MAX_DP_VALUES: int = 100_000  # DP table width ceiling (memory guard)
 
 
 # ---------------------------------------------------------------------------
@@ -169,8 +169,7 @@ def _compute_overflow_risk(
             expected_overflow_kg[:n_sc] += prob * (overflow_pct / 100.0) * bin_mass[:n_sc]
             overflow_prob_any[:n_sc] = np.minimum(
                 1.0,
-                overflow_prob_any[:n_sc]
-                + prob * (wastes[:n_sc] >= 100.0).astype(float),
+                overflow_prob_any[:n_sc] + prob * (wastes[:n_sc] >= 100.0).astype(float),
             )
 
     return expected_overflow_kg + overflow_prob_any * overflow_penalty_frac * bin_mass
@@ -222,11 +221,7 @@ def _fptas_01_knapsack(
     result_mask = np.zeros(n_all, dtype=bool)
 
     # Restrict to items that individually fit and carry positive value.
-    feasible = (
-        (weights > _EPS_GUARD)
-        & (weights <= capacity + _EPS_GUARD)
-        & (values > _EPS_GUARD)
-    )
+    feasible = (weights > _EPS_GUARD) & (weights <= capacity + _EPS_GUARD) & (values > _EPS_GUARD)
     if not np.any(feasible):
         return result_mask
 
@@ -281,7 +276,7 @@ def _fptas_01_knapsack(
         dp_row = dp.copy()
 
         v_range = np.arange(pi, V_upper + 1, dtype=np.int64)
-        prev_w = dp_row[v_range - pi]          # weights from the snapshot
+        prev_w = dp_row[v_range - pi]  # weights from the snapshot
         candidate = prev_w + wi
         finite = np.isfinite(prev_w)
         improve = finite & (candidate < dp[v_range])
@@ -400,22 +395,18 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
             ValueError: If ``distance_matrix`` is not provided.
         """
         if context.distance_matrix is None:
-            raise ValueError(
-                "FPTASBiObjectiveKnapsackSelection requires a distance_matrix."
-            )
+            raise ValueError("FPTASBiObjectiveKnapsackSelection requires a distance_matrix.")
 
         # ---- Physical quantities ------------------------------------------
         dm = np.asarray(context.distance_matrix, dtype=np.float64)
         bin_cap = float(context.bin_volume) * float(context.bin_density)  # kg
-        mass_all = (context.current_fill / context.max_fill) * bin_cap    # kg
+        mass_all = (context.current_fill / context.max_fill) * bin_cap  # kg
 
         # dist_depot[i] = distance from depot (index 0) to bin i (matrix index i+1)
         dist_depot = dm[0, 1:].astype(np.float64)
 
         # ---- Overflow risk (kg) ------------------------------------------
-        overflow_penalty_frac = float(
-            getattr(context, "overflow_penalty_frac", self.overflow_penalty_frac)
-        )
+        overflow_penalty_frac = float(getattr(context, "overflow_penalty_frac", self.overflow_penalty_frac))
         risk_all = _compute_overflow_risk(
             current_fill=context.current_fill,
             bin_mass=np.full_like(mass_all, bin_cap),
@@ -433,16 +424,9 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
         # Normalise each objective to [0, 1] independently so α is stable.
         risk_max = float(np.max(risk_all)) if np.any(risk_all > _EPS_GUARD) else 1.0
         profit_clipped = np.maximum(0.0, profit_all)
-        profit_max = (
-            float(np.max(profit_clipped))
-            if np.any(profit_clipped > _EPS_GUARD)
-            else 1.0
-        )
+        profit_max = float(np.max(profit_clipped)) if np.any(profit_clipped > _EPS_GUARD) else 1.0
 
-        combined = (
-            self.alpha * (risk_all / risk_max)
-            + (1.0 - self.alpha) * (profit_clipped / profit_max)
-        )
+        combined = self.alpha * (risk_all / risk_max) + (1.0 - self.alpha) * (profit_clipped / profit_max)
 
         # ---- Eligibility -------------------------------------------------
         # Bins must have positive mass, positive combined value, and must
@@ -461,9 +445,7 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
         # Unbounded knapsacks: capacity does not bind → take all eligible bins.
         if n_vehicles <= 0:
             sel = sorted((np.where(eligible_mask)[0] + 1).tolist())
-            return sel, SearchContext.initialize(
-                selection_metrics={**_empty_metrics, "n_selected": len(sel)}
-            )
+            return sel, SearchContext.initialize(selection_metrics={**_empty_metrics, "n_selected": len(sel)})
 
         if capacity <= _EPS_GUARD:
             return [], _empty_ctx
@@ -474,7 +456,7 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
         if not np.any(eligible_mask):
             return [], _empty_ctx
 
-        eligible_idx = np.where(eligible_mask)[0]   # 0-based global bin indices
+        eligible_idx = np.where(eligible_mask)[0]  # 0-based global bin indices
 
         # ---- Sequential FPTAS across K vehicles --------------------------
         remaining: set[int] = set(eligible_idx.tolist())

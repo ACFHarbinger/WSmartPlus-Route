@@ -123,9 +123,7 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
 
     def __init__(self, config: Optional[ABPCHGConfig] = None):
         super().__init__(config)
-        self.params: ABPCHGParams = (
-            ABPCHGParams.from_config(config) if config is not None else ABPCHGParams()
-        )
+        self.params: ABPCHGParams = ABPCHGParams.from_config(config) if config is not None else ABPCHGParams()
         self.gamma: float = self.params.gamma
         # Externally injectable trained GNN model for MLBranchingStrategy.
         # Set to a loaded model before solving to activate learned branching.
@@ -230,9 +228,7 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
         Returns:
             Configured ``ScenarioConsistentBranching`` instance.
         """
-        return ScenarioConsistentBranching(
-            base_threshold=self.params.sc_consensus_threshold
-        )
+        return ScenarioConsistentBranching(base_threshold=self.params.sc_consensus_threshold)
 
     def _build_coordinator(
         self,
@@ -265,11 +261,7 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
         Returns:
             Fully wired ``TemporalBendersCoordinator``.
         """
-        alns_pricer = (
-            self._build_alns_pricer(exact_pricer)
-            if exact_pricer is not None
-            else None
-        )
+        alns_pricer = self._build_alns_pricer(exact_pricer) if exact_pricer is not None else None
 
         return TemporalBendersCoordinator(
             tree=tree,
@@ -363,9 +355,7 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
         cost_unit = problem.cost_per_km
 
         # Count leaf scenarios for PH x̄ denominator
-        num_scenarios = (
-            len(tree.get_leaves()) if hasattr(tree, "get_leaves") else 1
-        )
+        num_scenarios = len(tree.get_leaves()) if hasattr(tree, "get_leaves") else 1
 
         # Resolve dist_matrix: check ProblemContext attribute first, then extra.
         # The distance matrix must be provided as (n_bins+1 × n_bins+1) with

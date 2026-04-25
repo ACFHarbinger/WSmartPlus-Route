@@ -25,6 +25,12 @@ class SLCPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[SLCConfig, Dict[str, Any]]] = None):
+        """Initializes the SLC policy.
+
+        Args:
+            config (Optional[Union[SLCConfig, Dict[str, Any]]]): Configuration
+                source for the Soccer League Competition algorithm.
+        """
         super().__init__(config)
 
     @classmethod
@@ -32,6 +38,11 @@ class SLCPolicy(BaseRoutingPolicy):
         return SLCConfig
 
     def _get_config_key(self) -> str:
+        """Returns the configuration key for the SLC policy.
+
+        Returns:
+            str: The registry key 'slc'.
+        """
         return "slc"
 
     def _run_solver(

@@ -259,6 +259,93 @@ def single_simulation(
         return {"policy": "unknown", "sample_id": sample_id, "error": str(e), "success": False}
 
 
+# Internal counter for display
+class SimpleCounter:
+    """
+    Simple counter for display.
+
+    Attributes:
+        value: The current value of the counter.
+    """
+
+    def __init__(self, val=0):
+        self.value = val
+
+    def update(self, n=1):
+        self.value += n
+
+
+# Progress bar wrapper to maintain compatibility with RunningState which calls .update(1)
+class ProgressUpdater:
+    """
+    Wrapper for the progress bar to maintain compatibility with RunningState.
+
+    Calls the process_display_updates function to update the progress bar.
+
+    Attributes:
+        display: The display object to update.
+        shared_metrics: The shared metrics dictionary to update.
+        log_tmp: The temporary log dictionary to update.
+        last_reported_days: The last reported days dictionary to update.
+        policy_names: The list of policy names.
+        loop_tic: The loop tic value.
+        counter: The counter object.
+        process_display_updates: The function to update the display.
+    """
+
+    def __init__(self, display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter):
+        self.display = display
+        self.shared_metrics = shared_metrics
+        self.log_tmp = log_tmp
+        self.last_reported_days = last_reported_days
+        self.policy_names = policy_names
+        self.loop_tic = loop_tic
+        self.counter = counter
+
+        from logic.src.pipeline.features.test.orchestrator.monitor import process_display_updates
+
+        self.process_display_updates = process_display_updates
+
+    def set_values(self, display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter) -> None:
+        """
+        Set the values for the progress bar.
+
+        Args:
+            display: Display object to update.
+            shared_metrics: Shared metrics dictionary to update.
+            log_tmp: Temporary log dictionary to update.
+            last_reported_days: Last reported days dictionary to update.
+            policy_names: List of policy names.
+            loop_tic: Loop tic value.
+            counter: Counter object.
+        """
+        self.display = display
+        self.shared_metrics = shared_metrics
+        self.log_tmp = log_tmp
+        self.last_reported_days = last_reported_days
+        self.policy_names = policy_names
+        self.loop_tic = loop_tic
+        self.counter = counter
+
+    def update(self, n=1) -> None:
+        """
+        Update the progress bar.
+
+        Args:
+            n: Number of steps to update the progress bar.
+        """
+        if self.display:
+            self.process_display_updates(
+                self.display,
+                self.shared_metrics,
+                self.log_tmp,
+                self.last_reported_days,
+                self.policy_names,
+                self.loop_tic,
+                self.counter,
+            )
+
+
 def sequential_simulations(  # noqa: C901
     cfg: Config,
     device: torch.device,
@@ -294,23 +381,13 @@ def sequential_simulations(  # noqa: C901
     log_std: Optional[Dict[str, Any]] = {}
     log_full: Dict[str, List[List[float]]] = {get_pol_name(policy): [] for policy in policies}
 
-    # Internal counter for display
-    class SimpleCounter:
-        def __init__(self, val=0):
-            self.value = val
-
-        def update(self, n=1):
-            self.value += n
-
     counter = SimpleCounter()
     loop_tic = time.time()
     last_reported_days = {p: 0 for p in policies}
     log_tmp: Dict[str, Any] = {p: {} for p in policies}
     policy_names = [get_pol_name(p) for p in policies]
-    from logic.src.pipeline.features.test.orchestrator.monitor import (
-        initialize_simulation_display,
-        process_display_updates,
-    )
+
+    from logic.src.pipeline.features.test.orchestrator.monitor import initialize_simulation_display
 
     display = (
         initialize_simulation_display(policy_names, sim.n_samples, sim.days)
@@ -321,15 +398,9 @@ def sequential_simulations(  # noqa: C901
     if shared_metrics is None:
         shared_metrics = {}
 
-    # Progress bar wrapper to maintain compatibility with RunningState which calls .update(1)
-    class ProgressUpdater:
-        def update(self, n=1):
-            if display:
-                process_display_updates(
-                    display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter
-                )
-
-    overall_progress = ProgressUpdater()
+    overall_progress = ProgressUpdater(
+        display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter
+    )
     results_dir = os.path.join(
         ROOT_DIR,
         "assets",
@@ -371,9 +442,10 @@ def sequential_simulations(  # noqa: C901
 
                 # Final update for this sample
                 if display:
-                    process_display_updates(
+                    overall_progress.set_values(
                         display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter
                     )
+                    overall_progress.update()
 
             except BaseException as e:
                 # Report to redirected stderr so it's captured in simulation log files

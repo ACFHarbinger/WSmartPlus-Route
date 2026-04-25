@@ -1,5 +1,14 @@
 """
 Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC) for MPVRP.
+
+Attributes:
+    Population (Type): Management class for HGS sub-populations.
+    Individual (Type): Solution representation for HGS-ADC.
+    LocalSearchManager (Type): Orchestrator for descent heuristics.
+
+Example:
+    >>> policy = PolicyHGSADC(config)
+    >>> sol, plan, stats = policy.solve_multi_period(problem)
 """
 
 import random
@@ -62,9 +71,17 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
         Vidal, T., et al. (2012). "A hybrid genetic algorithm with adaptive
         diversity management for a large class of vehicle routing problems with
         time windows". Computers & Operations Research, 39(9), 2125-2136.
+
+    Attributes:
+        config (Any): Policy configuration object.
     """
 
     def __init__(self, config: Any = None):
+        """Initializes the HGS-ADC policy.
+
+        Args:
+            config (Any): Configuration source for the algorithm.
+        """
         super().__init__(config)
 
     def _run_multi_period_solver(
@@ -156,6 +173,19 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
         capacity: float,
         **kwargs: Any,
     ) -> Optional[Individual]:
+        """Internal helper to evolve multi-period routes.
+
+        Args:
+            T (int): Planning horizon in days.
+            base_wastes (np.ndarray): Waste quantities at the start.
+            daily_increments (np.ndarray): Expected daily waste accumulation.
+            dist_matrix (np.ndarray): Distance matrix.
+            capacity (float): Vehicle capacity.
+            **kwargs: Additional configuration parameters (n_vehicles, etc).
+
+        Returns:
+            Optional[Individual]: The best evolved solution, if found.
+        """
         pop_size = getattr(self.config, "pop_size", 25)
         nb_close = getattr(self.config, "nb_close", 4)
         n_gen = getattr(self.config, "generations", 50)
