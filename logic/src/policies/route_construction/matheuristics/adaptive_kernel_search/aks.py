@@ -5,6 +5,15 @@ Reference:
     Guastaroba, G., Savelsbergh, M., & Speranza, M. G. (2017). "Adaptive Kernel
     Search: A heuristic for solving Mixed Integer linear Programs".
     European Journal of Operational Research.
+
+Attributes:
+    run_adaptive_kernel_search_gurobi: Main entry point for the AKS solver.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.adaptive_kernel_search.aks import run_adaptive_kernel_search_gurobi
+    >>> dist_matrix = np.zeros((3, 3))
+    >>> tour, obj, cost = run_adaptive_kernel_search_gurobi(dist_matrix, {1: 0.5}, 10.0, 5.0, 1.0, [])
 """
 
 import random
@@ -45,6 +54,23 @@ def _get_partitioned_vars_aks(
     formulation is a pure 0-1 MIP. While Guastaroba et al. (2017) suggests
     maintaining separate lists for binary and general integer variables, they
     are merged here as all discrete variables in this model are binary.
+
+    Args:
+        model: Gurobi model to optimize.
+        x: Edge decision variables keyed by (i, j) tuples.
+        y: Node selection variables keyed by node index.
+        initial_kernel_size: Minimum number of variables in the initial kernel.
+        bucket_size: Number of variables per bucket.
+        dist_matrix: Distance matrix of shape (n_nodes, n_nodes).
+        wastes: Waste amounts keyed by node index.
+        capacity: Vehicle capacity.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance traveled.
+        mandatory_nodes: Node indices that must be included in the solution.
+
+    Returns:
+        Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]: Kernel variables,
+            remaining variables, and bucketed remaining variables.
     """
     # Ensure Lazy Constraints are enabled for any solve with callbacks
     model.Params.LazyConstraints = 1
@@ -120,6 +146,14 @@ def _get_feasible(model, remaining_vars, active_kernel):
     """
     Step 3: GETFEASIBLE Routine.
     Iteratively increases the size of kernel K until a feasible solution is found.
+
+    Args:
+        model: Gurobi model to optimize.
+        remaining_vars: Variables not yet in the active kernel.
+        active_kernel: Current set of active kernel variables.
+
+    Returns:
+        int: Index into remaining_vars indicating how far the expansion reached.
     """
     m_w = int(len(remaining_vars) * 0.30)
     current_rem_idx = 0
@@ -138,6 +172,15 @@ def _assess_difficulty(model, t_mip_k, t_easy, epsilon):
     """
     Step 2: Difficulty Assessment.
     Classifies instance and applies HARD-mode constraints if needed.
+
+    Args:
+        model: Gurobi model with root node relaxation data attached.
+        t_mip_k: Time taken to solve the initial kernel subproblem.
+        t_easy: Threshold below which the instance is classified as EASY.
+        epsilon: Tolerance for fixing variables at 1 in HARD mode.
+
+    Returns:
+        str: Classification string, one of "EASY", "NORMAL", or "HARD".
     """
     t_hard = model.Params.TimeLimit
     classification = "NORMAL"
@@ -157,6 +200,19 @@ def _assess_difficulty(model, t_mip_k, t_easy, epsilon):
 def _solve_easy_iterations(model, remaining_vars, current_rem_idx, active_kernel, chunk_size, t_easy, x_h, best_obj):
     """
     Step 4a: EASY iteration logic.
+
+    Args:
+        model: Gurobi model to optimize.
+        remaining_vars: Variables not in the initial kernel.
+        current_rem_idx: Starting index into remaining_vars for this phase.
+        active_kernel: Current set of active kernel variables.
+        chunk_size: Number of variables to add per iteration.
+        t_easy: Time threshold for EASY instance classification.
+        x_h: Dict mapping variables to their best known solution values.
+        best_obj: Best objective value found so far.
+
+    Returns:
+        Tuple[int, float]: Updated index into remaining_vars and best objective value.
     """
     while current_rem_idx < len(remaining_vars):
         end_idx = min(current_rem_idx + chunk_size, len(remaining_vars))
@@ -189,6 +245,20 @@ def _solve_rigorous_iterations(
 ):
     """
     Step 4b: NORMAL/HARD iteration logic with bucket constraints.
+
+    Args:
+        model: Gurobi model to optimize.
+        buckets: List of variable buckets to iterate over.
+        active_kernel: Current set of active kernel variables.
+        x_h: Dict mapping variables to their best known solution values.
+        best_obj: Best objective value found so far.
+        max_buckets: Maximum number of buckets to process.
+        time_limit: Total time budget in seconds.
+        start_time: Model runtime at the start of this phase.
+        mip_limit_nodes: Node limit for each bucket solve.
+
+    Returns:
+        float: Best objective value found across all bucket iterations.
     """
     for i, bucket in enumerate(buckets[:max_buckets]):
         elapsed = model.Runtime - start_time
@@ -238,6 +308,20 @@ def _solve_aks_iterations(
     """
     Execute the core Adaptive Kernel Search iterative improvement loop.
     Complies with Guastaroba et al. (2017) methodology.
+
+    Args:
+        model: Gurobi model to optimize.
+        kernel_vars: Variables selected for the initial kernel.
+        remaining_vars: Variables not in the initial kernel.
+        bucket_size: Number of variables per bucket in NORMAL/HARD mode.
+        max_buckets: Maximum number of buckets to process.
+        time_limit: Total time budget in seconds.
+        mip_limit_nodes: Node limit for each bucket MIP solve.
+        t_easy: Solve-time threshold for EASY classification.
+        epsilon: Tolerance for fixing near-one variables in HARD mode.
+
+    Returns:
+        Set[gp.Var]: Active kernel variable set after all iterations.
     """
     active_kernel = set(kernel_vars)
     for v in remaining_vars:
@@ -303,15 +387,26 @@ def run_adaptive_kernel_search_gurobi(
     Solve VRPP using Adaptive Kernel Search (AKS) per Guastaroba et al. (2017).
 
     Args:
-        initial_kernel_size (int): Size of the starting variable pool.
-        bucket_size (int): Size for search buckets.
-        max_buckets (int): Limit on improvement attempts.
-        time_limit (float): Total time budget for optimization.
-        mip_limit_nodes (int): Node limit for internal Gurobi solves.
-        mip_gap (float): Acceptable relative optimality gap.
-        t_easy (float): Threshold for 'EASY' instance classification (seconds).
-        epsilon (float): Tolerance for fixing variables in 'HARD' instances.
-        seed (int): Random seed.
+        dist_matrix: Distance matrix of shape (n_nodes, n_nodes).
+        wastes: Waste amounts keyed by node index.
+        capacity: Vehicle capacity.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance traveled.
+        mandatory_nodes: Node indices that must be visited.
+        initial_kernel_size: Size of the starting variable pool.
+        bucket_size: Size for search buckets.
+        max_buckets: Limit on improvement attempts.
+        time_limit: Total time budget for optimization.
+        mip_limit_nodes: Node limit for internal Gurobi solves.
+        mip_gap: Acceptable relative optimality gap.
+        t_easy: Threshold for EASY instance classification in seconds.
+        epsilon: Tolerance for fixing variables in HARD instances.
+        seed: Random seed.
+        env: Optional Gurobi environment for license management.
+        recorder: Optional recorder for tracking solver state.
+
+    Returns:
+        Tuple[List[int], float, float]: Tour node sequence, objective value, and travel cost.
     """
     model = gp.Model("AKS_VRPP", env=env) if env else gp.Model("AKS_VRPP")
     model.setParam("OutputFlag", 0)

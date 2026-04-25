@@ -10,6 +10,14 @@ RVND systematically explores multiple neighborhood structures in a randomized se
 When an improvement is found in any neighborhood, the search restarts with a fresh,
 reshuffled neighborhood list. The algorithm terminates only when all neighborhoods
 have been explored without finding any improvement.
+
+Attributes:
+    RVND: Randomized Variable Neighborhood Descent metaheuristic class.
+
+Example:
+    >>> from random import Random
+    >>> from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd import RVND
+    >>> rvnd = RVND(operators=[lambda r: (r, False)], rng=Random())
 """
 
 from random import Random
@@ -36,6 +44,11 @@ class RVND:
 
     This randomization strategy prevents the algorithm from getting stuck in patterns
     and provides better exploration of the solution space.
+
+    Attributes:
+        operators: List of callable local search operators.
+        rng: Random instance for neighborhood selection.
+        num_operators: Number of neighborhoods available.
     """
 
     def __init__(self, operators: List[Callable], rng: Random):

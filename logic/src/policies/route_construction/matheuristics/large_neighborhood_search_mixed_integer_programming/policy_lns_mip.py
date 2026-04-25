@@ -1,5 +1,12 @@
 """
 LNS-MIP policy implementation.
+
+Attributes:
+    LNSMIPPolicy: Multi-period Large Neighborhood Search with MIP repair policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip import LNSMIPPolicy
+    >>> policy = LNSMIPPolicy()
 """
 
 import copy
@@ -37,7 +44,12 @@ from .params import LNSMIPParams
 class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Large Neighborhood Search with MIP Repair.
+
     Destroys a subset of visits and repairs using an exact solver.
+
+    Attributes:
+        params: LNS-MIP runtime parameters.
+        rng: Random instance for stochastic destroy and accept operations.
     """
 
     def __init__(self, config: Any = None):
@@ -52,7 +64,15 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
         self.rng = random.Random(self.params.seed)
 
     def _evaluate_plan(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
-        """Evaluate expected multi-day profit deterministically (using mean increments)."""
+        """Evaluate expected multi-day profit deterministically (using mean increments).
+
+        Args:
+            plan: Multi-day plan with one route list per day.
+            problem: Multi-day problem context.
+
+        Returns:
+            float: Total net profit summed across the planning horizon.
+        """
         tot = 0.0
         cur_prob = problem
         for day_idx in range(problem.horizon):
@@ -62,6 +82,15 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _destroy(self, problem: ProblemContext, plan: List[List[List[int]]]) -> Dict[int, List[int]]:  # noqa: C901
+        """Apply a destroy operator to select nodes for removal from the plan.
+
+        Args:
+            problem: Multi-day problem context providing distance matrix and wastes.
+            plan: Current multi-day plan with one route list per day.
+
+        Returns:
+            Dict[int, List[int]]: Mapping from day index to list of nodes to remove.
+        """
         d_destroy = min(self.params.d_destroy, problem.horizon)
         days = self.rng.sample(range(problem.horizon), d_destroy)
 
@@ -111,6 +140,16 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
     def _repair_mip(
         self, problem: ProblemContext, plan: List[List[List[int]]], destroyed: Dict[int, List[int]]
     ) -> List[List[List[int]]]:
+        """Repair destroyed nodes using a MIP sub-solver for each affected day.
+
+        Args:
+            problem: Multi-day problem context.
+            plan: Current multi-day plan.
+            destroyed: Mapping from day index to nodes that were removed.
+
+        Returns:
+            List[List[List[int]]]: New plan with repaired routes for each destroyed day.
+        """
         new_plan = copy.deepcopy(plan)
         cur_prob = problem
 
@@ -163,7 +202,16 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
         return new_plan
 
     def _accept(self, best_profit: float, new_profit: float, temp: float) -> bool:
-        """Determines whether to accept a new solution based on SA criteria."""
+        """Determine whether to accept a new solution based on SA criteria.
+
+        Args:
+            best_profit: Best profit found so far.
+            new_profit: Profit of the candidate solution.
+            temp: Current simulated annealing temperature.
+
+        Returns:
+            bool: True if the new solution should be accepted.
+        """
         if new_profit > best_profit:
             return True
         if self.params.acceptance == "sa":
@@ -174,6 +222,16 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
     def _run_multi_period_solver(
         self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """Run the LNS-MIP loop over the full planning horizon.
+
+        Args:
+            problem: Multi-day problem context.
+            multi_day_ctx: Optional multi-day context for inter-day state propagation.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: Today's
+                solution context, best plan found, and solver metadata.
+        """
         # 1. Greedy initial
         full_plan = []
         cur_prob = problem

@@ -1,4 +1,45 @@
-"""Parameter dataclasses for the Lagrangian multi-period matheuristic."""
+"""
+Parameter dataclasses for the Concurrent Adaptive Lagrangian Matheuristic (CALM).
+
+This module defines all configuration structures used by CALM, providing
+a single point of control for tuning and ablating its various components.
+
+Attributes:
+    LookaheadParams: Controls lookahead prize valuation.
+    LagrangianParams: Controls the Lagrangian relaxation of x^K = x^R.
+    DualBoundParams: Dual-bound tracking strategy.
+    BanditParams: LinUCB contextual bandit for engine + cut-strategy selection.
+    RegretParams: Adaptive regret-based preprocessing (soft -> hard escalation).
+    CALMParams: Top-level parameters; composes all subsystems.
+
+Example:
+    >>> CALMParams(
+    ...     lookahead=LookaheadParams(
+    ...         horizon=7,
+    ...         n_scenarios=1,
+    ...     ),
+    ...     lagrangian=LagrangianParams(
+    ...         max_outer_iterations=12,
+    ...         stagnation_patience=3,
+    ...     ),
+    ...     dual_bound=DualBoundParams(
+    ...         strategy="ema",
+    ...         ema_alpha=0.3,
+    ...         ema_quality_threshold=1.05,
+    ...     ),
+    ...     bandit=BanditParams(
+    ...         n_arms=2,
+    ...         n_features=10,
+    ...         delta=0.3,
+    ...         nu=2.0,
+    ...         lambda_reg=1.0,
+    ...     ),
+    ...     regret=RegretParams(
+    ...         adaptive_budget=0.3,
+    ...         soft_phase_boost=5.0,
+    ...     ),
+    ... )
+"""
 
 from __future__ import annotations
 
@@ -14,7 +55,21 @@ from logic.src.policies.route_construction.matheuristics.two_phase_kernel_search
 
 @dataclass
 class LookaheadParams:
-    """Controls lookahead prize valuation."""
+    """
+    Controls lookahead prize valuation.
+
+    Attributes:
+        horizon: Horizon length.
+        scenario_method: Method for scenario generation.
+        scenario_distribution: Distribution for scenario generation.
+        scenario_dist_kwargs: Keyword arguments for scenario distribution.
+        n_scenarios: Number of scenarios.
+        seed: Random seed.
+        capacity_cap: Capacity cap.
+        volume: Volume.
+        density: Density.
+        revenue_per_kg: Revenue per kg.
+    """
 
     # Scenario-tree inputs (forwarded to ScenarioGenerator)
     horizon: int = 7
@@ -44,7 +99,22 @@ class LookaheadParams:
 
 @dataclass
 class LagrangianParams:
-    """Controls the Lagrangian relaxation of x^K = x^R."""
+    """
+    Controls the Lagrangian relaxation of x^K = x^R.
+
+    Attributes:
+        max_outer_iterations: Maximum number of outer iterations.
+        stagnation_patience: Number of iterations to wait before escalating to hard phase.
+        dual_bound_tolerance: Tolerance for dual bound.
+        asynchronous_updates: Whether to use asynchronous updates.
+        polyak_mu_default: Default step size for Polyak rule.
+        polyak_mu_floor: Floor value for step size.
+        polyak_mu_ceil: Ceiling value for step size.
+        lambda_min: Minimum value for dual variables.
+        lambda_max: Maximum value for dual variables.
+        gamma_init: Initial value for gamma.
+        gamma_decay: Decay rate for gamma.
+    """
 
     # Outer-loop control
     max_outer_iterations: int = 12
@@ -92,6 +162,16 @@ class DualBoundParams:
                             subgradients and solves a small QP at each update
                             to choose a stabilising step.  Stronger dual,
                             more expensive.
+
+    Attributes:
+        strategy: Strategy to use for dual-bound tracking.
+        ema_alpha: Smoothing factor for EMA variant.
+        ema_quality_threshold: Threshold for accepting new subgradients in EMA.
+        bundle_size: Maximum number of subgradients to store in bundle.
+        bundle_proximal_weight: Weight for proximal term in bundle optimization.
+        bundle_descent_threshold: Threshold for serious step in bundle method.
+        bundle_weight_increase: Factor to increase proximal weight on null step.
+        bundle_weight_decrease: Factor to decrease proximal weight on serious step.
     """
 
     strategy: str = "ema"  # "ema" | "bundle"
@@ -118,7 +198,19 @@ class DualBoundParams:
 
 @dataclass
 class BanditParams:
-    """LinUCB contextual bandit for engine + cut-strategy selection."""
+    """
+    LinUCB contextual bandit for engine + cut-strategy selection.
+
+    Attributes:
+        enabled: Whether to enable the bandit.
+        alpha: Exploration width (UCB coefficient).
+        ridge_lambda: LinUCB regulariser.
+        feature_dim: Context vector dimension.
+        engines: List of engines to choose from.
+        cut_strategies: List of cut strategies to choose from.
+        reward_scale: Multiplicative scale for reward shaping.
+        reward_clip: Clip value for reward shaping.
+    """
 
     enabled: bool = True
     alpha: float = 1.0  # exploration width (UCB coefficient)
@@ -141,7 +233,16 @@ class BanditParams:
 
 @dataclass
 class RegretParams:
-    """Adaptive regret-based preprocessing (soft -> hard escalation)."""
+    """
+    Adaptive regret-based preprocessing (soft -> hard escalation).
+
+    Attributes:
+        enabled: Whether to enable regret-based preprocessing.
+        soft_bias_coefficient: Coefficient for biasing objective of high-regret bins.
+        escalation_patience: Number of iterations to wait before escalating to hard phase.
+        hard_fix_top_fraction: Fraction of top-regret bins to fix in hard phase.
+        hard_fix_max_periods: Maximum number of periods to fix top-regret bins.
+    """
 
     enabled: bool = True
 
@@ -164,7 +265,21 @@ class RegretParams:
 
 @dataclass
 class CALMParams:
-    """Top-level parameters; composes all subsystems."""
+    """
+    Top-level parameters; composes all subsystems.
+
+    Attributes:
+        lookahead: Lookahead parameters.
+        lagrangian: Lagrangian parameters.
+        dual_bound: Dual bound parameters.
+        bandit: Bandit parameters.
+        regret: Regret parameters.
+        tpks: TPKS parameters.
+        time_limit: Global time budget (seconds).
+        seed: Random seed.
+        verbose: Whether to print verbose output.
+        stockout_penalty: Overflow (stockout) penalty.
+    """
 
     lookahead: LookaheadParams = field(default_factory=LookaheadParams)
     lagrangian: LagrangianParams = field(default_factory=LagrangianParams)
@@ -189,6 +304,12 @@ class CALMParams:
         Nested subsystems are flattened using the convention
         ``config.<subsystem>.<field>`` (e.g. ``config.lookahead.horizon``).
         Missing values fall back to dataclass defaults.
+
+        Args:
+            config: The configuration object.
+
+        Returns:
+            CALMParams: The parameters as a CALMParams object.
         """
 
         def _hydrate(sub_cls, sub_cfg: Any):
@@ -222,7 +343,12 @@ class CALMParams:
         return cls(**top_kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
-        """to_dict docstring."""
+        """
+        Convert the parameters to a dictionary.
+
+        Returns:
+            Dict[str, Any]: The parameters as a dictionary.
+        """
         out: Dict[str, Any] = {}
         for f in fields(self):
             val = getattr(self, f.name)

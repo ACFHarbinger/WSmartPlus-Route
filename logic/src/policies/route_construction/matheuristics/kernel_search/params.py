@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Kernel Search (KS) matheuristic.
+
+Attributes:
+    KSParams: Dataclass holding Kernel Search solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.kernel_search.params import KSParams
+    >>> params = KSParams(initial_kernel_size=50, time_limit=300.0)
+    >>> d = params.to_dict()
 """
 
 from __future__ import annotations
@@ -35,7 +43,14 @@ class KSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> KSParams:
-        """Create KSParams from a configuration object or dictionary."""
+        """Create KSParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dict with KS parameter attributes.
+
+        Returns:
+            KSParams: Populated parameter dataclass.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -50,5 +65,9 @@ class KSParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert KSParams to a dictionary for backend compatibility."""
+        """Convert KSParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Mapping of parameter names to their values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

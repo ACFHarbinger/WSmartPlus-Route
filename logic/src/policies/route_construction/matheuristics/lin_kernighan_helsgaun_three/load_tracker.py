@@ -22,23 +22,18 @@ compute ΔP by:
 
 Complexity: O(L) where L = total length of affected routes (typically << N).
 
-Data Structures
----------------
-LoadState:
-    route_assignments: Dict[int, int]  # node → route_id
-    route_loads: Dict[int, float]      # route_id → total_load
-    route_penalties: Dict[int, float]  # route_id → capacity_violation
+Attributes:
+    LoadState: Data class tracking per-route load and penalty information.
+    build_load_state: Build a LoadState from a tour array.
+    get_exact_penalty_delta: Compute O(L) exact penalty delta for a k-opt move.
+    update_load_state_after_move: Rebuild LoadState after an accepted move.
 
-Usage
------
->>> state = build_load_state(tour, waste, capacity, n_original)
->>> delta_p = get_exact_penalty_delta(
-...     new_tour=candidate_tour,
-...     state=state,
-...     waste=waste,
-...     capacity=capacity,
-...     n_original=n_original,
-... )
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker import build_load_state
+    >>> tour = [0, 1, 2, 0]
+    >>> waste = np.array([0.0, 0.3, 0.4])
+    >>> state = build_load_state(tour, waste, capacity=1.0, n_original=3)
 """
 
 from __future__ import annotations
@@ -90,15 +85,30 @@ class LoadState:
         self.n_routes = n_routes
 
     def get_total_penalty(self) -> float:
-        """Compute total penalty across all routes."""
+        """Compute total penalty across all routes.
+
+        Returns:
+            float: Sum of capacity violations across all routes.
+        """
         return sum(self.route_penalties.values())
 
     def get_route_for_node(self, node: int) -> Optional[int]:
-        """Get the route index containing a given node."""
+        """Get the route index containing a given node.
+
+        Args:
+            node: The node to look up.
+
+        Returns:
+            Optional[int]: Route index for the node, or None if not found.
+        """
         return self.route_assignments.get(node)
 
-    def copy(self) -> LoadState:
-        """Create a deep copy of the load state."""
+    def copy(self) -> "LoadState":
+        """Create a deep copy of the load state.
+
+        Returns:
+            LoadState: A deep copy of this LoadState instance.
+        """
         return LoadState(
             route_assignments=self.route_assignments.copy(),
             route_loads=self.route_loads.copy(),

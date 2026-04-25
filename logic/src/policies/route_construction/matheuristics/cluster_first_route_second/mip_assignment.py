@@ -15,6 +15,15 @@ Reference:
     for vehicle routing". Networks, 11(2), 109-124.
     Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017). "A Variant Fisher
     and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem".
+
+Attributes:
+    assign_exact_mip: Exact GAP-based cluster assignment using Gurobi.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment import assign_exact_mip
+    >>> dm = np.zeros((4, 4))
+    >>> clusters = assign_exact_mip([1, 2], [1, 2, 3], {1: 0.3, 2: 0.4, 3: 0.2}, 1.0, 5.0, 1.0, dm)
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -40,7 +49,21 @@ def _add_variables_and_objective(
     C: float,
     objective: str,
 ) -> Dict[Tuple[int, int], "gp.Var"]:
-    """Helper to add variables and setting objective for the MIP model."""
+    """Helper to add variables and set objective for the MIP model.
+
+    Args:
+        model: Gurobi model to add variables to.
+        mandatory: Node indices that must be assigned.
+        seeds: Cluster seed node indices.
+        costs: Insertion cost keyed by (node, seed_index) tuple.
+        wastes: Waste amounts keyed by node index.
+        R: Revenue per unit of waste.
+        C: Cost per unit of distance.
+        objective: Either "minimize_cost" or "maximize_profit".
+
+    Returns:
+        Dict[Tuple[int, int], gp.Var]: Binary assignment variables keyed by (node, seed_index).
+    """
     x = {}
     if objective == "minimize_cost":
         model.ModelSense = GRB.MINIMIZE

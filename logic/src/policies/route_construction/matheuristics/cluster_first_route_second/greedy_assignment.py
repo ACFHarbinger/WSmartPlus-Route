@@ -10,6 +10,15 @@ nodes to the first feasible seed that respects capacity constraints.
 Reference:
     Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017). "A Variant Fisher
     and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem".
+
+Attributes:
+    assign_greedy: Greedy node-to-cluster assignment using Fisher & Jaikumar insertion cost.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment import assign_greedy
+    >>> dm = np.zeros((3, 3))
+    >>> clusters = assign_greedy([1, 2], [1, 2], {1: 0.3, 2: 0.4}, 1.0, dm)
 """
 
 from typing import Dict, List, Set
@@ -33,6 +42,17 @@ def assign_greedy(
     2. Sort all pairs in increasing order of insertion cost.
     3. Assign each node to the first feasible seed (respecting capacity constraints).
     4. Handle unassigned nodes (behavior depends on strict_fleet parameter).
+
+    Args:
+        seeds: Cluster seed node indices.
+        mandatory: Node indices that must be assigned to a cluster.
+        wastes: Waste amounts keyed by node index.
+        capacity: Vehicle capacity limit.
+        distance_matrix: Distance matrix of shape (n_nodes, n_nodes).
+        strict_fleet: If True, raise an error rather than opening a new vehicle.
+
+    Returns:
+        List[List[int]]: Cluster assignment, one list of node indices per seed.
     """
     # Initialize clusters and track capacity usage
     clusters: List[List[int]] = [[] for _ in range(len(seeds))]
@@ -89,7 +109,19 @@ def _handle_unassigned_nodes(
     wastes: Dict[int, float],
     strict_fleet: bool,
 ) -> None:
-    """Helper to handle nodes that weren't assigned in the initial greedy pass."""
+    """Helper to handle nodes that weren't assigned in the initial greedy pass.
+
+    Args:
+        unassigned: Node indices that were not placed during the greedy pass.
+        mandatory: All mandatory node indices.
+        seeds: Cluster seed node indices (may be extended in flexible mode).
+        clusters: Current cluster assignments; modified in place.
+        loads: Current load per cluster; modified in place.
+        assigned: Set of already-assigned node indices; modified in place.
+        capacity: Vehicle capacity limit.
+        wastes: Waste amounts keyed by node index.
+        strict_fleet: If True, raise ValueError instead of opening new vehicles.
+    """
     for node in unassigned:
         waste = wastes.get(node, 0.0)
         fitted = False
@@ -132,7 +164,21 @@ def _greedy_swap_fallback(
     capacity: float,
     wastes: Dict[int, float],
 ) -> bool:
-    """Attempt to swap an unassigned node with an assigned one to free up capacity."""
+    """Attempt to swap an unassigned node with an assigned one to free up capacity.
+
+    Args:
+        node: The unassigned node to place.
+        waste: Waste amount of the unassigned node.
+        seeds: Cluster seed node indices.
+        clusters: Current cluster assignments; modified in place on success.
+        loads: Current load per cluster; modified in place on success.
+        assigned: Set of assigned node indices; modified in place on success.
+        capacity: Vehicle capacity limit.
+        wastes: Waste amounts keyed by node index.
+
+    Returns:
+        bool: True if the swap succeeded and the node was placed, False otherwise.
+    """
     for k_donour in range(len(seeds)):
         for i_idx, node_i in enumerate(clusters[k_donour]):
             if node_i in seeds:

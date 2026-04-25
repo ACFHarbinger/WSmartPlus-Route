@@ -30,6 +30,33 @@ Three strategies are supported and the active one is chosen by the bandit:
 
 The cuts produced here are ADVISORY -- they are stored on the
 `SelectionResult` and applied on the next outer-iteration call (not mid-TPKS).
+
+Attributes:
+    build_corrected_revenue: Builds the effective prize vector for the knapsack side.
+    _wastes_from_revenue: Builds the waste dictionary for the knapsack side.
+    solve_selection_period: Solves the knapsack side of the Lagrangian decomposition.
+    SelectionResult: A dataclass that holds the result of the selection subproblem.
+
+Example:
+    >>> build_corrected_revenue(np.array([1, 2, 3]), np.array([0.1, 0.2, 0.3]), np.array([0.4, 0.5, 0.6]), 0.7, np.array([0.8, 0.9, 1.0]), 0)
+    array([1.3, 1.6, 1.9])
+
+    >>> _wastes_from_revenue(np.array([1, 2, 3]))
+    {1: 1, 2: 2, 3: 3}
+
+    >>> solve_selection_period(
+    ...     period=0,
+    ...     dist_matrix=np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]]),
+    ...     revenue_eff=np.array([1, 2, 3]),
+    ...     capacity=10,
+    ...     routing_cost_unit=1,
+    ...     mandatory_nodes=[],
+    ...     tpks_params=TPKSParams(),
+    ...     hard_fix_bins=None,
+    ...     engine="greedy",
+    ...     prior_cuts=None,
+    ... )
+    SelectionResult(period=0, selection=[1, 2, 3], tour=[0, 1, 2, 3, 0], lagrangian_objective=10.0, raw_objective=10.0, routing_cost_estimate=6.0, lifted_penalties={}, pareto_penalties={})
 """
 
 from __future__ import annotations
@@ -47,7 +74,18 @@ from logic.src.policies.route_construction.matheuristics.two_phase_kernel_search
 
 @dataclass
 class SelectionResult:
-    """One period's selection outcome."""
+    """One period's selection outcome.
+
+    Attributes:
+        period: Period index.
+        selection: Bin indices (1-based; 0 is depot).
+        tour: Tour for the selected bins.
+        lagrangian_objective: Lagrangian objective value.
+        raw_objective: Raw objective value.
+        routing_cost_estimate: Estimated routing cost.
+        lifted_penalties: Penalties for the next iteration.
+        pareto_penalties: Pareto penalties for the next iteration.
+    """
 
     period: int
     selection: List[int]  # bin indices (1-based; 0 is depot)
@@ -74,6 +112,17 @@ def build_corrected_revenue(
         revenue_eff[i] = V[i, t] + lambda[i, t] - gamma[t] * Delta[i, t] + bias[i, t]
 
     Returns a 1-D array of length N.
+
+    Args:
+        V: (N, T) prizes.
+        lambdas: (N, T) duals.
+        insertion_costs: (N, T) insertion costs.
+        gamma: (T,) lagrange multipliers for insertion costs.
+        regret_bias: (N, T) regret-based bias.
+        period: Period index.
+
+    Returns:
+        np.ndarray: Effective prizes for the period.
     """
     V_t = V[:, period]
     lam_t = lambdas[:, period]
@@ -90,6 +139,12 @@ def _wastes_from_revenue(revenue_eff: np.ndarray) -> Dict[int, float]:
     formulation assumes non-negative values (a very negative effective prize
     means 'don't bother selecting'; clipping at 0 has the same effect via
     the branch & bound).
+
+    Args:
+        revenue_eff: Effective revenue for each bin.
+
+    Returns:
+        Dict[int, float]: Dictionary of wastes for each bin.
     """
     out: Dict[int, float] = {}
     for idx, val in enumerate(revenue_eff):
@@ -114,20 +169,22 @@ def solve_selection_period(
     """
     Solve a single-period selection subproblem.
 
-    Parameters
-    ----------
-    period : int
-    dist_matrix : (N+1, N+1) distance matrix (with depot at index 0).
-    revenue_eff : (N,) effective prize per bin.
-    capacity : vehicle capacity constraint for the period.
-    routing_cost_unit : C, distance cost coefficient.
-    mandatory_nodes : bin ids (1-based) that MUST be visited this period.
-    tpks_params : TPKSParams.
-    hard_fix_bins : bin ids (1-based) forced to be visited via mandatory set
-        augmentation.  If None, regret preprocessing is either soft-only or
-        not applied for this period.
-    engine : "tpks" | "tpks_warm" | "greedy"
-    prior_cuts : optional {bin_id: penalty} from a previous iteration.
+    Args:
+        period: Period index.
+        dist_matrix: (N+1, N+1) distance matrix (with depot at index 0).
+        revenue_eff: (N,) effective prize per bin.
+        capacity: vehicle capacity constraint for the period.
+        routing_cost_unit: C, distance cost coefficient.
+        mandatory_nodes: bin ids (1-based) that MUST be visited this period.
+        tpks_params: TPKSParams.
+        hard_fix_bins: bin ids (1-based) forced to be visited via mandatory set
+            augmentation.  If None, regret preprocessing is either soft-only or
+            not applied for this period.
+        engine: "tpks" | "tpks_warm" | "greedy"
+        prior_cuts: optional {bin_id: penalty} from a previous iteration.
+
+    Returns:
+        SelectionResult: Result of the selection subproblem.
     """
     # Augment mandatory set with hard-fixed bins.
     mandatory = list(mandatory_nodes)
@@ -197,6 +254,17 @@ def _run_greedy(
     Seed: depot -> nearest mandatory -> back to depot.
     Loop: repeatedly insert the bin whose marginal profit (R*waste -
     C*insertion_cost) is maximal, if positive, subject to capacity.
+
+    Args:
+        dist_matrix: Distance matrix for the routing problem.
+        wastes: Dictionary of wastes for each bin.
+        capacity: Capacity of the vehicle.
+        R: Revenue factor.
+        C: Cost factor.
+        mandatory_nodes: List of mandatory nodes.
+
+    Returns:
+        Tuple[List[int], float, float]: Tour, objective value, and cost.
     """
     if not mandatory_nodes:
         mandatory_nodes = []
@@ -277,6 +345,14 @@ def generate_lifted_cuts(
     routing-cost savings from removing i from the tour (cheapest removal).
     Penalty = max(0, routing_cost_of_i - revenue_of_i) = bins that are
     "only marginally profitable" get flagged with a small penalty.
+
+    Args:
+        result: Selection result from the previous iteration.
+        dist_matrix: Distance matrix for the routing problem.
+        revenue_eff: Effective revenue for each bin.
+
+    Returns:
+        Dict[int, float]: Dictionary of penalties for each bin.
     """
     tour = result.tour
     if len(tour) < 3:
@@ -309,6 +385,14 @@ def generate_pareto_cuts(
     uses it as a pseudo-core point; bins with high marginal cost AND high
     selection frequency get the strongest penalty (since they're persistently
     in the solution but marginally profitable).
+
+    Args:
+        results: List of selection results from previous iterations.
+        dist_matrix: Distance matrix for the routing problem.
+        revenue_eff: Effective revenue for each bin.
+
+    Returns:
+        Dict[int, float]: Dictionary of penalties for each bin.
     """
     if not results:
         return {}

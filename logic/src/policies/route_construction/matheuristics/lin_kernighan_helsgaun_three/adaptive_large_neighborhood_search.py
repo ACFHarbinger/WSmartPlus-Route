@@ -14,25 +14,26 @@ Architecture
 4. **Deep Plateau**: If stuck for N iters, apply Perturbation
 5. **Loop**: Return modified solution to step 2
 
-Operator Dispatch
------------------
-- ``profit_aware_operators=False``: Standard CVRP operators (removed nodes only)
-- ``profit_aware_operators=True``: VRPP operators (removed + unvisited pool)
+Operator Dispatch:
+    - ``profit_aware_operators=False``: Standard CVRP operators (removed nodes only)
+    - ``profit_aware_operators=True``: VRPP operators (removed + unvisited pool)
 
-Example
--------
->>> from logic.src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import LKH3_ALNS
->>> solver = LKH3_ALNS(
-...     distance_matrix=dist,
-...     wastes={1: 10, 2: 20, 3: 30},
-...     capacity=100.0,
-...     revenue=2.0,
-...     cost_unit=1.0,
-...     profit_aware_operators=True,
-...     mandatory_nodes=[1],
-...     seed=42,
-... )
->>> routes, profit = solver.solve(max_iterations=100, lkh_trials=500, n_vehicles=3)
+Attributes:
+    LKH3_ALNS: Main solver class combining LKH-3 routing with ALNS outer loop.
+
+Example:
+    >>> from logic.src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import LKH3_ALNS
+    >>> solver = LKH3_ALNS(
+    ...     distance_matrix=dist,
+    ...     wastes={1: 10, 2: 20, 3: 30},
+    ...     capacity=100.0,
+    ...     revenue=2.0,
+    ...     cost_unit=1.0,
+    ...     profit_aware_operators=True,
+    ...     mandatory_nodes=[1],
+    ...     seed=42,
+    ... )
+    >>> routes, profit = solver.solve(max_iterations=100, lkh_trials=500, n_vehicles=3)
 """
 
 from __future__ import annotations
@@ -160,6 +161,7 @@ class LKH3_ALNS:
             n_original: Number of original nodes (before augmentation).
             R: Revenue per unit collected (VRPP parameter).
             C: Cost per distance unit.
+            perturb_operator_weights: Weights for each perturbation operator.
         """
         self.distance_matrix = distance_matrix
         self.wastes = wastes
@@ -413,9 +415,11 @@ class LKH3_ALNS:
             popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
             max_k_opt: Maximum k for k-opt.
             use_ip_merging: IP-based tour merging flag.
+            subgradient_iterations: Subgradient optimization iterations.
+            dynamic_topology_discovery: Toggle recursive B&B search.
 
         Returns:
-            Tuple of (routes, objective).
+            Tuple[List[List[int]], float, float]: (routes, objective, penalty).
         """
         # VRPP: Start with mandatory nodes + greedy Clarke-Wright savings
         active_nodes = list(self.mandatory_nodes)
@@ -533,11 +537,11 @@ class LKH3_ALNS:
             use_ip_merging: IP-based tour merging flag.
             initial_routes: Optional warm-start routes (global node indices).
                 If provided, flattened to 1D tour and passed to solve_lkh3.
+            dynamic_topology_discovery: Toggle recursive B&B search.
+            subgradient_iterations: Number of subgradient iterations.
 
         Returns:
-            Tuple of (routes_global, objective) where:
-            - routes_global: Routes with original node indices
-            - objective: Profit (VRPP) or negative cost (CVRP)
+            Tuple[List[List[int]], float, float]: (routes_global, objective, penalty).
         """
         if not nodes:
             return [[]], 0.0, 0.0
@@ -693,9 +697,11 @@ class LKH3_ALNS:
             popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
             max_k_opt: Maximum k for k-opt.
             use_ip_merging: IP-based tour merging flag.
+            subgradient_iterations: Subgradient optimization iterations.
+            dynamic_topology_discovery: Toggle recursive B&B search.
 
         Returns:
-            Tuple of (optimized_routes, objective).
+            Tuple[List[List[int]], float, float]: (optimized_routes, objective, penalty).
         """
         active_nodes = [n for route in routes for n in route]
         return self._route_nodes(
@@ -742,7 +748,14 @@ class LKH3_ALNS:
         return repaired_routes
 
     def _compute_objective(self, routes: List[List[int]]) -> float:
-        """Helper to compute current objective (profit or negative cost)."""
+        """Compute current objective (profit or negative cost).
+
+        Args:
+            routes: List of routes (no depot nodes).
+
+        Returns:
+            float: Profit (VRPP) or negative routing cost (CVRP).
+        """
         routing_cost = self._compute_routing_cost(routes)
         if self.profit_aware_operators:
             collected_fill = sum(self.wastes.get(n, 0.0) for route in routes for n in route)
@@ -751,7 +764,11 @@ class LKH3_ALNS:
             return -float(routing_cost)
 
     def _select_destroy_operator(self) -> Callable[[List[List[int]], int], Tuple[List[List[int]], List[int]]]:
-        """Weighted selection of destroy operator."""
+        """Select a destroy operator via ALNS roulette wheel.
+
+        Returns:
+            Callable: Destroy operator function (routes, n_remove) -> (routes, removed).
+        """
         if self.profit_aware_operators:
             operators = [
                 self._wrap_historical_profit_removal,
@@ -772,7 +789,11 @@ class LKH3_ALNS:
         return operators[idx]
 
     def _select_repair_operator(self) -> Callable[[List[List[int]], List[int]], List[List[int]]]:
-        """Weighted selection of repair operator."""
+        """Select a repair operator via ALNS roulette wheel.
+
+        Returns:
+            Callable: Repair operator function (routes, removed_nodes) -> routes.
+        """
         if self.profit_aware_operators:
             operators = [
                 self._wrap_savings_profit_insertion,
@@ -797,22 +818,54 @@ class LKH3_ALNS:
     # -----------------------------------------------------------------------
 
     def _wrap_historical_removal(self, routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper for historical_removal."""
+        """Wrap historical_removal with instance state.
+
+        Args:
+            routes: Current solution routes.
+            n_remove: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).
+        """
         return historical_removal(routes, n_remove, self.history, rng=self.rng, noise=0.1)
 
     def _wrap_neighbor_removal(self, routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper for neighbor_removal."""
+        """Wrap neighbor_removal with instance state.
+
+        Args:
+            routes: Current solution routes.
+            n_remove: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).
+        """
         return neighbor_removal(routes, n_remove, self.distance_matrix, rng=self.rng)
 
     def _wrap_sector_removal(self, routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper for sector_removal (fallback to neighbor if no coords)."""
+        """Wrap sector_removal, falling back to neighbor_removal if no coords.
+
+        Args:
+            routes: Current solution routes.
+            n_remove: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).
+        """
         if self.coords is not None:
             return sector_removal(routes, n_remove, self.coords, depot=(0.0, 0.0), rng=self.rng)
         else:
             return self._wrap_neighbor_removal(routes, n_remove)
 
     def _wrap_savings_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
-        """Wrapper for savings_insertion."""
+        """Wrap savings_insertion with instance state.
+
+        Args:
+            routes: Current solution routes (after destroy).
+            removed_nodes: Nodes removed by the destroy operator.
+
+        Returns:
+            List[List[int]]: Repaired routes with removed nodes reinserted.
+        """
         m_nodes = list(self.mandatory_nodes) if self.mandatory_nodes else []
         if not self.profit_aware_operators:
             m_nodes = list(set(m_nodes) | set(removed_nodes))
@@ -828,7 +881,15 @@ class LKH3_ALNS:
         )
 
     def _wrap_deep_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
-        """Wrapper for deep_insertion."""
+        """Wrap deep_insertion with instance state.
+
+        Args:
+            routes: Current solution routes (after destroy).
+            removed_nodes: Nodes removed by the destroy operator.
+
+        Returns:
+            List[List[int]]: Repaired routes with removed nodes reinserted.
+        """
         m_nodes = list(self.mandatory_nodes) if self.mandatory_nodes else []
         if not self.profit_aware_operators:
             m_nodes = list(set(m_nodes) | set(removed_nodes))
@@ -845,7 +906,15 @@ class LKH3_ALNS:
         )
 
     def _wrap_nearest_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
-        """Wrapper for nearest_insertion."""
+        """Wrap nearest_insertion with instance state.
+
+        Args:
+            routes: Current solution routes (after destroy).
+            removed_nodes: Nodes removed by the destroy operator.
+
+        Returns:
+            List[List[int]]: Repaired routes with removed nodes reinserted.
+        """
         m_nodes = list(self.mandatory_nodes) if self.mandatory_nodes else []
         if not self.profit_aware_operators:
             m_nodes = list(set(m_nodes) | set(removed_nodes))
@@ -867,7 +936,15 @@ class LKH3_ALNS:
     def _wrap_historical_profit_removal(
         self, routes: List[List[int]], n_remove: int
     ) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper for historical_profit_removal."""
+        """Wrap historical_profit_removal with instance state.
+
+        Args:
+            routes: Current solution routes.
+            n_remove: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).
+        """
         return historical_profit_removal(
             routes,
             n_remove,
@@ -884,7 +961,15 @@ class LKH3_ALNS:
     def _wrap_neighbor_profit_removal(
         self, routes: List[List[int]], n_remove: int
     ) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper for neighbor_profit_removal."""
+        """Wrap neighbor_profit_removal with instance state.
+
+        Args:
+            routes: Current solution routes.
+            n_remove: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).
+        """
         return neighbor_profit_removal(
             routes,
             n_remove,
@@ -896,7 +981,15 @@ class LKH3_ALNS:
         )
 
     def _wrap_sector_profit_removal(self, routes: List[List[int]], n_remove: int) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper for sector_profit_removal (fallback to neighbor if no coords)."""
+        """Wrap sector_profit_removal, falling back to neighbor_profit_removal if no coords.
+
+        Args:
+            routes: Current solution routes.
+            n_remove: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).
+        """
         if self.coords is not None:
             return sector_profit_removal(
                 routes,
@@ -913,7 +1006,15 @@ class LKH3_ALNS:
             return self._wrap_neighbor_profit_removal(routes, n_remove)
 
     def _wrap_savings_profit_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
-        """Wrapper for savings_profit_insertion with expand_pool=True."""
+        """Wrap savings_profit_insertion with expand_pool=True.
+
+        Args:
+            routes: Current solution routes (after destroy).
+            removed_nodes: Nodes removed by the destroy operator.
+
+        Returns:
+            List[List[int]]: Repaired routes with profit-aware node reinsertion.
+        """
         return savings_profit_insertion(
             routes,
             removed_nodes,
@@ -927,7 +1028,15 @@ class LKH3_ALNS:
         )
 
     def _wrap_deep_profit_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
-        """Wrapper for deep_profit_insertion with expand_pool=True."""
+        """Wrap deep_profit_insertion with expand_pool=True.
+
+        Args:
+            routes: Current solution routes (after destroy).
+            removed_nodes: Nodes removed by the destroy operator.
+
+        Returns:
+            List[List[int]]: Repaired routes with profit-aware node reinsertion.
+        """
         return deep_profit_insertion(
             routes,
             removed_nodes,
@@ -941,7 +1050,15 @@ class LKH3_ALNS:
         )
 
     def _wrap_nearest_profit_insertion(self, routes: List[List[int]], removed_nodes: List[int]) -> List[List[int]]:
-        """Wrapper for nearest_profit_insertion with expand_pool=True."""
+        """Wrap nearest_profit_insertion with expand_pool=True.
+
+        Args:
+            routes: Current solution routes (after destroy).
+            removed_nodes: Nodes removed by the destroy operator.
+
+        Returns:
+            List[List[int]]: Repaired routes with profit-aware node reinsertion.
+        """
         return nearest_profit_insertion(
             routes,
             removed_nodes,
@@ -959,7 +1076,15 @@ class LKH3_ALNS:
     # -----------------------------------------------------------------------
 
     def _select_worst_routes(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Select the n worst routes based on profit-oriented strategy."""
+        """Select the n worst routes based on profit-oriented strategy.
+
+        Args:
+            routes: Current solution routes.
+            n: Number of routes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: (remaining_routes, removed_nodes).
+        """
         target_routes = []
         all_removed_nodes = []
         for _ in range(n):

@@ -1,5 +1,12 @@
 """
 Parameters for Large Neighborhood Search Mixed Integer Programming.
+
+Attributes:
+    LNSMIPParams: Dataclass holding LNS-MIP solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.params import LNSMIPParams
+    >>> params = LNSMIPParams(k_destroy=10, max_iterations=200)
 """
 
 from dataclasses import MISSING, dataclass, fields

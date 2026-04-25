@@ -5,6 +5,13 @@ Adapts the classic geometric decomposition algorithm (Fisher & Jaikumar, 1981)
 to the WSmart+ Route simulator interface. This adapter facilitates the
 integration of the solver into the simulation pipeline, handling parameter
 mapping, data extraction, and result formatting.
+
+Attributes:
+    ClusterFirstRouteSecondPolicy: Simulator adapter for the CF-RS matheuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs import ClusterFirstRouteSecondPolicy
+    >>> policy = ClusterFirstRouteSecondPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -55,9 +62,19 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration dataclass for CF-RS.
+
+        Returns:
+            Optional[Type]: The CFRSConfig class.
+        """
         return CFRSConfig
 
     def _get_config_key(self) -> str:
+        """Return the unique Hydra configuration key for CF-RS.
+
+        Returns:
+            str: The string "cf_rs".
+        """
         return "cf_rs"
 
     def _run_solver(
@@ -71,7 +88,21 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - CFRS requires specialized execute()."""
+        """Not used — CF-RS uses a specialized execute() method.
+
+        Args:
+            sub_dist_matrix: Distance matrix for the subproblem.
+            sub_wastes: Waste amounts keyed by node index.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit of waste.
+            cost_unit: Cost per unit of distance.
+            values: Additional solver values.
+            mandatory_nodes: Node indices that must be visited.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty tour, zero objective, zero cost.
+        """
         return [], 0.0, 0.0
 
     def execute(
@@ -87,7 +118,7 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
            visiting sequence.
 
         Args:
-            **kwargs: Context for policy execution, including:
+            kwargs: Context for policy execution, including:
                 - distance_matrix (np.ndarray): Full distance matrix for the problem.
                 - wastes (Dict[int, float]): Current bin inventory levels.
                 - capacity (float): Vehicle collection capacity.

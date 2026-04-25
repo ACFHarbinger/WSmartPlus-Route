@@ -1,5 +1,12 @@
 """
 ILS-RVND-SP algorithm parameters.
+
+Attributes:
+    ILSRVNDSPParams: Dataclass with ILS-RVND-SP runtime configuration.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
+    >>> params = ILSRVNDSPParams(max_restarts=10, time_limit=300.0)
 """
 
 from dataclasses import dataclass, field
@@ -13,7 +20,18 @@ from logic.src.policies.acceptance_criteria.base.factory import AcceptanceCriter
 class ILSRVNDSPParams:
     """
     Runtime parameters for the ILS-RVND-SP solver.
-    Extracts and manages the configuration values during execution.
+
+    Attributes:
+        max_restarts: Number of independent restarts from different initial solutions.
+        max_iter_ils: Maximum ILS iterations per restart.
+        perturbation_strength: Number of nodes removed during perturbation.
+        use_set_partitioning: Whether to apply set partitioning post-optimization.
+        mip_time_limit: Time budget for set partitioning MIP.
+        sp_mip_gap: Relative gap tolerance for set partitioning.
+        N: Maximum number of nodes for subgradient optimization.
+        time_limit: Total wall-clock time budget.
+        seed: Random seed.
+        vrpp: Whether to operate in VRPP profit-aware mode.
     """
 
     max_restarts: int = 10
@@ -52,7 +70,14 @@ class ILSRVNDSPParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "ILSRVNDSPParams":
-        """Build parameters from a configuration object."""
+        """Build parameters from a configuration object.
+
+        Args:
+            config: Configuration object with ILS-RVND-SP parameter attributes.
+
+        Returns:
+            ILSRVNDSPParams: Populated parameter dataclass with acceptance criterion.
+        """
         # Build parameters
         params = cls(
             max_restarts=getattr(config, "max_restarts", 10),

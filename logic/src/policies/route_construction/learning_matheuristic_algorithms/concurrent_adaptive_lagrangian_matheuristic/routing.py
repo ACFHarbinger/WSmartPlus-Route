@@ -24,6 +24,33 @@ The per-period workers are designed to run concurrently via a thread pool
 (concurrent.futures.ThreadPoolExecutor).  Gurobi's TPKS solve releases the
 GIL for most of its wall-clock time, and all writes to shared state go
 through locks.
+
+Attributes:
+    RoutingResult: Result of a single period's routing subproblem evaluation.
+    evaluate_period: Evaluates a single period's routing subproblem, updates oracle + coordinator.
+
+Example:
+    >>> evaluate_period(
+    ...     selection_result=SelectionResult(
+    ...         period=0,
+    ...         selection=[1, 2, 3],
+    ...         tour=[0, 1, 2, 3, 0],
+    ...         lagrangian_objective=10.0,
+    ...         raw_objective=10.0,
+    ...         routing_cost_estimate=6.0,
+    ...         lifted_penalties={},
+    ...         pareto_penalties={},
+    ...     ),
+    ...     dist_matrix=np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]]),
+    ...     n_bins=3,
+    ...     V_column=np.array([1, 2, 3]),
+    ...     lambdas_column=np.array([0.1, 0.2, 0.3]),
+    ...     oracle=InsertionCostOracle(np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])),
+    ...     coordinator=LagrangianCoordinator(n_periods=1),
+    ...     upper_bound=10.0,
+    ...     lkh3_improver=None,
+    ... )
+    RoutingResult(period=0, tour=[0, 1, 2, 3, 0], tour_cost=6.0, selection=[1, 2, 3], quality_ratio=1.0, insertion_costs_for_unselected={}, lagrangian_value_contrib=9.4, accepted_by_oracle='accepted_improving', multiplier_step=0.1)
 """
 
 from __future__ import annotations
@@ -94,6 +121,9 @@ def evaluate_period(
         upper_bound : float  (best known primal; used for Polyak stepsize).
         lkh3_improver : optional callable that takes (tour, dist_matrix) ->
                     (improved_tour, improved_cost).
+
+    Returns:
+        RoutingResult: Result of the routing subproblem evaluation.
     """
     period = selection_result.period
     tour = list(selection_result.tour)

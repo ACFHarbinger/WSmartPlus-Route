@@ -105,7 +105,7 @@ def merge_tours(
         distance_matrix: (n × n) cost matrix.
 
     Returns:
-        A new closed tour that reuses as many shared edges as possible.
+        List[int]: A new closed tour that reuses as many shared edges as possible.
     """
     n = len(tour1) - 1
 
@@ -175,7 +175,7 @@ def merge_tours_ip(
         distance_matrix: (n × n) symmetric cost matrix.
 
     Returns:
-        A new closed tour combining edges from the elite pool.
+        List[int]: A new closed tour combining edges from the elite pool.
     """
     if len(tour_pool) < 2:
         return tour_pool[0][:] if tour_pool else []
@@ -240,7 +240,7 @@ def _build_tour_from_successor(
         tour_pool: Original tour pool (for greedy fallback).
 
     Returns:
-        A closed tour.
+        List[int]: A closed tour.
     """
     # The assignment gives a perfect matching; chain it into a tour
     successor: Dict[int, int] = {}
@@ -302,7 +302,7 @@ def merge_tours_best(
         use_ip: If True, attempt IP-based merging; else use greedy.
 
     Returns:
-        A new closed tour combining edges from the pool.
+        List[int]: A new closed tour combining edges from the pool.
     """
     if len(tour_pool) < 2:
         return tour_pool[0][:] if tour_pool else []
@@ -338,8 +338,7 @@ def _double_bridge_kick(
         rng: ``random.Random`` instance for reproducible cut selection.
 
     Returns:
-        New perturbed closed tour.  Returns the original tour unchanged if
-        the route is too short for a double-bridge move (< 4 nodes).
+        List[int]: New perturbed closed tour, or original if too short for move.
     """
     adapter = TourAdapter(tour, distance_matrix)
     applied = double_bridge(adapter, r_idx=0, rng=rng)
@@ -364,7 +363,7 @@ def _initialize_tour(
         initial_tour: Optional existing tour.
 
     Returns:
-        A closed tour over all n nodes.
+        List[int]: A closed tour over all n nodes.
     """
     n = len(distance_matrix)
     if initial_tour is None:
@@ -394,7 +393,7 @@ def _get_tour_array(start_node: int, tour_dict: Dict[int, int]) -> List[int]:
         tour_dict: Tour dictionary.
 
     Returns:
-        Tour list.
+        List[int]: Tour as ordered node list.
     """
     tour = [start_node]
     curr = tour_dict[start_node]
@@ -432,7 +431,10 @@ class KoptTopologyFactory:
             k: Number of edges to remove (k-opt).
 
         Returns:
-            List of valid topologies.
+            List[List[Tuple[int, int]]]: Valid added-edge topologies for k-opt.
+
+        Yields:
+            Valid topologies.
         """
         if k in cls._cache:
             return cls._cache[k]
@@ -447,7 +449,14 @@ class KoptTopologyFactory:
             broken.add((v, u))
 
         def find_matchings(unmatched: List[int]):
-            """Generates all possible perfect matchings for the given nodes."""
+            """Generates all possible perfect matchings for the given nodes.
+
+            Args:
+                unmatched: List of nodes to match.
+
+            Yields:
+                Perfect matchings.
+            """
             if not unmatched:
                 yield []
             else:
@@ -525,7 +534,7 @@ def build_tour_from_segments(
         k: The k-opt order.
 
     Returns:
-        The new closed tour array.
+        List[int]: The new closed tour array.
     """
     # 1. Extract the k segments
     # S_i goes from t_{2i+1} to t_{2i+2} (0-indexed pos: 2i+1 to (2i+2)%2k)
@@ -628,7 +637,7 @@ def _2opt_gain(
         d: Distance matrix.
 
     Returns:
-        Exact distance gain for a 2-opt move.
+        float: Exact distance gain for a 2-opt move.
     """
     return d[t1, t2] + d[t3, t4] - d[t1, t3] - d[t2, t4]
 
@@ -654,7 +663,7 @@ def _should_accept_kopt_move(
                     Positive values mean cost reduction.
 
     Returns:
-        True if the move should be accepted for evaluation, False otherwise.
+        bool: True if the move should be accepted for evaluation, False otherwise.
 
     Mathematical Formulation:
         Accept iff: (ΔP < -ε) OR (|ΔP| ≤ ε AND ΔC > ε)
@@ -722,7 +731,7 @@ def _3opt_gains(
         d: Distance matrix.
 
     Returns:
-        List of exact gains for all seven non-trivial 3-opt reconnection cases.
+        List[float]: Exact gains for all seven non-trivial 3-opt reconnection cases.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6]
     return [
@@ -773,7 +782,7 @@ def _4opt_gains(
         d: Distance matrix.
 
     Returns:
-        List of exact gains for the three 4-opt reconnection cases.
+        List[float]: Exact gains for the three 4-opt reconnection cases.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8]
     return [
@@ -823,7 +832,7 @@ def _5opt_gains(
         d: Distance matrix.
 
     Returns:
-        List of exact gains for the five 5-opt reconnection cases.
+        List[float]: Exact gains for the five 5-opt reconnection cases.
     """
     base = d[t1, t2] + d[t3, t4] + d[t5, t6] + d[t7, t8] + d[t9, t10]
     return [
