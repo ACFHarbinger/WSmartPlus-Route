@@ -76,6 +76,11 @@ def generate_datasets(cfg: Config) -> None:
 def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -> int:
     """Helper to generate data for a specific problem and its distributions.
 
+    Args:
+        problem: Description of problem.
+        distributions: Description of distributions.
+        data: Description of data.
+
     Returns:
         Number of files generated.
     """
@@ -118,6 +123,13 @@ def _process_instance_generation(
     graph_cfg: Optional[GraphConfig] = None,
 ) -> int:
     """Configure builder and save datasets for a specific configuration.
+
+    Args:
+        problem: Description of problem.
+        dist: Description of dist.
+        datadir: Description of datadir.
+        data: Description of data.
+        graph_cfg: Description of graph_cfg.
 
     Returns:
         Number of files generated.
@@ -168,7 +180,13 @@ def _process_instance_generation(
 
 
 def _apply_noise_config(builder: VRPInstanceBuilder, problem: str, data: DataConfig) -> None:
-    """Apply noise parameters to the builder."""
+    """Apply noise parameters to the builder.
+
+    Args:
+        builder: Description of builder.
+        problem: Description of problem.
+        data: Description of data.
+    """
     if data.mu is not None:
         sigma = data.sigma
         if isinstance(sigma, list):
@@ -198,6 +216,17 @@ def _generate_test_simulator_data(
 ) -> int:
     """Generate and save test simulator data.
 
+    Args:
+        builder: Description of builder.
+        n_days: Description of n_days.
+        datadir: Description of datadir.
+        dist: Description of dist.
+        size: Description of size.
+        data: Description of data.
+        area: Description of area.
+        waste_type: Description of waste_type.
+        n_samples: Description of n_samples.
+
     Returns:
         Number of files generated.
     """
@@ -226,6 +255,15 @@ def _generate_train_time_data(
     builder: VRPInstanceBuilder, problem: str, n_days: int, datadir: str, dist: Any, size: int, data: DataConfig
 ) -> int:
     """Generate and save train time data.
+
+    Args:
+        builder: Description of builder.
+        problem: Description of problem.
+        n_days: Description of n_days.
+        datadir: Description of datadir.
+        dist: Description of dist.
+        size: Description of size.
+        data: Description of data.
 
     Returns:
         Number of files generated.
@@ -275,6 +313,14 @@ def _generate_train_data(
 ) -> int:
     """Generate and save standard training data.
 
+    Args:
+        builder: Description of builder.
+        problem: Description of problem.
+        datadir: Description of datadir.
+        dist: Description of dist.
+        size: Description of size.
+        data: Description of data.
+
     Returns:
         Number of files generated.
     """
@@ -321,7 +367,14 @@ def _generate_train_data(
 
 
 def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfig, is_td: bool = False) -> None:
-    """Verify file existence and save the dataset."""
+    """Verify file existence and save the dataset.
+
+    Args:
+        builder: Description of builder.
+        filename: Description of filename.
+        data: Description of data.
+        is_td: Description of is_td.
+    """
     ext = ".td" if is_td else ".npz"
     assert data.overwrite or not os.path.isfile(check_extension(filename, ext)), (
         f"File {filename} already exists! Try running with -f option to overwrite."

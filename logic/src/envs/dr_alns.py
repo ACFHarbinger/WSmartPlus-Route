@@ -7,6 +7,14 @@ Reference:
     Reijnen, R., Zhang, Y., Lau, H. C., & Bukhsh, Z.
     "Online Control of Adaptive Large Neighborhood Search Using Deep
     Reinforcement Learning", AAAI 2024.
+
+Attributes:
+    DRALNSEnv: Gymnasium environment for training DR-ALNS with PPO.
+
+Example:
+    env = DRALNSEnv(max_iterations=100, n_destroy_ops=3, n_repair_ops=2)
+    env.reset()
+    env.step(env.action_space.sample())
 """
 
 from __future__ import annotations
@@ -47,6 +55,8 @@ class DRALNSEnv(gym.Env):
 
     Observation Space:
         Box(7,) - 7 problem-agnostic features
+    Attributes:
+        None
     """
 
     metadata = {"render.modes": []}
@@ -279,7 +289,18 @@ class DRALNSEnv(gym.Env):
         return obs, reward, terminated, truncated, info
 
     def _get_observation(self) -> np.ndarray:
-        """Get current state observation."""
+        """Get current state observation.
+
+        Returns:
+            Array of 7 features:
+            - best_improved
+            - current_accepted
+            - current_improved
+            - is_current_best
+            - cost_diff_best
+            - stagnation_count
+            - search_budget
+        """
         return np.array(
             [
                 float(self.state.best_improved),
@@ -300,7 +321,17 @@ class DRALNSEnv(gym.Env):
         repair_idx: int,
         severity: float,
     ) -> List[List[int]]:
-        """Apply selected destroy and repair operators."""
+        """Apply selected destroy and repair operators.
+
+        Args:
+            routes: List of routes to apply operators to
+            destroy_idx: Index of destroy operator to use
+            repair_idx: Index of repair operator to use
+            severity: Severity of destroy operator (0-1)
+
+        Returns:
+            List of routes after applying operators
+        """
         total_nodes = sum(len(route) for route in routes)
         if total_nodes == 0:
             return routes
@@ -318,7 +349,16 @@ class DRALNSEnv(gym.Env):
         return repaired_routes
 
     def _accept(self, current_profit: float, new_profit: float, temperature: float) -> bool:
-        """Simulated Annealing acceptance criterion."""
+        """Simulated Annealing acceptance criterion.
+
+        Args:
+            current_profit: Current solution profit
+            new_profit: New solution profit
+            temperature: Annealing temperature
+
+        Returns:
+            Whether to accept the new solution
+        """
         if new_profit >= current_profit:
             return True
         if temperature <= 0:
@@ -329,18 +369,54 @@ class DRALNSEnv(gym.Env):
 
     # Destroy operators
     def _random_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
+        """Remove n random nodes from routes.
+
+        Args:
+            routes: List of routes to remove nodes from
+            n: Number of nodes to remove
+
+        Returns:
+            Tuple of (routes after removal, removed nodes)
+        """
         return random_removal(routes, n, rng=self.rng)
 
     def _worst_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
+        """Remove n worst nodes from routes.
+
+        Args:
+            routes: List of routes to remove nodes from
+            n: Number of nodes to remove
+
+        Returns:
+            Tuple of (routes after removal, removed nodes)
+        """
         assert self.dist_matrix is not None
         return worst_removal(routes, n, self.dist_matrix)
 
     def _cluster_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
+        """Remove n nodes in clusters from routes.
+
+        Args:
+            routes: List of routes to remove nodes from
+            n: Number of nodes to remove
+
+        Returns:
+            Tuple of (routes after removal, removed nodes)
+        """
         assert self.dist_matrix is not None
         return cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.rng)
 
     # Repair operators
     def _greedy_insertion(self, partial_routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        """Insert removed nodes into routes using greedy insertion heuristic.
+
+        Args:
+            partial_routes: List of partial routes
+            removed: List of nodes to insert
+
+        Returns:
+            List of routes after inserting removed nodes
+        """
         assert self.dist_matrix is not None and self.wastes is not None and self.capacity is not None
         return greedy_insertion(
             partial_routes,
@@ -352,6 +428,15 @@ class DRALNSEnv(gym.Env):
         )
 
     def _regret_2_insertion(self, partial_routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        """Insert removed nodes into routes using regret-2 insertion heuristic.
+
+        Args:
+            partial_routes: List of partial routes
+            removed: List of nodes to insert
+
+        Returns:
+            List of routes after inserting removed nodes
+        """
         assert self.dist_matrix is not None and self.wastes is not None and self.capacity is not None
         return regret_2_insertion(
             partial_routes,
@@ -364,6 +449,11 @@ class DRALNSEnv(gym.Env):
 
     # Helpers
     def _build_initial_solution(self) -> List[List[int]]:
+        """Build initial solution using nearest neighbor heuristic.
+
+        Returns:
+            List of routes representing the initial solution
+        """
         assert self.dist_matrix is not None and self.wastes is not None and self.capacity is not None
         return build_nn_routes(
             nodes=self.nodes,
@@ -376,6 +466,14 @@ class DRALNSEnv(gym.Env):
         )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
+        """Evaluate the profit of a given solution.
+
+        Args:
+            routes: List of routes representing the solution
+
+        Returns:
+            Total profit of the solution
+        """
         assert self.wastes is not None
         if not routes:
             return 0.0
@@ -384,6 +482,14 @@ class DRALNSEnv(gym.Env):
         return revenue - cost
 
     def _cost(self, routes: List[List[int]]) -> float:
+        """Calculate the total travel cost for a given solution.
+
+        Args:
+            routes: List of routes representing the solution
+
+        Returns:
+            Total travel cost of the solution
+        """
         assert self.dist_matrix is not None
         total_cost = 0.0
         for route in routes:

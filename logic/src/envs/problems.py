@@ -1,5 +1,22 @@
 """
 Facade for the problems package.
+
+Attributes:
+    BaseProblem: Base class for all problems
+    COST_KM: Cost per kilometer
+    REVENUE_KG: Revenue per kilogram
+    BIN_CAPACITY: Bin capacity
+    VEHICLE_CAPACITY: Vehicle capacity
+    VRPP: Capacitated VRP
+    CVRPP: Capacitated VRP with waste
+    WCVRP: Waste-only CVRP
+    CWCVRP: Capacitated VRP with waste and time windows
+    SCWCVRP: Single-depot Capacitated VRP with waste and time windows
+
+Example:
+    from logic.src.envs.problems import VRPP
+    env = VRPP(num_loc=50, cost_km=10)
+    obs, _ = env.reset()
 """
 
 from logic.src.constants.tasks import (

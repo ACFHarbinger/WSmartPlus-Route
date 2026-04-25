@@ -6,6 +6,17 @@ Expected CSV format (single sample):
     - Rows 1..N: bins
     - Columns: 'Lat'/'Lng' or 'Latitude'/'Longitude', and 'Day 0', 'Day 1', ..., 'Day D-1'
     - Optional: 'Max Fill' (per-bin max capacity)
+
+Attributes:
+    PandasCsvDataset: Dataset wrapping simulation data loaded from a CSV file.
+
+Example:
+    >>> from logic.src.data.datasets import PandasCsvDataset
+    >>> dataset = PandasCsvDataset(data)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Any, Dict
@@ -25,32 +36,64 @@ class PandasCsvDataset(SimulationDataset):
     The first row is the depot and the remaining rows are bins.
     Coordinates are automatically mapped from 'Lat'/'Lng' or 'Latitude'/'Longitude'.
     Daily fill values are expected in 'Day X' columns.
+
+    Attributes:
+        sample: Dictionary containing the dataset.
     """
 
     def __init__(self, sample: Dict[str, Any]):
-        """Initialize the Pandas CSV dataset."""
+        """Initialize the Pandas CSV dataset.
+
+        Args:
+            sample: Description of sample.
+        """
         self._sample = sample
 
     def __len__(self) -> int:
-        """Return the number of samples in the dataset."""
+        """Return the number of samples in the dataset.
+
+        Returns:
+            Description of return value.
+        """
         return 1
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
-        """Return the sample at the given index."""
+        """Return the sample at the given index.
+
+        Args:
+            index: Description of index.
+
+        Returns:
+            Description of return value.
+        """
         if index != 0:
             raise IndexError("PandasCsvDataset only contains one sample.")
         return self._sample
 
     @staticmethod
     def load(path: str) -> "PandasCsvDataset":
-        """Load a PandasCsvDataset from a .csv file."""
+        """Load a PandasCsvDataset from a .csv file.
+
+        Args:
+            path: Description of path.
+
+        Returns:
+            Description of return value.
+        """
         df = pd.read_csv(path)
         sample = PandasCsvDataset._parse_df(df)
         return PandasCsvDataset(sample)
 
     @staticmethod
     def _parse_df(df: pd.DataFrame) -> Dict[str, Any]:
-        """Parse a dataframe into a sample dict."""
+        """Parse a dataframe into a sample dict.
+
+        Args:
+            df: Description of df.
+
+        Returns:
+            Description of return value.
+        """
         # Normalize coordinate column names
         if "Latitude" in df.columns and "Lat" not in df.columns:
             df = df.rename(columns={"Latitude": "Lat"})

@@ -3,6 +3,22 @@ Builders for Vehicle Routing Problem (VRP) instances.
 
 This module provides builder classes to construct VRP instances from raw data,
 handling coordinate normalization, waste scaling, and feature extraction.
+
+Attributes:
+    VRPInstanceBuilder: Builder pattern for creating VRP instances.
+
+Example:
+    builder = VRPInstanceBuilder()
+    builder.set_problem_size(10)
+    builder.set_waste_type("plastic")
+    builder.set_distribution("gamma1")
+    builder.set_area("Rio Maior")
+    builder.set_focus_graph("graph.pkl", 20)
+    builder.set_method("random")
+    builder.set_num_days(1)
+    builder.set_problem_name("vrpp")
+    builder.set_noise(0.0, 0.0)
+    builder.build()
 """
 
 from typing import Optional
@@ -24,6 +40,22 @@ class VRPInstanceBuilder:
 
     This class provides a fluent interface to configure and generate VRP datasets
     with various parameters such as problem size, distribution, area, and waste type.
+    Attributes:
+        dataset_size (int): Number of instances to generate.
+        problem_size (int): Number of nodes (graph size).
+        waste_type (Optional[str]): Type of waste.
+        distribution (str): Data distribution.
+        area (str): Geographical area.
+        focus_graph (Optional[str]): Path to focus graph file.
+        focus_size (int): Size of focus graph.
+        method (Optional[str]): Method for vertex generation/selection.
+        num_days (int): Number of simulation days.
+        problem_name (Optional[str]): Name of the problem.
+        noise_mean (float): Mean for noise injection.
+        noise_variance (float): Variance for noise injection.
+        device (torch.device): Device for random number generation.
+        np_rng (np.random.Generator): Random number generator.
+        generator (torch.Generator): PyTorch generator.
     """
 
     def __init__(
@@ -73,60 +105,139 @@ class VRPInstanceBuilder:
         self.generator = torch.Generator(device=self._device)
 
     def set_seed(self, seed: int):
-        """Sets the random seed for reproducibility."""
+        """Sets the random seed for reproducibility.
+
+        Args:
+            seed: Description of seed.
+
+        Returns:
+            Description of return value.
+        """
         self._seed = seed
         self.np_rng = np.random.default_rng(seed)
         self.generator.manual_seed(seed)
         return self
 
     def set_dataset_size(self, size: int):
-        """Sets the number of instances to generate."""
+        """Sets the number of instances to generate.
+
+        Args:
+            size: Description of size.
+
+        Returns:
+            Description of return value.
+        """
         self._dataset_size = size
         return self
 
     def set_problem_size(self, size: int):
-        """Sets the number of nodes (graph size) for the problem."""
+        """Sets the number of nodes (graph size) for the problem.
+
+        Args:
+            size: Description of size.
+
+        Returns:
+            Description of return value.
+        """
         self._problem_size = size
         return self
 
     def set_waste_type(self, waste_type: str):
-        """Sets the type of waste (e.g., 'plastic', 'paper')."""
+        """Sets the type of waste (e.g., 'plastic', 'paper').
+
+        Args:
+            waste_type: Description of waste_type.
+
+        Returns:
+            Description of return value.
+        """
         self._waste_type = waste_type
         return self
 
     def set_distribution(self, distribution: str):
-        """Sets the data distribution for generating waste levels."""
+        """Sets the data distribution for generating waste levels.
+
+        Args:
+            distribution: Description of distribution.
+
+        Returns:
+            Description of return value.
+        """
         self._distribution = distribution
         return self
 
     def set_area(self, area: str):
-        """Sets the geographical area for the problem instance."""
+        """Sets the geographical area for the problem instance.
+
+        Args:
+            area: Description of area.
+
+        Returns:
+            Description of return value.
+        """
         self._area = area
         return self
 
     def set_focus_graph(self, focus_graph: Optional[str] = None, focus_size: int = 0):
-        """Sets parameters for focusing on a specific subgraph."""
+        """Sets parameters for focusing on a specific subgraph.
+
+        Args:
+            focus_graph: Description of focus_graph.
+            focus_size: Description of focus_size.
+
+        Returns:
+            Description of return value.
+        """
         self._focus_graph = focus_graph
         self._focus_size = focus_size
         return self
 
     def set_method(self, method: Optional[str]):
-        """Sets the method used for vertex generation/selection."""
+        """Sets the method used for vertex generation/selection.
+
+        Args:
+            method: Description of method.
+
+        Returns:
+            Description of return value.
+        """
         self._method = method
         return self
 
     def set_num_days(self, num_days: int):
-        """Sets the number of simulation days."""
+        """Sets the number of simulation days.
+
+        Args:
+            num_days: Description of num_days.
+
+        Returns:
+            Description of return value.
+        """
         self._num_days = num_days
         return self
 
     def set_problem_name(self, problem_name: str):
-        """Sets the name of the problem (e.g., 'vrpp', 'wcvrp')."""
+        """Sets the name of the problem (e.g., 'vrpp', 'wcvrp').
+
+        Args:
+            problem_name: Description of problem_name.
+
+        Returns:
+            Description of return value.
+        """
         self._problem_name = problem_name
         return self
 
     def set_noise(self, mean: float, variance: float):
-        """Sets the mean and variance for noise injection."""
+        """Sets the mean and variance for noise injection.
+
+        Args:
+            mean: Description of mean.
+            variance: Description of variance.
+
+        Returns:
+            Description of return value.
+        """
         self._noise_mean = mean
         self._noise_variance = variance
         return self
@@ -251,7 +362,11 @@ class VRPInstanceBuilder:
         return TensorDict(td_data, batch_size=[bs], device=device)
 
     def _prepare_coordinates(self):
-        """Internal helper to prepare depot and location coordinates."""
+        """Internal helper to prepare depot and location coordinates.
+
+        Returns:
+            Description of return value.
+        """
         if self._focus_graph is not None:
             if self._focus_size <= 0:
                 self._focus_size = self._dataset_size

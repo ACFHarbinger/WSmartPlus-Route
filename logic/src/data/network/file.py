@@ -1,5 +1,13 @@
 """
 Strategy for loading distance matrices from files.
+
+Attributes:
+    FileStrategy: Strategy for loading distance matrices from disk.
+
+Example:
+    from logic.src.data.network.file import FileStrategy
+    strategy = FileStrategy()
+    strategy.calculate(coords, dm_filepath="distance_matrix.csv")
 """
 
 import os
@@ -14,15 +22,21 @@ from .base import DistanceStrategy
 
 
 class FileStrategy(DistanceStrategy):
-    """Strategy for loading distance matrices from disk."""
+    """Strategy for loading distance matrices from disk.
+
+    Attributes:
+        None
+    """
 
     def calculate(self, coords: pd.DataFrame, **kwargs: Any) -> np.ndarray:
         """
         Loads a pre-computed distance matrix from a CSV file.
 
+
+
         Args:
-            coords: DataFrame with bin coordinates (used for validation if needed).
-            **kwargs: Must include 'dm_filepath'.
+            coords: DataFrame with coordinates (must contain 'ID', 'lat', 'lng' columns).
+            kwargs: Additional arguments for the distance strategy.
 
         Returns:
             np.ndarray: Loaded distance matrix.

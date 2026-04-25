@@ -18,18 +18,31 @@ from .distance_strategy import DistanceStrategy
 
 
 class IterativeDistanceStrategy(DistanceStrategy):
-    """Base class for strategies that compute distances pairwise iteratively."""
+    """Base class for strategies that compute distances pairwise iteratively.
+
+    Attributes:
+        None
+    """
 
     @abstractmethod
     def calculate_pair(self, coords_i: Tuple[float, float], coords_j: Tuple[float, float]) -> float:
         """
         Computes distance between a single pair of coordinates.
+        Args:
+            coords_i: Coordinates of the first point (lat, lng).
+            coords_j: Coordinates of the second point (lat, lng).
         """
         pass
 
     def calculate(self, coords: pd.DataFrame, **kwargs: Any) -> np.ndarray:
         """
         Iterates through all pairs to compute a full distance matrix.
+        Args:
+            coords: DataFrame with coordinates (must contain 'Lat', 'Lng' columns).
+            kwargs: Additional arguments for the distance strategy.
+
+        Returns:
+            Distance matrix as a NumPy array.
         """
         size = len(coords)
         distance_matrix = np.zeros((size, size))

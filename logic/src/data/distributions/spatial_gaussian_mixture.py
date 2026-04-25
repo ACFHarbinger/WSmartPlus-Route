@@ -1,10 +1,12 @@
 """spatial_gaussian_mixture.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    GaussianMixture: Configurable Gaussian Mixture Model.
 
 Example:
-    >>> import spatial_gaussian_mixture
+    >>> from logic.src.data.distributions import GaussianMixture
+    >>> gaussian_mixture = GaussianMixture(num_modes=3)
+    >>> print(gaussian_mixture.sample())
 """
 
 from typing import Optional, Tuple, Union, cast
@@ -16,7 +18,12 @@ from .base import BaseDistribution
 
 
 class GaussianMixture(BaseDistribution):
-    """Configurable Gaussian Mixture Model."""
+    """Configurable Gaussian Mixture Model.
+
+    Attributes:
+        num_modes: Number of modes in the Gaussian mixture.
+        cdist: Scale of the Gaussian distribution.
+    """
 
     def __init__(self, num_modes: int = 0, cdist: int = 0):
         """Initialize Class.
@@ -52,7 +59,15 @@ class GaussianMixture(BaseDistribution):
             )
 
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
-        """NumPy version of the Gaussian/Mixture spatial sampler."""
+        """NumPy version of the Gaussian/Mixture spatial sampler.
+
+        Args:
+            size: Description of size.
+            rng: Description of rng.
+
+        Returns:
+            Description of return value.
+        """
         if rng is None:
             rng = np.random.default_rng()
 
@@ -134,7 +149,15 @@ class GaussianMixture(BaseDistribution):
         return self._batch_normalize_and_center(coords)  # type: ignore[return-value]
 
     def _generate_gaussian_mixture_array(self, num_loc: int, rng: np.random.Generator) -> np.ndarray:
-        # 1. Sample which mode each point belongs to (replacing multinomial)
+        """Generate a mixture of Gaussian distributions.
+
+        Args:
+            num_loc (int): Number of locations.
+            rng (np.random.Generator): Random number generator.
+
+        Returns:
+            np.ndarray: Sampled values.
+        """
         probs = np.ones(self.num_modes) / self.num_modes
         nums = rng.choice(self.num_modes, size=num_loc, p=probs)
 
@@ -157,6 +180,16 @@ class GaussianMixture(BaseDistribution):
         return self._global_min_max_scaling(coords)  # type: ignore[return-value]
 
     def _generate_gaussian_array(self, batch_size: int, num_loc: int, rng: np.random.Generator) -> np.ndarray:
+        """Generate a single Gaussian distribution.
+
+        Args:
+            batch_size (int): Batch size.
+            num_loc (int): Number of locations.
+            rng (np.random.Generator): Random number generator.
+
+        Returns:
+            np.ndarray: Sampled values.
+        """
         coords = np.zeros((batch_size, num_loc, 2))
         cov_values = rng.random(batch_size)
 

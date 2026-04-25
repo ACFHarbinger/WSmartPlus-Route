@@ -10,6 +10,17 @@ Expected sheet format (one sheet per sample, named 'Sample0'..'SampleN-1'):
 
 If a single sheet is present, it is treated as a single sample regardless
 of its name.
+
+Attributes:
+    PandasExcelDataset: Dataset wrapping simulation data loaded from an Excel workbook.
+
+Example:
+    >>> from logic.src.data.datasets import PandasExcelDataset
+    >>> dataset = PandasExcelDataset(data)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Dict, List
@@ -29,30 +40,62 @@ class PandasExcelDataset(SimulationDataset):
     Each sheet represents one sample. The first row in each sheet is the
     depot and the remaining rows are bins. Coordinates are in 'Lat'/'Lng'
     columns and daily fill values are in 'Day X' columns.
+
+    Attributes:
+        samples: List of samples.
     """
 
     def __init__(self, samples: List[Dict[str, np.ndarray]]):
-        """Initialize the Pandas Excel dataset."""
+        """Initialize the Pandas Excel dataset.
+
+        Args:
+            samples: Description of samples.
+        """
         self._samples = samples
 
     def __len__(self) -> int:
-        """Return the number of samples in the dataset."""
+        """Return the number of samples in the dataset.
+
+        Returns:
+            Description of return value.
+        """
         return len(self._samples)
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
-        """Return the sample at the given index."""
+        """Return the sample at the given index.
+
+        Args:
+            index: Description of index.
+
+        Returns:
+            Description of return value.
+        """
         return self._samples[index]
 
     @staticmethod
     def load(path: str) -> "PandasExcelDataset":
-        """Load a PandasExcelDataset from an .xlsx file."""
+        """Load a PandasExcelDataset from an .xlsx file.
+
+        Args:
+            path: Description of path.
+
+        Returns:
+            Description of return value.
+        """
         sheets = pd.read_excel(path, sheet_name=None)
         samples = [PandasExcelDataset._parse_sheet(df) for df in sheets.values()]
         return PandasExcelDataset(samples)
 
     @staticmethod
     def _parse_sheet(df: pd.DataFrame) -> Dict[str, np.ndarray]:
-        """Parse a single sheet into a sample dict."""
+        """Parse a single sheet into a sample dict.
+
+        Args:
+            df: Description of df.
+
+        Returns:
+            Description of return value.
+        """
         depot = df.iloc[0]
         bins_df = df.iloc[1:]
 
@@ -86,7 +129,11 @@ class PandasExcelDataset(SimulationDataset):
         }
 
     def save(self, path: str) -> None:
-        """Save the dataset to an .xlsx file."""
+        """Save the dataset to an .xlsx file.
+
+        Args:
+            path: Description of path.
+        """
         with pd.ExcelWriter(path, engine="openpyxl") as writer:
             for i, sample in enumerate(self._samples):
                 df = self._sample_to_dataframe(sample)
@@ -94,7 +141,14 @@ class PandasExcelDataset(SimulationDataset):
 
     @staticmethod
     def _sample_to_dataframe(sample: Dict[str, np.ndarray]) -> pd.DataFrame:
-        """Convert a sample dict back into a DataFrame."""
+        """Convert a sample dict back into a DataFrame.
+
+        Args:
+            sample: Description of sample.
+
+        Returns:
+            Description of return value.
+        """
         depot = sample["depot"]
         locs = sample["locs"]
         waste = sample["waste"]

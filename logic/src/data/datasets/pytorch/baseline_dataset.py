@@ -1,5 +1,16 @@
 """
 Dataset for precomputed baseline values.
+
+Attributes:
+    BaselineDataset: Dataset wrapping baseline values for training.
+
+Example:
+    >>> from logic.src.data.datasets import BaselineDataset
+    >>> dataset = BaselineDataset(dataset, baseline)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from typing import Sized, cast
@@ -11,6 +22,10 @@ from torch.utils.data import Dataset
 class BaselineDataset(Dataset):
     """
     Dataset wrapping baseline values for training.
+
+    Attributes:
+        dataset: The underlying dataset.
+        baseline: Tensor of precomputed baseline values.
     """
 
     def __init__(self, dataset: Dataset, baseline: torch.Tensor):

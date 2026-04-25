@@ -1,5 +1,13 @@
 """
 Statistical sampling distributions - Beta.
+
+Attributes:
+    alpha (Union[float, torch.Tensor]): Alpha (shape) parameter.
+    beta (Union[float, torch.Tensor]): Beta (scale) parameter.
+
+Example:
+    beta = Beta()
+    beta.sample(torch.Size((10, 50)))
 """
 
 from typing import Optional, Tuple, Union, cast
@@ -11,7 +19,12 @@ from .base import BaseDistribution
 
 
 class Beta(BaseDistribution):
-    """Beta distribution sampling."""
+    """Beta distribution sampling.
+
+    Attributes:
+        alpha (Union[float, torch.Tensor]): Alpha (shape) parameter.
+        beta (Union[float, torch.Tensor]): Beta (scale) parameter.
+    """
 
     def __init__(self, alpha: Union[float, torch.Tensor] = 0.5, beta: Union[float, torch.Tensor] = 0.5):
         """Initialize Class.

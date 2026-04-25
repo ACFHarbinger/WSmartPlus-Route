@@ -54,10 +54,10 @@ class GlobalRegistry:
         Universal decorator for any class or function.
 
         Args:
-            *tags: Tags to register the algorithm with
+            tags: Tags to register the algorithm with
 
         Returns:
-            Decorator for registering the algorithm
+            Decorator for registering the algorithm.
         """
 
         def decorator(obj: T_Algorithm) -> T_Algorithm:
@@ -97,8 +97,8 @@ class GlobalRegistry:
         If expected_type is provided, strictly filters out non-matching classes.
 
         Args:
-            *tags: Tags to query for
-            expected_type: Expected type of the algorithm
+            expected_type: Optional type to filter by
+            tags: Tags to match
 
         Returns:
             List of algorithms matching all tags
@@ -126,8 +126,8 @@ class GlobalRegistry:
         If expected_type is provided, strictly filters out non-matching classes.
 
         Args:
-            *tags: Tags to query for
-            expected_type: Expected type of the algorithm
+            expected_type: Optional type to filter by
+            tags: Tags to match
 
         Returns:
             List of algorithms matching at least one tag

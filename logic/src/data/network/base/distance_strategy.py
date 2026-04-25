@@ -21,6 +21,9 @@ class DistanceStrategy(ABC):
     Defines the interface for computing pairwise distances between
     geographic coordinates. Each strategy implements a different
     calculation method (API-based, formula-based, or network-based).
+
+    Attributes:
+        None
     """
 
     @abstractmethod
@@ -29,14 +32,23 @@ class DistanceStrategy(ABC):
         Computes pairwise distance matrix for given coordinates.
 
         Args:
-            coords: DataFrame with 'Lat' and 'Lng' columns
-            **kwargs: Strategy-specific parameters
+            coords: DataFrame with coordinates (must contain 'Lat', 'Lng' columns).
+            kwargs: Additional arguments for the distance strategy.
 
         Returns:
             np.ndarray: n×n symmetric distance matrix in kilometers
+
         """
         pass
 
     def _eval_kwarg(self, kwarg: str, kwargs: Dict[str, Any]) -> bool:
-        """Check if keyword argument exists and is not None."""
+        """Check if keyword argument exists and is not None.
+
+        Args:
+            kwarg: Keyword argument to check.
+            kwargs: Dictionary of keyword arguments.
+
+        Returns:
+            bool: True if kwarg exists and is not None, False otherwise
+        """
         return bool(kwarg in kwargs and kwargs[kwarg] is not None)

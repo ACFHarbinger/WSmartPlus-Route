@@ -1,5 +1,16 @@
 """
 Standard TensorDict dataset.
+
+Attributes:
+    TensorDictDataset: Dataset wrapping a TensorDict.
+
+Example:
+    >>> from logic.src.data.datasets import TensorDictDataset
+    >>> dataset = TensorDictDataset(td)
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 import torch
@@ -10,6 +21,9 @@ from torch.utils.data import Dataset
 class TensorDictDataset(Dataset):
     """
     Dataset compatible with TensorDicts.
+
+    Attributes:
+        data: TensorDict containing the dataset.
     """
 
     def __init__(self, td: TensorDict):

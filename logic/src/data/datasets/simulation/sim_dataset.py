@@ -3,6 +3,17 @@ Abstract base class for simulation datasets.
 
 All simulation dataset formats (npz, pkl, xlsx) implement this interface
 so that consumers (e.g. Bins) can depend on a single type.
+
+Attributes:
+    SimulationDataset: Base class for simulation datasets.
+
+Example:
+    >>> from logic.src.data.datasets import SimulationDataset
+    >>> dataset = SimulationDataset()
+    >>> dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+    >>> for batch in dataloader:
+    ...     print(batch)
+    ...     break
 """
 
 from abc import ABC, abstractmethod
@@ -18,6 +29,9 @@ class SimulationDataset(ABC):
     Every implementation must support indexed access that returns a sample
     dict with at least the keys: 'depot', 'locs', 'waste', 'noisy_waste',
     'max_waste'.
+
+    Attributes:
+        None
     """
 
     @abstractmethod
@@ -27,5 +41,9 @@ class SimulationDataset(ABC):
 
     @abstractmethod
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
-        """Return the sample at the given index."""
+        """Return the sample at the given index.
+
+        Args:
+            index: Description of index.
+        """
         ...
