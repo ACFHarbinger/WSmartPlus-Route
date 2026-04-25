@@ -2,6 +2,17 @@
 
 Accepts candidates based on a combination of objective value and structural
 distance to prevent stagnation.
+
+Attributes:
+    SkewedVNSAcceptance: The Skewed Variable Neighborhood Search (SVNS) acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.skewed_variable_neighborhood_search import SkewedVNSAcceptance
+    >>> from logic.src.interfaces.distance_metric import HammingDistance
+    >>> metric = HammingDistance(n_customers=5)
+    >>> criterion = SkewedVNSAcceptance(alpha=0.1, metric=metric)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    False, {'accepted': False, 'delta': -2.0, 'alpha': 0.1}
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -62,8 +73,7 @@ class SkewedVNSAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Should contain 'current_sol' and 'candidate_sol'
-                for distance calculation.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -100,10 +110,10 @@ class SkewedVNSAcceptance(IAcceptanceCriterion):
         """No-op update step.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
 

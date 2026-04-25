@@ -1,6 +1,17 @@
 """Pareto Dominance Acceptance Criterion.
 
 Standard multi-objective acceptance logic based on strict Pareto superiority.
+
+Attributes:
+    ParetoDominanceAcceptance: The Pareto Dominance acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.pareto_dominance import ParetoDominanceAcceptance
+    >>> criterion = ParetoDominanceAcceptance()
+    >>> accepted, metrics = criterion.accept(current_obj=[100.0, 50.0], candidate_obj=[98.0, 48.0])
+    False, {'accepted': False, 'delta': 0.0}
+    >>> accepted, metrics = criterion.accept(current_obj=[100.0, 50.0], candidate_obj=[102.0, 51.0])
+    True, {'accepted': True, 'delta': 0.0}
 """
 
 from typing import Any, Dict, Sequence, Tuple, cast
@@ -40,9 +51,9 @@ class ParetoDominanceAcceptance(IAcceptanceCriterion):
         """Determine whether the candidate strictly dominates the current solution.
 
         Args:
-            current_obj (ObjectiveValue): Objective vector of the current solution.
-            candidate_obj (ObjectiveValue): Objective vector of the candidate.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -76,10 +87,10 @@ class ParetoDominanceAcceptance(IAcceptanceCriterion):
         """No-op update step.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         pass
 

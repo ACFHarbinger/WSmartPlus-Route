@@ -2,6 +2,16 @@
 
 Deterministic criterion that accepts solutions within a tolerance deviation
 of the global best known solution.
+
+Attributes:
+    RecordToRecordTravel: The Record-to-Record Travel acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.record_to_record_travel import RecordToRecordTravel
+    >>> criterion = RecordToRecordTravel(tolerance=0.05)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'delta': -2.0, 'global_best': 100.0, 'tolerance_floor': 95.0}
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -52,7 +62,7 @@ class RecordToRecordTravel(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -76,10 +86,10 @@ class RecordToRecordTravel(IAcceptanceCriterion):
         """Update the global best record if a superior solution was accepted.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

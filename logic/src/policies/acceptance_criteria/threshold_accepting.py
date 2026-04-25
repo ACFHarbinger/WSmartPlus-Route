@@ -2,6 +2,15 @@
 
 Deterministic counterpart to Simulated Annealing that explicitly bounds
 allowable deterioration via a decaying threshold.
+
+Attributes:
+    ThresholdAccepting: The Threshold Accepting (TA) acceptance criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.threshold_accepting import ThresholdAccepting
+    >>> criterion = ThresholdAccepting(initial_threshold=10.0, max_iterations=1000)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=95.0)
+    True, {'accepted': True, 'delta': -5.0, 'threshold': 10.0}
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -53,7 +62,7 @@ class ThresholdAccepting(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -72,10 +81,10 @@ class ThresholdAccepting(IAcceptanceCriterion):
         """Apply linear decay to the threshold.
 
         Args:
-            current_obj (ObjectiveValue): Previous solution's objective.
-            candidate_obj (ObjectiveValue): Candidate solution's objective.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context.
+            current_obj (ObjectiveValue): Objective of the current solution.
+            candidate_obj (ObjectiveValue): Objective of the candidate solution.
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

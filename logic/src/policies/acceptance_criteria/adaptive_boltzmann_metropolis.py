@@ -2,6 +2,16 @@
 
 Provides a self-tuning cooling schedule based on the observed variance of
 objective value deltas during the search process.
+
+Attributes:
+    AdaptiveBoltzmannMetropolis: Self-tuning Boltzmann-Metropolis acceptance
+        criterion with adaptive temperature initialization.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.adaptive_boltzmann_metropolis import AdaptiveBoltzmannMetropolis
+    >>> criterion = AdaptiveBoltzmannMetropolis(p0=0.5, window_size=100, alpha=0.95)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
 """
 
 import math
@@ -84,6 +94,11 @@ class AdaptiveBoltzmannMetropolis(IAcceptanceCriterion):
         pass
 
     def _update_stats(self, delta: float) -> None:
+        """Append delta magnitude to the window and update sigma and initial temperature.
+
+        Args:
+            delta: Difference between candidate and current objective values.
+        """
         self.deltas.append(abs(delta))
         if len(self.deltas) >= 5:  # Need a minimum window to compute sigma
             self.sigma = float(np.std(self.deltas))
@@ -97,14 +112,15 @@ class AdaptiveBoltzmannMetropolis(IAcceptanceCriterion):
         """Determine whether to accept a transition based on Boltzmann probability.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the current solution.
-            candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            current_obj: Objective value of the current incumbent solution.
+            candidate_obj: Objective value of the proposed candidate solution.
+            kwargs: Additional context passed through from the search loop.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
                 - accepted (bool): True if move is accepted.
                 - metrics (AcceptanceMetrics): Performance and state metadata.
+
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
@@ -150,10 +166,10 @@ class AdaptiveBoltzmannMetropolis(IAcceptanceCriterion):
         """Update the statistical window and apply the cooling schedule.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
-            candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            current_obj: Objective value of the current incumbent solution.
+            candidate_obj: Objective value of the proposed candidate solution.
+            accepted: Whether the candidate was accepted in this iteration.
+            kwargs: Additional context passed through from the search loop.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

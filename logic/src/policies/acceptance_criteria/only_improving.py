@@ -1,6 +1,15 @@
 """Only Improving (OI) Criterion.
 
 Strictly elitist acceptance strategy that only allows improvements.
+
+Attributes:
+    OnlyImproving: The OI criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.only_improving import OnlyImproving
+    >>> criterion = OnlyImproving()
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    True, {'accepted': True, 'delta': -2.0}
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -38,7 +47,7 @@ class OnlyImproving(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -54,10 +63,10 @@ class OnlyImproving(IAcceptanceCriterion):
         """No-op update step.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
+            current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

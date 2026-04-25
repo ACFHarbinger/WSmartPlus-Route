@@ -2,6 +2,16 @@
 
 Memory-based thresholding utilizing a finite circular array to escape local
 optima.
+
+Attributes:
+    LateAcceptance: The LAHC criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.late_acceptance_hill_climbing import LateAcceptance
+    >>> criterion = LateAcceptance(queue_size=10)
+    >>> criterion.setup(initial_objective=100.0)
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    False, {'accepted': False, 'delta': -2.0, 'pointer': 0, 'current_history_val': 100.0}
 """
 
 from typing import Any, Dict, List, Tuple, cast
@@ -55,7 +65,7 @@ class LateAcceptance(IAcceptanceCriterion):
         Args:
             current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            kwargs (Any): Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -77,10 +87,10 @@ class LateAcceptance(IAcceptanceCriterion):
         """Update the history queue with the cost of the accepted solution.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
+            current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)

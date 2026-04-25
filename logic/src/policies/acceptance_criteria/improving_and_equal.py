@@ -1,6 +1,15 @@
 """Improving and Equal (IE) Criterion.
 
 Weakly elitist strategy that accepts improvements and neutral moves.
+
+Attributes:
+    ImprovingAndEqual: The IE criterion.
+
+Example:
+    >>> from logic.src.policies.acceptance_criteria.improving_and_equal import ImprovingAndEqual
+    >>> criterion = ImprovingAndEqual()
+    >>> accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+    False, {'accepted': False, 'delta': -2.0}
 """
 
 from typing import Any, Dict, Tuple, cast
@@ -37,9 +46,9 @@ class ImprovingAndEqual(IAcceptanceCriterion):
         """Accept if the candidate objective is greater than or equal to current.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the current solution.
-            candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            **kwargs (Any): Additional context (not used).
+            current_obj: Objective of the current solution.
+            candidate_obj: Objective of the candidate solution.
+            kwargs: Additional context.
 
         Returns:
             Tuple[bool, AcceptanceMetrics]: A tuple containing:
@@ -55,10 +64,10 @@ class ImprovingAndEqual(IAcceptanceCriterion):
         """No-op update step.
 
         Args:
-            current_obj (ObjectiveValue): Objective of the previous solution.
+            current_obj (ObjectiveValue): Objective of the current solution.
             candidate_obj (ObjectiveValue): Objective of the candidate solution.
-            accepted (bool): Whether the candidate was accepted.
-            **kwargs (Any): Additional context (not used).
+            accepted (bool): Whether the move was accepted.
+            kwargs (Any): Additional context.
         """
         current_obj = cast(float, current_obj)
         candidate_obj = cast(float, candidate_obj)
