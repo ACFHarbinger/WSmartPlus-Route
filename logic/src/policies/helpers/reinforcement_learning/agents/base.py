@@ -1,5 +1,15 @@
-"""
-Base Agent Module.
+"""Base Agent Module.
+
+This module defines the abstract base class for all Reinforcement Learning (RL)
+agents in the system, establishing a common interface for action selection,
+updates, and state persistence.
+
+Attributes:
+    RLAgent: Abstract base class for all RL agents.
+
+Example:
+    >>> from logic.src.policies.helpers.reinforcement_learning.agents.base import RLAgent
+    >>> # RLAgent is abstract and should be subclassed.
 """
 
 from abc import ABC, abstractmethod
@@ -9,13 +19,15 @@ import numpy as np
 
 
 class RLAgent(ABC):
-    """
-    Abstract Base Class for all Reinforcement Learning agents.
+    """Abstract Base Class for all Reinforcement Learning agents.
 
     This interface defines the fundamental contract for agents used in
     operator selection, parameter control, and route optimization.
     Implementing classes must provide specific logic for action selection
     and model updates.
+
+    Attributes:
+        None (abstract class).
     """
 
     @abstractmethod

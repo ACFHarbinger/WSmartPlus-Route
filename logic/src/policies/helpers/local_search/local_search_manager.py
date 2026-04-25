@@ -20,6 +20,18 @@ Local Search Operators:
 
     Heuristics:
         - Lin-Kernighan-Helsgaun (LKH) for TSP sub-problems
+
+Attributes:
+    LocalSearchManager: Manages local search operators for ACO route improvement.
+
+Example:
+    >>> from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
+    >>> manager = LocalSearchManager(dist_matrix, wastes, capacity, R, C, improvement_threshold, seed)
+    >>> manager.set_routes(routes)
+    >>> manager.or_opt()
+    True
+    >>> manager.get_routes()
+    [[0, 1, 2], [3, 4, 5]]
 """
 
 import random
@@ -61,6 +73,19 @@ class LocalSearchManager:
 
     This class provides a unified interface to all local search operators
     from the operators module, compatible with Q-Learning operator selection.
+
+    Attributes:
+        d (np.ndarray): Matrix of distances between nodes.
+        waste (Dict[int, float]): Dictionary of wastes for each node.
+        Q (float): Capacity of the vehicle.
+        R (float): Cost of travel per unit distance.
+        C (float): Cost of time per unit time.
+        improvement_threshold (float): Minimum improvement required to accept a move.
+        seed (Optional[int]): Seed for random number generator.
+        rng (np.random.Generator): Random number generator.
+        random_std (random.Random): Random number generator.
+        routes (List[List[int]]): List of routes.
+        _load_cache (Dict[int, float]): Cache of waste loads for each route.
     """
 
     def __init__(
@@ -73,7 +98,18 @@ class LocalSearchManager:
         improvement_threshold: float,
         seed: Optional[int] = None,
     ):
-        """Initialize local search manager."""
+        """
+        Initialize the LocalSearchManager with problem data and configuration.
+
+        Args:
+            dist_matrix (np.ndarray): Matrix of distances between nodes.
+            wastes (Dict[int, float]): Dictionary of wastes for each node.
+            capacity (float): Capacity of the vehicle.
+            R (float): Cost of travel per unit distance.
+            C (float): Cost of time per unit time.
+            improvement_threshold (float): Minimum improvement required to accept a move.
+            seed (Optional[int]): Seed for random number generator.
+        """
         self.d = dist_matrix
         self.waste = wastes
         self.Q = capacity
@@ -157,6 +193,12 @@ class LocalSearchManager:
         OR-opt: relocate chain of nodes using the imported operator.
 
         Tries all possible OR-opt moves and applies the first improving one.
+
+        Args:
+            chain_len (int, optional): Length of the chain to relocate. Defaults to 2.
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         if not self.routes:
             return False
@@ -179,6 +221,12 @@ class LocalSearchManager:
         Cross-exchange: swap segments between routes.
 
         Systematically tries cross-exchange moves between route pairs.
+
+        Args:
+            max_seg_len (int, optional): Maximum length of segments to swap. Defaults to 2.
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         if len(self.routes) < 2:
             return False
@@ -199,6 +247,12 @@ class LocalSearchManager:
     def improved_cross_exchange_op(self, max_seg_len: int = 2) -> bool:
         """
         Improved Cross-exchange: swap segments between routes with optional internal reversal.
+
+        Args:
+            max_seg_len (int, optional): Maximum length of segments to swap. Defaults to 2.
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         if len(self.routes) < 2:
             return False
@@ -221,12 +275,24 @@ class LocalSearchManager:
     def lambda_interchange_op(self, lambda_max: int = 2) -> bool:
         """
         λ-interchange: generalized cross-exchange with segment lengths up to λ.
+
+        Args:
+            lambda_max (int, optional): Maximum length of segments to swap. Defaults to 2.
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         return lambda_interchange(self, lambda_max)
 
     def ejection_chain_op(self, max_depth: int = 3) -> bool:
         """
         Ejection chain: attempt to empty routes for fleet minimization.
+
+        Args:
+            max_depth (int, optional): Maximum depth of the ejection chain. Defaults to 3.
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         if len(self.routes) < 2:
             return False
@@ -241,6 +307,12 @@ class LocalSearchManager:
     def cyclic_transfer_op(self) -> bool:
         """
         Cyclic transfer: 3-way cyclical node exchange.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         if len(self.routes) < 3:
             return False
@@ -266,6 +338,12 @@ class LocalSearchManager:
     def exchange_chain_op(self) -> bool:
         """
         Exchange chain: evaluate block transfers composed of exchange_2_0 and exchange_2_1.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         if len(self.routes) < 2:
             return False
@@ -290,7 +368,14 @@ class LocalSearchManager:
     # ===== Route Operators =====
 
     def two_opt_star(self) -> bool:
-        """2-opt* inter-route operator using imported implementation."""
+        """2-opt* inter-route operator using imported implementation.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         if len(self.routes) < 2:
             return False
 
@@ -312,7 +397,14 @@ class LocalSearchManager:
         return False
 
     def swap_star(self) -> bool:
-        """SWAP* inter-route operator using imported implementation."""
+        """SWAP* inter-route operator using imported implementation.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         if len(self.routes) < 2:
             return False
 
@@ -334,7 +426,14 @@ class LocalSearchManager:
         return False
 
     def two_opt_intra(self) -> bool:
-        """2-opt intra-route: reverse segments within routes."""
+        """2-opt intra-route: reverse segments within routes.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         for r_u in range(len(self.routes)):
             route = self.routes[r_u]
             if len(route) < 3:
@@ -349,7 +448,14 @@ class LocalSearchManager:
         return False
 
     def three_opt_intra(self) -> bool:
-        """3-opt intra-route: reconnect three segments within routes."""
+        """3-opt intra-route: reconnect three segments within routes.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         for r_u in range(len(self.routes)):
             route = self.routes[r_u]
             if len(route) < 4:
@@ -364,7 +470,14 @@ class LocalSearchManager:
         return False
 
     def four_opt_intra(self) -> bool:
-        """4-opt intra-route: permute four segments within routes."""
+        """4-opt intra-route: permute four segments within routes.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         for r_u in range(len(self.routes)):
             route = self.routes[r_u]
             if len(route) < 5:
@@ -379,7 +492,14 @@ class LocalSearchManager:
         return False
 
     def three_permutation_op(self) -> bool:
-        """3-permutation intra-route: reorder 3 consecutive nodes."""
+        """3-permutation intra-route: reorder 3 consecutive nodes.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         for r_u in range(len(self.routes)):
             route = self.routes[r_u]
             if len(route) < 3:
@@ -391,7 +511,14 @@ class LocalSearchManager:
         return False
 
     def three_opt_star(self) -> bool:
-        """3-opt* inter-route: exchange tails among three routes."""
+        """3-opt* inter-route: exchange tails among three routes.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         if len(self.routes) < 3:
             return False
 
@@ -419,7 +546,14 @@ class LocalSearchManager:
         return False
 
     def four_opt_star(self) -> bool:
-        """4-opt* inter-route: exchange tails among four routes."""
+        """4-opt* inter-route: exchange tails among four routes.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         if len(self.routes) < 4:
             return False
 
@@ -458,7 +592,14 @@ class LocalSearchManager:
     # ===== Move Operators =====
 
     def relocate(self) -> bool:
-        """Relocate: move single nodes to better positions."""
+        """Relocate: move single nodes to better positions.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         for r_u in range(len(self.routes)):
             route_u = self.routes[r_u]
             if not route_u:
@@ -480,6 +621,12 @@ class LocalSearchManager:
     def relocate_chain_op(self, max_chain_len: int = 3) -> bool:
         """
         Relocate chain: move a chain of consecutive nodes to another position.
+
+        Args:
+            max_chain_len (int, optional): Maximum length of the chain to relocate. Defaults to 3.
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         for r_u in range(len(self.routes)):
             route_u = self.routes[r_u]
@@ -498,7 +645,14 @@ class LocalSearchManager:
         return False
 
     def swap(self) -> bool:
-        """Swap: exchange positions of two nodes."""
+        """Swap: exchange positions of two nodes.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
+        """
         for r_u in range(len(self.routes)):
             route_u = self.routes[r_u]
             if not route_u:
@@ -523,6 +677,12 @@ class LocalSearchManager:
     def lns(self) -> bool:
         """
         Large Neighbourhood Search (LNS).
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         old_routes = self.get_routes()
         new_routes = apply_lns(old_routes, self.d, self.waste, self.Q, self.R, self.C, self.random_std)
@@ -534,6 +694,12 @@ class LocalSearchManager:
     def ges(self) -> bool:
         """
         Guided Ejection Search (GES).
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         old_routes = self.get_routes()
         new_routes = apply_ges(old_routes, self.d, self.waste, self.Q, self.random_std)
@@ -547,6 +713,12 @@ class LocalSearchManager:
         Apply Lin-Kernighan-Helsgaun heuristic to refine individual routes.
 
         Uses LKH to optimize each route as a TSP subproblem.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if an improving move was found and applied, False otherwise.
         """
         improved = False
         waste_array = np.zeros(len(self.d))

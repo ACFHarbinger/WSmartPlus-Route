@@ -1,5 +1,11 @@
 """
 Constraint addition and management mixin for VRPPMasterProblem.
+
+Attributes:
+    VRPPMasterProblemConstraintsMixin: Mixin for adding cutting planes to the master problem.
+
+Example:
+    >>> master.add_subset_row_cut({1, 2, 3})
 """
 
 from __future__ import annotations
@@ -21,7 +27,11 @@ logger = logging.getLogger(__name__)
 class VRPPMasterProblemConstraintsMixin:
     """
     Mixin containing methods for adding cutting planes to the master problem.
-    This helps reduce the size of the main model.py file.
+
+    Attributes:
+        model: Reference to the Gurobi model.
+        routes: List of routes in the master problem.
+        lambda_vars: Decision variables for each route.
     """
 
     def add_edge_clique_cut(
@@ -41,10 +51,12 @@ class VRPPMasterProblemConstraintsMixin:
         lifting coefficients for routes not in the cover.
 
         Args:
-            u, v: Endpoint nodes of the edge.
+            u: Start node of the edge.
+            v: End node of the edge.
             coefficients: Mapping from route index to lifting coefficient α_k.
                 If None, defaults to 1.0 for all routes using the edge.
             rhs: Right-hand side of the inequality (|C| - 1).
+
 
         Returns:
             True if the cut was added, False if it was redundant.
@@ -149,8 +161,7 @@ class VRPPMasterProblemConstraintsMixin:
         is_global: bool = True,
         _skip_pool: bool = False,
     ) -> bool:
-        """
-        Add a Rounded Capacity Cut (RCC) to the master problem.
+        """Add a Rounded Capacity Cut (RCC) to the master problem.
 
         The cut enforces that the number of edges crossing the boundary δ(S)
         of the node set S must be at least twice the minimum number of
@@ -161,10 +172,14 @@ class VRPPMasterProblemConstraintsMixin:
         Args:
             node_list: Nodes in set S.
             rhs: Right-hand side (2 * ⌈demand(S) / Q⌉).
+            coefficients: Optional mapping for route lifting.
+            is_global: Whether the cut is globally valid.
+            _skip_pool: Internal flag to avoid re-archiving.
 
         Returns:
             True if the cut was newly added, False if it already exists/failed.
         """
+
         if self.model is None:
             return False
 
@@ -230,7 +245,11 @@ class VRPPMasterProblemConstraintsMixin:
             node_alphas: Node-id → per-node lifting coefficient (α_i).
                          If None, defaults to 1.0 for cover nodes, 0.0 for others.
             arc: Optional source arc (i, j) for arc-saturation LCI.
+
+        Returns:
+            bool: True if the cut was successfully added.
         """
+
         if self.model is None:
             return False
 
@@ -308,8 +327,7 @@ class VRPPMasterProblemConstraintsMixin:
         node_j: int = -1,
         facet_form: str = "2.1",
     ) -> bool:
-        """
-        Add a Subtour Elimination Cut (SEC) or PC-SEC to the master problem.
+        """Add a Subtour Elimination Cut (SEC) or PC-SEC to the master problem.
 
         Args:
             node_list: Set of nodes in the subtour.
@@ -319,7 +337,11 @@ class VRPPMasterProblemConstraintsMixin:
             node_i: Index of node i for Form 2.2 and 2.3 PC-SECs.
             node_j: Index of node j for Form 2.3 PC-SECs.
             facet_form: Form indicator for PC-SECs (e.g. "2.1", "2.3").
+
+        Returns:
+            True if added successfully.
         """
+
         if self.model is None:
             return False
 
@@ -402,8 +424,7 @@ class VRPPMasterProblemConstraintsMixin:
         routes: List[Route],
         max_cuts: int = 5,
     ) -> int:
-        """
-        Separate and add Rounded Capacity Cuts (RCC) based on the current LP solution.
+        """Separate and add Rounded Capacity Cuts (RCC) based on the current LP solution.
 
         This follows Section 7 of Barnhart et al. (1998) and Desrochers et al. (1992)
         using a connectivity heuristic:
@@ -411,7 +432,16 @@ class VRPPMasterProblemConstraintsMixin:
         2. Identify connected components (S) of customer nodes.
         3. For each component S, check if the routing bound is violated:
            Σ_{k} x^k(δ(S)) λ_k  <  2 * ⌈ (Σ_{i∈S} waste_i) / Q ⌉
+
+        Args:
+            route_values: Current LP values for routes.
+            routes: List of routes.
+            max_cuts: Maximum number of cuts to add.
+
+        Returns:
+            Number of cuts successfully added.
         """
+
         if not route_values or not routes:
             return 0
 
@@ -448,7 +478,15 @@ class VRPPMasterProblemConstraintsMixin:
         return cuts_added
 
     def _find_customer_components(self: MasterProblemSupport, arc_flow: Dict[Tuple[int, int], float]) -> List[Set[int]]:
-        """Identify connected components of customer nodes in the support graph."""
+        """Identify connected components of customer nodes in the support graph.
+
+        Args:
+            arc_flow: Mapping of edges to their fractional flow values.
+
+        Returns:
+            List[Set[int]]: List of sets, where each set contains node IDs in a component.
+        """
+
         adj: Dict[int, Set[int]] = {}
         customer_nodes = set()
         for u, v in arc_flow.keys():

@@ -13,6 +13,13 @@ Based on the GENIUS algorithm and variants described in:
 - Müller, L. F., & Bonilha, I. (2022). "Hyper-Heuristic Based on ACO
   and Local Search for Dynamic Optimization Problems."
   Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.generalized_insertion_and_deletion import stringing_insertion
+    >>> new_route, improved = stringing_insertion(v, route, dist_matrix)
 """
 
 from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_i import (

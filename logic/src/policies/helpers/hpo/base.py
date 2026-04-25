@@ -4,7 +4,7 @@ Base classes for simulation policy Hyperparameter Optimization (HPO).
 Includes an abstract base class for defining HPO strategies and a concrete
 implementation for finding the best performing policy from the pool.
 
-Classes:
+Attributes:
     PolicyHPOBase: Abstract base class for HPO strategies.
     FullPolicyHPO: Concrete HPO implementation that trains and evaluates all policies.
 

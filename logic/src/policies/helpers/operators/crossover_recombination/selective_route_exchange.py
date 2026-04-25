@@ -1,4 +1,16 @@
-"""Selective Route Exchange Crossover (SREX)."""
+"""
+Selective Route Exchange Crossover (SREX).
+
+Attributes:
+    selective_route_exchange_crossover: Selective route exchange crossover function.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+    >>> operator = selective_route_exchange_crossover(
+    ...    Individual(giant_tour=[1, 2, 3, 4]),
+    ...    Individual(giant_tour=[4, 3, 2, 1]),
+    ... )
+"""
 
 from __future__ import annotations
 
@@ -16,7 +28,12 @@ if TYPE_CHECKING:
 
 
 def _get_individual_class() -> type:
-    """Lazy import to break circular dependency with meta_heuristics.__init__"""
+    """
+    Lazy import to break circular dependency with meta_heuristics.__init__.
+
+    Returns:
+        type: The Individual class.
+    """
     from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
 
     return Individual
@@ -26,7 +43,16 @@ def _select_initial_child_routes(
     p1: Individual,
     rng: random.Random,
 ) -> Tuple[List[List[int]], Set[int]]:
-    """Select exactly one route from Parent 1 to initialize the child."""
+    """
+    Select exactly one route from Parent 1 to initialize the child.
+
+    Args:
+        p1: First parent individual.
+        rng: Random number generator.
+
+    Returns:
+        Tuple of child routes and child nodes.
+    """
     selected_route = rng.choice(p1.routes)
     child_routes = [selected_route[:]]
     child_nodes = set(selected_route)
@@ -38,7 +64,17 @@ def _merge_non_conflicting_p2_routes(
     child_routes: List[List[int]],
     child_nodes: Set[int],
 ) -> List[int]:
-    """Add routes from Parent 2 that don't conflict with child nodes."""
+    """
+    Merge non-conflicting routes from Parent 2 into child routes.
+
+    Args:
+        p2: Second parent individual.
+        child_routes: Current list of child routes.
+        child_nodes: Current set of node IDs in child routes.
+
+    Returns:
+        List of unassigned nodes from Parent 2.
+    """
     p2_unassigned = []
     for route in p2.routes:
         route_nodes = set(route)
@@ -64,7 +100,20 @@ def _insert_missing_nodes_greedy(
     C: float,
     rng: random.Random,
 ) -> None:
-    """Greedily insert missing nodes using cheapest insertion cost."""
+    """
+    Greedily insert missing nodes using cheapest insertion cost.
+
+    Args:
+        child_routes: Current list of child routes.
+        child_nodes: Current set of node IDs in child routes.
+        missing: List of node IDs to insert.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary mapping node IDs to waste amounts.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        rng: Random number generator.
+    """
     if dist_matrix is None or wastes is None:
         return
 
@@ -98,7 +147,15 @@ def _enforce_mandatory_nodes_srex(
     wastes: Optional[Dict[int, float]],
     capacity: float,
 ) -> None:
-    """Strictly include all mandatory nodes in the child routes."""
+    """
+    Strictly include all mandatory nodes in the child routes.
+
+    Args:
+        child_routes: Current list of child routes.
+        mandatory_nodes: List of node IDs that MUST be visited.
+        wastes: Dictionary mapping node IDs to waste amounts.
+        capacity: Vehicle capacity.
+    """
     mandatory_set = set(mandatory_nodes)
     visited_in_routes = {n for route in child_routes for n in route}
     missing_mandatory = mandatory_set - visited_in_routes

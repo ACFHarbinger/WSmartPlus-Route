@@ -1,5 +1,4 @@
-r"""
-VRPP Model Formulation for Branch-and-Price-and-Cut (BPC).
+r"""VRPP Model Formulation for Branch-and-Price-and-Cut (BPC).
 
 Implements the polyhedral structure and physical constraints for the Vehicle
 Routing Problem with Profits.
@@ -20,6 +19,13 @@ References:
 - Fischetti, M., Salazar-González, J. J., & Toth, P. (1997). "A branch-and-cut
   algorithm for the symmetric generalized traveling salesman problem."
   Operations Research, 45(3), 378-394.
+
+Attributes:
+    VRPPModel: Main model class for the Vehicle Routing Problem with Profits.
+
+Example:
+    >>> dist = np.array([[0, 10], [10, 0]])
+    >>> model = VRPPModel(n_nodes=2, cost_matrix=dist, wastes={1: 50.0}, capacity=100.0)
 """
 
 from typing import Dict, List, Optional, Set, Tuple, Union
@@ -28,8 +34,7 @@ import numpy as np
 
 
 class VRPPModel:
-    """
-    Mathematical model for the Vehicle Routing Problem with Profits (VRPP).
+    """Mathematical model for the Vehicle Routing Problem with Profits (VRPP).
 
     This solver adapts the Symmetric Generalized TSP (GTSP) infrastructure of
     Fischetti et al. (1997) to the Single-Vehicle VRPP, which is formulated
@@ -66,6 +71,20 @@ class VRPPModel:
            - Form (2.2): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2yi
            - Form (2.3): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2(yi + yj - 1)
         6. Rounded Capacity Cuts (RCC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2·⌈demand(S)/Q⌉
+
+    Attributes:
+        n_nodes (int): Total number of nodes (including depot at index 0).
+        cost_matrix (np.ndarray): Symmetric n_nodes x n_nodes distance/cost matrix.
+        wastes (Dict[int, float]): Dictionary mapping node index -> waste/demand.
+        capacity (float): Vehicle capacity constraint (Q).
+        num_vehicles (int): Fleet size (K).
+        R (float): Revenue coefficient (R).
+        C (float): Cost coefficient (C).
+        mandatory_nodes (Set[int]): Set of node indices that must be visited.
+        node_coords (Union[np.ndarray, Dict[int, Tuple[float, float]]]): Coordinates.
+
+    Example:
+        >>> model = VRPPModel(10, dist, w, 100.0)
     """
 
     def __init__(
@@ -121,43 +140,84 @@ class VRPPModel:
             self.edge_to_idx[(j, i)] = idx  # Symmetric
 
     def get_edge_cost(self, i: int, j: int) -> float:
-        """Get the travel cost of edge (i, j)."""
+        """Get the travel cost of edge (i, j).
+
+        Args:
+            i: Start node ID.
+            j: End node ID.
+
+        Returns:
+            Computed distance-based cost.
+        """
         return self.cost_matrix[i, j] * self.C
 
     def get_node_profit(self, i: int) -> float:
-        """Get the profit from visiting node i."""
+        """Get the profit from visiting node i.
+
+        Args:
+            i: Node ID.
+
+        Returns:
+            Calculated revenue (waste * R).
+        """
         return self.wastes.get(i, 0.0) * self.R
 
     def get_node_demand(self, i: int) -> float:
-        """Get the demand/waste at node i."""
+        """Get the demand/waste at node i.
+
+        Args:
+            i: Node ID.
+
+        Returns:
+            Waste amount (kg).
+        """
         return self.wastes.get(i, 0.0)
 
     def delta(self, node_set: Set[int]) -> List[Tuple[int, int]]:
-        """
-        Return edges with exactly one endpoint in node_set (cut edges).
+        """Return edges with exactly one endpoint in node_set (cut edges).
 
         δ(S) := {(i, j) ∈ E : i ∈ S, j ∉ S or i ∉ S, j ∈ S}
+
+        Args:
+            node_set: Set of node IDs defining the cut.
+
+        Returns:
+            List of edge tuples (u, v) crossing the cut.
         """
         cut_edges = []
+
         for i, j in self.edges:
             if (i in node_set) != (j in node_set):  # XOR condition
                 cut_edges.append((i, j))
         return cut_edges
 
     def edges_in_set(self, node_set: Set[int]) -> List[Tuple[int, int]]:
-        """
-        Return edges with both endpoints in node_set.
+        """Return edges with both endpoints in node_set.
 
         E(S) := {(i, j) ∈ E : i ∈ S, j ∈ S}
+
+        Args:
+            node_set: Set of node IDs.
+
+        Returns:
+            List of edge tuples (u, v) internal to the set.
         """
         edges_in = []
+
         for i, j in self.edges:
             if i in node_set and j in node_set:
                 edges_in.append((i, j))
         return edges_in
 
     def total_demand(self, node_set: Set[int]) -> float:
-        """Calculate total demand of nodes in node_set."""
+        """Calculate total demand of nodes in node_set.
+
+        Args:
+            node_set: Set of node IDs.
+
+        Returns:
+            Sum of wastes for customer nodes in the set.
+        """
         return sum(self.get_node_demand(i) for i in node_set if i != self.depot)
 
     def validate_tour(self, tour: List[int]) -> Tuple[bool, str]:
@@ -194,12 +254,18 @@ class VRPPModel:
         return True, "Valid VRPP tour"
 
     def compute_tour_profit(self, tour: List[int]) -> float:
-        """
-        Compute the total profit of a tour.
+        """Compute the total profit of a tour.
 
         Profit = (Waste Collected × R) - (Distance Traveled × C)
+
+        Args:
+            tour: Sequence of node IDs.
+
+        Returns:
+            Calculated net profit.
         """
         # Waste collected (excluding depot, count each node once)
+
         tour_nodes = set(tour) - {self.depot}
         total_waste = sum(self.get_node_demand(i) for i in tour_nodes)
         revenue = total_waste * self.R
@@ -211,5 +277,12 @@ class VRPPModel:
         return revenue - travel_cost
 
     def compute_tour_cost(self, tour: List[int]) -> float:
-        """Compute the total travel distance/cost of a tour."""
+        """Compute the total travel distance/cost of a tour.
+
+        Args:
+            tour: Sequence of node IDs.
+
+        Returns:
+            Total distance-based travel cost.
+        """
         return sum(self.cost_matrix[tour[i], tour[i + 1]] for i in range(len(tour) - 1))

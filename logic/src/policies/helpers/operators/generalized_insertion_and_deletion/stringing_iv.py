@@ -3,6 +3,13 @@ Type IV Stringing Operator.
 
 Most complex stringing operator, inverse of Type II Unstringing.
 Involves four neighbor nodes and multiple reversals.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iv import apply_type_iv_s
+    >>> new_route = apply_type_iv_s(route, x, i, j, k, l, current_load)
 """
 
 from typing import Dict, List, Tuple
@@ -25,16 +32,16 @@ def apply_type_iv_s(route: List[int], x: int, i: int, j: int, k: int, l: int, cu
     Reverses sub-tours (V_i...V_l) and (V_{l+1}...V_{j-1}).
 
     Args:
-        route: The tour as a list of node IDs.
-        x: Node ID to insert (V_x).
-        i: Index of node V_i (start of first reversal).
-        j: Index of node V_j (end of second reversal + 1).
-        k: Index of node V_k (reconnection point).
-        l: Index of node V_l (split point between reversals).
-        current_load: Pre-calculated current weight of the route.
+        route (List[int]): The tour as a list of node IDs.
+        x (int): Node ID to insert (V_x).
+        i (int): Index of node V_i (start of first reversal).
+        j (int): Index of node V_j (end of second reversal + 1).
+        k (int): Index of node V_k (reconnection point).
+        l (int): Index of node V_l (split point between reversals).
+        current_load (float): Pre-calculated current weight of the route.
 
     Returns:
-        New route with V_x inserted and segments reversed.
+        List[int]: New route with V_x inserted and segments reversed.
 
     Constraints:
         V_k != V_j, V_k != V_{j+1}, V_l != V_i, V_l != V_{i+1}
@@ -126,17 +133,21 @@ def apply_type_iv_s_profit(
     Apply Type IV Stringing and return profit delta.
 
     Args:
-        route: The tour as a list of node IDs.
-        x: Node ID to insert (V_x).
-        i, j, k, l: Indices as defined in apply_type_iv_s.
-        dist_matrix: Distance matrix.
-        wastes: Waste levels.
-        current_load: Pre-calculated current weight of the route.
-        capacity: Vehicle capacity.
-        R, C: Revenue and cost multipliers.
+        route (List[int]): The tour as a list of node IDs.
+        x (int): Node ID to insert (V_x).
+        i (int): Index of node V_i.
+        j (int): Index of node V_j.
+        k (int): Index of node V_k.
+        l (int): Index of node V_l.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste levels.
+        current_load (float): Pre-calculated current weight of the route.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
 
     Returns:
-        (new_route, delta_profit)
+        Tuple[List[int], float]: (new_route, delta_profit)
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 

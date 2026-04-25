@@ -1,5 +1,12 @@
 """
 Multi-Period Repair Operators for MPVRPP.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.recreate_repair.multi_period import greedy_horizon_insertion
+    >>> new_routes = greedy_horizon_insertion(horizon_routes, removed, dist, wastes, cap, R, C)
 """
 
 from __future__ import annotations
@@ -42,6 +49,9 @@ def greedy_horizon_insertion(
         use_stochastic: If True, uses forward-looking inventory simulation.
         stockout_penalty: Penalty for overflow.
         look_ahead_days: Lookahead H.
+
+    Returns:
+        List[List[List[int]]]: Updated horizon routes.
     """
     T = len(horizon_routes)
     # Extract nodes (ignore the days assigned by destroy ops for true horizon repair)
@@ -118,6 +128,22 @@ def regret_k_temporal_insertion(
 
     Prioritizes nodes whose profit difference between the best day and k-th
     best day is highest.
+
+    Args:
+        horizon_routes: Full T-day plan.
+        removed: Removed (node, day) pairs.
+        dist_matrix: Distance matrix.
+        wastes: Current fill levels.
+        capacity: Vehicle capacity.
+        R: Revenue per unit collected.
+        C: Cost per unit distance.
+        k: Regret degree.
+        scenario_tree: Optional ScenarioTree.
+        use_stochastic: If True, uses stochastic evaluation.
+        stockout_penalty: Overflow penalty.
+
+    Returns:
+        List[List[List[int]]]: Updated horizon routes.
     """
     T = len(horizon_routes)
     nodes_to_insert = [node for node, _ in removed]
@@ -175,6 +201,20 @@ def stochastic_aware_insertion(
     """Insertion guided by expected future fill levels E[w_i,t].
 
     Bias insertion toward days where the node is expected to be near capacity.
+
+    Args:
+        horizon_routes: Full T-day plan.
+        removed: Removed (node, day) pairs.
+        dist_matrix: Distance matrix.
+        wastes: Current fill levels.
+        capacity: Vehicle capacity.
+        R: Revenue per unit collected.
+        C: Cost per unit distance.
+        scenario_tree: ScenarioTree for expectations.
+        stockout_penalty: Overflow penalty.
+
+    Returns:
+        List[List[List[int]]]: Updated horizon routes.
     """
     if scenario_tree is None:
         return greedy_horizon_insertion(horizon_routes, removed, dist_matrix, wastes, capacity, R, C)
@@ -240,6 +280,15 @@ def _get_scenarios(tree: Any, node: int, t: int, H: int) -> List[List[float]]:
     """Helper to extract scenario sequences from tree starting from day t.
 
     A scenario is a path of length H (from t+1 to t+H).
+
+    Args:
+        tree: Scenario tree object.
+        node: Node index.
+        t: Start day.
+        H: Horizon depth.
+
+    Returns:
+        List[List[float]]: List of demand sequences.
     """
     if tree is None:
         return []
@@ -256,7 +305,17 @@ def _get_scenarios(tree: Any, node: int, t: int, H: int) -> List[List[float]]:
 
 
 def _get_scenarios_from_ef(tree: Any, node: int, t: int, H: int) -> List[List[float]]:
-    """Helper for ID-based tree traversal (tree.py)."""
+    """Helper for ID-based tree traversal (tree.py).
+
+    Args:
+        tree: Scenario tree (explicit form).
+        node: Node index.
+        t: Start day.
+        H: Horizon depth.
+
+    Returns:
+        List[List[float]]: List of demand sequences.
+    """
     start_nodes = [n for n in tree.nodes.values() if n.day == t]
     if not start_nodes:
         return []
@@ -290,7 +349,17 @@ def _get_scenarios_from_ef(tree: Any, node: int, t: int, H: int) -> List[List[fl
 
 
 def _get_scenarios_from_prediction(tree: Any, node: int, t: int, H: int) -> List[List[float]]:
-    """Helper for root-based tree traversal (prediction.py)."""
+    """Helper for root-based tree traversal (prediction.py).
+
+    Args:
+        tree: Scenario tree (prediction form).
+        node: Node index.
+        t: Start day.
+        H: Horizon depth.
+
+    Returns:
+        List[List[float]]: List of demand sequences.
+    """
     from logic.src.pipeline.simulations.bins.prediction import ScenarioTreeNode
 
     start_nodes_p: List[ScenarioTreeNode] = []

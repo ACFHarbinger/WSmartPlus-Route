@@ -1,4 +1,19 @@
-"""Ordered Crossover (OX)."""
+"""
+Ordered Crossover (OX).
+
+References:
+    T.E. Baker, "Genetic Algorithms for VP Problems", 1993.
+
+Attributes:
+    ordered_crossover: Classical Ordered Crossover (OX1).
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+    >>> operator = ordered_crossover(
+    ...    Individual(giant_tour=[1, 2, 3, 4]),
+    ...    Individual(giant_tour=[4, 3, 2, 1]),
+    ... )
+"""
 
 from __future__ import annotations
 
@@ -12,7 +27,12 @@ if TYPE_CHECKING:
 
 
 def _get_individual_class() -> type:
-    """Lazy import to break circular dependency with meta_heuristics.__init__"""
+    """
+    Lazy import to break circular dependency with meta_heuristics.__init__
+
+    Returns:
+        type: Individual class.
+    """
     from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
 
     return Individual

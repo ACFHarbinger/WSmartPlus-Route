@@ -1,5 +1,4 @@
-"""
-Steepest-Descent 2-opt Intensification Operator.
+"""Steepest-Descent 2-opt Intensification Operator.
 
 Drives a VRP solution to a strict intra-route 2-opt local minimum. At each
 iteration the globally best improving edge-reversal move is located across
@@ -10,8 +9,11 @@ are visited or which route they belong to. Route loads and revenue are
 therefore guaranteed to be preserved. For VRPP problems the improvement
 threshold is scaled by C so that comparisons remain in profit units.
 
-The complexity per iteration is O(Σ_r n_r²) where n_r is the route length.
+The complexity per iteration is O(Sum_r n_r^2) where n_r is the route length.
 In practice the algorithm converges in far fewer iterations than max_iter.
+
+Attributes:
+    None
 
 Reference:
     Lin, S. (1965). "Computer solutions of the traveling salesman problem."

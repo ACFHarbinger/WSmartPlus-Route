@@ -84,12 +84,28 @@ class MarkovSequenceState:
         self.visit_counts: np.ndarray = np.zeros((self.n, self.n), dtype=float)
 
     def _normalise(self) -> None:
+        """
+        Normalises the transition matrix T to be row-stochastic.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         row_sums = self.T.sum(axis=1, keepdims=True)
         row_sums = np.where(row_sums == 0, 1.0, row_sums)
         self.T = self.T / row_sums
 
     def index(self, name: str) -> int:
-        """Returns the integer index corresponding to the operator name."""
+        """Returns the integer index corresponding to the operator name.
+
+        Args:
+            name: Operator name to look up.
+
+        Returns:
+            The integer index in the transition matrix.
+        """
         return self._idx[name]
 
 

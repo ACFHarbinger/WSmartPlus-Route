@@ -170,7 +170,12 @@ def kick_profit(
 
 
 def _profit_reinsertion(ctx: Any, nodes: List[int]) -> None:
-    """Helper for profit-driven reinsertion of nodes."""
+    """Helper for profit-driven reinsertion of nodes.
+
+    Args:
+        ctx: Context object.
+        nodes: List of node IDs to reinsert.
+    """
     for node in nodes:
         best_profit = -float("inf")
         best_ri = -1

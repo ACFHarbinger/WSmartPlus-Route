@@ -1,5 +1,17 @@
-"""
-Branching constraints for VRPP Branch-and-Price.
+"""Branching constraints for VRPP Branch-and-Price.
+
+This module defines various branching constraints used to partition the
+search space in the Branch-and-Price-and-Cut algorithm.
+
+Attributes:
+    EdgeBranchingConstraint: Arc-based branching constraint.
+    RyanFosterBranchingConstraint: Node-pair based branching constraint.
+    FleetSizeBranchingConstraint: Global vehicle count constraint.
+    NodeVisitationBranchingConstraint: Node visitation status constraint.
+
+Example:
+    >>> constraint = EdgeBranchingConstraint(u=1, v=2, must_use=True)
+    >>> is_valid = constraint.is_route_feasible(my_route)
 """
 
 from __future__ import annotations
@@ -71,7 +83,12 @@ class EdgeBranchingConstraint:
         return any(full_path[i] == self.u and full_path[i + 1] == self.v for i in range(len(full_path) - 1))
 
     def __repr__(self) -> str:
-        """Return a developer-friendly string representation."""
+        """Return a developer-friendly string representation.
+
+        Returns:
+            str: String representation of the constraint.
+        """
+
         relation = "MUST_USE" if self.must_use else "FORBIDDEN"
         return f"EdgeBranchingConstraint({self.u} -> {self.v}: {relation})"
 
@@ -134,13 +151,23 @@ class RyanFosterBranchingConstraint:
         return True
 
     def __repr__(self) -> str:
-        """Return a developer-friendly string representation."""
+        """Return a developer-friendly string representation.
+
+        Returns:
+            str: String representation of the constraint.
+        """
+
         relation = "TOGETHER" if self.together else "SEPARATE"
         return f"RyanFosterBranchingConstraint({self.node_r}, {self.node_s}: {relation})"
 
 
 class FleetSizeBranchingConstraint:
-    """Constraint on the total number of vehicles used (sum of route lambdas)."""
+    """Constraint on the total number of vehicles used (sum of route lambdas).
+
+    Attributes:
+        limit: Fleet size limit K.
+        is_upper: True for <= limit (floor), False for >= limit (ceil).
+    """
 
     def __init__(self, limit: int, is_upper: bool) -> None:
         """Initializes a fleet size branching constraint.
@@ -153,17 +180,34 @@ class FleetSizeBranchingConstraint:
         self.is_upper = is_upper
 
     def is_route_feasible(self, route: Route) -> bool:
-        """Route-level feasibility is 1.0 (global constraint)."""
+        """Route-level feasibility is 1.0 (global constraint).
+
+        Args:
+            route: A Route object to validate.
+
+        Returns:
+            True always.
+        """
         return True
 
     def __repr__(self) -> str:
-        """Returns string representation of the constraint."""
+        """Returns string representation of the constraint.
+
+        Returns:
+            str: String representation of the constraint.
+        """
+
         rel = "<=" if self.is_upper else ">="
         return f"FleetSizeBranchingConstraint(Sum λ {rel} {self.limit})"
 
 
 class NodeVisitationBranchingConstraint:
-    """Constraint on the visitation frequency of a specific optional node."""
+    """Constraint on the visitation frequency of a specific optional node.
+
+    Attributes:
+        node: Index of the optional customer node.
+        forced: True to force visitation (v_i = 1), False to forbid it (v_i = 0).
+    """
 
     def __init__(self, node: int, forced: bool) -> None:
         """Initializes a node visitation branching constraint.
@@ -176,17 +220,29 @@ class NodeVisitationBranchingConstraint:
         self.forced = forced
 
     def is_route_feasible(self, route: Route) -> bool:
-        """
+        """Verify route feasibility against visitation constraint.
+
         In the 'forced' branch (v_i = 1), we don't filter existing routes
         that don't visit i; the master model will enforce the visitation sum.
         In the 'forbidden' branch (v_i = 0), we filter out any route visiting i.
+
+        Args:
+            route: A Route object to validate.
+
+        Returns:
+            True if the route is feasible.
         """
         if not self.forced:
             return self.node not in route.node_coverage
         return True
 
     def __repr__(self) -> str:
-        """Returns string representation of the constraint."""
+        """Returns string representation of the constraint.
+
+        Returns:
+            str: String representation of the constraint.
+        """
+
         val = 1 if self.forced else 0
         return f"NodeVisitationBranchingConstraint(v_{self.node} = {val})"
 

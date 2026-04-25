@@ -115,6 +115,7 @@ def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, ex
         p_u: Position of u in route r_u.
         r_v: Index of the route containing v (target route).
         p_v: Position of v in route r_v.
+        exclude_depot: If True, skips moves that involve depot-adjacent edges.
 
     Returns:
         bool: True if the relocation was applied (improving), False otherwise.
@@ -176,6 +177,7 @@ def relocate_chain(
         r_dst: Destination route index.
         pos_dst: Insertion point (chain inserted after this position).
         chain_len: Number of consecutive nodes (1 or 2).
+        exclude_depot: If True, skips moves involving depot-adjacent edges.
 
     Returns:
         bool: True if the relocation improved the solution.
@@ -269,6 +271,7 @@ def move_or_opt(ls: Any, r_idx: int, pos: int, chain_len: int, exclude_depot: bo
         r_idx: Index of the route.
         pos: Start position of the chain.
         chain_len: Length of the chain (1-3).
+        exclude_depot: If True, skips moves involving depot-adjacent edges.
 
     Returns:
         bool: True if an improving move was found and applied.
@@ -291,7 +294,17 @@ def move_or_opt(ls: Any, r_idx: int, pos: int, chain_len: int, exclude_depot: bo
 
 
 def _chain_edge_cost(d, prev_node: int, chain: List[int], next_node: int) -> float:
-    """Cost of edges: prev → chain[0] → ... → chain[-1] → next."""
+    """Cost of edges: prev -> chain[0] -> ... -> chain[-1] -> next.
+
+    Args:
+        d: Distance matrix indexed by node IDs.
+        prev_node: Node immediately before the chain.
+        chain: Ordered list of chain node IDs.
+        next_node: Node immediately after the chain.
+
+    Returns:
+        Total edge cost traversing prev_node -> chain -> next_node.
+    """
     if not chain:
         return d[prev_node, next_node]
     cost = d[prev_node, chain[0]]

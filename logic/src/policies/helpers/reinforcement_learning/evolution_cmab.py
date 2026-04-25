@@ -1,15 +1,15 @@
-"""
-Enhanced HGS Evolution with Contextual Multi-Armed Bandits.
+"""Enhanced HGS Evolution with Contextual Multi-Armed Bandits.
 
 This module extends the standard HGS evolution operators with intelligent
 crossover operator selection using contextual bandits.
 
-Features:
-    - LinUCB-based operator selection (default)
-    - Thompson Sampling alternative
-    - ε-Greedy baseline
-    - Context-aware reward calculation
-    - Adaptive operator portfolio
+Attributes:
+    CMABEvolution: Evolution manager that selects crossover operators via CMAB.
+    update_biased_fitness: Function to update biased fitness scores in population.
+
+Example:
+    >>> evolution = CMABEvolution(split_manager, bandit_algorithm="linucb")
+    >>> child = evolution.crossover(p1, p2, population, iteration=100)
 
 Reference:
     Vidal et al., "A hybrid genetic algorithm for multidepot and periodic VRP", 2012.
@@ -40,10 +40,24 @@ class CMABEvolution:
     """
     Contextual Multi-Armed Bandit based evolutionary operators.
 
-    This class orchestrates the dynamic selection of crossover operators using
     contextual reinforcement learning. It extracts environment and population
     features to form a 'context' vector, which is used by the bandit algorithm
     to predict which operator will be most effective.
+
+    Attributes:
+        split_manager: LinearSplit for evaluating individuals and splitting routes.
+        rng: Random number generator for operator logic.
+        np_rng: NumPy random generator for agent logic.
+        feature_extractor: Context feature extractor.
+        bandit: The underlying bandit agent (e.g., LinUCBAgent).
+        bandit_algorithm: Name of the active bandit algorithm.
+        quality_weight: Reward weight for offspring quality.
+        improvement_weight: Reward weight for improvement over parents.
+        diversity_weight: Reward weight for diversity contribution.
+        novelty_weight: Reward weight for solution novelty.
+        reward_threshold: Minimal improvement value to consider.
+        default_reward: Baseline reward multiplier.
+        iteration: Current global iteration count.
     """
 
     def __init__(
@@ -72,8 +86,18 @@ class CMABEvolution:
             reward_threshold: Minimal improvement value to consider.
             default_reward: Baseline reward multiplier.
             rng: Random number generator instance.
-            **kwargs: Additional parameters like alpha (for LinUCB) or lambda_prior.
+            kwargs: Additional hyperparameters for the RL agent.
+                - diversity_history_size (int): Size of diversity history buffer.
+                - improvement_history_size (int): Size of improvement history buffer.
+                - feature_dim (int): Dimension of context features.
+                - alpha (float): Exploration parameter for LinUCB.
+                - lambda_prior (float): Prior lambda for Thompson Sampling.
+                - noise_variance (float): Noise variance for Thompson Sampling.
+                - epsilon (float): Initial epsilon for Epsilon-Greedy.
+                - epsilon_decay (float): Decay rate for epsilon.
+                - epsilon_min (float): Minimum epsilon value.
         """
+
         self.split_manager = split_manager
         self.rng = rng if rng is not None else random.Random()
         # Seed for numpy generator used by new agents
@@ -195,10 +219,10 @@ class CMABEvolution:
             p1 (Individual): First parent.
             p2 (Individual): Second parent.
             population (List[Individual]): Current population for diversity measurement.
-
         Returns:
             float: A composite reward value scaled for the bandit update.
         """
+
         if not population:
             return self.default_reward
 
@@ -258,7 +282,11 @@ class CMABEvolution:
 
         Args:
             ind: Individual to evaluate.
+
+        Returns:
+            None.
         """
+
         routes, profit = self.split_manager.split(ind.giant_tour)
         ind.routes = routes
         ind.profit_score = profit
@@ -286,11 +314,20 @@ class CMABEvolution:
 
         Args:
             improvement: Population improvement rate.
+
+        Returns:
+            None.
         """
+
         self.feature_extractor.update_improvement(improvement)
 
     def decay_exploration(self):
-        """Decay exploration rate (for ε-greedy)."""
+        """Decay exploration rate (for ε-greedy).
+
+        Returns:
+            None.
+        """
+
         if hasattr(self.bandit, "decay_epsilon"):
             self.bandit.decay_epsilon()
 
@@ -299,7 +336,8 @@ class CMABEvolution:
         Get CMAB statistics for visualization.
 
         Returns:
-            Dictionary of statistics.
+            dict: Dictionary of statistics.
+
         """
         stats = self.bandit.get_statistics()
         stats["bandit_algorithm"] = self.bandit_algorithm
@@ -318,8 +356,8 @@ def update_biased_fitness(
 ):
     """
     Update biased fitness based on profit rank and diversity rank.
-    Uses parameterless diversity weighting (Vidal 2022).
 
+    Uses parameterless diversity weighting (Vidal 2022).
     BF(I) = Rank_P(I) + (1 - nb_elite / pop_size) * Rank_D(I)
 
     Args:

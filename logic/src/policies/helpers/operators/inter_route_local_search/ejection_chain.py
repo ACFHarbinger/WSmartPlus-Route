@@ -68,7 +68,23 @@ def _try_insert_with_chain(
     depth: int,
     log: List[Tuple[int, int, int]],
 ) -> bool:
-    """Try to insert a node, potentially triggering chain ejections."""
+    """Try to insert a node, potentially triggering chain ejections.
+
+    Recursively attempts to find a feasible insertion for ``node``.  If no
+    direct insertion is available, a node is ejected from an existing route
+    and the ejected node is re-inserted recursively up to ``depth`` levels.
+
+    Args:
+        ls: LocalSearch instance with routes, distance matrix, and waste map.
+        node: Node to be inserted.
+        excluded_route: Route index that must not be used (the chain source).
+        depth: Remaining ejection depth; stops recursion when 0.
+        log: Mutable list recording (node, route_index, position) insertions
+            for rollback purposes.
+
+    Returns:
+        bool: True if the node was successfully inserted; False otherwise.
+    """
     if depth <= 0:
         return False
 
@@ -149,7 +165,17 @@ def _rollback_ejections(
     log: List[Tuple[int, int, int]],
     source_route: int,
 ) -> None:
-    """Rollback ejection chain insertions."""
+    """Rollback ejection chain insertions.
+
+    Reverses every insertion recorded in ``log`` (in reverse order) and
+    returns the corresponding nodes to ``source_route``.
+
+    Args:
+        ls: LocalSearch instance whose routes are mutated in-place.
+        log: List of (node, route_index, position) tuples produced by
+            :func:`_try_insert_with_chain`; cleared after rollback.
+        source_route: Route index to which ejected nodes are returned.
+    """
     for node, r_idx, pos in reversed(log):
         if r_idx < len(ls.routes) and pos < len(ls.routes[r_idx]) and ls.routes[r_idx][pos] == node:
             ls.routes[r_idx].pop(pos)

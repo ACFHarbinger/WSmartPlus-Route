@@ -1,5 +1,12 @@
-"""
-Contextual Thompson Sampling Bandit Module.
+"""Contextual Thompson Sampling Bandit Module.
+
+Implements Bayesian linear regression for contextual bandit problems.
+
+Attributes:
+    ContextualThompsonSamplingAgent: Agent that samples parameters from a posterior.
+
+Example:
+    >>> agent = ContextualThompsonSamplingAgent(n_arms=10, feature_dim=5)
 """
 
 from typing import Any, Dict, List, Optional
@@ -10,11 +17,18 @@ from .base import ContextualBanditAgent
 
 
 class ContextualThompsonSamplingAgent(ContextualBanditAgent):
-    """
-    Contextual Thompson Sampling agent with linear Gaussian model.
+    """Contextual Thompson Sampling agent with linear Gaussian model.
 
     Bayesian approach to contextual bandits. Maintains a posterior distribution
     over the parameters (theta) for each arm.
+
+    Attributes:
+        lambda_prior (float): Regularization parameter (initial precision).
+        v2 (float): Estimated variance of the reward noise (sigma^2).
+        B (List[np.ndarray]): Per-arm precision matrices.
+        f (List[np.ndarray]): Per-arm weighted reward vectors.
+        B_inv (List[np.ndarray]): Cached inverses of precision matrices.
+        _cache_valid (List[bool]): Flags indicating if B_inv cache is fresh.
     """
 
     def __init__(
@@ -123,7 +137,12 @@ class ContextualThompsonSamplingAgent(ContextualBanditAgent):
         }
 
     def get_weights(self) -> List[np.ndarray]:
-        """Return the current posterior means for each arm."""
+        """Return the current posterior means for each arm.
+
+        Returns:
+            List of posterior mean vectors [d].
+        """
+
         weights = []
         for a in range(self.n_arms):
             if not self._cache_valid[a]:

@@ -1,8 +1,15 @@
-"""
-Reward shaping strategies for reinforcement learning in optimization search.
+"""Reward shaping strategies for reinforcement learning in optimization search.
 
-Provides mechanisms to transform objective value improvements into
+This module provides mechanisms to transform objective value improvements into
 reinforcement signals, with support for adaptive reward scaling.
+
+Attributes:
+    RewardShaper: Base class for converting search outcomes into reward signals.
+    AdaptiveRewardShaper: Reward shaper that adapts reward values based on search progress.
+
+Example:
+    >>> shaper = RewardShaper(best_improvement_reward=10.0)
+    >>> reward = shaper.compute_reward(new_profit=100.0, prev_profit=90.0, ...)
 """
 
 from typing import Dict
@@ -36,12 +43,13 @@ class RewardShaper:
         """Initialize the reward shaper.
 
         Args:
-            best_improvement_reward (float): Reward for new best solution.
-            local_improvement_reward (float): Reward for local improves.
-            accepted_reward (float): Reward for accepted operators.
-            rejected_reward (float): Penalty for rejected moves.
-            stagnation_penalty (float): Step-wise penalty for stagnation.
+            best_improvement_reward: Reward for new best solution.
+            local_improvement_reward: Reward for local improves.
+            accepted_reward: Reward for accepted operators.
+            rejected_reward: Penalty for rejected moves.
+            stagnation_penalty: Step-wise penalty for stagnation.
         """
+
         self.best_reward = best_improvement_reward
         self.local_reward = local_improvement_reward
         self.accepted_reward = accepted_reward
@@ -151,16 +159,22 @@ class RewardShaper:
 
 
 class AdaptiveRewardShaper(RewardShaper):
-    """Adapts rewards based on search progress."""
+    """Adapts rewards based on search progress.
+
+    Attributes:
+        adaptation_rate: Rate at which rewards adapt to search progress.
+        base_rewards: Dictionary of initial reward values.
+    """
 
     def __init__(self, *args, adaptation_rate: float = 0.5, **kwargs):
         """Initialize the adaptive reward shaper.
 
         Args:
-            *args: Positional arguments for RewardShaper.
-            adaptation_rate (float): Rate at which rewards adapt to search progress.
-            **kwargs: Keyword arguments for RewardShaper.
+            args: Positional arguments passed to RewardShaper.
+            adaptation_rate: Rate at which rewards adapt to search progress.
+            kwargs: Keyword arguments passed to RewardShaper.
         """
+
         super().__init__(*args, **kwargs)
         self.adaptation_rate = adaptation_rate
         self.base_rewards = {"best": self.best_reward, "local": self.local_reward, "accepted": self.accepted_reward}
@@ -173,7 +187,11 @@ class AdaptiveRewardShaper(RewardShaper):
 
         Args:
             progress (float): Search completion progress in [0.0, 1.0].
+
+        Returns:
+            None.
         """
+
         # Higher exploration early, higher exploitation late
         exploration_boost = (1.0 - progress) * self.adaptation_rate
         self.accepted_reward = self.base_rewards["accepted"] * (1.0 + exploration_boost)
@@ -186,12 +204,14 @@ class AdaptiveRewardShaper(RewardShaper):
         """Adapts rewards and computes the shaped value.
 
         Args:
-            *args: Positional arguments for RewardShaper.compute_reward.
-            progress (float): Search completion progress in [0.0, 1.0].
-            **kwargs: Keyword arguments for RewardShaper.compute_reward.
+            args: Positional arguments for RewardShaper.compute_reward.
+            progress: Search completion progress in [0.0, 1.0].
+            kwargs: Keyword arguments for RewardShaper.compute_reward.
+
 
         Returns:
             float: The adapted and shaped reward value.
         """
+
         self.adapt(progress)
         return super().compute_reward(*args, **kwargs)

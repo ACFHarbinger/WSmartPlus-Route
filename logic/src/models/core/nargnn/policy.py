@@ -87,7 +87,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
             train_strategy: Selection strategy for training.
             val_strategy: Selection strategy for validation.
             test_strategy: Selection strategy for testing.
-            **constructive_policy_kw: Additional keyword arguments.
+            constructive_policy_kw: Keyword arguments for constructive policy.
         """
         if encoder is None:
             # NARGNNEncoder implements functional interface of NonAutoregressiveEncoder

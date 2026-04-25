@@ -87,6 +87,9 @@ Held, M., & Karp, R. M. (1970). The traveling-salesman problem and minimum
 Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan
   traveling salesman heuristic. EJOR 126, 106–130.
 
+Attributes:
+    None
+
 Example:
     >>> tour, cost = solve_lkh(distance_matrix)
 """
@@ -263,7 +266,7 @@ def _improve_tour(  # noqa: C901
             to preserve backbone edges during offspring refinement.
 
     Returns:
-        (new_tour, new_cost, any_improvement, updated_bits).
+        Tuple[List[int], float, bool, Optional[np.ndarray]]: (new_tour, new_cost, any_improvement, updated_bits).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -463,8 +466,17 @@ References
 Held, M., & Karp, R. M. (1970). The traveling-salesman problem and minimum
   spanning trees. Operations Research, 18(6), 1138–1162.
 
-Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan
-  traveling salesman heuristic. EJOR 126, 106–130.
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun import solve_lkh
+    >>> tour, cost = solve_lkh(dist_matrix)
+
+References:
+----------
+Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan traveling
+  salesman heuristic. European Journal of Operational Research, 126(1), 106–130.
 """
 
 # ---------------------------------------------------------------------------
@@ -557,18 +569,18 @@ def run_subgradient(
     7. Halve μ if no improvement for ``patience`` consecutive iterations.
 
     Args:
-        distance_matrix: (n × n) symmetric raw distance matrix.
-        max_iter:        Maximum subgradient iterations.
-        mu_init:         Initial step-size multiplier (μ₀ in Helsgaun 2000).
-        patience:        Iterations without improvement before halving μ.
-        root:            1-tree root node (typically 0).
-        verbose:         Print per-iteration diagnostics.
+        distance_matrix (np.ndarray): (n x n) symmetric raw distance matrix.
+        max_iter (int): Maximum subgradient iterations.
+        mu_init (float): Initial step-size multiplier (μ₀ in Helsgaun 2000).
+        patience (int): Iterations without improvement before halving μ.
+        root (int): 1-tree root node (typically 0).
+        verbose (bool): Print per-iteration diagnostics.
 
     Returns:
-        (pi, best_W, penalized_dm):
-            pi          — optimal penalty vector, shape (n,).
-            best_W      — best (highest) 1-tree lower bound achieved.
-            penalized_dm — final penalized distance matrix c̃_{ij}.
+        Tuple[np.ndarray, float, np.ndarray]: (pi, best_W, penalized_dm)
+            - pi: Optimal penalty vector, shape (n,).
+            - best_W: Best (highest) 1-tree lower bound achieved.
+            - penalized_dm: Final penalized distance matrix c̃_{ij}.
     """
     n = len(distance_matrix)
     pi = np.zeros(n, dtype=float)
@@ -659,24 +671,24 @@ def solve_lkh1(
         d. Otherwise: apply double-bridge perturbation.
 
     Args:
-        distance_matrix: (n × n) symmetric raw cost matrix.
-        initial_tour:    Optional starting closed tour.
-        max_iterations:  ILS restart budget.
-        max_k:           Maximum k-opt depth (2–5).
-        n_candidates:    Candidate list size per node.
-        sg_max_iter:     Maximum subgradient iterations.
-        sg_mu_init:      Initial Polyak step multiplier.
-        sg_patience:     Patience for μ halving.
-        pool_size:       Elite tour pool size (for merge recombination).
-        recorder:        Optional telemetry recorder.
-        np_rng:          NumPy Generator.
-        seed:            Alternative seed.
+        distance_matrix (np.ndarray): (n x n) symmetric raw cost matrix.
+        initial_tour (Optional[List[int]]): Optional starting closed tour.
+        max_iterations (int): ILS restart budget.
+        max_k (int): Maximum k-opt depth (2–5).
+        n_candidates (int): Candidate list size per node.
+        sg_max_iter (int): Maximum subgradient iterations.
+        sg_mu_init (float): Initial Polyak step multiplier.
+        sg_patience (int): Patience for μ halving.
+        pool_size (int): Elite tour pool size (for merge recombination).
+        recorder (Optional[PolicyStateRecorder]): Optional telemetry recorder.
+        np_rng (Optional[np.random.Generator]): NumPy Generator.
+        seed (Optional[int]): Alternative seed.
 
     Returns:
-        (best_tour, best_cost, hk_lower_bound):
-            best_tour      — best closed tour found.
-            best_cost      — its total raw distance.
-            hk_lower_bound — Held-Karp lower bound W(π*) from Phase 1.
+        Tuple[List[int], float, float]: (best_tour, best_cost, hk_lower_bound)
+            - best_tour: Best closed tour found.
+            - best_cost: Its total raw distance.
+            - hk_lower_bound: Held-Karp lower bound W(π*) from Phase 1.
     """
     n = len(distance_matrix)
     if n < 3:
@@ -792,7 +804,17 @@ def solve_lkh(
     Thin convenience wrapper for :func:`solve_lkh1` matching the two-return
     interface of the existing ``lin_kernighan_helsgaun.solve_lkh``.
 
-    Returns (best_tour, best_cost) without the Held-Karp bound.
+    Args:
+        distance_matrix (np.ndarray): (n x n) symmetric cost matrix.
+        initial_tour (Optional[List[int]]): Optional starting tour (closed).
+        max_iterations (int): Maximum LKH-1 iterations.
+        max_k (int): Maximum k-opt move size (2 to 5).
+        recorder (Optional[PolicyStateRecorder]): Optional telemetry recorder.
+        np_rng (Optional[np.random.Generator]): NumPy Generator.
+        seed (Optional[int]): Alternative seed.
+
+    Returns:
+        Tuple[List[int], float]: (best_tour, best_cost) without the Held-Karp bound.
     """
     tour, cost, _ = solve_lkh1(
         distance_matrix,

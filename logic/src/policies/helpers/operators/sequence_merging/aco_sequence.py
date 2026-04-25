@@ -111,7 +111,14 @@ class AcoSequenceState:
         self._eta_cnt: np.ndarray = np.ones((self.n, self.n), dtype=float)
 
     def index(self, name: str) -> int:
-        """Returns the integer index corresponding to the operator name."""
+        """Returns the integer index corresponding to the operator name.
+
+        Args:
+            name: Operator name to look up.
+
+        Returns:
+            The integer index in the state matrices.
+        """
         return self._idx[name]
 
 
@@ -248,9 +255,16 @@ def _acs_transition(
     rng: Random,
     exploit_prob: float = 0.9,
 ) -> str:
-    """
-    ACS-style transition: exploit (greedy) with probability exploit_prob,
-    explore (proportional roulette) otherwise.
+    """ACS-style transition: exploit (greedy) or explore (proportional roulette).
+
+    Args:
+        state: Current ACO state.
+        current: Name of the current operator.
+        rng: Random number generator.
+        exploit_prob: Probability of choosing the greedy best transition.
+
+    Returns:
+        The name of the next operator to apply.
     """
     i = state.index(current)
     scores = (state.tau[i] ** state.alpha) * (state.eta[i] ** state.beta)

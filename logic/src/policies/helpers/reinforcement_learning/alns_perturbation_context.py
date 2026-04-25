@@ -1,5 +1,14 @@
-"""
-ALNS Perturbation Context Module.
+"""ALNS Perturbation Context Module.
+
+This module defines the context object used by perturbation and destruction
+heuristics in the ALNS (Adaptive Large Neighborhood Search) framework.
+
+Attributes:
+    ALNSPerturbationContext: Context object containing routes, distances, and wastes.
+
+Example:
+    >>> context = ALNSPerturbationContext(routes, dist_matrix, wastes, capacity)
+    >>> route_load = context._get_load_cached(0)
 """
 
 import copy
@@ -15,6 +24,14 @@ class ALNSPerturbationContext:
     This class serves as a state-carrier for the various perturbation
     and destruction heuristics, providing a unified interface for
     route data, waste demands, and distance matrices.
+
+    Attributes:
+        routes: List of current solution routes.
+        dist_matrix: Problem distance matrix.
+        d: Alias for dist_matrix.
+        waste: Dictionary of node waste demands.
+        Q: Vehicle capacity.
+        node_map: Mapping from node ID to (route_index, position).
     """
 
     def __init__(self, routes: List[List[int]], dist_matrix: np.ndarray, wastes: Dict[int, float], capacity: float):

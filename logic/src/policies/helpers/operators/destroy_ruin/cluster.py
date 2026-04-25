@@ -108,7 +108,18 @@ def _find_cross_route_neighbor(
     removed_set: Set[int],
     dist_matrix: np.ndarray,
 ) -> Optional[Tuple[int, int]]:
-    """Return (best_node, route_idx) of the closest unremoved node from a different route."""
+    """Return (best_node, route_idx) of the closest unremoved node from a different route.
+
+    Args:
+        pivot: The pivot node ID used as reference for distance comparisons.
+        pivot_route_idx: Index of the route containing the pivot node.
+        routes: Current solution (list of routes).
+        removed_set: Set of already-removed node IDs to skip.
+        dist_matrix: Distance matrix including depot at index 0.
+
+    Returns:
+        A tuple of (best_node, route_idx), or None if no eligible node exists.
+    """
     best_node: Optional[int] = None
     best_dist: float = float("inf")
     best_route_idx: int = -1

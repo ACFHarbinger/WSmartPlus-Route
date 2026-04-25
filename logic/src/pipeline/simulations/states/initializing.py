@@ -96,10 +96,13 @@ class InitializingState(SimState):
         ctx.transition_to(RunningState())
 
     def _setup_logging_and_dirs(self, ctx: SimulationContext) -> None:
-        """
+        """Configure logging and create output directories.
 
         Args:
             ctx: The simulation context object.
+
+        Returns:
+            None
         """
 
         def _safe_get(obj: Any, path: str, default: Any = None) -> Any:
@@ -134,10 +137,13 @@ class InitializingState(SimState):
             logger.info(f"Results directory already exists: {ctx.results_dir}")
 
     def _load_all_configurations(self, ctx: SimulationContext) -> None:
-        """
+        """Load all configurations into the simulation context.
 
         Args:
             ctx: The simulation context object.
+
+        Returns:
+            None
         """
         ctx.config = {}
 

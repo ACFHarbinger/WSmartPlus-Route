@@ -1,5 +1,13 @@
-"""
-Gaussian Process Combinatorial Multi-Armed Bandit (GP-CMAB) agent implementation.
+"""Gaussian Process Combinatorial Multi-Armed Bandit (GP-CMAB) agent implementation.
+
+Models reward functions using Gaussian Processes to handle combinatorial action
+spaces and environmental context.
+
+Attributes:
+    GPCMABAgent: Main agent class for GP-based combinatorial bandits.
+
+Example:
+    >>> agent = GPCMABAgent(n_arms=10, feature_dim=5, super_arm_size=2)
 """
 
 import pickle
@@ -11,14 +19,26 @@ from .base import ContextualBanditAgent
 
 
 class GPCMABAgent(ContextualBanditAgent):
-    """
-    Gaussian Process Combinatorial Multi-Armed Bandit (GP-CMAB) agent.
+    """Gaussian Process Combinatorial Multi-Armed Bandit (GP-CMAB) agent.
 
     Models the reward function as a Gaussian Process (GP) over the joint
     (context, action) space. Uses the GP-UCB acquisition function for
     arm selection, balancing exploration (high posterior variance) with
     exploitation (high posterior mean). Supports combinatorial "super-arm"
     selection where multiple base arms are chosen simultaneously.
+
+    Attributes:
+        beta (float): Exploration parameter for GP-UCB.
+        length_scale (float): RBF kernel length scale.
+        signal_variance (float): RBF kernel signal variance.
+        noise_variance (float): Likelihood noise variance.
+        max_history (int): Maximum number of observations to store.
+        super_arm_size (int): Number of base arms to select per step.
+        input_dim (int): Combined dimension of context and actions.
+        X_history (List[np.ndarray]): History of (context, action) inputs.
+        y_history (List[float]): History of observed rewards.
+        K_inv (Optional[np.ndarray]): Cached inverse of the kernel matrix.
+        alpha_vec (Optional[np.ndarray]): Cached dual weights for prediction.
     """
 
     def __init__(
@@ -34,9 +54,21 @@ class GPCMABAgent(ContextualBanditAgent):
         seed: Optional[int] = None,
         history_size: int = 50,
     ):
+        """Initialize the GP-CMAB agent.
+
+        Args:
+            n_arms: Number of available arms.
+            feature_dim: Dimension of context feature vector.
+            beta: GP-UCB exploration parameter.
+            length_scale: RBF kernel length scale.
+            signal_variance: RBF kernel signal variance.
+            noise_variance: Observation noise variance.
+            max_history: Max observations to keep in memory.
+            super_arm_size: Number of arms to pick per trial.
+            seed: Optional random seed.
+            history_size: Recent performance tracking size.
         """
-        Initialize the GP-CMAB agent.
-        """
+
         super().__init__(n_arms, feature_dim, seed, history_size)
         self.beta = beta
         self.length_scale = length_scale
@@ -57,20 +89,59 @@ class GPCMABAgent(ContextualBanditAgent):
         self.alpha_vec: Optional[np.ndarray] = None
 
     def _encode_input(self, context: np.ndarray, action: int) -> np.ndarray:
+        """Encode context and action into a single GP input vector.
+
+        Args:
+            context: Context feature vector.
+            action: Action index.
+
+        Returns:
+            Concatenated input vector.
+        """
+
         one_hot = np.zeros(self.n_arms)
         one_hot[action] = 1.0
         return np.concatenate([context, one_hot])
 
     def _rbf_kernel(self, x1: np.ndarray, x2: np.ndarray) -> float:
+        """Compute the RBF (Squared Exponential) kernel between two inputs.
+
+        Args:
+            x1: First input vector.
+            x2: Second input vector.
+
+        Returns:
+            Kernel similarity value.
+        """
+
         sq_dist = np.sum((x1 - x2) ** 2)
         return float(self.signal_variance * np.exp(-sq_dist / (2.0 * self.length_scale**2)))
 
     def _kernel_vector(self, x_star: np.ndarray) -> np.ndarray:
+        """Compute the kernel vector between a new point and history.
+
+        Args:
+            x_star: New input vector.
+
+        Returns:
+            Vector of kernel values [n_history].
+        """
+
         if not self.X_history:
             return np.array([])
         return np.array([self._rbf_kernel(x_star, x_i) for x_i in self.X_history])
 
     def _predict(self, context: np.ndarray, action: int) -> Tuple[float, float]:
+        """Predict the posterior mean and variance for a (context, action) pair.
+
+        Args:
+            context: Current context vector.
+            action: Candidate action index.
+
+        Returns:
+            (posterior_mean, posterior_variance).
+        """
+
         x_star = self._encode_input(context, action)
         if self.K_inv is None or len(self.X_history) == 0:
             return 0.0, self.signal_variance
@@ -84,6 +155,11 @@ class GPCMABAgent(ContextualBanditAgent):
         return mu, var
 
     def _recompute_kernel_inverse(self) -> None:
+        """Fully recompute the kernel matrix inverse and alpha vector.
+
+        Used when history is pruned or incremental updates fail.
+        """
+
         n = len(self.X_history)
         if n == 0:
             self.K_inv = None

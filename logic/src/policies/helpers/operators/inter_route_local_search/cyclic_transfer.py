@@ -83,7 +83,20 @@ def _evaluate_shift(
     demands: List[float],
     direction: int,
 ) -> float:
-    """Compute the cost gain for a cyclic shift in the given direction."""
+    """Compute the cost gain for a cyclic shift in the given direction.
+
+    Args:
+        ls: LocalSearch instance with routes, distance matrix, and capacity Q.
+        participants: List of (route_index, position) cut points defining which
+            node in each route participates in the cyclic transfer.
+        nodes: Node IDs at each participant position (parallel to participants).
+        demands: Waste demands for each participant node (parallel to nodes).
+        direction: Shift direction; +1 for forward (route i receives node from
+            route i-1) or -1 for backward.
+
+    Returns:
+        float: Total cost gain of the cyclic shift, or -inf if infeasible.
+    """
     p = len(participants)
     total_gain = 0.0
 
@@ -118,7 +131,14 @@ def _apply_shift(
     nodes: List[int],
     direction: int,
 ) -> None:
-    """Apply the cyclic shift by replacing nodes in each route."""
+    """Apply the cyclic shift by replacing nodes in each route.
+
+    Args:
+        ls: LocalSearch instance whose routes are mutated in-place.
+        participants: List of (route_index, position) pairs to update.
+        nodes: Node IDs at each participant position (parallel to participants).
+        direction: Shift direction; +1 for forward, -1 for backward.
+    """
     p = len(participants)
     affected = set()
 

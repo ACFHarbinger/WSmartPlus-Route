@@ -53,7 +53,7 @@ class NeuOpt(nn.Module):
             embed_dim: Feature width for embeddings and internal layers.
             num_heads: Number of attention heads in the transformer layers.
             num_layers: Count of encoder-decoder blocks.
-            **policy_kwargs: Additional arguments for NeuOptPolicy.
+            policy_kwargs: Additional arguments for NeuOptPolicy.
         """
         super().__init__()
         if policy is None:

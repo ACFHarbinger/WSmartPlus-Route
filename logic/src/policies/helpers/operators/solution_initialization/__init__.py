@@ -7,6 +7,13 @@ Provides various constructive heuristics to build initial solutions:
 - Savings: Clarke-Wright savings algorithm.
 - Regret: Regret-k insertion heuristic.
 - GRASP: Randomized greedy adaptive search.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.solution_initialization import build_greedy_routes
+    >>> routes = build_greedy_routes(dist_matrix, wastes, capacity)
 """
 
 from .grasp_si import build_grasp_routes

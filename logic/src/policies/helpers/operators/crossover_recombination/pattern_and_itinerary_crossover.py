@@ -1,5 +1,20 @@
 """
 Pattern and Itinerary Crossover (PAIX).
+
+References:
+    - A. A. Ebrahimi, K. F. K. El-Nawawy and S. N. Al-Hamad, "A hybrid genetic algorithm with a self-adaptive local search operator
+        for the vehicle routing problem with simultaneous pickup and delivery and time windows," 2023 IEEE 45th Annual Conference of
+        the Industrial Electronics Society (IECON), Singapore, Singapore, 2023, pp. 3784-3789, doi: 10.1109/IECON49141.2023.10396611.
+
+Attributes:
+    pattern_itinerary_crossover: Pattern and Itinerary Crossover (PAIX).
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual import Individual
+    >>> operator = pattern_itinerary_crossover(
+    ...    Individual(giant_tour=[1, 2, 3, 4]),
+    ...    Individual(giant_tour=[4, 3, 2, 1]),
+    ... )
 """
 
 import random
@@ -18,6 +33,15 @@ def pattern_itinerary_crossover(parent_a: Individual, parent_b: Individual, T: i
     1. Inherits patterns p_i from Parent A or Parent B randomly.
     2. Builds giant tours using Order Crossover (OX) applied to the parents' giant tours,
        filtering nodes to respect the inherited pattern.
+
+    Args:
+        parent_a: First parent individual.
+        parent_b: Second parent individual.
+        T: Number of time steps (days).
+        N: Number of nodes.
+
+    Returns:
+        Child individual.
     """
     # 1. Pattern Inheritance
     child_patterns = np.zeros(N, dtype=int)

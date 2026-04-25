@@ -1,35 +1,14 @@
-"""
-Enhanced Adaptive Large Neighborhood Search (ALNS) with SARSA Reinforcement Learning.
+"""Enhanced Adaptive Large Neighborhood Search (ALNS) with SARSA Reinforcement Learning.
 
 This module implements an advanced ALNS solver that uses SARSA (State-Action-Reward-State-Action)
-reinforcement learning to intelligently select destroy/repair operators. It includes all available
-operators from the codebase:
+reinforcement learning to intelligently select destroy/repair operators.
 
-Destroy Operators:
-    - Random removal
-    - Worst removal
-    - Cluster removal
-    - Shaw removal (relatedness-based)
-    - String removal (contiguous segments)
-    - Unstringing Type I-IV (GENIUS removal)
+Attributes:
+    ALNSSARSASolver: Main solver class implementing ALNS-SARSA.
 
-Repair Operators:
-    - Greedy insertion
-    - Regret-2 insertion
-    - Regret-k insertion (extended)
-    - Greedy blink insertion (randomized)
-    - Stringing Type I-IV (GENIUS reinsertion)
-
-Perturbation Operators:
-    - Route shuffling
-    - Node sequence reversal
-    - Random restart from strong perturbation
-
-Unstringing and Stringing Operators (US):
-    - Type I: Single string removal/insertion
-    - Type II: Multiple string removal/insertion
-    - Type III: Propagating string removal/insertion
-    - Type IV: Clustered string removal/insertion
+Example:
+    >>> solver = ALNSSARSASolver(dist_matrix, wastes, capacity, R, C, params, rl_params)
+    >>> best_routes, profit, cost = solver.solve()
 
 Reference:
     Sutton & Barto, "Reinforcement Learning: An Introduction", 2nd Ed., 2018.
@@ -111,6 +90,24 @@ class ALNSSARSASolver:
     Enhanced ALNS solver with SARSA reinforcement learning for operator selection.
 
     Includes all destroy, repair, perturbation, and unstringing operators.
+
+    Attributes:
+        dist_matrix: Problem distance matrix.
+        wastes: Dictionary of node waste demands.
+        capacity: Vehicle capacity.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance traveled.
+        params: Configuration parameters for the solver.
+        rl_params: Hyperparameters for the RL agent.
+        mandatory_nodes: Nodes that must be visited.
+        evaluator: Optional objective evaluation function.
+        destroy_ops: List of destruction operators.
+        repair_ops: List of repair operators.
+        perturbation_ops: List of perturbation operators.
+        agent: SARSA RL agent for operator selection.
+        feature_extractor: State feature extractor for the RL agent.
+        stagnation_count: Number of iterations since last improvement.
+        diversity_history: History of solution diversity scores.
     """
 
     def __init__(
@@ -125,7 +122,20 @@ class ALNSSARSASolver:
         mandatory_nodes: Optional[List[int]] = None,
         evaluator=None,
     ):
-        """Initialize enhanced ALNS-SARSA solver."""
+        """Initialize enhanced ALNS-SARSA solver.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            wastes: Dictionary mapping node indices to waste quantities.
+            capacity: Maximum vehicle capacity.
+            R: Revenue per unit collected.
+            C: Cost per unit distance traveled.
+            params: General solver configuration.
+            rl_params: Hyperparameters for the RL agent.
+            mandatory_nodes: Nodes that must be included in the solution.
+            evaluator: Optional custom objective evaluation function.
+        """
+
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -174,7 +184,8 @@ class ALNSSARSASolver:
         self.diversity_history: Deque[float] = deque(maxlen=rl_params.sarsa_diversity_size)
 
     def _init_destroy_operators(self):
-        """Initialize all destroy operators."""
+        """Initialize all destroy operators, including standard and unstringing ones."""
+
         self.destroy_ops = [
             # Standard operators
             self._destroy_random,
@@ -203,7 +214,8 @@ class ALNSSARSASolver:
         ]
 
     def _init_repair_operators(self):
-        """Initialize all repair operators."""
+        """Initialize all repair operators, including standard and stringing ones."""
+
         self.repair_ops = [
             # Standard operators
             self._repair_greedy,
@@ -232,7 +244,8 @@ class ALNSSARSASolver:
         ]
 
     def _init_perturbation_operators(self):
-        """Initialize all perturbation operators."""
+        """Initialize all perturbation operators for escaping local optima."""
+
         self.perturbation_ops = [
             self._perturb_kick,
             self._perturb_random,
@@ -243,21 +256,57 @@ class ALNSSARSASolver:
     # ===== Destroy Operators =====
 
     def _destroy_random(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Random removal."""
+        """Random removal.
+
+        Args:
+            routes: Current set of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         return random_removal_op(routes, n, rng=self.random)
 
     def _destroy_worst(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Worst removal (highest cost nodes)."""
+        """Worst removal (highest cost nodes).
+
+        Args:
+            routes: Current set of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         if self.profit_aware_operators:
             return worst_profit_removal_op(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
         return worst_removal_op(routes, n, self.dist_matrix)
 
     def _destroy_cluster(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Cluster removal (spatially related nodes)."""
+        """Cluster removal (spatially related nodes).
+
+        Args:
+            routes: Current set of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         return cluster_removal_op(routes, n, self.dist_matrix, self.nodes, rng=self.random)
 
     def _destroy_shaw(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Shaw removal (multi-criteria relatedness)."""
+        """Shaw removal (multi-criteria relatedness).
+
+        Args:
+            routes: Current set of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         if self.profit_aware_operators:
             return shaw_profit_removal_op(routes, n, self.dist_matrix, self.wastes, self.R, self.C, rng=self.random)
         return shaw_removal_op(
@@ -269,13 +318,31 @@ class ALNSSARSASolver:
         )
 
     def _destroy_string(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """String removal (contiguous segments)."""
+        """String removal (contiguous segments).
+
+        Args:
+            routes: Current set of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         return string_removal_op(routes, n, self.dist_matrix, rng=self.random)
 
     # ===== Repair Operators =====
 
     def _repair_greedy(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Greedy insertion."""
+        """Greedy insertion.
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return greedy_profit_insertion_op(
                 routes,
@@ -299,7 +366,16 @@ class ALNSSARSASolver:
         )
 
     def _repair_regret2(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Regret-2 insertion."""
+        """Regret-2 insertion.
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return regret_2_profit_insertion_op(
                 routes,
@@ -323,7 +399,17 @@ class ALNSSARSASolver:
         )
 
     def _repair_regretk(self, routes: List[List[int]], removed: List[int], k: int) -> List[List[int]]:
-        """Regret-k insertion (extended from regret-2)."""
+        """Regret-k insertion (extended from regret-2).
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+            k: Number of alternatives to consider for regret.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return regret_k_profit_insertion_op(
                 routes,
@@ -351,7 +437,17 @@ class ALNSSARSASolver:
     def _repair_greedy_blink(
         self, routes: List[List[int]], removed: List[int], blink_rate: float = 0.1
     ) -> List[List[int]]:
-        """Greedy insertion with randomized blinks."""
+        """Greedy insertion with randomized blinks.
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+            blink_rate: Probability of skipping a potential insertion point.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return greedy_profit_insertion_with_blinks_op(
                 routes,
@@ -379,7 +475,16 @@ class ALNSSARSASolver:
         )
 
     def _repair_string_type_i(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Type-I stringing repair."""
+        """Type-I stringing repair.
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return stringing_profit_insertion(
                 routes,
@@ -407,7 +512,16 @@ class ALNSSARSASolver:
         )
 
     def _repair_string_type_ii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Type-II stringing repair."""
+        """Type-II stringing repair.
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return stringing_profit_insertion(
                 routes,
@@ -435,7 +549,16 @@ class ALNSSARSASolver:
         )
 
     def _repair_string_type_iii(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Type-III stringing repair."""
+        """Type-III stringing repair.
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return stringing_profit_insertion(
                 routes,
@@ -463,7 +586,16 @@ class ALNSSARSASolver:
         )
 
     def _repair_string_type_iv(self, routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Type-IV stringing repair."""
+        """Type-IV stringing repair.
+
+        Args:
+            routes: Current set of routes.
+            removed: List of nodes to reinsert.
+
+        Returns:
+            Repaired routes.
+        """
+
         if self.profit_aware_operators:
             return stringing_profit_insertion(
                 routes,
@@ -493,7 +625,17 @@ class ALNSSARSASolver:
     # ===== Unstringing Operators =====
 
     def _unstring_wrapper(self, routes: List[List[int]], n: int, op_type: int) -> Tuple[List[List[int]], List[int]]:
-        """Wrapper to apply unstringing moves globally as a destroy operator."""
+        """Wrapper to apply unstringing moves globally as a destroy operator.
+
+        Args:
+            routes: Current set of routes.
+            n: Max number of nodes to remove.
+            op_type: Type of unstringing operation (1-4).
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         if self.profit_aware_operators:
             return unstringing_profit_removal(
                 routes,
@@ -508,25 +650,69 @@ class ALNSSARSASolver:
         return unstringing_removal(routes, n, op_type, self.dist_matrix, rng=self.random)
 
     def _unstring_type_i(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Type-I unstringing."""
+        """Type-I unstringing.
+
+        Args:
+            routes: Current set of routes.
+            n: Max number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         return self._unstring_wrapper(routes, n, 1)
 
     def _unstring_type_ii(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Type-II unstringing."""
+        """Type-II unstringing.
+
+        Args:
+            routes: Current set of routes.
+            n: Max number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         return self._unstring_wrapper(routes, n, 2)
 
     def _unstring_type_iii(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Type-III unstringing."""
+        """Type-III unstringing.
+
+        Args:
+            routes: Current set of routes.
+            n: Max number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         return self._unstring_wrapper(routes, n, 3)
 
     def _unstring_type_iv(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Type-IV unstringing."""
+        """Type-IV unstringing.
+
+        Args:
+            routes: Current set of routes.
+            n: Max number of nodes to remove.
+
+        Returns:
+            Tuple of (new_routes, removed_nodes).
+        """
+
         return self._unstring_wrapper(routes, n, 4)
 
     # ===== Perturbation Operators =====
 
     def _perturb_kick(self, routes: List[List[int]]) -> List[List[int]]:
-        """Perturbation operator: removes random nodes and reinserts them greedily."""
+        """Perturbation operator: removes random nodes and reinserts them greedily.
+
+        Args:
+            routes: Current set of routes.
+
+        Returns:
+            Perturbed routes.
+        """
+
         ctx = ALNSPerturbationContext(routes, self.dist_matrix, self.wastes, self.capacity)
         if self.profit_aware_operators:
             kick_profit_op(ctx, destroy_ratio=0.2, bias=2.0, rng=self.random)
@@ -535,7 +721,15 @@ class ALNSSARSASolver:
         return ctx.routes
 
     def _perturb_random(self, routes: List[List[int]]) -> List[List[int]]:
-        """Perturbation operator: performs random swaps to escape local optima."""
+        """Perturbation operator: performs random swaps to escape local optima.
+
+        Args:
+            routes: Current set of routes.
+
+        Returns:
+            Perturbed routes.
+        """
+
         ctx = ALNSPerturbationContext(routes, self.dist_matrix, self.wastes, self.capacity)
         perturb_op(
             ctx,
@@ -712,7 +906,15 @@ class ALNSSARSASolver:
     def _initialize_solve(
         self, initial_solution: Optional[List[List[int]]]
     ) -> Tuple[List[List[int]], List[List[int]], float, float]:
-        """Initialize solution and metrics."""
+        """Initialize solution and metrics.
+
+        Args:
+            initial_solution: Optional starting routes.
+
+        Returns:
+            Tuple of (current_routes, best_routes, best_profit, best_cost).
+        """
+
         current_routes = initial_solution or build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -730,7 +932,15 @@ class ALNSSARSASolver:
         return current_routes, best_routes, best_profit, best_cost
 
     def _calc_removal_size(self, routes: List[List[int]]) -> int:
-        """Calculate number of nodes to remove based on current solution size."""
+        """Calculate number of nodes to remove based on current solution size.
+
+        Args:
+            routes: Current set of routes.
+
+        Returns:
+            Random number of nodes to remove.
+        """
+
         current_n_nodes = sum(len(r) for r in routes)
 
         if current_n_nodes == 0:
@@ -744,8 +954,16 @@ class ALNSSARSASolver:
 
         return self.random.randint(lower_bound, upper_bound)
 
-    def _calculate_diversity(self, routes: List[List[int]]) -> Any:
-        """Calculate solution diversity (simple measure based on route variation)."""
+    def _calculate_diversity(self, routes: List[List[int]]) -> float:
+        """Calculate solution diversity (simple measure based on route variation).
+
+        Args:
+            routes: Current set of routes.
+
+        Returns:
+            Diversity score in [0, 1].
+        """
+
         if not routes:
             return 0.0
 
@@ -765,7 +983,15 @@ class ALNSSARSASolver:
         return min(1.0, cv)
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost."""
+        """Calculate total routing cost.
+
+        Args:
+            routes: Set of routes to evaluate.
+
+        Returns:
+            Total weighted routing cost.
+        """
+
         total_dist = 0.0
         for route in routes:
             if not route:

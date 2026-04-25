@@ -3,6 +3,13 @@ Type III Stringing Operator.
 
 Inserts node V_x and reverses almost the entire sequence.
 This is the inverse of Stringing Type I, exploring other promising regions.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iii import apply_type_iii_s
+    >>> new_route = apply_type_iii_s(route, x, i, j, k, current_load)
 """
 
 from typing import Dict, List, Tuple
@@ -25,15 +32,15 @@ def apply_type_iii_s(route: List[int], x: int, i: int, j: int, k: int, current_l
     Reverses sub-tours (V_i...V_{j-1}) and (V_k...V_{i-1}).
 
     Args:
-        route: The tour as a list of node IDs.
-        x: Node ID to insert (V_x).
-        i: Index of node V_i (start of first reversal).
-        j: Index of node V_j (end of first reversal + 1).
-        k: Index of node V_k (start of second reversal).
-        current_load: Pre-calculated current weight of the route.
+        route (List[int]): The tour as a list of node IDs.
+        x (int): Node ID to insert (V_x).
+        i (int): Index of node V_i (start of first reversal).
+        j (int): Index of node V_j (end of first reversal + 1).
+        k (int): Index of node V_k (start of second reversal).
+        current_load (float): Pre-calculated current weight of the route.
 
     Returns:
-        New route with V_x inserted and segments reversed.
+        List[int]: New route with V_x inserted and segments reversed.
 
     Constraints:
         V_k != V_i and V_k != V_j
@@ -105,19 +112,20 @@ def apply_type_iii_s_profit(
     Apply Type III Stringing and return profit delta.
 
     Args:
-        route: The tour as a list of node IDs.
-        x: Node ID to insert (V_x).
-        i: Index of node V_i (start of first reversal).
-        j: Index of node V_j (end of first reversal + 1).
-        k: Index of node V_k (start of second reversal).
-        dist_matrix: Distance matrix.
-        wastes: Waste levels.
-        current_load: Pre-calculated current weight of the route.
-        capacity: Vehicle capacity.
-        R, C: Revenue and cost multipliers.
+        route (List[int]): The tour as a list of node IDs.
+        x (int): Node ID to insert (V_x).
+        i (int): Index of node V_i.
+        j (int): Index of node V_j.
+        k (int): Index of node V_k.
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste levels.
+        current_load (float): Pre-calculated current weight of the route.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
 
     Returns:
-        (new_route, delta_profit)
+        Tuple[List[int], float]: (new_route, delta_profit)
     """
     n, is_closed, work_route, n_work = _extract_working_route(route)
 

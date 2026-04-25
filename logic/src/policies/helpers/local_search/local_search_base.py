@@ -372,7 +372,7 @@ class LocalSearch(ABC):
         Args:
             current_obj (float): Objective value of the current solution.
             candidate_obj (float): Objective value of the proposed solution.
-            **kwargs (Any): Additional context for the acceptance decision.
+            kwargs (Any): Additional context for the acceptance decision.
 
         Returns:
             bool: True if the move should be accepted, False otherwise.
@@ -390,7 +390,7 @@ class LocalSearch(ABC):
             current_obj (float): Objective value before the move attempt.
             candidate_obj (float): Objective value after the move attempt.
             accepted (bool): Whether the move was actually accepted and applied.
-            **kwargs (Any): Additional context for the step update.
+            kwargs (Any): Additional context for the step update.
         """
         if self.acceptance_criterion is not None:
             self.acceptance_criterion.step(

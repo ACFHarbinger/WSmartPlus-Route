@@ -1,5 +1,12 @@
 """
 Heuristic operators for VRPP.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics import solve_lkh
+    >>> tour = solve_lkh(nodes, dist_matrix)
 """
 
 from .guided_ejection_search import apply_ges

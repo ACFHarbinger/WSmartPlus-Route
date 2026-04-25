@@ -170,7 +170,17 @@ def lambda_interchange(
 
 
 def _seg_boundary_cost(d, prev_node: int, seg: List[int], next_node: int) -> float:
-    """Cost of edges connecting prev_node → seg → next_node."""
+    """Cost of edges connecting prev_node → seg → next_node.
+
+    Args:
+        d: Distance matrix (2-D array-like indexed by node id).
+        prev_node: Node immediately before the segment.
+        seg: Ordered list of nodes in the segment (may be empty).
+        next_node: Node immediately after the segment.
+
+    Returns:
+        float: Total edge cost of prev_node → seg[0] → … → seg[-1] → next_node.
+    """
     if not seg:
         return d[prev_node, next_node]
     return d[prev_node, seg[0]] + d[seg[-1], next_node]

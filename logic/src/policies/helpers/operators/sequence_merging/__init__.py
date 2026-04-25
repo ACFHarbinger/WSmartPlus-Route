@@ -42,6 +42,9 @@ State objects (``AcoSequenceState``, ``MarkovSequenceState``, ``SsHhState``)
 are mutable and designed to persist across search iterations for online
 learning.
 
+Attributes:
+    None
+
 Example:
     >>> from logic.src.policies.helpers.operators.sequence_merging import (
     ...     AcoSequenceState,

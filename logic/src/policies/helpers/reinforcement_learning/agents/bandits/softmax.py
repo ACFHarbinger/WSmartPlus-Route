@@ -1,5 +1,16 @@
-"""
-Softmax Bandit Module.
+"""Softmax Bandit Module.
+
+This module implements the Softmax bandit algorithm, which selects arms with a
+probability proportional to their estimated values using the Gibbs (Boltzmann)
+distribution.
+
+Attributes:
+    SoftmaxBandit: Bandit agent using the Softmax policy.
+
+Example:
+    >>> from logic.src.policies.helpers.reinforcement_learning.agents.bandits.softmax import SoftmaxBandit
+    >>> agent = SoftmaxBandit(n_arms=3, temperature=0.5)
+    >>> action = agent.select_action(state=None, rng=agent.rng)
 """
 
 from typing import Any, Dict, Optional
@@ -15,6 +26,10 @@ class SoftmaxBandit(BanditAgent):
 
     Selects arms with a probability proportional to their estimated values using
     the Gibbs (Boltzmann) distribution. Controlled by a 'temperature' parameter.
+
+    Attributes:
+        temperature: Exploration temperature.
+        probs: Current probability distribution over arms.
     """
 
     def __init__(self, n_arms: int, temperature: float = 1.0, seed: Optional[int] = None, history_size: int = 50):

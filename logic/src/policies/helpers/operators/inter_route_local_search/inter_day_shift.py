@@ -1,5 +1,19 @@
 """
 Inter-Day Shift Operator.
+
+Provides a perturbation operator for multi-period (multi-day) routing
+that moves a single node visit from one day to another in an Individual's
+pattern representation.
+
+Attributes:
+    inter_day_shift: Attempt to shift one node visit between days to reduce
+        total routing cost.
+
+Example:
+    >>> from logic.src.policies.helpers.operators.inter_route_local_search.inter_day_shift import (
+    ...     inter_day_shift,
+    ... )
+    >>> improved = inter_day_shift(ind, base_wastes, daily_increments, dist, capacity, n_vehicles, T)
 """
 
 import random
@@ -32,7 +46,20 @@ def inter_day_shift(
     Re-evaluates incremental loads and splits.
     If fitness improves, commits the change.
 
-    Returns True if an improvement was found.
+    Args:
+        ind: Individual whose pattern and giant-tour representations are
+            mutated in-place on improvement.
+        base_wastes: Array of shape (N,) containing baseline waste levels
+            for each node.
+        daily_increments: Array of shape (N, T) containing daily fill
+            increments for each node across the horizon.
+        dist: Square distance matrix of shape (N+1, N+1) including depot.
+        capacity: Vehicle capacity constraint.
+        n_vehicles: Maximum number of vehicles available per day.
+        T: Planning horizon length (number of days).
+
+    Returns:
+        bool: True if an improving shift was found and committed; False otherwise.
     """
     N = len(ind.patterns)
 

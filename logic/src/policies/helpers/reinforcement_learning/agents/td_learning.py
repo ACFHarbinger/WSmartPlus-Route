@@ -1,5 +1,16 @@
-"""
-TD Learning Module.
+"""TD Learning Module.
+
+Implements Temporal Difference (TD) learning algorithms for tabular reinforcement
+learning, including Q-Learning, SARSA, and Expected SARSA.
+
+Attributes:
+    TDAgent: Base class for tabular TD agents.
+    QLearningAgent: Off-policy Q-learning implementation.
+    SarsaAgent: On-policy SARSA implementation.
+    ExpectedSarsaAgent: Variance-reduced Expected SARSA.
+
+Example:
+    >>> agent = QLearningAgent(n_states=10, n_actions=4)
 """
 
 import pickle
@@ -132,11 +143,21 @@ class TDAgent(RLAgent, ABC):
         return int(rng.choice(best_actions))
 
     def decay_epsilon(self) -> None:
-        """Apply multiplicative decay to the exploration rate."""
+        """Apply multiplicative decay to the exploration rate.
+
+        Returns:
+            None.
+        """
+
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
     def save(self, path: str) -> None:
-        """Save the agent's state to a file using pickle."""
+        """Save the agent's state to a file using pickle.
+
+        Args:
+            path: Absolute file system path.
+        """
+
         state = {
             "q_table": self.q_table,
             "epsilon": self.epsilon,
@@ -147,7 +168,12 @@ class TDAgent(RLAgent, ABC):
             pickle.dump(state, f)
 
     def load(self, path: str) -> None:
-        """Load the agent's state from a file."""
+        """Load the agent's state from a file.
+
+        Args:
+            path: Absolute file system path.
+        """
+
         with open(path, "rb") as f:
             state = pickle.load(f)
         self.q_table = state["q_table"]
@@ -156,7 +182,12 @@ class TDAgent(RLAgent, ABC):
         self.n_actions = state.get("n_actions", self.n_actions)
 
     def reset(self) -> None:
-        """Reset the Q-table and exploration rate."""
+        """Reset the Q-table and exploration rate.
+
+        Returns:
+            None.
+        """
+
         self.q_table = {}
         # We don't necessarily want to reset epsilon to initial value here,
         # but the interface allows it if needed. For now, just clear Q-table.
@@ -175,7 +206,11 @@ class TDAgent(RLAgent, ABC):
             reward: Scalar reward observed after taking 'action'.
             next_state: Resulting state after taking 'action'.
             done: Boolean flag indicating if the episode has terminated.
+
+        Returns:
+            None.
         """
+
         pass
 
 
@@ -187,6 +222,9 @@ class QLearningAgent(TDAgent):
     of the policy followed by the agent.
 
     Formula: Q(s,a) = Q(s,a) + alpha * [r + gamma * max(Q(s',a')) - Q(s,a)]
+
+    Attributes:
+        Inherits from TDAgent.
     """
 
     def update(self, state: Any, action: int, reward: float, next_state: Any, done: bool) -> None:
@@ -199,7 +237,11 @@ class QLearningAgent(TDAgent):
             reward: Observed reward.
             next_state: Resulting state.
             done: Termination flag.
+
+        Returns:
+            None.
         """
+
         # Global tracking
         self.reward_history.append(reward)
         self.get_q_values(state)  # ensure initialized
@@ -230,10 +272,19 @@ class SarsaAgent(TDAgent):
     Name derived from the transition sequence: (S, A, R, S', A').
 
     Formula: Q(s,a) = Q(s,a) + alpha * [r + gamma * Q(s',a') - Q(s,a)]
+
+    Attributes:
+        next_action (Optional[int]): Action selected for the next state.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """Initialize SARSA agent with next-action buffer."""
+        """Initialize SARSA agent with next-action buffer.
+
+        Args:
+            args: Positional arguments for TDAgent.
+            kwargs: Keyword arguments for TDAgent.
+        """
+
         super().__init__(*args, **kwargs)
         self.next_action: Optional[int] = None
 
@@ -250,7 +301,11 @@ class SarsaAgent(TDAgent):
             next_state: Resulting state.
             done: Termination flag.
             next_action: The action selected to be taken in 'next_state'.
+
+        Returns:
+            None.
         """
+
         # Global tracking
         self.reward_history.append(reward)
         self.get_q_values(state)
@@ -291,6 +346,9 @@ class ExpectedSarsaAgent(TDAgent):
     over all possible actions under the current policy, rather than a single sample.
 
     Formula: Q(s,a) = Q(s,a) + alpha * [r + gamma * E[Q(s',a')] - Q(s,a)]
+
+    Attributes:
+        Inherits from TDAgent.
     """
 
     def update(self, state: Any, action: int, reward: float, next_state: Any, done: bool) -> None:
@@ -303,7 +361,11 @@ class ExpectedSarsaAgent(TDAgent):
             reward: Observed reward.
             next_state: Resulting state.
             done: Termination flag.
+
+        Returns:
+            None.
         """
+
         # Tracking
         self.reward_history.append(reward)
         self.get_q_values(state)

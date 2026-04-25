@@ -44,7 +44,17 @@ from logic.src.utils.policy.routes import (
 
 
 def _get_rev_cost(forward_cost: np.ndarray, backward_cost: np.ndarray, start: int, end: int) -> float:
-    """Calculates the cost difference if the segment full_route[start:end] is reversed in O(1)."""
+    """Calculates the cost difference if the segment full_route[start:end] is reversed in O(1).
+
+    Args:
+        forward_cost: Prefix sums of forward distances.
+        backward_cost: Prefix sums of backward distances.
+        start: Start index of the segment.
+        end: End index (exclusive) of the segment.
+
+    Returns:
+        Cost difference (new - old).
+    """
     if start >= end - 1:
         return 0.0
     # old_cost: sum(dist_matrix[full[k], full[k+1]]) from k=start to end-2
@@ -55,7 +65,20 @@ def _get_rev_cost(forward_cost: np.ndarray, backward_cost: np.ndarray, start: in
 
 
 def _apply_geni_move(route: List[int], u: int, i: int, j: int, k: int, l: int, m_type: str) -> List[int]:
-    """Applies the exact structural reconnections for GENI insertions."""
+    """Applies the exact structural reconnections for GENI insertions.
+
+    Args:
+        route: The route to modify.
+        u: Node to insert.
+        i: First insertion index.
+        j: Second insertion index.
+        k: Third insertion index.
+        l: Fourth insertion index.
+        m_type: Type of move ("SIMPLE", "TYPE_I", or "TYPE_II").
+
+    Returns:
+        The new route with node u inserted.
+    """
     if m_type == "SIMPLE":
         return route[:i] + [u] + route[i:]
 
@@ -86,7 +109,21 @@ def _evaluate_route(  # noqa: C901
     is_man: bool,
     use_deterministic_p_neighborhood: bool = False,
 ) -> Tuple[float, Optional[Tuple[int, int, int, int, str]]]:
-    """Evaluates all GENI moves for a specific route."""
+    """Evaluates all GENI moves for a specific route.
+
+    Args:
+        u: Node to insert.
+        route: Route to evaluate.
+        dist_matrix: Distance matrix.
+        neighborhood_size: Neighborhood size for k-nearest search.
+        revenue: Optional revenue for profit calculation.
+        C: Cost multiplier.
+        is_man: Whether node u is mandatory.
+        use_deterministic_p_neighborhood: Strict p-neighborhood flag.
+
+    Returns:
+        Tuple[float, Optional[Tuple[int, int, int, int, str]]]: (best_val, best_move_params).
+    """
     is_profit = revenue is not None
     best_val = -float("inf") if is_profit else float("inf")
     best_move = None
@@ -225,7 +262,24 @@ def _find_best_geni_move(
     mandatory_set: Optional[Set[int]] = None,
     use_deterministic_p_neighborhood: bool = False,
 ) -> Tuple[float, Optional[Tuple[int, int, int, int, int, str, bool]]]:
-    """Finds best GENI move for node u across all routes (bidirectional)."""
+    """Finds best GENI move for node u across all routes (bidirectional).
+
+    Args:
+        u: Node to insert.
+        routes: All routes.
+        loads: Current route loads.
+        dist_matrix: Distance matrix.
+        u_waste: Demand of node u.
+        capacity: Vehicle capacity.
+        neighborhood_size: k-nearest neighborhood size.
+        revenue: Optional node revenue.
+        C: Cost multiplier.
+        mandatory_set: Set of mandatory nodes.
+        use_deterministic_p_neighborhood: Strict p-neighborhood flag.
+
+    Returns:
+        Tuple[float, Optional[Tuple[int, int, int, int, int, str, bool]]]: (best_val, best_move_data).
+    """
     is_profit = revenue is not None
     best_val = -float("inf") if is_profit else float("inf")
     best_move = None
@@ -356,7 +410,25 @@ def geni_profit_insertion(
     rng: Optional[Random] = None,
     use_deterministic_p_neighborhood: bool = False,
 ) -> List[List[int]]:
-    """Profit-aware VRPP GENI insertion with speculative seeding."""
+    """Profit-aware VRPP GENI insertion with speculative seeding.
+
+    Args:
+        routes: List of active routes.
+        removed_nodes: Nodes to re-insert.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary of node demands.
+        capacity: Max vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        neighborhood_size: k-nearest search limit.
+        mandatory_nodes: Mandatory node indices.
+        expand_pool: Whether to expand the search to all unvisited nodes.
+        rng: Random generator.
+        use_deterministic_p_neighborhood: Strict p-neighborhood flag.
+
+    Returns:
+        List[List[int]]: Updated routes.
+    """
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
     if rng is None:

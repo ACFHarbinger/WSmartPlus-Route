@@ -19,6 +19,12 @@ organized by category:
   inversion, scramble, random 2-opt, DE/rand/1, DE/best/1).
 - Sequence Merging: Hyper-heuristic operator-sequence construction and
   evolution (ACO, Markov Chain, SS-HH, sequence crossover/mutation).
+
+Attributes:
+    None.
+
+Example:
+    None.
 """
 
 # Intensification operators

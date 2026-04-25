@@ -12,8 +12,11 @@ Includes:
     - evolutionary_perturbation: Micro-GA on route clusters.
     - bb_perturbation: B&B destroy-and-repair (Shaw 1998).
 
+Attributes:
+    None
+
 Example:
-    >>> from logic.src.policies.helpers.operators.perturbation import kick
+    >>> from logic.src.policies.helpers.operators.perturbation_shaking import kick
     >>> kick(context, destroy_ratio=0.2)
 """
 

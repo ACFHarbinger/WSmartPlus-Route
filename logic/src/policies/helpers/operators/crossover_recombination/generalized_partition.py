@@ -1,4 +1,23 @@
-"""Generalized Partition Crossover (GPX)."""
+"""
+Generalized Partition Crossover (GPX).
+
+References:
+    A.E. Guessoum, T.M. Taieb, G. Laporte and J.A. Rodriguez-Aguilar, "A multi-objective
+     tabu search algorithm for the Capacitated Waste Collection Vehicle Routing Problem", 2016
+
+Attributes:
+    route_profit_gpx_crossover: Route-based Profit Generalized Partition Crossover (RP-GPX).
+    generalized_partition_crossover: Generalized Partition Crossover (GPX).
+    _dfs_iterative: Iterative Depth First Search to avoid RecursionError (Fix 15).
+    get_components: Find connected components using iterative DFS (Fix 15).
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+    >>> operator = generalized_partition_crossover(
+    ...    Individual(giant_tour=[1, 2, 3, 4]),
+    ...    Individual(giant_tour=[4, 3, 2, 1]),
+    ... )
+"""
 
 from __future__ import annotations
 
@@ -15,7 +34,12 @@ if TYPE_CHECKING:
 
 
 def _get_individual_class() -> type:
-    """Lazy import of Individual to break the circular import."""
+    """
+    Lazy import of Individual to break the circular import.
+
+    Returns:
+        type: Individual class.
+    """
     from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
 
     return Individual
@@ -26,7 +50,17 @@ def _dfs_iterative(
     adj: Dict[int, List[int]],
     visited: Set[int],
 ) -> List[int]:
-    """Iterative Depth First Search to avoid RecursionError (Fix 15)."""
+    """
+    Iterative Depth First Search to avoid RecursionError (Fix 15).
+
+    Args:
+        start: Starting node for DFS.
+        adj: Adjacency list representing the graph.
+        visited: Set of visited nodes.
+
+    Returns:
+        List of nodes in the connected component.
+    """
     component: List[int] = []
     stack = [start]
     while stack:
@@ -40,7 +74,16 @@ def _dfs_iterative(
 
 
 def get_components(adj: Dict[int, List[int]], all_nodes: Set[int]) -> List[List[int]]:
-    """Find connected components using iterative DFS (Fix 15)."""
+    """
+    Find connected components using iterative DFS (Fix 15).
+
+    Args:
+        adj: Adjacency list representing the graph.
+        all_nodes: Set of all nodes in the graph.
+
+    Returns:
+        List of connected components.
+    """
     visited: Set[int] = {0}  # Mark depot as visited
     components: List[List[int]] = []
     for node in all_nodes:
@@ -64,6 +107,17 @@ def generalized_partition_crossover(
 
     Redirects to route_profit_gpx_crossover if routes are available,
     otherwise falls back to ordered_crossover (Fix 16).
+
+    Args:
+        p1: First parent individual.
+        p2: Second parent individual.
+        rng: Random number generator.
+        mandatory_nodes: List of nodes that MUST be visited.
+        wastes: Dictionary mapping node indices to their waste values.
+        capacity: Maximum capacity of each vehicle.
+
+    Returns:
+        Child individual.
     """
     if rng is None:
         rng = random.Random()
@@ -85,6 +139,15 @@ def generalized_partition_crossover(
 
 
 def _get_physical_edges(routes: List[List[int]]) -> Set[Tuple[int, int]]:
+    """
+    Get physical edges from routes.
+
+    Args:
+        routes: List of routes.
+
+    Returns:
+        Set of physical edges.
+    """
     edges: Set[Tuple[int, int]] = set()
     for route in routes:
         if not route:
@@ -101,7 +164,17 @@ def _get_components_from_uncommon_edges(
     p2_gt: List[int],
     uncommon_edges: Set[Tuple[int, int]],
 ) -> List[List[int]]:
-    """Build adjacency from uncommon edges and find components."""
+    """
+    Build adjacency from uncommon edges and find components.
+
+    Args:
+        p1_gt: Giant tour of the first parent.
+        p2_gt: Giant tour of the second parent.
+        uncommon_edges: Set of uncommon edges.
+
+    Returns:
+        List of connected components.
+    """
     adj: Dict[int, List[int]] = defaultdict(list)
     for u, v in uncommon_edges:
         if u != 0 and v != 0:
@@ -120,7 +193,20 @@ def _inherit_components(
     capacity: float,
     rng: random.Random,
 ) -> Tuple[List[List[int]], Set[int]]:
-    """Selectively inherit components as routes if they fit capacity."""
+    """
+    Selectively inherit components as routes if they fit capacity.
+
+    Args:
+        components: List of connected components.
+        p1: First parent individual.
+        p2: Second parent individual.
+        wastes: Dictionary mapping node indices to their waste values.
+        capacity: Maximum capacity of each vehicle.
+        rng: Random number generator.
+
+    Returns:
+        Tuple of child routes and child nodes.
+    """
     child_routes: List[List[int]] = []
     child_nodes: Set[int] = set()
     skip_capacity_check = not wastes and capacity < float("inf")
@@ -172,7 +258,21 @@ def _greedy_pack_pool(
     C: float,
     mandatory_set: Set[int],
 ) -> None:
-    """Greedily pack remaining nodes into routes based on profit."""
+    """
+    Greedily pack remaining nodes into routes based on profit.
+
+    Args:
+        pool: List of nodes to pack.
+        child_routes: List of child routes.
+        child_nodes: Set of child nodes.
+        loads: List of loads for each route.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary mapping node indices to their waste values.
+        capacity: Maximum capacity of each vehicle.
+        R: Revenue factor.
+        C: Cost factor.
+        mandatory_set: Set of mandatory nodes.
+    """
     for node in pool:
         node_waste = wastes.get(node, 0.0) if wastes else 0.0
         revenue = node_waste * R
@@ -234,7 +334,16 @@ def _enforce_mandatory_nodes(
     capacity: float,
     loads: List[float],
 ) -> None:
-    """Ensure all mandatory nodes are strictly included in some route."""
+    """
+    Ensure all mandatory nodes are strictly included in some route.
+
+    Args:
+        child_routes: List of child routes.
+        mandatory_nodes: List of mandatory nodes.
+        wastes: Dictionary mapping node indices to their waste values.
+        capacity: Maximum capacity of each vehicle.
+        loads: List of loads for each route.
+    """
     mandatory_set = set(mandatory_nodes)
     visited_in_routes = {n for route in child_routes for n in route}
     missing_mandatory = mandatory_set - visited_in_routes
@@ -278,6 +387,20 @@ def route_profit_gpx_crossover(
     Route-based Profit Generalized Partition Crossover (RP-GPX).
     Adapts the classical GPX for VRPP by operating on decoded routes
     rather than the giant tour.
+
+    Args:
+        p1: First parent individual.
+        p2: Second parent individual.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary mapping node indices to their waste values.
+        capacity: Maximum capacity of each vehicle.
+        R: Revenue factor.
+        C: Cost factor.
+        rng: Random number generator.
+        mandatory_nodes: List of nodes that MUST be visited.
+
+    Returns:
+        Child individual.
     """
     if rng is None:
         rng = random.Random()

@@ -73,7 +73,7 @@ class MDAMPolicy(AutoregressivePolicy):
             train_strategy: Default strategy for training.
             val_strategy: Default strategy for validation.
             test_strategy: Default strategy for testing.
-            **decoder_kwargs: Additional keyword arguments for the decoder.
+            decoder_kwargs: Additional keyword arguments for the decoder.
         """
         if encoder is None:
             encoder = MDAMGraphAttentionEncoder(

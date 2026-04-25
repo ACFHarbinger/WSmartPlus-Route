@@ -51,15 +51,17 @@ Dependencies
   :func:`_5opt_gains` from ``._tour_construction``
 - :func:`move_kopt_intra` from the shared intra-route operator package
 
-Typical usage
--------------
->>> from logic.src.policies.helpers.operators.heuristics._tour_improvement import (
-...     _2opt_gain,               # Exact gain for 2-opt
-...     _apply_kopt_via_operator,  # Bridge to move_kopt_intra
-...     _try_3opt_move,           # Sequential 3-opt search
-...     _try_4opt_move,           # Sequential 4-opt search
-...     _try_5opt_move,           # Sequential 5-opt search
-... )
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.search_heuristics._tour_improvement import (
+    ...     _2opt_gain,               # Exact gain for 2-opt
+    ...     _apply_kopt_via_operator,  # Bridge to move_kopt_intra
+    ...     _try_3opt_move,           # Sequential 3-opt search
+    ...     _try_4opt_move,           # Sequential 4-opt search
+    ...     _try_5opt_move,           # Sequential 5-opt search
+    ... )
 """
 
 from __future__ import annotations
@@ -119,7 +121,7 @@ def _apply_kopt_via_operator(
         rng: Random number generator (required for k ≥ 3).
 
     Returns:
-        The new closed tour if an improvement was applied; ``None`` otherwise.
+        Optional[List[int]]: The new closed tour if an improvement was applied; ``None`` otherwise.
     """
     adapter = TourAdapter(tour, distance_matrix)
     route = adapter.routes[0]
@@ -172,17 +174,19 @@ def _try_2opt_move(
     :func:`move_kopt_intra` (k=2) via :func:`_apply_kopt_via_operator`.
 
     Args:
-        curr_tour: Current closed tour.
-        i: Position of t1 in the open route.
-        t1, t2: Endpoints of the edge being considered for removal.
-        candidates: α-nearest-neighbour lists.
-        distance_matrix: Cost matrix.
-        rng: Random number generator.
-        pos_map: $O(1)$ position map for tour index lookups.
+        curr_tour (List[int]): Current closed tour.
+        i (int): Position of t1 in the open route.
+        t1 (int): First endpoint of the edge being considered for removal.
+        t2 (int): Second endpoint of the edge being considered for removal.
+        candidates (Dict[int, List[int]]): α-nearest-neighbour lists.
+        distance_matrix (np.ndarray): Cost matrix.
+        rng (Random): Random number generator.
+        pos_map (Dict[int, int]): $O(1)$ position map for tour index lookups.
 
     Returns:
-        (new_tour, cost, improved, j) where j is the position of t3.
-        Returns (None, 0.0, False, -1) if no improvement found.
+        Tuple[Optional[List[int]], float, bool, int]: (new_tour, cost, improved, j)
+        where j is the position of t3. Returns (None, 0.0, False, -1) if no
+        improvement found.
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -233,14 +237,18 @@ def _try_3opt_move(
     with the 2-opt phase.
 
     Args:
-        curr_tour: Current closed tour.
-        i, j: Break-point positions of the first two cuts in the open route.
-        t1..t4: Node pairs for the two existing broken edges.
-        distance_matrix: Cost matrix.
-        rng: Random number generator (unused, kept for API compatibility).
+        curr_tour (List[int]): Current closed tour.
+        i (int): Break-point position of the first cut.
+        j (int): Break-point position of the second cut.
+        t1 (int): First endpoint of first edge.
+        t2 (int): Second endpoint of first edge.
+        t3 (int): First endpoint of second edge.
+        t4 (int): Second endpoint of second edge.
+        distance_matrix (np.ndarray): Cost matrix.
+        rng (Random): Random number generator (unused, kept for API compatibility).
 
     Returns:
-        (new_tour, cost, improved).
+        Tuple[Optional[List[int]], float, bool]: (new_tour, cost, improved).
         Returns (None, 0.0, False) if no improvement found.
     """
     nodes_count = len(curr_tour) - 1
@@ -313,14 +321,21 @@ def _try_4opt_move(
     the operator disconnect.
 
     Args:
-        curr_tour: Current closed tour.
-        i, j, k: Break-point positions of the first three cuts.
-        t1..t6: Node pairs for the three existing broken edges.
-        distance_matrix: Cost matrix.
-        rng: Random number generator (unused, kept for API compatibility).
+        curr_tour (List[int]): Current closed tour.
+        i (int): Break-point position of the first cut.
+        j (int): Break-point position of the second cut.
+        k (int): Break-point position of the third cut.
+        t1 (int): First endpoint of first edge.
+        t2 (int): Second endpoint of first edge.
+        t3 (int): First endpoint of second edge.
+        t4 (int): Second endpoint of second edge.
+        t5 (int): First endpoint of third edge.
+        t6 (int): Second endpoint of third edge.
+        distance_matrix (np.ndarray): Cost matrix.
+        rng (Random): Random number generator.
 
     Returns:
-        (new_tour, cost, improved).
+        Tuple[Optional[List[int]], float, bool]: (new_tour, cost, improved).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -352,15 +367,12 @@ def _try_4opt_move(
 
             if best_case == 0:
                 # case 0: double-bridge A+C+B+D+E → t1-t5, t6-t3, t4-t7, t2-t8
-                # A(ending t1) + C(t5..t6) + B(reversed: t3..t2) + D(t7..t8) + E
                 new_tour = A + C + B[::-1] + D + E
             elif best_case == 1:
                 # case 1: reverse B and D → t1-t3, t2-t4, t5-t7, t6-t8
-                # A(ending t1) + B(reversed t3..t2) + C(t5..t6) + D(reversed t7..t6) + E
                 new_tour = A + B[::-1] + C + D[::-1] + E
             elif best_case == 2:
                 # case 2: swap B and D → t1-t7, t8-t5, t6-t3, t4-t2
-                # A(ending t1) + D(reversed t7..t6) + C(reversed t5..t4) + B(reversed t3..t2) + E
                 new_tour = A + D[::-1] + C[::-1] + B[::-1] + E
             else:
                 continue
@@ -399,14 +411,24 @@ def _try_5opt_move(
     operator disconnect.
 
     Args:
-        curr_tour: Current closed tour.
-        i, j, k, l: Break-point positions of the first four cuts.
-        t1..t8: Node pairs for the four existing broken edges.
-        distance_matrix: Cost matrix.
-        rng: Random number generator (unused, kept for API compatibility).
+        curr_tour (List[int]): Current closed tour.
+        i (int): Break-point position of the first cut.
+        j (int): Break-point position of the second cut.
+        k (int): Break-point position of the third cut.
+        l (int): Break-point position of the fourth cut.
+        t1 (int): First endpoint of first edge.
+        t2 (int): Second endpoint of first edge.
+        t3 (int): First endpoint of second edge.
+        t4 (int): Second endpoint of second edge.
+        t5 (int): First endpoint of third edge.
+        t6 (int): Second endpoint of third edge.
+        t7 (int): First endpoint of fourth edge.
+        t8 (int): Second endpoint of fourth edge.
+        distance_matrix (np.ndarray): Cost matrix.
+        rng (Random): Random number generator.
 
     Returns:
-        (new_tour, cost, improved).
+        Tuple[Optional[List[int]], float, bool]: (new_tour, cost, improved).
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix

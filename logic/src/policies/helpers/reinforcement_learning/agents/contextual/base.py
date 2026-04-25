@@ -1,5 +1,14 @@
-"""
-Base class definition for Contextual Multi-Armed Bandit (CMAB) agents.
+"""Base class definition for Contextual Multi-Armed Bandit (CMAB) agents.
+
+Defines the core interface and shared state (history, rewards) for agents
+that incorporate side information into the bandit framework.
+
+Attributes:
+    ContextualBanditAgent: Abstract base class for CMAB implementations.
+
+Example:
+    >>> # Should be inherited, not instantiated directly.
+    >>> class MyCMAB(ContextualBanditAgent): ...
 """
 
 from abc import abstractmethod
@@ -12,12 +21,20 @@ from logic.src.policies.helpers.reinforcement_learning.agents.base import RLAgen
 
 
 class ContextualBanditAgent(RLAgent):
-    """
-    Base class for Contextual Multi-Armed Bandit (CMAB) agents.
+    """Base class for Contextual Multi-Armed Bandit (CMAB) agents.
 
     Unlike traditional bandits, contextual bandits use external features (context)
     to inform action selection. This base class extends the standard RLAgent
     with bookkeeping for CMAB-specific metrics and histories.
+
+    Attributes:
+        n_arms (int): Number of available actions.
+        d (int): Dimension of the context feature vector.
+        trials (int): Total number of decision steps performed.
+        history_size (int): Size of the reward tracking buffer.
+        rng (np.random.Generator): Internal random number generator.
+        rewards (Deque[float]): Buffer of recent observed rewards.
+        actions (Deque[int]): Buffer of recent selected actions.
     """
 
     def __init__(self, n_arms: int, feature_dim: int, seed: Optional[int] = None, history_size: int = 50):

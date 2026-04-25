@@ -130,7 +130,14 @@ def swap_mutation_profit(
 
 
 def _encode(routes: List[List[int]]) -> tuple:
-    """Encode routes as flat chromosome with -1 depot separators."""
+    """Encode routes as flat chromosome with -1 depot separators.
+
+    Args:
+        routes: List of routes to encode.
+
+    Returns:
+        Tuple of (flat chromosome list, number of vehicles).
+    """
     chromosome: List[int] = []
     for i, route in enumerate(routes):
         chromosome.extend(route)
@@ -140,7 +147,15 @@ def _encode(routes: List[List[int]]) -> tuple:
 
 
 def _decode(chromosome: List[int], n_vehicles: int) -> List[List[int]]:
-    """Decode a flat chromosome back to routes, preserving vehicle count."""
+    """Decode a flat chromosome back to routes, preserving vehicle count.
+
+    Args:
+        chromosome: Flat gene sequence with -1 as depot separators.
+        n_vehicles: Expected number of vehicles (unused directly; for API consistency).
+
+    Returns:
+        List[List[int]]: List of non-empty routes.
+    """
     routes: List[List[int]] = []
     current: List[int] = []
     for gene in chromosome:
@@ -154,6 +169,15 @@ def _decode(chromosome: List[int], n_vehicles: int) -> List[List[int]]:
 
 
 def _get_demand(wastes: Union[Dict[int, float], np.ndarray], node: int) -> float:
+    """Return the demand for a given node.
+
+    Args:
+        wastes: Node demands as a dict or numpy array.
+        node: The node ID to look up.
+
+    Returns:
+        Demand value as a float.
+    """
     if isinstance(wastes, dict):
         return wastes.get(node, 0.0)
     return float(wastes[node]) if node < len(wastes) else 0.0
@@ -170,6 +194,17 @@ def _repair_capacity_profit(
     """
     Repair capacity violations post-mutation by ejecting the least profitable
     node from any overloaded route.
+
+    Args:
+        routes: Solution routes to repair.
+        capacity: Vehicle capacity constraint.
+        wastes: Node demands (dict or 1-D array).
+        revenue: Revenue per unit waste.
+        cost_unit: Cost per unit distance.
+        dist: Distance matrix with depot at index 0.
+
+    Returns:
+        List[List[int]]: Repaired routes with no capacity violations.
     """
     repaired: List[List[int]] = []
     for route in routes:

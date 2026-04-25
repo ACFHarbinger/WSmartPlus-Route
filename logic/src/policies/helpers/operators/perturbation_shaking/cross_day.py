@@ -5,6 +5,13 @@ All operators accept a full D-day plan (List[List[int]], one flat route per
 day, depot excluded) and a ProblemContext describing day 0. They return a
 new plan and the index of the earliest modified day so the caller can call
 recompute_cascade_from efficiently.
+
+Attributes:
+    None
+
+Example:
+    >>> from logic.src.policies.helpers.operators.perturbation_shaking.cross_day import cross_day_move
+    >>> new_plan, start_day = cross_day_move(plan, problem, bin_id=5, from_day=1, to_day=2)
 """
 
 from __future__ import annotations
