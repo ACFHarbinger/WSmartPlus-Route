@@ -4,6 +4,15 @@
 Strictly follows the generational evolutionary algorithm terminology where:
 - μ (mu): Parent population size.
 - λ (lambda_): Offspring population size.
+
+Attributes:
+    MuPlusLambdaESConfig: Configuration for (μ+λ) Evolution Strategy policy.
+
+Example:
+    >>> from configs.policies.es_mpl import MuPlusLambdaESConfig
+    >>> config = MuPlusLambdaESConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass

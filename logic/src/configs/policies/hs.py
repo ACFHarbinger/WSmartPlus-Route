@@ -1,5 +1,14 @@
 """
 HS (Harmony Search) configuration for Hydra.
+
+Attributes:
+    HSConfig: Configuration for the Harmony Search policy.
+
+Example:
+    >>> from configs.policies.hs import HSConfig
+    >>> config = HSConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field

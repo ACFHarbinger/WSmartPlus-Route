@@ -1,5 +1,16 @@
 """
 Configuration for the Multi-Period Ant Colony Optimization (MP-ACO).
+
+Attributes:
+    MP_ACO_Config: Configuration for the Multi-Period Ant Colony Optimization (MP-ACO) policy.
+
+Example:
+    >>> from configs.policies.mp_aco import MP_ACO_Config
+    >>> config = MP_ACO_Config()
+    >>> config.iters
+    50
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass

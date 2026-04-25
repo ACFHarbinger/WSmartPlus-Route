@@ -1,4 +1,14 @@
-"""Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC) configuration."""
+"""Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC) configuration.
+
+Attributes:
+    HGSADCConfig: Configuration for the HGS-ADC policy.
+
+Example:
+    >>> from configs.policies.hgs_adc import HGSADCConfig
+    >>> config = HGSADCConfig()
+    >>> config.pop_size
+    25
+"""
 
 from __future__ import annotations
 

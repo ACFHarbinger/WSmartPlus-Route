@@ -1,5 +1,30 @@
 """
 SANS (Simulated Annealing Neighborhood Search) configuration.
+
+Attributes:
+    SAConfig: Configuration for the Simulated Annealing policy.
+
+Example:
+    >>> from configs.policies.sa import SAConfig
+    >>> config = SAConfig()
+    >>> config.initial_temperature
+    100.0
+    >>> config.cooling_rate
+    0.95
+    >>> config.min_temperature
+    0.01
+    >>> config.iterations_per_temp
+    100
+    >>> config.nb_granular
+    20
+    >>> config.time_limit
+    60.0
+    >>> config.seed
+    42
+    >>> config.vrpp
+    True
+    >>> config.profit_aware_operators
+    False
 """
 
 from dataclasses import dataclass

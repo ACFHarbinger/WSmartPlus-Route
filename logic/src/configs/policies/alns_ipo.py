@@ -1,5 +1,14 @@
 """
 Configuration dataclass for ALNS with Inter-Period Operators (ALNS-IPO).
+
+Attributes:
+    ALNSIPOConfig: Attributes for ALNS-IPO configuration.
+
+Example:
+    >>> from configs.policies.alns_ipo import ALNSIPOConfig
+    >>> config = ALNSIPOConfig()
+    >>> config.horizon
+    7
 """
 
 from __future__ import annotations

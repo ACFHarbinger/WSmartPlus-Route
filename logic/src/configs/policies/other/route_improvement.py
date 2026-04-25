@@ -3,6 +3,38 @@ Route improvement configuration module.
 
 Defines structured configurations for route refinement and route improvement strategies,
 mirroring the reinforcement learning configuration pattern.
+
+Attributes:
+    FastTSPPostConfig: Configuration for Fast TSP optimization refinement.
+    LKHPostConfig: Configuration for Lin-Kernighan-Helsgaun (LKH) refinement.
+    LocalSearchPostConfig: Configuration for classical local search refinement.
+    PathPostConfig: Configuration for path-based refinement (opportunistic pickups).
+    RandomLocalSearchPostConfig: Configuration for stochastic (random) local search refinement.
+    OrOptPostConfig: Configuration for Or-opt refinement.
+    CrossExchangePostConfig: Configuration for Cross-exchange refinement.
+    GuidedLocalSearchPostConfig: Configuration for Guided Local Search.
+    SimulatedAnnealingPostConfig: Configuration for Simulated Annealing refinement.
+    InsertionPostConfig: Configuration for insertion-based augmentation strategies.
+    RuinRecreatePostConfig: Configuration for Ruin and Recreate (LNS).
+    AdaptiveLNSPostConfig: Configuration for Adaptive LNS.
+    FixAndOptimizePostConfig: Configuration for Fix-and-Optimize refinement.
+    SetPartitioningPostConfig: Configuration for Set-partitioning (with pool construction).
+    SetPartitioningPolishPostConfig: Configuration for Set-partitioning polish (bare wrapper).
+    LearnedPostConfig: Configuration for the learned route improver.
+    BranchAndPricePostConfig: Configuration for Branch-and-price (Consolidated).
+    TNDPostConfig: Configuration for Time-Node-Dependent (TND) solvers.
+    MetaHeuristicWrapperPostConfig: Configuration for metaheuristic wrappers.
+
+Example:
+    fast_tsp_config = FastTSPPostConfig(
+        time_limit=2.0,
+        seed=42,
+    )
+    lkh_config = LKHPostConfig(
+        max_iterations=1000,
+        time_limit=30.0,
+        seed=42,
+    )
 """
 
 from dataclasses import dataclass, field
@@ -95,7 +127,13 @@ class RandomLocalSearchPostConfig:
 
 @dataclass
 class OrOptPostConfig:
-    """Configuration for Or-opt refinement."""
+    """Configuration for Or-opt refinement.
+
+    Attributes:
+        chain_len: Length of the chain to move.
+        iterations: Maximum number of iterations.
+        seed: Random seed for reproducibility.
+    """
 
     chain_len: int = 2
     iterations: int = 500
@@ -104,7 +142,13 @@ class OrOptPostConfig:
 
 @dataclass
 class CrossExchangePostConfig:
-    """Configuration for Cross-exchange refinement."""
+    """Configuration for Cross-exchange refinement.
+
+    Attributes:
+        cross_exchange_max_segment_len: Maximum length of segments to exchange.
+        iterations: Maximum number of iterations.
+        seed: Random seed for reproducibility.
+    """
 
     cross_exchange_max_segment_len: int = 3
     iterations: int = 500
@@ -113,7 +157,15 @@ class CrossExchangePostConfig:
 
 @dataclass
 class GuidedLocalSearchPostConfig:
-    """Configuration for Guided Local Search."""
+    """Configuration for Guided Local Search.
+
+    Attributes:
+        gls_iterations: Number of Guided Local Search iterations.
+        gls_inner_iterations: Number of inner iterations for each GLS iteration.
+        gls_lambda_factor: Factor to increase penalties for frequent edges.
+        gls_base_operator: Base local search operator to use within GLS.
+        seed: Random seed for reproducibility.
+    """
 
     gls_iterations: int = 20
     gls_inner_iterations: int = 50
@@ -124,7 +176,14 @@ class GuidedLocalSearchPostConfig:
 
 @dataclass
 class SimulatedAnnealingPostConfig:
-    """Configuration for Simulated Annealing refinement."""
+    """Configuration for Simulated Annealing refinement.
+
+    Attributes:
+        acceptance_criterion: Acceptance criterion configuration.
+        iterations: Maximum number of iterations.
+        params: Probabilities for selecting different local search operators.
+        seed: Random seed for reproducibility.
+    """
 
     acceptance_criterion: AcceptanceConfig = field(
         default_factory=lambda: AcceptanceConfig(
@@ -149,7 +208,16 @@ class SimulatedAnnealingPostConfig:
 
 @dataclass
 class InsertionPostConfig:
-    """Configuration for insertion-based augmentation strategies."""
+    """Configuration for insertion-based augmentation strategies.
+
+    Attributes:
+        cost_per_km: Cost per kilometer.
+        revenue_kg: Revenue per kilogram.
+        regret_k: Number of best insertion candidates to consider.
+        detour_epsilon: Maximum allowed detour factor (as a fraction of original route length).
+        n_bins: Number of bins to use for clustering/binning (if applicable).
+        seed: Random seed for reproducibility.
+    """
 
     cost_per_km: float = 0.0
     revenue_kg: float = 0.0
@@ -161,7 +229,17 @@ class InsertionPostConfig:
 
 @dataclass
 class RuinRecreatePostConfig:
-    """Configuration for Ruin and Recreate (LNS)."""
+    """Configuration for Ruin and Recreate (LNS).
+
+    Attributes:
+        acceptance_criterion: Acceptance criterion configuration.
+        lns_iterations: Number of LNS iterations.
+        ruin_fraction: Fraction of routes to ruin in each iteration.
+        repair_k: Number of best insertion candidates to consider.
+        cost_per_km: Cost per kilometer.
+        revenue_kg: Revenue per kilogram.
+        seed: Random seed for reproducibility.
+    """
 
     acceptance_criterion: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="oi"))
     lns_iterations: int = 100
@@ -174,7 +252,20 @@ class RuinRecreatePostConfig:
 
 @dataclass
 class AdaptiveLNSPostConfig:
-    """Configuration for Adaptive LNS."""
+    """Configuration for Adaptive LNS.
+
+    Attributes:
+        acceptance_criterion: Acceptance criterion configuration.
+        alns_iterations: Number of Adaptive LNS iterations.
+        ruin_fraction: Fraction of routes to ruin in each iteration.
+        alns_bandit_warm_start_path: Path to the bandit warm-start file.
+        alns_ruin_ops: List of ruin operators to use.
+        alns_repair_ops: List of repair operators to use.
+        repair_k: Number of best insertion candidates to consider.
+        cost_per_km: Cost per kilometer.
+        revenue_kg: Revenue per kilogram.
+        seed: Random seed for reproducibility.
+    """
 
     acceptance_criterion: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="bmc"))
     alns_iterations: int = 200
@@ -190,7 +281,14 @@ class AdaptiveLNSPostConfig:
 
 @dataclass
 class FixAndOptimizePostConfig:
-    """Configuration for Fix-and-Optimize refinement."""
+    """Configuration for Fix-and-Optimize refinement.
+
+    Attributes:
+        fo_n_free: Number of nodes to keep fixed in each iteration.
+        fo_free_fraction: Fraction of nodes to keep fixed in each iteration.
+        fo_time_limit: Maximum time in seconds for the operator.
+        seed: Random seed for reproducibility.
+    """
 
     fo_n_free: Optional[int] = None
     fo_free_fraction: float = 0.30
@@ -200,7 +298,15 @@ class FixAndOptimizePostConfig:
 
 @dataclass
 class SetPartitioningPostConfig:
-    """Configuration for Set-partitioning (with pool construction)."""
+    """Configuration for Set-partitioning (with pool construction).
+
+    Attributes:
+        sp_n_perturbations: Number of perturbations to generate for the set partitioning pool.
+        sp_include_dp: Whether to include dynamic programming (DP) routes in the pool.
+        sp_time_limit: Maximum time in seconds for the set partitioning solver.
+        ruin_fraction: Fraction of routes to ruin in each iteration.
+        seed: Random seed for reproducibility.
+    """
 
     sp_n_perturbations: int = 20
     sp_include_dp: bool = True
@@ -211,7 +317,13 @@ class SetPartitioningPostConfig:
 
 @dataclass
 class SetPartitioningPolishPostConfig:
-    """Configuration for Set-partitioning polish (bare wrapper)."""
+    """Configuration for Set-partitioning polish (bare wrapper).
+
+    Attributes:
+        route_pool: Optional list of routes to use for the set partitioning polish.
+        sp_time_limit: Maximum time in seconds for the set partitioning solver.
+        seed: Random seed for reproducibility.
+    """
 
     route_pool: Optional[List[List[int]]] = None
     sp_time_limit: float = 60.0
@@ -220,7 +332,15 @@ class SetPartitioningPolishPostConfig:
 
 @dataclass
 class LearnedPostConfig:
-    """Configuration for the learned route improver."""
+    """Configuration for the learned route improver.
+
+    Attributes:
+        learned_weights_path: Path to the learned weights file.
+        learned_max_iter: Maximum number of iterations for the learned route improver.
+        learned_min_improvement: Minimum improvement required to continue training.
+        learned_neighborhood_size: Size of the neighborhood for the learned route improver.
+        seed: Random seed for reproducibility.
+    """
 
     learned_weights_path: Optional[str] = None
     learned_max_iter: int = 100
@@ -231,7 +351,26 @@ class LearnedPostConfig:
 
 @dataclass
 class BranchAndPricePostConfig:
-    """Configuration for Branch-and-price (Consolidated)."""
+    """Configuration for Branch-and-price (Consolidated).
+
+    Attributes:
+        bp_max_iterations: Maximum number of Branch and Price iterations.
+        bp_max_routes_per_iteration: Maximum number of routes to generate per iteration.
+        bp_optimality_gap: Optimality gap for the Branch and Price algorithm.
+        bp_branching_strategy: Branching strategy to use.
+        bp_max_branch_nodes: Maximum number of branch nodes to explore.
+        bp_use_exact_pricing: Whether to use exact pricing for the Branch and Price algorithm.
+        bp_use_ng_routes: Whether to use NG (Neural Guided) routes.
+        bp_ng_neighborhood_size: Size of the neighborhood for NG routes.
+        bp_tree_search_strategy: Tree search strategy to use.
+        bp_vehicle_limit: Limit on the number of vehicles to use.
+        bp_cleanup_frequency: Frequency of cleanup operations.
+        bp_cleanup_threshold: Threshold for cleanup operations.
+        bp_early_termination_gap: Gap at which to terminate the Branch and Price algorithm early.
+        bp_allow_heuristic_ryan_foster: Whether to allow heuristic Ryan Foster branching.
+        bp_time_limit: Maximum time in seconds for the Branch and Price algorithm.
+        seed: Random seed for reproducibility.
+    """
 
     bp_max_iterations: int = 100
     bp_max_routes_per_iteration: int = 10
@@ -254,7 +393,17 @@ class BranchAndPricePostConfig:
 
 @dataclass
 class MultiPhasePostConfig:
-    """Configuration for Multi-phase composition."""
+    """Configuration for Multi-phase composition.
+
+    Attributes:
+        phases: List of route improvement methods to apply in sequence.
+            Supported: 'cheapest_insertion', 'lkh', 'classical_local_search', 'random_local_search',
+                       'path', 'or_opt', 'cross_exchange', 'guided_local_search', 'simulated_annealing',
+                       'insertion', 'ruin_recreate', 'adaptive_lns', 'fix_and_optimize',
+                       'set_partitioning', 'set_partitioning_polish', 'learned', 'branch_and_price',
+                       'tnd', 'metaheuristic_wrapper'.
+        seed: Random seed for reproducibility.
+    """
 
     phases: List[str] = field(default_factory=lambda: ["cheapest_insertion", "lkh"])
     seed: int = 42

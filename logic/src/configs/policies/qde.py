@@ -1,5 +1,18 @@
 """
 QDE (Quantum-Inspired Differential Evolution) configuration for Hydra.
+
+Attributes:
+    QDEConfig: Configuration for the Quantum-Inspired Differential Evolution policy.
+
+Example:
+    >>> from configs.policies.qde import QDEConfig
+    >>> config = QDEConfig()
+    >>> config.pop_size
+    20
+    >>> config.max_iterations
+    200
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass, field

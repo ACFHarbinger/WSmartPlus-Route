@@ -1,5 +1,18 @@
 """
 RL-ALNS (Reinforcement Learning-augmented Adaptive Large Neighborhood Search) configuration.
+
+Attributes:
+    RLALNSConfig: Configuration for the RL-ALNS policy.
+
+Example:
+    >>> from configs.policies.rl_alns import RLALNSConfig
+    >>> config = RLALNSConfig()
+    >>> config.max_iterations
+    1000
+    >>> config.vrpp
+    True
+    >>> config.profit_aware_operators
+    False
 """
 
 from dataclasses import dataclass, field

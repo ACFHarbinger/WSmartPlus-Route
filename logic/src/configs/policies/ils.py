@@ -1,5 +1,14 @@
 """
 ILS (Iterated Local Search) configuration for Hydra.
+
+Attributes:
+    ILSConfig: Configuration for the Iterated Local Search policy.
+
+Example:
+    >>> from configs.policies.ils import ILSConfig
+    >>> config = ILSConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field
@@ -10,7 +19,23 @@ from logic.src.configs.policies.other.acceptance_criteria import AcceptanceConfi
 
 @dataclass
 class ILSConfig:
-    """Configuration for the Iterated Local Search policy."""
+    """Configuration for the Iterated Local Search policy.
+
+    Attributes:
+        engine (str): Name of the engine.
+        n_restarts (int): Number of restarts.
+        inner_iterations (int): Number of inner iterations.
+        n_removal (int): Number of removals for perturbation.
+        n_llh (int): Number of local heuristic calls per restart.
+        perturbation_strength (float): Strength of perturbation (0-1).
+        time_limit (float): Time limit in seconds.
+        seed (Optional[int]): Random seed for reproducibility.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Use profit-aware operators.
+        mandatory_selection (Optional[List[Any]]): Mandatory customers/requests selection.
+        route_improvement (Optional[List[Any]]): Route improvement strategies.
+        acceptance_criterion (AcceptanceConfig): Acceptance criteria for new solutions.
+    """
 
     engine: str = "ils"
     n_restarts: int = 30

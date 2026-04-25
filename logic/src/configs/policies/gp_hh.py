@@ -1,5 +1,14 @@
 """
 GPHH (Genetic Programming Hyper-Heuristic) configuration for Hydra.
+
+Attributes:
+    GPHHConfig: Configuration for the GPHH Constructive Heuristic Generator policy.
+
+Example:
+    >>> from configs.policies.gp_hh import GPHHConfig
+    >>> config = GPHHConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field

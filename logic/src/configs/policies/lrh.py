@@ -1,5 +1,16 @@
 """
 Configuration for the Lagrangian Relaxation Heuristic (LRH).
+
+Attributes:
+    LRHConfig: Configuration for the Lagrangian Relaxation Heuristic (LRH) policy.
+
+Example:
+    >>> from configs.policies.lrh import LRHConfig
+    >>> config = LRHConfig()
+    >>> config.max_iter
+    50
+    >>> config.step_size
+    2.0
 """
 
 from dataclasses import dataclass

@@ -2,6 +2,15 @@
 Pure Island Model GA configuration.
 
 Replaces SLC with rigorous GA terminology.
+
+Attributes:
+    MemeticAlgorithmIslandModelConfig: Configuration for the Memetic Algorithm Island Model policy.
+
+Example:
+    >>> from configs.policies.ma_im import MemeticAlgorithmIslandModelConfig
+    >>> config = MemeticAlgorithmIslandModelConfig()
+    >>> config.max_generations
+    50
 """
 
 from dataclasses import dataclass
@@ -16,6 +25,20 @@ class MemeticAlgorithmIslandModelConfig:
     """Configuration for Memetic Algorithm Island Model (MA-IM) policy.
 
     Functionally equivalent to SLC.
+
+    Attributes:
+        n_islands (int): Number of islands in the GA.
+        island_size (int): Number of individuals per island.
+        max_generations (int): Maximum number of generations to run.
+        stagnation_limit (int): Number of generations without improvement before triggering stagnation handling.
+        n_removal (int): Number of individuals to remove during replacement.
+        local_search_iterations (int): Number of local search iterations per individual.
+        time_limit (float): Time limit in seconds.
+        seed (Optional[int]): Random seed.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory customers/requests selection strategies.
+        route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement strategies.
     """
 
     n_islands: int = 5

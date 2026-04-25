@@ -11,6 +11,19 @@ Usage::
         --policies nds_brkga \\
         policy.nds_brkga.pop_size=80 \\
         policy.nds_brkga.time_limit=120
+
+Attributes:
+    NDSBRKGAConfig: Configuration for the NDS-BRKGA policy.
+
+Example:
+    >>> from configs.policies.nds_brkga import NDSBRKGAConfig
+    >>> config = NDSBRKGAConfig()
+    >>> config.pop_size
+    60
+    >>> config.max_generations
+    200
+    >>> config.time_limit
+    90.0
 """
 
 from dataclasses import dataclass, field

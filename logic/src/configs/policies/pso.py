@@ -2,6 +2,25 @@
 Particle Swarm Optimization (PSO) with velocity momentum configuration.
 
 **TRUE PSO** replacing the Sine Cosine Algorithm (SCA).
+
+Attributes:
+    PSOConfig: Configuration for the PSO policy.
+
+Example:
+    >>> from configs.policies.pso import PSOConfig
+    >>> config = PSOConfig()
+    >>> config.pop_size
+    30
+    >>> config.max_iterations
+    500
+    >>> config.seed
+    None
+    >>> config.vrpp
+    True
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
 """
 
 from dataclasses import dataclass
@@ -32,6 +51,8 @@ class PSOConfig:
 
         Shi, Y., & Eberhart, R. (1998). "A modified particle swarm optimizer."
         IEEE International Conference on Evolutionary Computation.
+    Attributes:
+        None
     """
 
     # Swarm Configuration

@@ -1,5 +1,31 @@
 """
 ILS (Iterated Local Search) configuration for expert policy training.
+
+Attributes:
+    ILSConfig: Configuration for ILS algorithm.
+
+Example:
+    ils_config = ILSConfig(
+        n_restarts=5,
+        ls_iterations=50,
+        perturbation_strength=0.2,
+        ls_operator="two_opt",
+        perturbation_type="double_bridge",
+        time_limit=30.0,
+        op_probs={
+            "two_opt": 0.25,
+            "swap": 0.15,
+            "relocate": 0.15,
+            "two_opt_star": 0.2,
+            "swap_star": 0.15,
+            "three_opt": 0.1,
+        },
+        perturb_probs={
+            "double_bridge": 0.5,
+            "shuffle": 0.3,
+            "random_swap": 0.2,
+        },
+    )
 """
 
 from dataclasses import dataclass, field

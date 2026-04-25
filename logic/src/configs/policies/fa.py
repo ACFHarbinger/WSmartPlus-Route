@@ -1,5 +1,14 @@
 """
 FA (Discrete Firefly Algorithm) configuration for Hydra.
+
+Attributes:
+    FAConfig: Configuration for the Discrete Firefly Algorithm policy.
+
+Example:
+    >>> from configs.policies.fa import FAConfig
+    >>> config = FAConfig()
+    >>> config.pop_size
+    20
 """
 
 from dataclasses import dataclass, field

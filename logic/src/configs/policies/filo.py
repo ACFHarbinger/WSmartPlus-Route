@@ -1,5 +1,14 @@
 """
 FILO (Fast Iterative Localized Optimization) configuration dataclasses.
+
+Attributes:
+    FILOConfig: Configuration for the FILO policy.
+
+Example:
+    >>> from configs.policies.filo import FILOConfig
+    >>> config = FILOConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass

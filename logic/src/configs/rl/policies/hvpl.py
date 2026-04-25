@@ -1,5 +1,17 @@
 """
 HVPL (Hybrid Volleyball Premier League) configuration for expert policy training.
+
+Attributes:
+    HVPLConfig: Configuration for HVPL algorithm.
+
+Example:
+    hvpl_config = HVPLConfig(
+        time_limit=60.0,
+        max_iterations=50,
+        n_teams=10,
+        sub_rate=0.2,
+        aco_iterations=1,
+    )
 """
 
 from dataclasses import dataclass

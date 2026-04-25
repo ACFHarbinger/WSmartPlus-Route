@@ -1,5 +1,22 @@
 """
 Configuration for the Multi-Period Simulated Annealing (MP-SA).
+
+Attributes:
+    MP_SA_Config: Configuration for the Multi-Period Simulated Annealing (MP-SA) policy.
+
+Example:
+    >>> from configs.policies.mp_sa import MP_SA_Config
+    >>> config = MP_SA_Config()
+    >>> config.iters
+    500
+    >>> config.init_temp
+    100.0
+    >>> config.cooling_rate
+    0.95
+    >>> config.seed
+    42
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass

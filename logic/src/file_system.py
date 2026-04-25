@@ -8,6 +8,16 @@ file system, including:
 3. Entry deletion: Cleanup of logs, models, datasets, and cache directories.
 
 It acts as a CLI entry point for administrative and data-management tasks.
+
+Attributes:
+    perform_cryptographic_operations (function): Performs cryptographic tasks.
+    update_file_system_entries (function): Applies content updates or statistical
+        processing to files/directories.
+    delete_entries (function): Deletes entries.
+    main (function): Main entry point for the CLI.
+
+Example:
+    python -m logic.src.file_system delete --delete_all
 """
 
 import argparse
@@ -241,7 +251,14 @@ def delete_file_system_entries(opts: Dict[str, Any]) -> int:
 
 
 def _collect_directories_to_delete(opts: Dict[str, Any]):
-    """Helper to gather existing directories for deletion."""
+    """Helper to gather existing directories for deletion.
+
+    Args:
+        opts: Description of opts.
+
+    Returns:
+        Description of return value.
+    """
     to_delete = []
 
     # Standard logs and outputs

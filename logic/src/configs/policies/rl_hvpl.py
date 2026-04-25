@@ -1,5 +1,22 @@
 """
 RL-HVPL (Reinforcement Learning Hybrid Volleyball Premier League) configuration for Hydra.
+
+Attributes:
+    RLHVPLConfig: Configuration for the RL-HVPL policy.
+
+Example:
+    >>> from configs.policies.rl_hvpl import RLHVPLConfig
+    >>> config = RLHVPLConfig()
+    >>> config.n_teams
+    10
+    >>> config.time_limit
+    60.0
+    >>> config.max_iterations
+    100
+    >>> config.vrpp
+    True
+    >>> config.profit_aware_operators
+    False
 """
 
 from dataclasses import dataclass, field
@@ -17,6 +34,25 @@ class RLHVPLConfig:
 
     Combines VPL population dynamics, ACO initialization with Q-Learning,
     and ALNS local search with SARSA for adaptive operator selection.
+
+    Attributes:
+        n_teams: Number of teams in the VPL population.
+        time_limit: Time limit for the algorithm in seconds.
+        max_iterations: Maximum number of iterations.
+        elite_coaching_iterations: Maximum number of iterations for elite coaching.
+        regular_coaching_iterations: Maximum number of iterations for regular coaching.
+        elite_size: Size of the elite set.
+        sub_rate: Rate of subproblem solving.
+        pheromone_update_strategy: Strategy for updating pheromones.
+        profit_weight: Weight for profit in pheromone updates.
+        aco: Configuration for ACO initialization.
+        alns: Configuration for ALNS local search.
+        rl_config: Configuration for the RL policy.
+        vrpp: Whether to use VRPP.
+        seed: Random seed.
+        profit_aware_operators: Whether to use profit-aware operators.
+        mandatory_selection: List of mandatory nodes.
+        route_improvement: List of route improvements.
     """
 
     # General parameters

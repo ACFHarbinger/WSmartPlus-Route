@@ -1,5 +1,38 @@
 """
 Progressive Hedging (PH) policy configuration.
+
+Attributes:
+    PHConfig: Configuration for the Progressive Hedging (PH) policy.
+
+Example:
+    >>> from configs.policies.ph import PHConfig
+    >>> config = PHConfig()
+    >>> config.rho
+    1.0
+    >>> config.max_iterations
+    50
+    >>> config.convergence_tol
+    0.01
+    >>> config.sub_solver
+    'bc'
+    >>> config.num_scenarios
+    10
+    >>> config.horizon
+    7
+    >>> config.consensus_scope
+    'day_0'
+    >>> config.stockout_penalty
+    500.0
+    >>> config.time_limit
+    300.0
+    >>> config.verbose
+    True
+    >>> config.mandatory_selection
+    None
+    >>> config.route_improvement
+    None
+    >>> config.seed
+    None
 """
 
 from dataclasses import dataclass

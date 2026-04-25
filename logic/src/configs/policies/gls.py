@@ -1,5 +1,14 @@
 """
 GLS (Guided Local Search) configuration for Hydra.
+
+Attributes:
+    GLSConfig: Configuration for the Guided Local Search policy.
+
+Example:
+    >>> from configs.policies.gls import GLSConfig
+    >>> config = GLSConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass, field
@@ -8,7 +17,23 @@ from typing import Any, List, Optional
 
 @dataclass
 class GLSConfig:
-    """Configuration for the Guided Local Search policy."""
+    """Configuration for the Guided Local Search policy.
+
+    Attributes:
+        lambda_param (float): Lambda parameter for GLS.
+        alpha_param (float): Alpha parameter for GLS.
+        penalty_cycles (int): Number of penalty cycles.
+        n_removal (int): Number of routes to remove.
+        n_llh (int): Number of local low-level heuristics.
+        inner_iterations (int): Number of inner iterations.
+        fls_coupling_prob (float): Probability of coupling FLS.
+        time_limit (float): Time limit in seconds.
+        seed (Optional[int]): Seed for the random number generator.
+        vrpp (bool): Whether the problem is a VRRP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+        route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.
+    """
 
     lambda_param: float = 1.0
     alpha_param: float = 0.3

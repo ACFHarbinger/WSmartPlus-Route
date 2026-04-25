@@ -3,6 +3,15 @@ Kernel Search matheuristic configuration.
 
 This module defines the settings used by the Kernel Search framework to decompose
 and solve VRPP instances.
+
+Attributes:
+    KernelSearchConfig: Configuration for the Kernel Search policy.
+
+Example:
+    >>> from configs.policies.ks import KernelSearchConfig
+    >>> config = KernelSearchConfig()
+    >>> config.time_limit
+    300.0
 """
 
 from dataclasses import dataclass

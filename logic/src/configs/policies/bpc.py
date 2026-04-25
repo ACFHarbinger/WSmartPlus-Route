@@ -1,5 +1,14 @@
 """
 BPC (Branch-and-Price-and-Cut) configuration.
+
+Attributes:
+    BPCConfig: Attributes for BPC configuration.
+
+Example:
+    >>> from configs.policies.bpc import BPCConfig
+    >>> config = BPCConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass

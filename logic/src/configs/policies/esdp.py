@@ -1,4 +1,14 @@
-"""Configuration for the Exact Stochastic Dynamic Programming solver."""
+"""Configuration for the Exact Stochastic Dynamic Programming solver.
+
+Attributes:
+    ExactSDPConfig: Configuration for the Exact Stochastic Dynamic Programming solver.
+
+Example:
+    >>> from configs.policies.esdp import ExactSDPConfig
+    >>> config = ExactSDPConfig()
+    >>> config.time_limit
+    3600.0
+"""
 
 from dataclasses import dataclass
 

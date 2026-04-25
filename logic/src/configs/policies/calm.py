@@ -1,5 +1,14 @@
 """
 Configuration for the Concurrent Adaptive Lagrangian Matheuristic (CALM).
+
+Attributes:
+    CALMConfig: Attributes for CALM configuration.
+
+Example:
+    >>> from configs.policies.calm import CALMConfig
+    >>> config = CALMConfig()
+    >>> config.time_limit
+    600.0
 """
 
 from dataclasses import dataclass, field

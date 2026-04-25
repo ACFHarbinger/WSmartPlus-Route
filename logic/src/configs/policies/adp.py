@@ -1,5 +1,14 @@
 """
 Configuration dataclass for the ADP Rollout policy.
+
+Attributes:
+    ADPRolloutConfig: Attributes for ADP Rollout configuration.
+
+Example:
+    >>> from configs.policies.adp import ADPRolloutConfig
+    >>> config = ADPRolloutConfig()
+    >>> config.horizon
+    7
 """
 
 from __future__ import annotations

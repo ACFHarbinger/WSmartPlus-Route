@@ -3,6 +3,15 @@ Branch-and-Bound (BB) configuration schema.
 
 This module defines the dataclass used to configure the Branch-and-Bound policy,
 mapping YAML configuration values to typed Python attributes for use in the solver.
+
+Attributes:
+    BBConfig: Attributes for BB configuration.
+
+Example:
+    >>> from configs.policies.bb import BBConfig
+    >>> config = BBConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass

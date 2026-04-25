@@ -1,5 +1,16 @@
 """
 Configuration for Local Branching with Variable Neighborhood Search (LB-VNS).
+
+Attributes:
+    LocalBranchingVNSConfig: Configuration for the Local Branching with Variable Neighborhood Search (LB-VNS) policy.
+
+Example:
+    >>> from configs.policies.lb_vns import LocalBranchingVNSConfig
+    >>> config = LocalBranchingVNSConfig()
+    >>> config.time_limit
+    300.0
+    >>> config.k_min
+    10
 """
 
 from dataclasses import dataclass, field

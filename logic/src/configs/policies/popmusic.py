@@ -1,5 +1,28 @@
 """
 POPMUSIC (Partial Optimization Metaheuristic Under Special Intensification Conditions) configuration.
+
+Attributes:
+    POPMUSICConfig: Configuration for the POPMUSIC matheuristic.
+
+Example:
+    >>> from configs.policies.popmusic import POPMUSICConfig
+    >>> config = POPMUSICConfig()
+    >>> config.subproblem_size
+    3
+    >>> config.max_iterations
+    None
+    >>> config.base_solver
+    'alns'
+    >>> config.cluster_solver
+    'fast_tsp'
+    >>> config.initial_solver
+    'nearest_neighbor'
+    >>> config.seed
+    None
+    >>> config.vrpp
+    True
+    >>> config.profit_aware_operators
+    False
 """
 
 from dataclasses import dataclass, field

@@ -1,5 +1,14 @@
 """
 CVRP (Capacitated Vehicle Routing Problem) policy configuration.
+
+Attributes:
+    CVRPConfig: Attributes for CVRP configuration.
+
+Example:
+    >>> from configs.policies.cvrp import CVRPConfig
+    >>> config = CVRPConfig()
+    >>> config.time_limit
+    60.0
 """
 
 from dataclasses import dataclass

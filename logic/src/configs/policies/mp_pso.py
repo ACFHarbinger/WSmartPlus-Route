@@ -1,5 +1,18 @@
 """
 Configuration for the Multi-Period Particle Swarm Optimization (MP-PSO).
+
+Attributes:
+    MP_PSO_Config: Configuration for the Multi-Period Particle Swarm Optimization (MP-PSO) policy.
+
+Example:
+    >>> from configs.policies.mp_pso import MP_PSO_Config
+    >>> config = MP_PSO_Config()
+    >>> config.swarm_size
+    20
+    >>> config.iters
+    50
+    >>> config.vrpp
+    True
 """
 
 from dataclasses import dataclass

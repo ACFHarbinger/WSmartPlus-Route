@@ -1,5 +1,22 @@
 """
 HGS (Hybrid Genetic Search) configuration for expert policy training.
+
+Attributes:
+    HGSConfig: Configuration for HGS algorithm.
+
+Example:
+    hgs_config = HGSConfig(
+        time_limit=60.0,
+        mu=50,
+        nb_elite=10,
+        mutation_rate=0.2,
+        alns_education_iterations=50,
+        n_generations=100,
+        max_vehicles=0,
+        engine="custom",
+        mandatory_selection=[],
+        route_improvement=[],
+    )
 """
 
 from dataclasses import dataclass

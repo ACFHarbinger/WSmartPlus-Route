@@ -1,5 +1,34 @@
 """
 SS-HH (Sequence-based Selection Hyper-Heuristic) configuration for Hydra.
+
+Attributes:
+    SSHHConfig: Configuration for the Sequence-based Selection Hyper-Heuristic (SS-HH) policy.
+
+Example:
+    >>> from configs.policies.ss_hh import SSHHConfig
+    >>> config = SSHHConfig()
+    >>> config.max_iterations
+    500
+    >>> config.n_removal
+    2
+    >>> config.n_llh
+    5
+    >>> config.time_limit
+    60.0
+    >>> config.threshold_infeasible
+    0.001
+    >>> config.threshold_feasible_base
+    0.0001
+    >>> config.threshold_decay_rate
+    0.01
+    >>> config.seed
+    None
+    >>> config.vrpp
+    True
+    >>> config.mandatory_selection
+    []
+    >>> config.route_improvement
+    []
 """
 
 from dataclasses import dataclass, field

@@ -1,4 +1,14 @@
-"""Imitation specific configuration."""
+"""Imitation specific configuration.
+
+Attributes:
+    ImitationConfig: Configuration for Imitation algorithm.
+
+Example:
+    imitation_config = ImitationConfig(
+        policy_config=None,
+        loss_fn="nll",
+    )
+"""
 
 from dataclasses import dataclass
 from typing import Any, Union
