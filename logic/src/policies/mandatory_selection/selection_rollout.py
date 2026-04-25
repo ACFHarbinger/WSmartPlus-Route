@@ -11,6 +11,9 @@ Note:
     Currently, the lookahead evaluates each bin in isolation rather than
     simulating the full vehicle fleet and routing across all potential nodes.
 
+Attributes:
+    RolloutSelection(IMandatorySelectionStrategy): Decision strategy using one-step Monte Carlo lookahead to approximate future expected rewards.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_rollout import RolloutSelection
     >>> strategy = RolloutSelection()

@@ -8,6 +8,9 @@ moderately full (e.g., > 60% full). By visiting these moderately full bins
 opportunistically, the vehicle avoids returning to the same neighborhood
 the very next day.
 
+Attributes:
+    SpatialSynergySelection(IMandatorySelectionStrategy): Spatial-density based collection strategy.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_spatial_synergy import SpatialSynergySelection
     >>> strategy = SpatialSynergySelection()

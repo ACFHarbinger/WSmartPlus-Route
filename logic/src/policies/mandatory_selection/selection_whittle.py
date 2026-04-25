@@ -8,6 +8,14 @@ between the two actions. Bins with higher Whittle indices are prioritized.
 
 This implementation uses a discretized MDP (20 states) and Value Iteration
 to solve for the indifferent subsidy.
+
+Attributes:
+    WhittleIndexSelection(IMandatorySelectionStrategy): Selection strategy based on Whittle Index priority.
+
+Example:
+    >>> from logic.src.policies.mandatory_selection.selection_whittle import WhittleIndexSelection
+    >>> strategy = WhittleIndexSelection()
+    >>> bins, ctx = strategy.select_bins(context)
 """
 
 from typing import List, Tuple

@@ -55,6 +55,14 @@ class LookaheadSelection(IMandatorySelectionStrategy):
     ) -> np.ndarray:
         """
         Simulate collection for mandatory_bins by setting fill levels to 0.
+
+        Args:
+            bin_indices: List of bin indices.
+            mandatory_bins: List of mandatory bins.
+            current_fill_levels: Array of current fill levels.
+
+        Returns:
+            np.ndarray: Updated fill levels after collection.
         """
         for i in bin_indices:
             if i in mandatory_bins:
@@ -81,6 +89,15 @@ class LookaheadSelection(IMandatorySelectionStrategy):
     ) -> List[int]:
         """
         Calculate when collected bins would overflow again.
+
+        Args:
+            bin_indices: List of bin indices.
+            mandatory_bins: List of mandatory bins.
+            current_fill_levels: Array of current fill levels.
+            accumulation_rates: Array of accumulation rates.
+
+        Returns:
+            List[int]: List of next collection days.
         """
         next_collection_days = self._initialize_lists_bins(len(bin_indices))
         # Work on a copy to avoid side effects
@@ -107,6 +124,15 @@ class LookaheadSelection(IMandatorySelectionStrategy):
     ) -> int:
         """
         Find the earliest overflow day among the currently selected bins.
+
+        Args:
+            bin_indices: List of bin indices.
+            mandatory_bins: List of mandatory bins.
+            current_fill_levels: Array of current fill levels.
+            accumulation_rates: Array of accumulation rates.
+
+        Returns:
+            int: The earliest overflow day.
         """
         next_collection_days = self._calculate_next_collection_days(
             bin_indices, mandatory_bins, current_fill_levels, accumulation_rates
@@ -130,6 +156,16 @@ class LookaheadSelection(IMandatorySelectionStrategy):
     ) -> List[int]:
         """
         Add bins that would overflow before the next collection day.
+
+        Args:
+            bin_indices: List of bin indices.
+            next_collection_day: The next collection day.
+            mandatory_bins: List of mandatory bins.
+            current_fill_levels: Array of current fill levels.
+            accumulation_rates: Array of accumulation rates.
+
+        Returns:
+            List[int]: List of bins to collect.
         """
         # Assuming current_collection_day is 0 (relative start)
         current_collection_day = 0
