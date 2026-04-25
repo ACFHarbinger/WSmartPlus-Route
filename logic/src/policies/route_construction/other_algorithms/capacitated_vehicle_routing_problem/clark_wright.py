@@ -1,5 +1,23 @@
 """
 Internal implementation of Clark-Wright Savings algorithm for CVRP.
+
+Attributes:
+    clarke_wright_solve(dist_matrix, wastes, capacity, to_collect, depot=0)
+        Solve CVRP using Clark-Wright Savings heuristic.
+
+        Args:
+            dist_matrix: Distance matrix.
+            wastes: Waste demands.
+            capacity: Vehicle capacity.
+            to_collect: Nodes to collect.
+            depot: Depot node.
+
+        Returns:
+            List of routes.
+
+Example:
+    >>> from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem import clarke_wright_solve
+    >>> routes = clarke_wright_solve(dist_matrix, wastes, capacity, to_collect)
 """
 
 from typing import Dict, List
@@ -12,6 +30,15 @@ def clarke_wright_solve(
 ) -> List[int]:
     """
     Solve CVRP using Clark-Wright Savings heuristic.
+    Args:
+        dist_matrix: Description of dist_matrix.
+        wastes: Description of wastes.
+        capacity: Description of capacity.
+        to_collect: Description of to_collect.
+        depot: Description of depot.
+
+    Returns:
+        Description of return value.
     """
     if not to_collect:
         return [depot]

@@ -1,5 +1,14 @@
 """
 Configuration parameters for the Adaptive Route Constructor Orchestrator (ARCO).
+
+Attributes:
+    ARCOParams: Parameters for the ARCO algorithm.
+
+Example:
+    >>> from logic.src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator import ARCOParams
+    >>> params = ARCOParams()
+    >>> params
+    ARCOParams(constructors=['nn', 'alns'], time_limit=120.0, selection_strategy='epsilon_greedy', epsilon=0.15, temperature=1.0, alpha_ema=0.15, weight_init=1.0, weight_floor=0.01, decay=1.0, seed=42)
 """
 
 from __future__ import annotations
@@ -41,7 +50,14 @@ class ARCOParams:
 
     @classmethod
     def from_config(cls, config: Any) -> ARCOParams:
-        """Build parameters from a config object or dict."""
+        """Build parameters from a config object or dict.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            ARCOParams: The parameters for the ARCO algorithm.
+        """
         return cls(
             constructors=getattr(config, "constructors", ["nn", "alns"]),
             time_limit=getattr(config, "time_limit", 120.0),

@@ -42,11 +42,14 @@ from .two_opt import solve_tsp_2opt
 
 def find_route(C, to_collect, time_limit=2.0, seed=42, engine="fast_tsp"):
     """
+    Find route using fast_tsp or custom solver.
+
     Args:
-        C (np.ndarray): Distance matrix (N x N) with depot at index 0
-        to_collect (array-like): Node IDs to visit (excluding depot)
-        time_limit (float): Maximum time in seconds for the solver
-        seed (int): Random seed for reproducibility
+        C: Description of C.
+        to_collect: Description of to_collect.
+        time_limit: Description of time_limit.
+        seed: Description of seed.
+        engine: Description of engine.
 
     Returns:
         List[int]: Tour starting and ending at depot. Format: [0, node1, node2, ..., 0]

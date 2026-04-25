@@ -2,6 +2,12 @@
 
 Contains general-purpose routing policies like SRC and ARCO that do not fit
 strictly into the meta-heuristic or learning-based categories.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from .adaptive_route_constructor_orchestrator import (

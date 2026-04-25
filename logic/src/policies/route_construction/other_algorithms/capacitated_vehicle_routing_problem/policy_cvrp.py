@@ -3,6 +3,14 @@ CVRP Policy module.
 
 Implements a multi-vehicle routing policy (CVRP) that visits a specific set of bins.
 Agnostic to how the targets were selected.
+
+Attributes:
+    CVRPPolicy: Capacitated Vehicle Routing Problem (CVRP) policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem import CVRPPolicy
+    >>> policy = CVRPPolicy()
+    >>> policy.execute(mandatory=[1, 2, 3], bins=bins_object, distance_matrix=distance_matrix)
 """
 
 from __future__ import annotations
@@ -34,6 +42,9 @@ class CVRPPolicy(BaseRoutingPolicy):
     Capacitated Vehicle Routing Policy (CVRP).
 
     Visits provided 'mandatory' bins using multiple vehicles.
+
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Union[CVRPConfig, Dict[str, Any]]] = None):
@@ -46,10 +57,19 @@ class CVRPPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the config class for CVRP.
+
+        Returns:
+            Optional[Type]: CVRPConfig class.
+        """
         return CVRPConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for CVRP."""
+        """Return config key for CVRP.
+
+        Returns:
+            str: CVRP config key.
+        """
         return "cvrp"
 
     def _run_solver(
@@ -67,6 +87,22 @@ class CVRPPolicy(BaseRoutingPolicy):
         Run CVRP solver.
 
         Note: CVRP uses global indices directly, not the subset mapping.
+
+        Args:
+            sub_dist_matrix: Distance matrix of the subset.
+            sub_wastes: Waste demands for each node in the subset.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit of waste.
+            cost_unit: Cost per unit of distance.
+            values: Dictionary of configuration values.
+            mandatory_nodes: List of global indices of bins to be collected.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A tuple containing:
+                - tour: A list of lists of global indices representing the routes.
+                - cost: The total travel cost.
+                - profit: The total calculated net profit.
         """
         # Not used - we override execute() for CVRP
         return [[]], 0.0, 0.0
@@ -84,7 +120,7 @@ class CVRPPolicy(BaseRoutingPolicy):
         heuristics (Clarke-Wright savings).
 
         Args:
-            **kwargs: Context dictionary containing:
+            kwargs: Context dictionary containing:
                 - mandatory (List[int]): Global indices of bins to be collected.
                 - bins (Bins): Container for bin stock and distribution data.
                 - distance_matrix (np.ndarray): Global symmetric distance matrix.
