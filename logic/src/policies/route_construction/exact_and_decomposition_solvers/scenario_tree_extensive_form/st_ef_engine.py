@@ -1,3 +1,7 @@
+"""
+Extensive form solver engine for Scenario Tree problems.
+"""
+
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -64,6 +68,22 @@ class ScenarioTreeExtensiveFormEngine:
         use_mtz: bool = True,
         verbose: bool = False,
     ):
+        """
+        Initializes the ST-EF engine.
+
+        Args:
+            tree: Scenario tree.
+            distance_matrix: Distance matrix.
+            wastes: Mapping from node index to waste volume.
+            capacity: Vehicle capacity.
+            waste_weight: Weight for collected waste in objective.
+            cost_weight: Weight for distance cost in objective.
+            overflow_penalty: Penalty for bin overflow.
+            time_limit: Gurobi time limit in seconds.
+            mip_gap: Gurobi MIP gap.
+            use_mtz: Whether to use MTZ subtour elimination.
+            verbose: Whether to enable Gurobi output.
+        """
         if not GUROBI_AVAILABLE:
             raise ImportError("Gurobi is required for ScenarioTreeExtensiveFormEngine.")
 
@@ -358,6 +378,7 @@ class ScenarioTreeExtensiveFormEngine:
         counter = [0]
 
         def traverse(sim_node, parent_id=None):
+            """Recursively converts a simulation tree node to a ScenarioTree node."""
             node_id = counter[0]
             counter[0] += 1
 

@@ -481,6 +481,7 @@ class RLAHVPLSolver:
             return p, p
 
         def tournament() -> Individual:
+            """tournament docstring."""
             i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 

@@ -1,3 +1,11 @@
+"""
+Logic-Based Benders Decomposition (LBBD) Master Problem.
+
+Implements the master allocation problem for LBBD, distributing bins
+to different days of the planning horizon while considering predicted
+waste levels and overflow penalties.
+"""
+
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
@@ -21,6 +29,12 @@ class LBBDMasterProblem:
     """
 
     def __init__(self, config: LBBDConfig, num_customers: int):
+        """Initialize the LBBD Master Problem.
+
+        Args:
+            config (LBBDConfig): Configuration parameters for LBBD.
+            num_customers (int): Number of customers (bins) in the problem.
+        """
         self.config = config
         self.num_customers = num_customers
         self.num_nodes = num_customers + 1
@@ -109,6 +123,11 @@ class LBBDMasterProblem:
         node_map: List[ScenarioTreeNode] = []
 
         def collect(n):
+            """Recursively collect all nodes in the scenario tree into node_map.
+
+            Args:
+                n (ScenarioTreeNode): The current node to collect.
+            """
             node_map.append(n)
             for c in n.children:
                 collect(c)
@@ -138,6 +157,12 @@ class LBBDMasterProblem:
             parent: Optional[ScenarioTreeNode] = None
 
             def find_parent(curr: ScenarioTreeNode, target: ScenarioTreeNode):
+                """Find the parent of target node starting from curr.
+
+                Args:
+                    curr (ScenarioTreeNode): Current node being checked.
+                    target (ScenarioTreeNode): Target node whose parent is sought.
+                """
                 nonlocal parent
                 for c in curr.children:
                     if c == target:

@@ -1,3 +1,7 @@
+"""
+Parameters for the Fast Iterative Localized Optimization (FILO) algorithm.
+"""
+
 from __future__ import annotations
 
 import dataclasses

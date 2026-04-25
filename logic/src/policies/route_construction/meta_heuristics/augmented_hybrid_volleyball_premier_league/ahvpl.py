@@ -59,6 +59,18 @@ class AHVPLSolver:
         params: AHVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """
+        Initializes the AHVPL solver.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            wastes: Dictionary mapping node indices to waste amounts.
+            capacity: Vehicle capacity.
+            R: Revenue per unit collected.
+            C: Cost per unit distance.
+            params: AHVPL parameters.
+            mandatory_nodes: Optional list of nodes that must be visited.
+        """
         self.dist_matrix = np.array(dist_matrix)
         self.wastes = wastes
         self.capacity = capacity
@@ -241,6 +253,7 @@ class AHVPLSolver:
         """Binary tournament selection."""
 
         def tournament() -> Individual:
+            """Selects the best of two randomly chosen individuals."""
             i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 

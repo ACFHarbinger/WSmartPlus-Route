@@ -91,6 +91,12 @@ class GPHHPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[GPHHConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the Genetic Programming Hyper-Heuristic policy.
+
+        Args:
+            config: Configuration parameters.
+        """
         super().__init__(config)
 
     @classmethod

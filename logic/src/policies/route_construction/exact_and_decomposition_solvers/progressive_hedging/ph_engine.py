@@ -63,6 +63,7 @@ class ProgressiveHedgingEngine:
 
     @staticmethod
     def ensure_route_list(routes: Union[List[int], List[List[int]]]) -> List[List[int]]:
+        """Ensures that routes are represented as a list of lists (tours)."""
         # 1. Check if already a list of lists
         if routes and isinstance(routes[0], list):
             return routes  # type: ignore[return-value]
@@ -107,6 +108,7 @@ class ProgressiveHedgingEngine:
         from logic.src.pipeline.simulations.bins.prediction import ScenarioTreeNode
 
         def get_all_paths(node: ScenarioTreeNode, current_path: List[np.ndarray]) -> List[List[np.ndarray]]:
+            """Recursively collect all scenarios from a scenario tree."""
             new_path = current_path + [node.wastes]
             if not node.children:
                 return [new_path]

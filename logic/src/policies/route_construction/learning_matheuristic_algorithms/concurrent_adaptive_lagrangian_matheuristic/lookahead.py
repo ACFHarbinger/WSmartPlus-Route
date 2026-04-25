@@ -80,6 +80,7 @@ class LookaheadValuator:
     """
 
     def __init__(self, params: LookaheadParams):
+        """__init__ docstring."""
         self.params = params
         self._tree: Optional[ScenarioTree] = None
 
@@ -88,6 +89,7 @@ class LookaheadValuator:
     # ------------------------------------------------------------------
 
     def get_scenario_tree(self) -> ScenarioTree:
+        """get_scenario_tree docstring."""
         if self._tree is None:
             raise RuntimeError("LookaheadValuator.compute() must be called before get_scenario_tree().")
         return self._tree

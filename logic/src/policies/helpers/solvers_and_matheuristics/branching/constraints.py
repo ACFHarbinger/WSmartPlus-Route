@@ -157,6 +157,7 @@ class FleetSizeBranchingConstraint:
         return True
 
     def __repr__(self) -> str:
+        """Returns string representation of the constraint."""
         rel = "<=" if self.is_upper else ">="
         return f"FleetSizeBranchingConstraint(Sum λ {rel} {self.limit})"
 
@@ -185,6 +186,7 @@ class NodeVisitationBranchingConstraint:
         return True
 
     def __repr__(self) -> str:
+        """Returns string representation of the constraint."""
         val = 1 if self.forced else 0
         return f"NodeVisitationBranchingConstraint(v_{self.node} = {val})"
 

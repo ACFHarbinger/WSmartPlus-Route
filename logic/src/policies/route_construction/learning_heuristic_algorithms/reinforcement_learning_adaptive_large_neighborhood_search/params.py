@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 # Standard library
 from __future__ import annotations
 

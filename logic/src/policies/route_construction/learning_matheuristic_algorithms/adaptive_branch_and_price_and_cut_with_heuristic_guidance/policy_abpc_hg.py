@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.abpc_hg import ABPCHGConfig
@@ -122,6 +126,7 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Optional[ABPCHGConfig] = None):
+        """__init__ docstring."""
         super().__init__(config)
         self.params: ABPCHGParams = ABPCHGParams.from_config(config) if config is not None else ABPCHGParams()
         self.gamma: float = self.params.gamma

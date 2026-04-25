@@ -21,7 +21,11 @@ class SimulationDataset(ABC):
     """
 
     @abstractmethod
-    def __len__(self) -> int: ...
+    def __len__(self) -> int:
+        """Return the number of samples in the dataset."""
+        ...
 
     @abstractmethod
-    def __getitem__(self, index: int) -> Dict[str, np.ndarray]: ...
+    def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
+        """Return the sample at the given index."""
+        ...

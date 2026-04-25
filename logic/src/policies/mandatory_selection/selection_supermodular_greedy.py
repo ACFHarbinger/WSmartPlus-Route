@@ -75,6 +75,7 @@ class SupermodularGreedySelection(IMandatorySelectionStrategy):
 
         # Marginal gain g(i | S) = revenue_i - 2 * alpha * min_{j in S} dist(i, j)
         def get_marginal_gain(idx, S_indices):
+            """Calculates the marginal gain for adding a node."""
             d_to_S = np.min(context.distance_matrix[idx + 1, list(S_indices)])
             return revenue[idx] - (alpha * 2.0 * d_to_S), SearchContext.initialize(
                 selection_metrics={"strategy": "SupermodularGreedySelection"}

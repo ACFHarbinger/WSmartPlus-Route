@@ -1,3 +1,7 @@
+"""
+Lagrangian Relaxation Heuristic (LRH) policy implementation.
+"""
+
 import copy
 import math
 from typing import Any, Dict, List, Optional, Tuple
@@ -36,6 +40,12 @@ class LagrangianRelaxationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the LRH policy.
+
+        Args:
+            config: Optional Hydra configuration.
+        """
         super().__init__(config)
         self.params = LRHParams.from_config(config)
         self.max_iter = self.params.max_iter
@@ -127,6 +137,7 @@ class LagrangianRelaxationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         return feas_plan
 
     def _evaluate(self, plan, problem):
+        """Evaluates the objective value of the given plan."""
         tot = 0.0
         cur_prob = problem
         for idx in range(problem.horizon):

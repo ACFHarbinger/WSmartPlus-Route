@@ -1,3 +1,5 @@
+"""Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC) configuration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

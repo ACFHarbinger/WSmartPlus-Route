@@ -28,6 +28,7 @@ class HULKPolicy(BaseRoutingPolicy):
     """HULK hyper-heuristic policy class."""
 
     def __init__(self, config: Optional[Union[HULKConfig, Dict[str, Any]]] = None):
+        """__init__ docstring."""
         super().__init__(config)
 
     @classmethod

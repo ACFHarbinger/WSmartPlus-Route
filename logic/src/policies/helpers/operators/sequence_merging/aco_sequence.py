@@ -76,6 +76,19 @@ class AcoSequenceState:
         tau_max: float = 10.0,
         tau_init: float = 1.0,
     ) -> None:
+        """
+        Initializes the AcoSequenceState.
+
+        Args:
+            op_names: Ordered list of LLH operator names.
+            alpha: Pheromone importance weight.
+            beta: Heuristic importance weight.
+            rho: Pheromone evaporation rate.
+            Q: Pheromone deposit constant.
+            tau_min: Lower pheromone bound.
+            tau_max: Upper pheromone bound.
+            tau_init: Initial pheromone value.
+        """
         self.op_names = list(op_names)
         self.n = len(op_names)
         self.alpha = alpha
@@ -98,6 +111,7 @@ class AcoSequenceState:
         self._eta_cnt: np.ndarray = np.ones((self.n, self.n), dtype=float)
 
     def index(self, name: str) -> int:
+        """Returns the integer index corresponding to the operator name."""
         return self._idx[name]
 
 

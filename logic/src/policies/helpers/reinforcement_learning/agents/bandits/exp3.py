@@ -1,3 +1,7 @@
+"""
+Exp3 Bandit Module.
+"""
+
 from typing import Any, Dict, Optional
 
 import numpy as np

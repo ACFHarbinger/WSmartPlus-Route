@@ -68,18 +68,63 @@ class HULKOperators:
         self.rng = random.Random(seed) if seed is not None else random.Random()
 
     def apply_unstring_type_i(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Applies Unstringing Type I removal operator.
+
+        Args:
+            solution (Solution): The current solution.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[Solution, List[int]]: The partial solution and the removed nodes.
+        """
         return self._apply_unstring_wrapper(solution, n_remove, 1)
 
     def apply_unstring_type_ii(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Applies Unstringing Type II removal operator.
+
+        Args:
+            solution (Solution): The current solution.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[Solution, List[int]]: The partial solution and the removed nodes.
+        """
         return self._apply_unstring_wrapper(solution, n_remove, 2)
 
     def apply_unstring_type_iii(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Applies Unstringing Type III removal operator.
+
+        Args:
+            solution (Solution): The current solution.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[Solution, List[int]]: The partial solution and the removed nodes.
+        """
         return self._apply_unstring_wrapper(solution, n_remove, 3)
 
     def apply_unstring_type_iv(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Applies Unstringing Type IV removal operator.
+
+        Args:
+            solution (Solution): The current solution.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[Solution, List[int]]: The partial solution and the removed nodes.
+        """
         return self._apply_unstring_wrapper(solution, n_remove, 4)
 
     def apply_unstring_shaw(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Applies Shaw removal operator.
+
+        Args:
+            solution (Solution): The current solution.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[Solution, List[int]]: The partial solution and the removed nodes.
+        """
         routes = [list(r) for r in solution.routes]
         if getattr(self, "profit_aware_operators", False):
             partial, removed = shaw_profit_removal(routes, n_remove, self.dist_matrix, self.wastes, self.R, self.C)
@@ -88,6 +133,15 @@ class HULKOperators:
         return Solution(partial, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed
 
     def apply_unstring_string(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
+        """Applies String removal operator.
+
+        Args:
+            solution (Solution): The current solution.
+            n_remove (int): Number of nodes to remove.
+
+        Returns:
+            Tuple[Solution, List[int]]: The partial solution and the removed nodes.
+        """
         routes = [list(r) for r in solution.routes]
         partial, removed = string_removal(routes, n_remove, self.dist_matrix, rng=self.rng)
         return Solution(partial, self.dist_matrix, self.wastes, self.capacity, self.R, self.C), removed

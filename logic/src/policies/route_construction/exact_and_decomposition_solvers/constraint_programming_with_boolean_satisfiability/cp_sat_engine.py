@@ -1,3 +1,7 @@
+"""
+CP-SAT solver engine using OR-Tools.
+"""
+
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -25,6 +29,15 @@ class CPSATEngine:
         initial_wastes: Dict[int, float],
         capacity: float = 1.0,
     ):
+        """
+        Initializes the CP-SAT engine.
+
+        Args:
+            config: Configuration parameters.
+            distance_matrix: Distance matrix between nodes.
+            initial_wastes: Initial waste levels at customer nodes.
+            capacity: Vehicle capacity.
+        """
         self.config = config
         self.distance_matrix = distance_matrix
         self.initial_wastes = initial_wastes

@@ -58,6 +58,11 @@ class BanditArm:
 
     @property
     def theta(self) -> np.ndarray:
+        """Returns the regression coefficients (weights) for this arm.
+
+        Returns:
+            np.ndarray: Computed theta vector (A_inv @ b).
+        """
         return self.A_inv @ self.b
 
 
@@ -65,6 +70,12 @@ class LinUCBBandit:
     """Contextual bandit with LinUCB arm selection."""
 
     def __init__(self, params: BanditParams, rng: Optional[np.random.Generator] = None):
+        """Initialize the LinUCB bandit coordinator.
+
+        Args:
+            params (BanditParams): Configuration for features, lambda, and exploration.
+            rng (Optional[np.random.Generator]): Random generator for arm shuffling.
+        """
         self.params = params
         self.rng = rng or np.random.default_rng()
         self._arms: List[BanditArm] = []
@@ -95,6 +106,11 @@ class LinUCBBandit:
 
     @property
     def arms(self) -> List[BanditArm]:
+        """Returns a list of all bandit arms (read-only copy).
+
+        Returns:
+            List[BanditArm]: All arms managed by the bandit.
+        """
         return list(self._arms)
 
     def select_arm(self, context: np.ndarray) -> Tuple[int, str, str, float]:
@@ -145,6 +161,11 @@ class LinUCBBandit:
     # ------------------------------------------------------------------
 
     def summary(self) -> List[Dict[str, Union[float, str]]]:
+        """Generates a diagnostic summary of arm performance.
+
+        Returns:
+            List[Dict[str, Union[float, str]]]: List of statistics per arm.
+        """
         return [
             {
                 "engine": a.engine,

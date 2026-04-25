@@ -1,3 +1,7 @@
+"""
+Evaluator for Chance-Constrained Optimization (COP) subproblems.
+"""
+
 import itertools
 from typing import Dict, FrozenSet, List, Tuple
 
@@ -12,6 +16,13 @@ class COPEvaluator:
     """
 
     def __init__(self, dist_matrix: np.ndarray, num_nodes: int):
+        """
+        Initializes the COP evaluator.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            num_nodes: Total number of nodes in the graph.
+        """
         self.dist_matrix = dist_matrix
         self.num_nodes = num_nodes
         self.cost_cache: Dict[FrozenSet[int], float] = {}

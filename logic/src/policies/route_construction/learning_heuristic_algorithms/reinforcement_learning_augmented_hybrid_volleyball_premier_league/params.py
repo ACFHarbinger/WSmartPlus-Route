@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 # Standard library
 from dataclasses import dataclass, field
 from typing import Any, Optional, Tuple

@@ -1,3 +1,5 @@
+"""Configuration for the Scenario-Tree Extensive Form policy."""
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -41,6 +43,7 @@ class ScenarioTreeExtensiveFormConfig:
     seed: Optional[int] = 42
 
     def __post_init__(self):
+        """Validate configuration parameters."""
         if self.num_days < 1:
             raise ValueError("num_days must be at least 1")
         if self.num_realizations < 1:

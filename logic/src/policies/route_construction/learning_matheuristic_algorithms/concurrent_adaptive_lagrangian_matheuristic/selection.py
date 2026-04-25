@@ -204,6 +204,7 @@ def _run_greedy(
     visited = set(tour)
 
     def insertion_cost(route: List[int], b: int) -> Tuple[int, float]:
+        """insertion_cost docstring."""
         best_pos = 1
         best_delta = float("inf")
         for k in range(len(route) - 1):

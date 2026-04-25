@@ -1,3 +1,10 @@
+"""
+State feature extraction for Reinforcement Learning in VRP policies.
+
+Provides utilities to convert complex optimization states into
+normalized feature vectors and discrete state indices.
+"""
+
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -20,6 +27,13 @@ class StateFeatureExtractor:
         stagnation_thresholds: Optional[Tuple[int, int]] = None,
         diversity_thresholds: Optional[Tuple[float, float]] = None,
     ):
+        """Initialize the state feature extractor with custom binning thresholds.
+
+        Args:
+            progress_thresholds (Optional[Tuple[float, float]]): Thresholds for search progress bins.
+            stagnation_thresholds (Optional[Tuple[int, int]]): Thresholds for stagnation count bins.
+            diversity_thresholds (Optional[Tuple[float, float]]): Thresholds for diversity metric bins.
+        """
         self.progress_thresholds = progress_thresholds or (0.33, 0.67)
         self.stagnation_thresholds = stagnation_thresholds or (10, 30)
         self.diversity_thresholds = diversity_thresholds or (0.3, 0.7)
@@ -121,5 +135,13 @@ class StateFeatureExtractor:
         return (phase, stag, div)
 
     def state_to_index(self, state_tuple: Tuple[int, int, int]) -> int:
+        """Converts a discretized state tuple into a flat scalar index.
+
+        Args:
+            state_tuple (Tuple[int, int, int]): Tuple of (phase, stagnation, diversity).
+
+        Returns:
+            int: Unique index representing the combined state.
+        """
         phase, stag, div = state_tuple
         return phase * 9 + stag * 3 + div

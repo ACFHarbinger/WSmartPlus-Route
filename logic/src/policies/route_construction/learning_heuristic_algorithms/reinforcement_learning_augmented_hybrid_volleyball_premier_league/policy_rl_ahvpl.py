@@ -52,6 +52,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[RLAHVPLConfig, Dict[str, Any]]] = None):
+        """__init__ docstring."""
         super().__init__(config)
 
     @classmethod

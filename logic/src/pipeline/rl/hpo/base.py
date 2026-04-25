@@ -113,6 +113,14 @@ class BaseHPO(ABC):
         objective_fn: Callable,
         search_space: Optional[Dict[str, ParamSpec]] = None,
     ):
+        """
+        Initializes the base HPO backend.
+
+        Args:
+            cfg: The root application configuration.
+            objective_fn: Callable that trains a model for one trial and returns the scalar metric to maximise.
+            search_space: Normalised search-space mapping.
+        """
         self.cfg = cfg
         self.objective_fn = objective_fn
         self.search_space = search_space or normalise_search_space(cfg.hpo.search_space)

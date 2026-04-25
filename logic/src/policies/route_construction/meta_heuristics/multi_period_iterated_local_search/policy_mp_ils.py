@@ -1,3 +1,7 @@
+"""
+Multi-Period Iterated Local Search (MP-ILS) policy.
+"""
+
 import copy
 import random
 from typing import Any, Dict, List, Optional, Tuple
@@ -41,6 +45,12 @@ class MultiPeriodILSPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the Multi-Period ILS policy.
+
+        Args:
+            config: Optional configuration dictionary or Hydra config.
+        """
         super().__init__(config)
         self.params = MP_ILS_Params.from_config(config)
         self.max_iter = self.params.iters

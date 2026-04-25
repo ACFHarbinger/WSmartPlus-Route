@@ -37,6 +37,12 @@ class AHVPLPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[AHVPLConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the AHVPL policy.
+
+        Args:
+            config: Optional configuration dictionary or Hydra config.
+        """
         super().__init__(config)
 
     @classmethod

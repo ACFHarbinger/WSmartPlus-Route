@@ -136,6 +136,15 @@ def regret_k_insertion(  # noqa: C901
     node_route_cache: Dict[int, List[Tuple[float, int]]] = {}
 
     def get_best_for_route(node_id: int, r_idx: int) -> Tuple[float, int]:
+        """Calculates the best insertion cost and position for a node in a specific route.
+
+        Args:
+            node_id (int): ID of the node to insert.
+            r_idx (int): Index of the target route.
+
+        Returns:
+            Tuple[float, int]: (Best insertion cost, best position index).
+        """
         route = routes[r_idx]
         node_waste = wastes.get(node_id, 0)
         if loads[r_idx] + node_waste > capacity:
@@ -387,6 +396,15 @@ def regret_k_profit_insertion(  # noqa: C901
     node_route_cache: Dict[int, List[Tuple[float, int]]] = {}
 
     def get_best_for_route_profit(node_id: int, r_idx: int) -> Tuple[float, int]:
+        """Calculates the best insertion profit and position for a node in a specific route.
+
+        Args:
+            node_id (int): ID of the node to insert.
+            r_idx (int): Index of the target route.
+
+        Returns:
+            Tuple[float, int]: (Best insertion profit, best position index).
+        """
         route = routes[r_idx]
         node_waste = wastes.get(node_id, 0)
         if loads[r_idx] + node_waste > capacity:
@@ -415,6 +433,14 @@ def regret_k_profit_insertion(  # noqa: C901
         return best_r_profit, best_r_pos
 
     def get_seed_profit_regret(node_id: int) -> float:
+        """Calculates the profit of starting a new route with the given node.
+
+        Args:
+            node_id (int): ID of the node to seed.
+
+        Returns:
+            float: Profit of the new route.
+        """
         node_waste = wastes.get(node_id, 0)
         revenue = node_waste * R
         new_cost = dist_matrix[0, node_id] + dist_matrix[node_id, 0]

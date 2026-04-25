@@ -1,3 +1,7 @@
+"""
+Individual representation for the (μ,κ,λ) Evolution Strategy.
+"""
+
 import copy
 from typing import List
 

@@ -222,6 +222,7 @@ class CALMParams:
         return cls(**top_kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
+        """to_dict docstring."""
         out: Dict[str, Any] = {}
         for f in fields(self):
             val = getattr(self, f.name)

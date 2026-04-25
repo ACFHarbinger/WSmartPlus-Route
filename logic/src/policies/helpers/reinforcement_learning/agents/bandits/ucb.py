@@ -1,3 +1,7 @@
+"""
+UCB Bandit Module.
+"""
+
 from collections import deque
 from typing import Any, Deque, Dict, List, Optional
 

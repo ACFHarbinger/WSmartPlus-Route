@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 from __future__ import annotations
 
 from typing import Dict
@@ -32,6 +36,7 @@ class ScenarioPrizeEngine:
         tau: float = 100.0,  # max bin capacity
         overflow_penalty: float = 2.0,  # revenue multiplier for overflow risk
     ):
+        """__init__ docstring."""
         self.tree = scenario_tree
         self.gamma = gamma
         self.tau = tau

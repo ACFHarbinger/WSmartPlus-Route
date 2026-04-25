@@ -47,6 +47,15 @@ class TPKSPolicy(BaseRoutingPolicy):
         return [], 0.0, 0.0
 
     def execute(self, **kwargs) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+        """
+        Executes the Two-Phase Kernel Search policy.
+
+        Args:
+            **kwargs: Keyword arguments containing problem parameters.
+
+        Returns:
+            A tuple of (tour, cost, profit, search_context, multi_day_context).
+        """
         params = TPKSParams.from_config(self.config)
 
         tour, obj_val, cost = run_tpks_gurobi(

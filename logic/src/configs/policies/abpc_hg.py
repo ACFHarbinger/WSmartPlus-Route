@@ -1,3 +1,5 @@
+"""Adaptive Branch-and-Price-and-Cut with Heuristic Guidance (ABPC-HG) configuration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

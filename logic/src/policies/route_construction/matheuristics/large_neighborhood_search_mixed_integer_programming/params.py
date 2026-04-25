@@ -1,3 +1,7 @@
+"""
+Parameters for Large Neighborhood Search Mixed Integer Programming.
+"""
+
 from dataclasses import MISSING, dataclass, fields
 from typing import Any
 
@@ -31,6 +35,15 @@ class LNSMIPParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "LNSMIPParams":
+        """
+        Creates an LNSMIPParams instance from a configuration object.
+
+        Args:
+            config: Configuration object containing parameters.
+
+        Returns:
+            An LNSMIPParams instance.
+        """
         params = {}
         for f in fields(cls):
             val = getattr(config, f.name, f.default)

@@ -28,6 +28,13 @@ class DatasetRepository(SimulationRepository):
     """
 
     def __init__(self, dataset: _DatasetType, sample_id: int = 0):
+        """
+        Initializes the dataset repository.
+
+        Args:
+            dataset: The dataset object containing simulation samples.
+            sample_id: Index of the initial sample to use.
+        """
         self._dataset = dataset
         self._sample = dataset[sample_id]
 

@@ -32,12 +32,15 @@ class PandasExcelDataset(SimulationDataset):
     """
 
     def __init__(self, samples: List[Dict[str, np.ndarray]]):
+        """Initialize the Pandas Excel dataset."""
         self._samples = samples
 
     def __len__(self) -> int:
+        """Return the number of samples in the dataset."""
         return len(self._samples)
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
+        """Return the sample at the given index."""
         return self._samples[index]
 
     @staticmethod

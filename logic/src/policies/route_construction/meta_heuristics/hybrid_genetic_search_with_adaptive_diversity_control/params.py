@@ -32,6 +32,7 @@ class HGSADCParams:
 
     @classmethod
     def from_config(cls, config: "HGSADCConfig") -> "HGSADCParams":
+        """from_config docstring."""
         return cls(
             pop_size=getattr(config, "pop_size", 25),
             mu=getattr(config, "mu", 25),

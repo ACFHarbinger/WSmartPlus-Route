@@ -1,3 +1,5 @@
+"""Time-aware Reinforcement Learning training."""
+
 from typing import TYPE_CHECKING, Optional
 
 import torch

@@ -1,3 +1,7 @@
+"""
+Bandit Agents Module.
+"""
+
 from .base import BanditAgent
 from .epsilon_greedy import EpsilonGreedyBandit
 from .exp3 import EXP3Agent

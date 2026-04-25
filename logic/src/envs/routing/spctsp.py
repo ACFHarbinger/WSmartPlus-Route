@@ -37,6 +37,7 @@ class SPCTSPEnv(PCTSPEnv):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
+        """Initialize the SPCTSP environment."""
         super().__init__(
             generator=generator,
             generator_params=generator_params,

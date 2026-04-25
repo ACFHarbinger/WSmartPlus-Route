@@ -675,10 +675,20 @@ class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
     """
 
     def __init__(self, engines: List[CuttingPlaneEngine]) -> None:
+        """Initializes the composite engine with a list of sub-engines.
+
+        Args:
+            engines (List[CuttingPlaneEngine]): Sub-engines to run.
+        """
         self._engines = engines
 
     @property
     def engines(self) -> List[CuttingPlaneEngine]:
+        """Returns the list of sub-engines.
+
+        Returns:
+            List[CuttingPlaneEngine]: Sub-engines.
+        """
         return self._engines
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
@@ -699,6 +709,11 @@ class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
         return total_added
 
     def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'composite'.
+        """
         return "composite"
 
 
@@ -838,6 +853,7 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
         self.epsilon = epsilon
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:  # noqa: C901
+        """Separate and add cuts based on node visitation frequencies."""
         if master.model is None or not master.lambda_vars:
             return 0
 
@@ -896,6 +912,16 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
                 _ps: List[float] = prefix_sums,
                 _cover_len: int = len(cover),
             ) -> float:
+                """Exact lifting function α_j = max p s.t. w_j + Σ_{top p} ≥ Q.
+
+                Args:
+                    wj (float): Weight of the node being lifted.
+                    _ps (List[float]): Prefix sums of cover weights.
+                    _cover_len (int): Number of nodes in the cover.
+
+                Returns:
+                    float: The computed lifting coefficient.
+                """
                 # Gu et al. (1995a) exact lifting: α_j = max p such that w_j + Σ_{top p} ≥ Q+ε
                 for p in range(_cover_len, -1, -1):
                     if wj + _ps[p] > Q:
@@ -976,6 +1002,12 @@ class SaturatedArcLCIEngine(CuttingPlaneEngine):
     """
 
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
+        """Initializes the saturated-arc LCI engine.
+
+        Args:
+            v_model (VRPPModel): VRPP model for problem data.
+            epsilon (float): Violation threshold for cut generation.
+        """
         self.v_model = v_model
         self.epsilon = epsilon
 

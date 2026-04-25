@@ -86,6 +86,17 @@ class SsHhState:
         initial_score: float = 1.0,
         score_floor: float = 0.01,
     ) -> None:
+        """
+        Initializes the SsHhState.
+
+        Args:
+            op_names: Ordered list of LLH operator names.
+            alpha_ema: EMA smoothing factor.
+            window_size: Size of the sliding window.
+            update_strategy: Strategy to use for score updates.
+            initial_score: The initial score value.
+            score_floor: The minimum score boundary.
+        """
         self.op_names: List[str] = list(op_names)
         self.n: int = len(op_names)
         self.alpha_ema = alpha_ema
@@ -101,6 +112,7 @@ class SsHhState:
         self._history: List[List[float]] = [[] for _ in range(self.n)]
 
     def index(self, name: str) -> int:
+        """Returns the integer index corresponding to the operator name."""
         return self._idx[name]
 
     def reset_scores(self, initial_score: float = 1.0) -> None:

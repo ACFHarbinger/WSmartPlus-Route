@@ -191,6 +191,15 @@ def run_hpo(cfg: Config) -> float:
         if cfg.hpo.method == "dehb":
 
             def dehb_obj(config: Dict[str, Any], fidelity: float) -> Dict[str, float]:
+                """DEHB objective function.
+
+                Args:
+                    config: Sampled configuration.
+                    fidelity: Current fidelity level.
+
+                Returns:
+                    Negative validation reward.
+                """
                 temp_cfg = OmegaConf.to_object(cfg)
                 assert isinstance(temp_cfg, Config)
                 config_dict = config.get_dictionary() if hasattr(config, "get_dictionary") else dict(config)

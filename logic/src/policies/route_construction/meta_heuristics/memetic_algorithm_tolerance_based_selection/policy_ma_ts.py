@@ -21,6 +21,12 @@ class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[MemeticAlgorithmToleranceBasedSelectionConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the Memetic Algorithm Tolerance-Based Selection policy.
+
+        Args:
+            config: Optional configuration dictionary.
+        """
         super().__init__(config)
 
     @classmethod

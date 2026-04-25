@@ -1,3 +1,10 @@
+"""
+Reward shaping strategies for reinforcement learning in optimization search.
+
+Provides mechanisms to transform objective value improvements into
+reinforcement signals, with support for adaptive reward scaling.
+"""
+
 from typing import Dict
 
 
@@ -147,11 +154,26 @@ class AdaptiveRewardShaper(RewardShaper):
     """Adapts rewards based on search progress."""
 
     def __init__(self, *args, adaptation_rate: float = 0.5, **kwargs):
+        """Initialize the adaptive reward shaper.
+
+        Args:
+            *args: Positional arguments for RewardShaper.
+            adaptation_rate (float): Rate at which rewards adapt to search progress.
+            **kwargs: Keyword arguments for RewardShaper.
+        """
         super().__init__(*args, **kwargs)
         self.adaptation_rate = adaptation_rate
         self.base_rewards = {"best": self.best_reward, "local": self.local_reward, "accepted": self.accepted_reward}
 
     def adapt(self, progress: float):
+        """Adapt reward values based on current search progress.
+
+        Boosts acceptance rewards early in the search to encourage exploration,
+        and boosts improvement rewards late in the search for exploitation.
+
+        Args:
+            progress (float): Search completion progress in [0.0, 1.0].
+        """
         # Higher exploration early, higher exploitation late
         exploration_boost = (1.0 - progress) * self.adaptation_rate
         self.accepted_reward = self.base_rewards["accepted"] * (1.0 + exploration_boost)
@@ -161,5 +183,15 @@ class AdaptiveRewardShaper(RewardShaper):
         self.local_reward = self.base_rewards["local"] * (1.0 + exploitation_boost)
 
     def compute_reward(self, *args, progress: float = 0.5, **kwargs) -> float:
+        """Adapts rewards and computes the shaped value.
+
+        Args:
+            *args: Positional arguments for RewardShaper.compute_reward.
+            progress (float): Search completion progress in [0.0, 1.0].
+            **kwargs: Keyword arguments for RewardShaper.compute_reward.
+
+        Returns:
+            float: The adapted and shaped reward value.
+        """
         self.adapt(progress)
         return super().compute_reward(*args, **kwargs)

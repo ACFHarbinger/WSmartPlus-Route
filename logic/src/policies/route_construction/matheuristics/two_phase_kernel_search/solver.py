@@ -1,3 +1,7 @@
+"""
+Two-Phase Kernel Search Solver.
+"""
+
 import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Tuple

@@ -45,6 +45,7 @@ class PCTSPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
+        """Initialize the PCTSP environment."""
         generator_params = generator_params or {}
         if generator is None:
             generator = PCTSPGenerator(**generator_params, device=device)
