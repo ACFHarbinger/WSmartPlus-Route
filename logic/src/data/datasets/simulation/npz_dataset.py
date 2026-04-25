@@ -22,13 +22,16 @@ class NumpyDictDataset(SimulationDataset):
     """
 
     def __init__(self, data: Dict[str, np.ndarray]):
+        """Initialize the NumPy dict dataset."""
         self.data = data
 
     def __len__(self) -> int:
+        """Return the number of samples in the dataset."""
         first_key = next(iter(self.data))
         return self.data[first_key].shape[0]
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
+        """Return the sample at the given index."""
         return {key: arr[index] for key, arr in self.data.items()}
 
     @staticmethod

@@ -74,6 +74,13 @@ class TourAdapter:
     """
 
     def __init__(self, tour: List[int], distance_matrix: np.ndarray) -> None:
+        """
+        Initializes the tour adapter.
+
+        Args:
+            tour: The tour list (can be open or closed).
+            distance_matrix: The distance matrix indexed by node ID.
+        """
         # Operators work on open routes (no closing duplicate).
         route = tour[:-1] if (len(tour) > 1 and tour[0] == tour[-1]) else tour[:]
         self.routes: List[List[int]] = [route]

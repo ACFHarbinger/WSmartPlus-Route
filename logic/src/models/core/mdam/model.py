@@ -54,6 +54,14 @@ def mdam_rollout(
     model = model.to(device)
 
     def eval_model(batch: TensorDict) -> torch.Tensor:
+        """Evaluate the model on a batch of data.
+
+        Args:
+            batch: Data container.
+
+        Returns:
+            Best rewards found across decoders.
+        """
         with torch.inference_mode():
             batch = env.reset(batch.to(device))
             result = model(batch, env, strategy="greedy")

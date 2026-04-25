@@ -96,6 +96,7 @@ class FilterAndFanSelection(IMandatorySelectionStrategy):
         # ── FAN PHASE ────────────────────────────────────────────────────────
         # Objective is separable: O(1) per add/remove move.
         def objective(S: Set[int]) -> float:
+            """Calculates the objective function value for a given set."""
             return float(np.sum(net_profit[list(S)])) if S else 0.0
 
         best_obj = objective(best_set)

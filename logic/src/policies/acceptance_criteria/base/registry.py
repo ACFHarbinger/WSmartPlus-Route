@@ -33,6 +33,15 @@ class AcceptanceCriterionRegistry:
         """
 
         def decorator(criterion_cls: Type[IAcceptanceCriterion]) -> Type[IAcceptanceCriterion]:
+            """
+            Inner decorator function.
+
+            Args:
+                criterion_cls: The acceptance criterion class to register.
+
+            Returns:
+                The registered class.
+            """
             cls._registry[name.lower()] = criterion_cls
             return criterion_cls
 

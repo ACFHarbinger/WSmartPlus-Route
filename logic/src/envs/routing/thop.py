@@ -68,6 +68,7 @@ class ThOPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
+        """Initialize the ThOP environment."""
         generator_params = generator_params or {}
         if generator is None:
             generator = ThOPGenerator(**generator_params, device=device)

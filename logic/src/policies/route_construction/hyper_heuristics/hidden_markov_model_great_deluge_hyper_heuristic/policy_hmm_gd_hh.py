@@ -42,6 +42,12 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[HMMGDHHConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the HMM-GD-HH policy.
+
+        Args:
+            config: Configuration parameters.
+        """
         super().__init__(config)
 
     @classmethod

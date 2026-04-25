@@ -73,6 +73,16 @@ class LoadState:
         capacity: float,
         n_routes: int,
     ):
+        """
+        Initializes the load state.
+
+        Args:
+            route_assignments: Mapping of nodes to route indices.
+            route_loads: Mapping of route indices to total loads.
+            route_penalties: Mapping of route indices to capacity penalties.
+            capacity: Vehicle capacity.
+            n_routes: Number of routes.
+        """
         self.route_assignments = route_assignments
         self.route_loads = route_loads
         self.route_penalties = route_penalties

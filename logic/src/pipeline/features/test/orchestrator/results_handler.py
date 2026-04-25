@@ -1,3 +1,5 @@
+"""Post-processing and aggregation of simulation results."""
+
 import statistics
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple

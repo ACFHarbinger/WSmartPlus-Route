@@ -1,3 +1,7 @@
+"""
+Cost evaluation utilities for Knowledge-Guided Local Search (KGLS).
+"""
+
 import math
 from typing import Dict, List, Tuple
 

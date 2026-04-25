@@ -42,6 +42,7 @@ class ATSPEnv(RL4COEnvBase):
         device: Union[str, torch.device] = "cpu",
         **kwargs,
     ) -> None:
+        """Initialize the ATSP environment."""
         generator_params = generator_params or {}
         if generator is None:
             generator = ATSPGenerator(**generator_params, device=device)

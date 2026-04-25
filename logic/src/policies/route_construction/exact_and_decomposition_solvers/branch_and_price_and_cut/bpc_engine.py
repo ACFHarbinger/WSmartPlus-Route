@@ -638,6 +638,7 @@ def _perform_strong_branching(  # noqa: C901
         cand_id, left_branch, right_branch, _ = cand
 
         def evaluate_branch(arc_set: List[Tuple[int, int]]) -> float:
+            """Evaluates a potential branch by solving the master LP with disabled columns."""
             forbidden_arcs_set = set(arc_set)
             disabled_vars = []
 
@@ -1734,6 +1735,20 @@ def _apply_reduced_cost_edge_fixing(
     z_ub: float,
     z_lb: float,
 ) -> int:
+    """
+    Applies reduced-cost variable fixing for edges.
+
+    Fixes edge variables to zero if their reduced cost exceeds the optimality gap.
+
+    Args:
+        master: Master problem instance.
+        pricing_solver: RCSPP pricing solver.
+        z_ub: Current upper bound (best known solution value).
+        z_lb: Current lower bound (LP relaxation value).
+
+    Returns:
+        Number of edges fixed to zero.
+    """
     gap = z_ub - z_lb
     if gap <= 0:
         return 0

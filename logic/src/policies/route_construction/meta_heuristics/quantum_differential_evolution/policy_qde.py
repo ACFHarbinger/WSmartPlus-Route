@@ -26,6 +26,12 @@ class QDEPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[QDEConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the Quantum Differential Evolution policy.
+
+        Args:
+            config: Optional configuration dictionary or Hydra config.
+        """
         super().__init__(config)
 
     @classmethod

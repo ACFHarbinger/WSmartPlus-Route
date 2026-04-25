@@ -28,12 +28,15 @@ class PandasCsvDataset(SimulationDataset):
     """
 
     def __init__(self, sample: Dict[str, Any]):
+        """Initialize the Pandas CSV dataset."""
         self._sample = sample
 
     def __len__(self) -> int:
+        """Return the number of samples in the dataset."""
         return 1
 
     def __getitem__(self, index: int) -> Dict[str, Any]:
+        """Return the sample at the given index."""
         if index != 0:
             raise IndexError("PandasCsvDataset only contains one sample.")
         return self._sample

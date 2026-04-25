@@ -352,6 +352,7 @@ class HGSSolver:
         """Binary tournament selection on pre-computed fitness values."""
 
         def tournament() -> Individual:
+            """Performs binary tournament selection."""
             i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 

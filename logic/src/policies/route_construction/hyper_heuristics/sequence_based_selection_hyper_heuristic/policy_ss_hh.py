@@ -33,6 +33,12 @@ class SSHHPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Union[SSHHConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the Sequence-Based Selection Hyper-Heuristic policy.
+
+        Args:
+            config: Configuration parameters.
+        """
         super().__init__(config)
 
     @classmethod

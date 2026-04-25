@@ -88,6 +88,14 @@ class MoE(nn.Module):
         elif num_neurons is not None and len(num_neurons) > 0:
 
             def build_mlp(dims: list) -> nn.Sequential:
+                """Construct a multi-layer perceptron for an expert.
+
+                Args:
+                    dims: List of hidden dimensions.
+
+                Returns:
+                    Sequential model representing the MLP.
+                """
                 layers = []
                 in_dim = input_size
                 for hidden in dims:

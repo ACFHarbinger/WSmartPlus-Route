@@ -23,12 +23,15 @@ class NumpyPickleDataset(SimulationDataset):
     """
 
     def __init__(self, data: List[Tuple[Any, ...]]):
+        """Initialize the NumPy pickle dataset."""
         self._data = data
 
     def __len__(self) -> int:
+        """Return the number of samples in the dataset."""
         return len(self._data)
 
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
+        """Return the sample at the given index."""
         sample = self._data[index]
         if len(sample) == 5:
             depot, locs, waste, noisy_waste, max_waste = sample

@@ -1,3 +1,7 @@
+"""
+Multi-Period Particle Swarm Optimization (MP-PSO) policy.
+"""
+
 import copy
 import random
 from typing import Any, Dict, List, Optional, Tuple
@@ -38,6 +42,12 @@ class MultiPeriodPSOPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the Multi-Period PSO policy.
+
+        Args:
+            config: Optional configuration dictionary or Hydra config.
+        """
         super().__init__(config)
         self.params = MP_PSO_Params.from_config(config)
         self.swarm_size = self.params.swarm_size

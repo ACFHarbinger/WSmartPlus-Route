@@ -1,3 +1,5 @@
+"""Simulation monitoring and dashboard updates."""
+
 import statistics
 import sys
 import time

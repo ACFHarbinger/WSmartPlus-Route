@@ -1,3 +1,7 @@
+"""
+Configuration parameters for the Two-Phase Kernel Search (TPKS) matheuristic.
+"""
+
 from __future__ import annotations
 
 from dataclasses import MISSING, dataclass, fields
@@ -52,6 +56,14 @@ class TPKSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "TPKSParams":
+        """Creates a TPKSParams instance from a Hydra or OmegaConf configuration object.
+
+        Args:
+            config (Any): Configuration object with parameter overrides.
+
+        Returns:
+            TPKSParams: Initialized parameter dataclass.
+        """
         params = {}
         for f in fields(cls):
             val = getattr(config, f.name, f.default)
@@ -62,4 +74,9 @@ class TPKSParams:
         return cls(**params)
 
     def to_dict(self):
+        """Converts the parameter dataclass into a standard Python dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of the parameters.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

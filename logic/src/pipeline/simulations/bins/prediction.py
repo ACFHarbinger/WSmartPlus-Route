@@ -33,6 +33,12 @@ class ScenarioTree:
         result = []
 
         def traverse(node: ScenarioTreeNode):
+            """
+            Recursively traverse the tree.
+
+            Args:
+                node: Current scenario tree node to traverse.
+            """
             if node.day == day:
                 result.append(node)
             else:
@@ -56,6 +62,16 @@ class ScenarioGenerator:
         distribution: str = "mean",
         dist_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """
+        Initializes the scenario generator.
+
+        Args:
+            method: The generation method to use.
+            horizon: Simulation horizon.
+            seed: Random seed.
+            distribution: Statistical distribution to use for waste levels.
+            dist_kwargs: Additional arguments for the distribution.
+        """
         self.method = method
         self.horizon = horizon
         self.seed = seed

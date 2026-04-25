@@ -130,6 +130,7 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
     """Multi-period Concurrent Adaptive Lagrangian Matheuristic (CALM) policy."""
 
     def __init__(self, config: Any = None):
+        """__init__ docstring."""
         super().__init__(config)
         self.params = CALMParams.from_config(self.config) if config else CALMParams()
         # Align BaseMultiPeriodRoutingPolicy defaults.

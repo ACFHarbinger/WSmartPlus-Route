@@ -73,6 +73,7 @@ class RLGDHHSolver:
         params: RLGDHHParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """__init__ docstring."""
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity

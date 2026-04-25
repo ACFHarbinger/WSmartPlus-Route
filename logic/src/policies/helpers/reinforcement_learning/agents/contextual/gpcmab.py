@@ -1,3 +1,7 @@
+"""
+Gaussian Process Combinatorial Multi-Armed Bandit (GP-CMAB) agent implementation.
+"""
+
 import pickle
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -102,6 +106,15 @@ class GPCMABAgent(ContextualBanditAgent):
         self.alpha_vec = self.K_inv @ np.array(self.y_history)
 
     def select_action(self, context: np.ndarray, rng: np.random.Generator) -> int:
+        """Selects an action based on the GP-UCB acquisition function.
+
+        Args:
+            context (np.ndarray): The current context vector.
+            rng (np.random.Generator): Random number generator for tie-breaking.
+
+        Returns:
+            int: The index of the selected arm.
+        """
         self.trials += 1
         ucb_scores = np.zeros(self.n_arms)
         for arm in range(self.n_arms):
@@ -123,6 +136,15 @@ class GPCMABAgent(ContextualBanditAgent):
         return int(rng.integers(0, self.n_arms))
 
     def select_super_arm(self, context: np.ndarray, rng: np.random.Generator) -> List[int]:
+        """Selects a super-arm (subset of arms) using the GP-UCB acquisition function.
+
+        Args:
+            context (np.ndarray): The current context vector.
+            rng (np.random.Generator): Random number generator for tie-breaking.
+
+        Returns:
+            List[int]: List of indices of the selected arms.
+        """
         self.trials += 1
         ucb_scores = np.zeros(self.n_arms)
         for arm in range(self.n_arms):
@@ -142,6 +164,15 @@ class GPCMABAgent(ContextualBanditAgent):
     def update(
         self, context: np.ndarray, action: int, reward: float, next_context: Any = None, done: bool = False
     ) -> None:
+        """Updates the GP posterior with a new observation.
+
+        Args:
+            context (np.ndarray): The context vector of the observation.
+            action (int): The arm that was played.
+            reward (float): The observed reward.
+            next_context (Any): Optional next context (unused in GP-CMAB).
+            done (bool): Whether the episode is finished (unused in GP-CMAB).
+        """
         x_new = self._encode_input(context, action)
         if len(self.X_history) >= self.max_history:
             self.X_history.pop(0)
@@ -177,6 +208,11 @@ class GPCMABAgent(ContextualBanditAgent):
         self.actions.append(action)
 
     def get_statistics(self) -> Dict[str, Any]:
+        """Returns internal state statistics for monitoring.
+
+        Returns:
+            Dict[str, Any]: Mapping of metric names to their values.
+        """
         return {
             "trials": self.trials,
             "n_arms": self.n_arms,
@@ -186,9 +222,19 @@ class GPCMABAgent(ContextualBanditAgent):
         }
 
     def get_weights(self) -> Optional[np.ndarray]:
+        """Returns the current GP alpha vector (dual weights).
+
+        Returns:
+            Optional[np.ndarray]: Copy of the alpha vector if it exists.
+        """
         return self.alpha_vec.copy() if self.alpha_vec is not None else None
 
     def save(self, path: str) -> None:
+        """Serializes the agent state to a file.
+
+        Args:
+            path (str): File system path to save the state.
+        """
         state = {
             "n_arms": self.n_arms,
             "feature_dim": self.d,
@@ -204,6 +250,11 @@ class GPCMABAgent(ContextualBanditAgent):
             pickle.dump(state, f)
 
     def load(self, path: str) -> None:
+        """Loads agent state from a file.
+
+        Args:
+            path (str): File system path to load the state from.
+        """
         with open(path, "rb") as f:
             state = pickle.load(f)
         self.X_history = state["X_history"]
@@ -213,6 +264,7 @@ class GPCMABAgent(ContextualBanditAgent):
         self.trials = state.get("trials", 0)
 
     def reset(self) -> None:
+        """Clears the observation history and resets the GP posterior."""
         super().reset()
         self.X_history = []
         self.y_history = []

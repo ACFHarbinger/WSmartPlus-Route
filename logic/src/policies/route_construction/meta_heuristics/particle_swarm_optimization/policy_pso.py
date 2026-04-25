@@ -1,3 +1,7 @@
+"""
+Particle Swarm Optimization (PSO) policy.
+"""
+
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 

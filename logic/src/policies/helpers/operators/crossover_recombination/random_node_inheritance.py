@@ -1,3 +1,5 @@
+"""Random Node Inheritance Crossover (RNIX)."""
+
 from __future__ import annotations
 
 import random

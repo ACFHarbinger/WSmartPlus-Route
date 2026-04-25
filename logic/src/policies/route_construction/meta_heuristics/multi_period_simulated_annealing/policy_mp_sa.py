@@ -1,3 +1,7 @@
+"""
+Multi-Period Simulated Annealing (MP-SA) policy.
+"""
+
 import copy
 import math
 import random
@@ -37,6 +41,12 @@ class MultiPeriodSimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the Multi-Period Simulated Annealing policy.
+
+        Args:
+            config: Optional configuration dictionary or Hydra config.
+        """
         super().__init__(config)
         self.params = MP_BMC_Params.from_config(config)
         self.max_iter = self.params.iters

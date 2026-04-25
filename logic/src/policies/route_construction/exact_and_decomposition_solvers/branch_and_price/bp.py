@@ -214,6 +214,12 @@ class BranchAndPriceSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[int], float, Dict[str, Any]]:
+        """
+        Solves the VRPP using Branch-and-Price.
+
+        Returns:
+            A tuple containing (best_tour, best_profit, statistics).
+        """
         # Use the full B&P tree for all branching strategies.
         # _solve_without_branching is kept as a fast path only when
         # branching_strategy is explicitly set to "none" or similar sentinel.

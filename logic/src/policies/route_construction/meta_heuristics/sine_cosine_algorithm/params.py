@@ -1,3 +1,7 @@
+"""
+Configuration parameters for the Sine Cosine Algorithm (SCA).
+"""
+
 from __future__ import annotations
 
 import dataclasses

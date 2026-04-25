@@ -13,6 +13,13 @@ class Population:
     """
 
     def __init__(self, target_size: int, nb_close: int):
+        """
+        Initializes the sub-population manager.
+
+        Args:
+            target_size: Desired number of individuals in each sub-population.
+            nb_close: Number of closest neighbors to consider for diversity.
+        """
         self.feas: List[Individual] = []
         self.inf: List[Individual] = []
         self.target_size = target_size

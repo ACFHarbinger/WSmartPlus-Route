@@ -18,6 +18,13 @@ class PSOMAParticle:
     """
 
     def __init__(self, routes: List[List[int]], profit: float):
+        """
+        Initializes a PSO-MA particle.
+
+        Args:
+            routes: Initial routes for the particle.
+            profit: Initial profit for the particle.
+        """
         self.routes = routes
         self.profit = profit
         self.pbest_routes = copy.deepcopy(routes)

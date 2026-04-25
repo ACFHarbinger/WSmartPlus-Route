@@ -1,3 +1,7 @@
+"""
+Configuration parameters for the Exact Stochastic Dynamic Programming (ESDP) solver.
+"""
+
 from dataclasses import dataclass
 from typing import Any, Dict
 
@@ -32,6 +36,7 @@ class SDPParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert parameters to a dictionary."""
         return {
             "time_limit": self.time_limit,
             "num_days": self.num_days,

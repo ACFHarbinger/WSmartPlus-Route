@@ -1,3 +1,7 @@
+"""
+Relax-and-Fix and Optimize (RFO) policy implementation.
+"""
+
 import math
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -52,6 +56,12 @@ class RelaxFixOptimizePolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the RFO policy.
+
+        Args:
+            config: Optional Hydra configuration.
+        """
         super().__init__(config)
         self.params = RFOParams.from_config(config)
         self.window_size = self.params.window_size

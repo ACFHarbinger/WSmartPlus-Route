@@ -1,3 +1,5 @@
+"""Configuration for various acceptance criteria used in local search and metaheuristics."""
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 

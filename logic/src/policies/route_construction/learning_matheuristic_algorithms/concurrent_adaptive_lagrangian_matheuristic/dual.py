@@ -79,7 +79,13 @@ class DualBoundTracker(ABC):
         ...
 
     @abstractmethod
-    def current_dual_bound(self) -> float: ...
+    def current_dual_bound(self) -> float:
+        """Returns the current best Lagrangian lower bound.
+
+        Returns:
+            float: Best dual bound found.
+        """
+        ...
 
     @abstractmethod
     def suggest_step(self, current_lambdas: np.ndarray, aggregate_subgrad: np.ndarray) -> Tuple[np.ndarray, float]:
@@ -121,6 +127,14 @@ class EMADualBoundTracker(DualBoundTracker):
         n_bins: int,
         horizon: int,
     ):
+        """Initializes the EMA dual bound tracker.
+
+        Args:
+            dual_params (DualBoundParams): Parameters for the tracker.
+            lag_params (LagrangianParams): Lagrangian-specific parameters.
+            n_bins (int): Number of customer bins.
+            horizon (int): Planning horizon.
+        """
         self.params = dual_params
         self.lag_params = lag_params
         self.n_bins = n_bins
@@ -147,6 +161,18 @@ class EMADualBoundTracker(DualBoundTracker):
         lagrangian_value_contrib: float,
         tour_quality_ratio: float,
     ) -> bool:
+        """Submits a per-period subgradient for EMA aggregation.
+
+        Args:
+            period (int): Period index.
+            lambdas (np.ndarray): Multipliers at which subgradient was evaluated.
+            subgrad (np.ndarray): Per-period subgradient.
+            lagrangian_value_contrib (float): Period's contribution to Lagrangian objective.
+            tour_quality_ratio (float): Ratio of RS tour cost to period incumbent.
+
+        Returns:
+            bool: True if the submission was accepted (gated by quality ratio).
+        """
         with self._lock:
             gated = tour_quality_ratio <= self.params.ema_quality_threshold
             if gated:
@@ -164,6 +190,11 @@ class EMADualBoundTracker(DualBoundTracker):
             return False
 
     def current_dual_bound(self) -> float:
+        """Returns the current best Lagrangian lower bound.
+
+        Returns:
+            float: Best dual bound found.
+        """
         with self._lock:
             return self._best_lagrangian if np.isfinite(self._best_lagrangian) else float("-inf")
 
@@ -207,6 +238,11 @@ class EMADualBoundTracker(DualBoundTracker):
         return new_lambdas, step
 
     def ema_snapshot(self) -> np.ndarray:
+        """Returns a snapshot of the current EMA subgradients.
+
+        Returns:
+            np.ndarray: Copy of the internal EMA array.
+        """
         with self._lock:
             return self._ema.copy()
 
@@ -272,6 +308,14 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
         n_bins: int,
         horizon: int,
     ):
+        """Initializes the proximal bundle tracker.
+
+        Args:
+            dual_params (DualBoundParams): Parameters for the tracker.
+            lag_params (LagrangianParams): Lagrangian-specific parameters.
+            n_bins (int): Number of customer bins.
+            horizon (int): Planning horizon.
+        """
         self.params = dual_params
         self.lag_params = lag_params
         self.n_bins = n_bins
@@ -323,9 +367,16 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
             return True
 
     def commit_outer_iteration(self, lambdas: np.ndarray, full_lagrangian_value: float) -> bool:
-        """
-        Called once per outer iteration after all periods have submitted.
+        """Called once per outer iteration after all periods have submitted.
+
         Decides whether this is a serious step or a null step.
+
+        Args:
+            lambdas (np.ndarray): Multipliers at which the iteration was completed.
+            full_lagrangian_value (float): Total Lagrangian value across all periods.
+
+        Returns:
+            bool: True if a serious step was taken, False if a null step.
         """
         with self._lock:
             # Replace any partial-period bundle entries at this lambda with a
@@ -344,6 +395,11 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
                 return False
 
     def current_dual_bound(self) -> float:
+        """Returns the current best Lagrangian lower bound.
+
+        Returns:
+            float: Best dual bound found.
+        """
         with self._lock:
             return self._best_value if np.isfinite(self._best_value) else float("-inf")
 
@@ -419,6 +475,17 @@ def build_dual_bound_tracker(
     n_bins: int,
     horizon: int,
 ) -> DualBoundTracker:
+    """Factory function to build the requested DualBoundTracker strategy.
+
+    Args:
+        dual_params (DualBoundParams): Parameters specifying the strategy.
+        lag_params (LagrangianParams): Lagrangian parameters.
+        n_bins (int): Number of customer bins.
+        horizon (int): Planning horizon.
+
+    Returns:
+        DualBoundTracker: The instantiated tracker.
+    """
     strat = dual_params.strategy.lower()
     if strat == "ema":
         return EMADualBoundTracker(dual_params, lag_params, n_bins, horizon)

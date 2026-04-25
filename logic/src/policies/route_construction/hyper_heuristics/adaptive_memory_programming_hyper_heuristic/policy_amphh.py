@@ -1,3 +1,7 @@
+"""
+Module documentation.
+"""
+
 import copy
 import random
 from typing import Any, Dict, List, Optional, Tuple
@@ -51,6 +55,7 @@ class AMPHHPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """__init__ docstring."""
         super().__init__(config)
         self.params = AMPHHParams.from_config(config)
         self.mem_size = self.params.mem_size

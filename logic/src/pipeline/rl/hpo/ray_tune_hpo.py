@@ -104,6 +104,17 @@ class RayTuneHPO(BaseHPO):
         mlflow_tracking_uri: Optional[str] = None,
         mlflow_experiment_name: Optional[str] = None,
     ) -> None:
+        """
+        Initializes the RayTuneHPO backend.
+
+        Args:
+            cfg: The root application configuration.
+            objective_fn: Callable that trains a model for one trial and returns the validation reward.
+            search_space: Optional pre-normalised search space dict.
+            scheduler: Which scheduler to use ("asha", "pbt", "bohb").
+            mlflow_tracking_uri: MLflow server URI.
+            mlflow_experiment_name: MLflow experiment name.
+        """
         super().__init__(cfg, objective_fn, search_space)
         self._scheduler_name = scheduler
         self._mlflow_tracking_uri = mlflow_tracking_uri

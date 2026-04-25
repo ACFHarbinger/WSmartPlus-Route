@@ -78,6 +78,7 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
         min_dist_to_S = dist_mat[0, 1:].copy()
 
         def get_total_objective(current_min_dists):
+            """Calculates the total objective function value."""
             # f(S) = sum max(0, r_i - alpha * d_i)
             vals = revenues - alpha * current_min_dists
             return np.sum(np.maximum(0, vals)), SearchContext.initialize(
@@ -92,6 +93,7 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
 
         # Marginal gain g(k | S) = f(S union {k}) - f(S)
         def compute_marginal_gain(k_idx, current_min_dists):
+            """Computes the marginal gain of adding a given index to the current selection."""
             # Optimization: gain contribution only comes from 'affected' indices
             # where the new point k provides a closer distance than the current set S.
             k_dists = dist_mat[k_idx + 1, 1:]

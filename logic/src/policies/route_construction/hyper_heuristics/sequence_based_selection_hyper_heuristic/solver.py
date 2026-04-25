@@ -96,6 +96,18 @@ class SSHHSolver:
         params: SSHHParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """
+        Initializes the Sequence-Based Selection Hyper-Heuristic solver.
+
+        Args:
+            dist_matrix: Distance matrix.
+            wastes: Mapping from node index to waste volume.
+            capacity: Vehicle capacity.
+            R: Revenue parameter.
+            C: Cost parameter.
+            params: SSHH parameters.
+            mandatory_nodes: Optional list of mandatory nodes.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity

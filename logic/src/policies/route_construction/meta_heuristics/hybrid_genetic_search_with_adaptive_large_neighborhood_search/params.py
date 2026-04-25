@@ -1,3 +1,7 @@
+"""
+Parameters for the Hybrid Genetic Search with Adaptive Large Neighborhood Search (HGS-ALNS).
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

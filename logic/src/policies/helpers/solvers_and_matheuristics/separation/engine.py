@@ -941,6 +941,7 @@ class SeparationEngine:
         components: Dict[int, Set[int]] = {i: {i} for i in range(n)}
 
         def find(i):
+            """Finds the root of the disjoint set for node i."""
             if parent[i] == i:
                 return i
             parent[i] = find(parent[i])

@@ -1,3 +1,10 @@
+"""
+Hyperparameter Encoder for HPO.
+
+Provides the HyperparameterEncoder module which encodes hyperparameter
+configurations into fixed-size embeddings for use in neural architectures.
+"""
+
 from typing import Any, Dict, Optional
 
 import numpy as np

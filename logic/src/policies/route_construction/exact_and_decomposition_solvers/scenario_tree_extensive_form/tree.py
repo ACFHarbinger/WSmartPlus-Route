@@ -1,3 +1,10 @@
+"""
+Scenario tree construction for stochastic optimization.
+
+Defines the tree structure and construction logic for multi-stage
+stochastic programming where uncertainty is modeled as discrete scenarios.
+"""
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -30,6 +37,15 @@ class ScenarioTree:
         mean_increment: float,
         seed: Optional[int] = 42,
     ):
+        """Initialize the scenario tree.
+
+        Args:
+            num_days (int): Depth of the tree (stages).
+            num_realizations (int): Branching factor at each node.
+            customers (List[int]): List of customer indices for realization mapping.
+            mean_increment (float): Average demand increment per stage.
+            seed (Optional[int]): Random seed for scenario generation.
+        """
         self.num_days = num_days
         self.num_realizations = num_realizations
         self.customers = customers
@@ -93,7 +109,17 @@ class ScenarioTree:
         return [n for n in self.nodes.values() if n.day == day]
 
     def get_root(self) -> ScenarioNode:
+        """Returns the root node of the tree.
+
+        Returns:
+            ScenarioNode: The node at day 0.
+        """
         return self.nodes[0]
 
     def get_leaves(self) -> List[ScenarioNode]:
+        """Returns all leaf nodes in the tree.
+
+        Returns:
+            List[ScenarioNode]: Nodes at the maximum depth (final day).
+        """
         return [n for n in self.nodes.values() if not n.children_ids]

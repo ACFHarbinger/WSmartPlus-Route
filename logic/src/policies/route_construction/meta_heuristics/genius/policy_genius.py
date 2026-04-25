@@ -24,6 +24,12 @@ class GENIUSPolicy(BaseRoutingPolicy):
     """GENIUS (GENI + US) policy class."""
 
     def __init__(self, config: Optional[Union[GENIUSConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the GENIUS policy.
+
+        Args:
+            config: Optional Hydra configuration.
+        """
         super().__init__(config)
 
     @classmethod

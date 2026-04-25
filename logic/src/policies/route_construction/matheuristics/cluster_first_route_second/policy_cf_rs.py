@@ -45,6 +45,12 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """
+        Initializes the Cluster-First Route-Second policy.
+
+        Args:
+            config: Optional configuration dictionary.
+        """
         super().__init__(config)
 
     @classmethod

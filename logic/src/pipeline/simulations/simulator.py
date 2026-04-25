@@ -269,9 +269,21 @@ class SimpleCounter:
     """
 
     def __init__(self, val=0):
+        """
+        Initializes the simple counter.
+
+        Args:
+            val: Initial value.
+        """
         self.value = val
 
     def update(self, n=1):
+        """
+        Updates the counter by adding n.
+
+        Args:
+            n: Value to add.
+        """
         self.value += n
 
 
@@ -294,6 +306,18 @@ class ProgressUpdater:
     """
 
     def __init__(self, display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter):
+        """
+        Initializes the progress updater wrapper.
+
+        Args:
+            display: The display object to update.
+            shared_metrics: The shared metrics dictionary to update.
+            log_tmp: The temporary log dictionary to update.
+            last_reported_days: The last reported days dictionary to update.
+            policy_names: The list of policy names.
+            loop_tic: The loop tic value.
+            counter: The counter object.
+        """
         self.display = display
         self.shared_metrics = shared_metrics
         self.log_tmp = log_tmp

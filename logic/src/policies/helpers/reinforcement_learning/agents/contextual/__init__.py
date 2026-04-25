@@ -1,3 +1,7 @@
+"""
+Contextual Bandits Module.
+"""
+
 from .base import ContextualBanditAgent
 from .gpcmab import GPCMABAgent
 from .linucb import LinUCBAgent

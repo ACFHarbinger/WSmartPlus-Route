@@ -1,3 +1,5 @@
+"""Parallel execution engine for simulations."""
+
 import multiprocessing as mp
 import os
 from multiprocessing.pool import Pool

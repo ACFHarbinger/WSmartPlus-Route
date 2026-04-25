@@ -79,6 +79,18 @@ class MemeticAlgorithmIslandModelSolver:
         params: MemeticAlgorithmIslandModelParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
+        """
+        Initializes the Memetic Algorithm Island Model solver.
+
+        Args:
+            dist_matrix: Distance matrix between nodes.
+            wastes: Dictionary mapping node indices to waste amounts.
+            capacity: Vehicle capacity.
+            R: Revenue per unit collected.
+            C: Cost per unit distance.
+            params: MA-IM parameters.
+            mandatory_nodes: Optional list of nodes that must be visited.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity

@@ -55,12 +55,28 @@ def _kruskal_two_clusters(route: List[int], dist_matrix: np.ndarray, d_max: floa
     rank = [0] * n
 
     def find(x: int) -> int:
+        """
+        Finds the root of the element x with path halving.
+
+        Args:
+            x: Element to find.
+
+        Returns:
+            The root of element x.
+        """
         while parent[x] != x:
             parent[x] = parent[parent[x]]
             x = parent[x]
         return x
 
     def union(x: int, y: int) -> None:
+        """
+        Unions the sets containing x and y by rank.
+
+        Args:
+            x: First element.
+            y: Second element.
+        """
         rx, ry = find(x), find(y)
         if rx == ry:
             return

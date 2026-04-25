@@ -364,6 +364,14 @@ class FPTASKnapsackSelection(IMandatorySelectionStrategy):
         alpha: float = 0.5,
         overflow_penalty_frac: float = 1.0,
     ) -> None:
+        """
+        Initializes the FPTAS knapsack selection.
+
+        Args:
+            epsilon: Precision parameter.
+            alpha: Alpha parameter.
+            overflow_penalty_frac: Fraction of overflow penalty.
+        """
         if not 0.0 < epsilon < 1.0:
             raise ValueError(f"epsilon must be in (0, 1), got {epsilon!r}")
         if not 0.0 <= alpha <= 1.0:

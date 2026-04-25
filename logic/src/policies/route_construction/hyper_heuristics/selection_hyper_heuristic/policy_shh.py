@@ -1,3 +1,7 @@
+"""
+Selection Hyper-Heuristic (SHH) policy implementation.
+"""
+
 import copy
 import random
 from typing import Any, Dict, List, Optional, Tuple
@@ -39,6 +43,12 @@ class SelectionHHPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Any = None):
+        """
+        Initializes the Selection Hyper-Heuristic policy.
+
+        Args:
+            config: Configuration parameters.
+        """
         super().__init__(config)
         self.params = SHHParams.from_config(config)
         self.iters = self.params.iters

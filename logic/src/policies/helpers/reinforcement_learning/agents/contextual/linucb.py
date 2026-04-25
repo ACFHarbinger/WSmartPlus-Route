@@ -1,3 +1,7 @@
+"""
+LinUCB Bandit Module.
+"""
+
 import contextlib
 from typing import Any, Dict, List, Optional
 

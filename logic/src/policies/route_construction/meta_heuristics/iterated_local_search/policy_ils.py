@@ -27,6 +27,12 @@ class ILSPolicy(BaseRoutingPolicy):
     """Iterated Local Search policy class."""
 
     def __init__(self, config: Optional[Union[ILSConfig, Dict[str, Any]]] = None):
+        """
+        Initializes the ILS policy.
+
+        Args:
+            config: Optional configuration dictionary.
+        """
         super().__init__(config)
 
     @classmethod

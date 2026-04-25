@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
-from logic.src.policiesW.acceptance_criteria.base.factory import AcceptanceCriterionFactory
+from logic.src.policies.acceptance_criteria.base.factory import AcceptanceCriterionFactory
 
 
 @dataclass
