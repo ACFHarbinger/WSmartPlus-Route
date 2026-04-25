@@ -3,6 +3,13 @@ Base Multi-Period Routing Policy.
 
 Provides a template for routing policies that perform T-period optimization
 over a scenario tree, rather than myopic single-day routing.
+
+Attributes:
+    BaseMultiPeriodRoutingPolicy: Policy for multi-period stochastic routing.
+
+Example:
+    >>> from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
+    >>> # subclass and implement _run_multi_period_solver
 """
 
 from __future__ import annotations
@@ -33,6 +40,11 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
     - Scenario tree traversal.
     - Future mandatory node prediction.
     - Overflow (stockout) penalty calculation.
+
+    Attributes:
+        horizon (int): Planning horizon in days (T).
+        stockout_penalty (float): Penalty per unit of waste overflow (>100%).
+
     """
 
     def __init__(self, config: Any = None):
@@ -47,7 +59,18 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
         self.stockout_penalty: float = getattr(self.config, "stockout_penalty", 500.0)
 
     def _get_scenario_tree(self, kwargs: Dict[str, Any]) -> ScenarioTree:
-        """Extract the scenario tree from the simulation context."""
+        """Extract the scenario tree from the simulation context.
+
+        Args:
+            kwargs: Context dictionary containing 'scenario_tree'.
+
+        Returns:
+            The extracted ScenarioTree instance.
+
+        Raises:
+            ValueError: If 'scenario_tree' is missing from kwargs.
+        """
+
         tree = kwargs.get("scenario_tree")
         if tree is None:
             raise ValueError(f"{type(self).__name__} requires a ScenarioTree in the context.")
@@ -56,12 +79,16 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
     def _predict_mandatory_nodes_for_horizon(
         self, tree: ScenarioTree, initial_mandatory: List[int]
     ) -> Dict[int, List[int]]:
-        """
-        Predict mandatory nodes for each day in the horizon based on the tree.
+        """Predict mandatory nodes for each day in the horizon based on the tree.
+
+        Args:
+            tree: Scenario tree representing stochastic waste growth.
+            initial_mandatory: List of nodes mandatory for the current day (day 0).
 
         Returns:
-            Dict[day, list_of_bin_ids]
+            Dictionary mapping day offsets (0 to T) to lists of mandatory bin IDs.
         """
+
         mandatory_map: Dict[int, List[int]] = {0: initial_mandatory}
 
         # We traverse the main scenario path (or all branches) to identify
@@ -135,27 +162,53 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Dummy implementation of the single-period solver.
+        """Dummy implementation of the single-period solver.
 
         Multi-period policies override the execute() method directly (or rely on
         the BaseMultiPeriodRoutingPolicy override) to call _run_multi_period_solver,
         so this method is never invoked in the SIRP workflow.
+
+        Args:
+            sub_dist_matrix: Subset distance matrix.
+            sub_wastes: Local wastes dict.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit.
+            cost_unit: Cost per distance unit.
+            values: Merged config values.
+            mandatory_nodes: Local indices of mandatory nodes.
+            kwargs: Additional keyword arguments.
+
+
+        Returns:
+            Tuple of (empty_routes, 0.0 profit, 0.0 cost).
         """
+
         return [], 0.0, 0.0
 
     def execute(
         self, **kwargs: Any
     ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-        """
-        Executes the multi-period routing policy.
+        """Executes the multi-period routing policy.
+
+        This implementation extends the base execution by building a `ProblemContext`,
+        invoking the multi-period solver, and updating the `MultiDayContext` with
+        the full plan snapshot.
 
         Args:
-            **kwargs: Keyword arguments containing context parameters.
+            kwargs: Keyword arguments containing context parameters:
+
+                - area (str): Geographic area name.
+                - waste_type (str): Waste type (e.g., "plastic").
+                - config (dict): Policy configuration overrides.
+                - multi_day_context (MultiDayContext): Persistence across days.
+                - search_context (SearchContext): Metrics and telemetry ledger.
+                - bins: Bins state object.
+                - distance_matrix: NxN distance matrix.
 
         Returns:
             A tuple of (tour, cost, profit, search_context, multi_day_context).
         """
+
         from logic.src.interfaces.context.problem_context import ProblemContext
 
         # 1. Load area params (unchanged — uses existing _load_area_params)

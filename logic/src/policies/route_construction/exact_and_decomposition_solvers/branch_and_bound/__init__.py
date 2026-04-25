@@ -1,5 +1,4 @@
-"""
-Branch-and-Bound Policy Module.
+"""Branch-and-Bound Policy Module.
 
 This package implements the foundational Branch-and-Bound (BB) algorithm for exact
 combinatorial optimization, specifically specialized for the Vehicle Routing
@@ -9,11 +8,16 @@ Implementation follows the methodology proposed by Land and Doig (1960), utilizi
 Linear Programming (LP) relaxations to provide rigorous mathematical bounds during
 tree exploration.
 
-**Architecture**:
-- `mtz.py`: MTZ (Miller-Tucker-Zemlin) compact formulation
-- `dfj.py`: DFJ (Dantzig-Fulkerson-Johnson) lazy cut formulation
-- `dispatcher.py`: Unified interface for formulation selection
-- `policy_bb.py`: Policy adapter integrating with the simulation framework
+Attributes:
+    BranchAndBoundPolicy (class): Main policy adapter for BB solvers.
+    run_bb_optimizer (function): Unified dispatcher for BB formulations.
+    run_bb_mtz (function): Miller-Tucker-Zemlin compact solver.
+    run_bb_dfj (function): Dantzig-Fulkerson-Johnson lazy cut solver.
+    run_bb_lr_uop (function): Lagrangian Relaxation with uncapacitated OP bounding.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound import run_bb_optimizer
+    >>> routes, obj = run_bb_optimizer(dist_matrix, wastes, capacity, R, C)
 """
 
 from .dfj import run_bb_dfj

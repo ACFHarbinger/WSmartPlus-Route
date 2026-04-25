@@ -1,6 +1,6 @@
-"""
-Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.
+"""Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.
 
+Provides modular separation algorithms for VRPP-specific valid inequalities:
 Provides modular separation algorithms for VRPP-specific valid inequalities:
 - RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing
   requirements (Lysgaard et al. 2004). Essential for problems with fractional
@@ -30,6 +30,18 @@ References:
       Operations Research, 56(2), 497-511.
     - Balas, E. (1975). "Facets of the knapsack polytope."
       Mathematical Programming, 8(1), 146-164 (Cover inequalities).
+
+Attributes:
+    CuttingPlaneEngine (class): Abstract base class for separation engines.
+    RoundedCapacityCutEngine (class): RCC separation logic.
+    SubsetRowCutEngine (class): SRI separation logic.
+    EdgeCliqueCutEngine (class): Fleet cover logic.
+    KnapsackCoverEngine (class): Generic knapsack cover logic.
+    CompositeCuttingPlaneEngine (class): Orchestrator for multiple engines.
+
+Example:
+    >>> engine = create_cutting_plane_engine("rcc", v_model, sep_engine)
+    >>> cuts_added = engine.separate_and_add_cuts(master, max_cuts=10)
 """
 
 import hashlib
@@ -49,36 +61,36 @@ from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPP
 
 
 class CuttingPlaneEngine(ABC):
-    """
-    Abstract base class for cutting plane separation engines.
+    """Abstract base class for cutting plane separation engines.
 
     Each engine implements a specific family of valid inequalities and
     provides separation algorithms to identify violated cuts.
 
-    Implementations must only add globally valid inequalities. Cuts that
-    are valid only at the current B&B node (e.g. cuts that use branching
-    constraint data as parameters) must not be registered in the global
-    cut pool.
+    Attributes:
+        None (abstract).
     """
 
     @abstractmethod
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
-        """
-        Identify violated cuts and add them to the master problem.
+        """Identify violated cuts and add them to the master problem.
 
         Args:
-            master: Master problem instance
-            max_cuts: Maximum number of cuts to add
-            **kwargs: Engine-specific parameters
+            master: Master problem instance.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Engine-specific parameters (e.g., node_depth, thresholds).
 
         Returns:
-            Number of cuts added
+            int: Number of cuts added.
         """
         pass
 
     @abstractmethod
     def get_name(self) -> str:
-        """Return the engine name for logging."""
+        """Return the engine name for logging.
+
+        Returns:
+            str: Name of the engine.
+        """
         pass
 
     @property
@@ -91,10 +103,17 @@ class CuttingPlaneEngine(ABC):
         return []
 
     def _is_orthogonal(self, candidate_vec: np.ndarray, active_vecs: List[np.ndarray], threshold: float = 0.8) -> bool:
-        """
-        Task 9 (SOTA): Cut Orthogonality filtering.
-        Calculates maximum cosine similarity between candidate vector and active vectors.
+        """Calculates maximum cosine similarity between candidate and active vectors.
+
         Rejects if similarity > threshold (i.e. if cut is too parallel to existing cuts).
+
+        Args:
+            candidate_vec: Coefficient vector of the new cut.
+            active_vecs: List of coefficient vectors of existing cuts.
+            threshold: Maximum allowed cosine similarity.
+
+        Returns:
+            bool: True if orthogonal enough, False otherwise.
         """
         if not active_vecs:
             return True
@@ -114,8 +133,7 @@ class CuttingPlaneEngine(ABC):
 
 
 class RoundedCapacityCutEngine(CuttingPlaneEngine):
-    r"""
-    Rounded Capacity Cut (RCC) separation engine for VRPP Set Partitioning.
+    r"""Rounded Capacity Cut (RCC) separation engine for VRPP Set Partitioning.
 
     Derived from the physical payload capacity (Q) of the fleet, RCCs are a
     standard family of valid inequalities for the Capacitated Vehicle Routing
@@ -160,22 +178,24 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
     References:
     -----------
     Lysgaard et al. (2004), Section 3.2: "Capacity cuts"
+
+    Attributes:
+        v_model (VRPPModel): Model for edge indexing and demand tracking.
+        sep_engine (SeparationEngine): Internal engine for cut separation.
     """
 
     def __init__(self, v_model: VRPPModel, sep_engine: SeparationEngine):
-        """
-        Initialize the RCC separation engine.
+        """Initialize the RCC separation engine.
 
         Args:
-            v_model: VRPP model for edge indexing and demand tracking
-            sep_engine: Separation engine from branch-and-cut module
+            v_model: VRPP model for edge indexing and demand tracking.
+            sep_engine: Separation engine from branch-and-cut module.
         """
         self.v_model = v_model
         self.sep_engine = sep_engine
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
-        """
-        Separate RCCs and add to master problem.
+        """Separate RCCs and add to master problem.
 
         Algorithm:
         1. Get current edge usage from master problem's LP solution
@@ -185,12 +205,12 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
         4. Add violated cuts to master with Set Packing relaxation
 
         Args:
-            master: Master problem instance
-            max_cuts: Maximum number of cuts to add
-            **kwargs: Unused (for interface consistency)
+            master: Master problem instance.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Unused (for interface consistency).
 
         Returns:
-            Number of cuts added
+            int: Number of cuts added.
         """
         # Task 2: Exact separation requires flow conservation on elementary routes.
         # Use filtered edge usage to prevent invalid cut generation from cyclic support.
@@ -260,11 +280,11 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
 
 
 class SubsetRowCutEngine(CuttingPlaneEngine):
-    """
-    Subset-Row Inequality (SRI) separation engine.
+    """Subset-Row Inequality (SRI) separation engine.
 
     The Subset-Row Inequalities are a class of Chvátal-Gomory rank-1
     inequalities derived from the Set Partitioning Problem (SPP) formulation.
+
     They are essential for tightening the LP relaxation when solving VRPs
     with column generation.
 
@@ -298,6 +318,9 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
     transition. A labeling state must track how many nodes of S it has
     visited. When the count transitions from 1 to 2, the dual value π_SRI
     is subtracted from the path profit (or added to reduced cost).
+
+    Attributes:
+        v_model (VRPPModel): Model for node indexing and route tracking.
     """
 
     def __init__(self, v_model: VRPPModel):
@@ -312,9 +335,9 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         """Identifies violated 3-Subset-Row Inequalities (SRIs) using structural heuristics.
 
         Args:
-            master (VRPPMasterProblem): Master problem instance with current fractional solution.
-            max_cuts (int): Maximum number of SRI cuts to add in this separation round.
-            **kwargs: Additional parameters, such as cut_orthogonality_threshold.
+            master: Master problem instance with current fractional solution.
+            max_cuts: Maximum number of SRI cuts to add in this separation round.
+            kwargs: Additional parameters, such as cut_orthogonality_threshold.
 
         Returns:
             int: The number of SRI cuts successfully added to the master problem.
@@ -371,12 +394,15 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         return added
 
     def _evaluate_and_add_sri(self, master: VRPPMasterProblem, node_set: Set[int], **kwargs) -> bool:
-        """
-        Calculate SRI violation and add to master if violated.
+        """Calculate SRI violation and add to master if violated.
 
-        Task 9 (SOTA): Cut Similarity Filtering.
-        Evaluates the violation and similarity of the proposed SRI to the
-        active cut pool. Rejects if similarity > threshold.
+        Args:
+            master: Master problem instance.
+            node_set: Set of nodes in the candidate triplet.
+            kwargs: Threshold parameters.
+
+        Returns:
+            bool: True if cut was added, False otherwise.
         """
         val = 0.0
         coeff_dict: Dict[str, float] = {}
@@ -412,8 +438,15 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
     def _is_orthogonal_content(
         self, candidate_dict: Dict[str, float], active_vecs: List[Dict[str, float]], threshold: float = 0.8
     ) -> bool:
-        """
-        Fix 4: Content-keyed orthogonality check.
+        """Content-keyed orthogonality check.
+
+        Args:
+            candidate_dict: Coefficients of candidate cut.
+            active_vecs: List of existing cut coefficient dicts.
+            threshold: Orthogonality threshold.
+
+        Returns:
+            bool: True if orthogonal, False otherwise.
         """
         if not active_vecs:
             return True
@@ -445,8 +478,7 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
 
 
 class EdgeCliqueCutEngine(CuttingPlaneEngine):
-    """
-    Fleet Cover Inequality (Edge-Clique) separation engine.
+    """Fleet Cover Inequality (Edge-Clique) separation engine.
 
     This engine separates valid inequalities derived from conflict graphs
     on the route-selection variables. Specifically, it identifies cliques
@@ -481,15 +513,19 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
     2. Build an edge-indexed map of crossing routes.
     3. Identify "oversaturated" edges where fractional routes sum to > 1.0.
     4. Register the clique constraint to prune the fractional space.
+
+    Attributes:
+        v_model (VRPPModel): Model for edge indexing.
+        capacity (float): Physical capacity of the arc.
+        epsilon (float): Violation threshold.
     """
 
     def __init__(self, v_model: VRPPModel, capacity: float = 1.0, epsilon: float = 0.01) -> None:
-        """
-        Initialize the LCI separation engine.
+        """Initialize the EdgeClique separation engine.
 
         Args:
             v_model: VRPP model for edge indexing.
-            capacity: Physical capacity of the arc (default 1.0 for VRP).
+            capacity: Physical capacity of the arc.
             epsilon: Violation threshold.
         """
         self.v_model = v_model
@@ -497,8 +533,15 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
         self.epsilon = epsilon
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:  # noqa: C901
-        """
-        Identify violated LCIs by lifting minimal covers.
+        """Identify violated LCIs by lifting minimal covers.
+
+        Args:
+            master: Master problem instance.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Unused (for interface consistency).
+
+        Returns:
+            int: Number of cuts added.
         """
         if master.model is None or not master.lambda_vars:
             return 0
@@ -580,8 +623,7 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
 
 
 class KnapsackCoverEngine(CuttingPlaneEngine):
-    """
-    Separates Cover Inequalities for knapsack constraints in the Master Problem.
+    """Separates Cover Inequalities for knapsack constraints in the Master Problem.
 
     In the VRPP context, this primarily targets the fleet size (vehicle limit)
     constraint (Σ λ_k ≤ K) or any other resource knapsacks. While simpler
@@ -610,6 +652,10 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
     specifically targeting the most fractional routes in the solution.
 
     Reference: Barnhart et al. (2000), Section 5.
+
+    Attributes:
+        v_model (VRPPModel): Model for node and fleet data.
+        sep_engine (SeparationEngine): Shared separation utilities.
     """
 
     def __init__(self, v_model: VRPPModel, sep_engine: SeparationEngine):
@@ -623,8 +669,15 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
         self.sep_engine = sep_engine
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
-        """
-        Identify and add violated cover inequalities for the vehicle limit.
+        """Identify and add violated cover inequalities for the vehicle limit.
+
+        Args:
+            master: Master problem instance.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Unused (for interface consistency).
+
+        Returns:
+            int: Number of cuts added.
         """
         # Task 4 & 6: LCI already handles fleet-size tightening more effectively.
         # This engine serves as a fallback or for non-fleet knapsacks.
@@ -670,8 +723,10 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
 
 
 class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
-    """
-    Combines multiple separation engines to run in sequence.
+    """Combines multiple separation engines to run in sequence.
+
+    Attributes:
+        _engines (List[CuttingPlaneEngine]): Sub-engines to run.
     """
 
     def __init__(self, engines: List[CuttingPlaneEngine]) -> None:
@@ -695,9 +750,9 @@ class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
         """Runs separation algorithms for all sub-engines in sequence.
 
         Args:
-            master (VRPPMasterProblem): Master problem instance.
-            max_cuts (int): Total maximum cuts to add (split among sub-engines).
-            **kwargs: Forwarded to sub-engines.
+            master: Master problem instance.
+            max_cuts: Total maximum cuts to add (split among sub-engines).
+            kwargs: Forwarded to sub-engines.
 
         Returns:
             int: Total number of cuts added by all sub-engines.
@@ -718,17 +773,14 @@ class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
 
 
 class BasicFleetCoverEngine(CuttingPlaneEngine):
-    """
-    Separates basic cover inequalities for the fleet-size knapsack.
+    """Separates basic cover inequalities for the fleet-size knapsack.
 
     The fleet-size constraint Σλₖ ≤ K is a 0-1 knapsack where every route
-    has weight 1. A cover C is any subset of routes with |C| > K. The cover
-    inequality Σ_{k∈C} λₖ ≤ K is valid and violated when the top K+1
-    fractional routes sum to more than K.
+    has weight 1.
 
-    This engine is a strict uniform knapsack cover. It does not implement
-    true sequence-independent lifting because for a uniform knapsack,
-    all lifting coefficients theoretically collapse to 1.0.
+    Attributes:
+        v_model (VRPPModel): Model for fleet limits.
+        epsilon (float): Violation threshold for cut generation.
     """
 
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
@@ -742,12 +794,19 @@ class BasicFleetCoverEngine(CuttingPlaneEngine):
         self.epsilon = epsilon
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
-        """
-        Separate and add basic fleet cover inequalities.
+        """Separate and add basic fleet cover inequalities.
 
         Identifies a violated cover C (a set of routes with |C| > K whose
         fractional values sum to more than K) and adds the basic cover
         inequality Σ_{k∈C} λ_k ≤ K to the master problem.
+
+        Args:
+            master: Master problem instance.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Unused (for interface consistency).
+
+        Returns:
+            int: Number of cuts added.
         """
         if master.vehicle_limit is None or not master.lambda_vars:
             return 0
@@ -813,8 +872,7 @@ class BasicFleetCoverEngine(CuttingPlaneEngine):
 
 
 class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
-    """
-    Separates Lifted Cover Inequalities (LCI) over node-visit knapsacks.
+    """Separates Lifted Cover Inequalities (LCI) over node-visit knapsacks.
 
     Targets the heterogeneous physical capacity knapsack (Σ_{i ∈ S} q_i y_i ≤ Q),
     where q_i is the demand of customer i and Q is the vehicle capacity.
@@ -840,6 +898,10 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
     - Sort nodes by visitation probability y_i to find heuristic covers.
     - Compute lifting coefficients using prefix sums of sorted demands.
     - Map node-alphas to route-coefficients and register the cut in the RMP.
+
+    Attributes:
+        v_model (VRPPModel): Model for node demands.
+        epsilon (float): Violation threshold for cut generation.
     """
 
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
@@ -853,7 +915,16 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
         self.epsilon = epsilon
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:  # noqa: C901
-        """Separate and add cuts based on node visitation frequencies."""
+        """Separate and add cuts based on node visitation frequencies.
+
+        Args:
+            master: Master problem instance.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Unused (for interface consistency).
+
+        Returns:
+            int: Number of cuts added.
+        """
         if master.model is None or not master.lambda_vars:
             return 0
 
@@ -999,6 +1070,10 @@ class SaturatedArcLCIEngine(CuttingPlaneEngine):
     arc across multiple fractional routes; this constitutes arc saturation.
     The corresponding capacity knapsack is:
         Σ_{k : arc ∈ route_k} λ_k ≤ 1   (arc capacity = 1 in unit-flow VRP)
+
+    Attributes:
+        v_model (VRPPModel): Model for problem data.
+        epsilon (float): Violation threshold for cut generation.
     """
 
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
@@ -1012,11 +1087,15 @@ class SaturatedArcLCIEngine(CuttingPlaneEngine):
         self.epsilon = epsilon
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:  # noqa: C901
-        """
-        Separate saturated-arc LCIs and add to master.
+        """Separate saturated-arc LCIs and add to master.
+
+        Args:
+            master: Master problem instance.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Unused (for interface consistency).
 
         Returns:
-            Number of cuts added.
+            int: Number of cuts added.
         """
         if master.model is None or not master.lambda_vars:
             return 0
@@ -1136,19 +1215,19 @@ def create_cutting_plane_engine(
     v_model: VRPPModel,
     sep_engine: Optional[SeparationEngine] = None,
 ) -> CuttingPlaneEngine:
-    """
-    Factory function to create cutting plane engines.
+    """Factory function to create cutting plane engines.
 
     Args:
-        engine_name: Name of the engine ("rcc", "src", "cover", or "all")
-        v_model: VRPP model for problem data
-        sep_engine: Separation engine (required for RCC/SRC)
+        engine_name: Name of the engine ("rcc", "sri", "edge_clique", "fleet_cover",
+            "physical_lci", "saturated_arc_lci", "cover", "all", "composite").
+        v_model: VRPP model for problem data.
+        sep_engine: Separation engine (required for RCC/SRC/Cover).
 
     Returns:
-        Instance of the requested cutting plane engine
+        CuttingPlaneEngine: Instance of the requested cutting plane engine.
 
     Raises:
-        ValueError: If engine_name is not recognized or required args missing
+        ValueError: If engine_name is not recognized or required args missing.
 
     Example:
         >>> sep_engine = SeparationEngine(v_model)

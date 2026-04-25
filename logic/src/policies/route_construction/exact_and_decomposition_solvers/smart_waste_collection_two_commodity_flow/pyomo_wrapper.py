@@ -1,6 +1,12 @@
-"""
-Pyomo implementation of the SWC-TCF algorithm.
+r"""Pyomo implementation of the SWC-TCF algorithm.
+
 Serves as the high-level Algebraic Modeling Language (AML) baseline.
+
+Attributes:
+    _run_pyomo_tcf_optimizer: Solves TCF using Pyomo.
+
+Example:
+    >>> res = _run_pyomo_tcf_optimizer(bins, dist, values, ids, mandatory)
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -22,7 +28,23 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     seed: int = 42,
     dual_values: Optional[Dict[int, float]] = None,
 ) -> Tuple[List[int], float, float]:
-    """Builds and solves the SWC-TCF using Pyomo."""
+    """Builds and solves the SWC-TCF using Pyomo.
+
+    Args:
+        bins (NDArray[np.float64]): Array of bin fill levels.
+        distance_matrix (List[List[float]]): Distance matrix between nodes.
+        values (Dict[str, float]): Problem parameters (Omega, delta, psi, Q, R, B, C, V).
+        binsids (List[int]): Global identifiers for bins.
+        mandatory_nodes (List[int]): IDs of bins that must be collected.
+        number_vehicles (int): Maximum number of vehicles.
+        time_limit (int): Solver time limit in seconds.
+        solver_id (str): Pyomo solver backend ID ('scip', 'gurobi', etc.).
+        seed (int): Random seed for reproducibility.
+        dual_values (Optional[Dict[int, float]]): Dual values for pricing subproblems.
+
+    Returns:
+        Tuple[List[int], float, float]: (route, profit, cost)
+    """
     # 1. Parameter Extraction
     Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
     Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]

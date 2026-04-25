@@ -1,5 +1,10 @@
-"""
-Configuration parameters for the Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy.
+r"""Configuration parameters for the Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy.
+
+Attributes:
+    SWCTCFParams: Dataclass for TCF solver configuration.
+
+Example:
+    >>> params = SWCTCFParams(framework="ortools", engine="gurobi")
 """
 
 from __future__ import annotations
@@ -31,6 +36,12 @@ class SWCTCFParams:
 
         Performs explicit type casting for numeric fields to ensure consistency
         with the framework's configuration loading logic.
+
+        Args:
+            config (Any): The configuration object or dictionary.
+
+        Returns:
+            SWCTCFParams: The initialized parameters.
         """
         if config is None:
             return cls()
@@ -56,5 +67,9 @@ class SWCTCFParams:
         return cls(**kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert Params to a dictionary."""
+        """Convert Params to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary of parameter values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

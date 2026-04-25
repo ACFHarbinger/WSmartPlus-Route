@@ -1,5 +1,10 @@
-"""
-Parameter dataclasses for Progressive Hedging (PH) solver.
+r"""Parameter dataclasses for Progressive Hedging (PH) solver.
+
+Attributes:
+    PHParams: Dataclass for PH solver configuration.
+
+Example:
+    >>> params = PHParams(rho=0.5, max_iterations=100)
 """
 
 from dataclasses import dataclass
@@ -8,8 +13,17 @@ from typing import Any, Dict, Optional
 
 @dataclass
 class PHParams:
-    """
-    Standardized parameters for the PH solver.
+    r"""Standardized parameters for the PH solver.
+
+    Attributes:
+        rho (float): Penalty parameter for consensus deviation.
+        max_iterations (int): Maximum PH iterations.
+        convergence_tol (float): Primal residual threshold for convergence.
+        sub_solver (str): Solver to use for scenario subproblems.
+        num_scenarios (int): Number of scenarios for evaluation.
+        time_limit (float): Overall time limit in seconds.
+        verbose (bool): Enable verbose logging.
+        seed (Optional[int]): Random seed for scenario generation.
     """
 
     rho: float = 1.0
@@ -27,10 +41,10 @@ class PHParams:
         Create a PHParams instance from a raw configuration dictionary.
 
         Args:
-            config: Dictionary containing parameter overrides.
+            config (Dict[str, Any]): Dictionary containing parameter overrides.
 
         Returns:
-            A PHParams instance with values mapped from the config.
+            PHParams: A PHParams instance with values mapped from the config.
         """
         return cls(
             rho=float(config.get("rho", 1.0)),
@@ -44,8 +58,10 @@ class PHParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert parameters to a dictionary.
+        """Convert parameters to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary of parameter values.
         """
         return {
             "rho": self.rho,

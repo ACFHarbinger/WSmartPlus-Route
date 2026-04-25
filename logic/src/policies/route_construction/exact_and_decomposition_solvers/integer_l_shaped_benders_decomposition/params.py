@@ -1,5 +1,4 @@
-r"""
-Configuration parameters for the Integer L-Shaped (Benders Decomposition) solver.
+r"""Configuration parameters for the Integer L-Shaped (Benders Decomposition) solver.
 
 Based on:
     Laporte, G., & Louveaux, F. V. (1993). "The integer L-shaped method for
@@ -9,6 +8,13 @@ Based on:
     Kleywegt, A. J., Shapiro, A., & Homem-de-Mello, T. (2002). "The sample
     average approximation method for stochastic discrete optimization". SIAM
     Journal on Optimization, 12(2), 479-502.
+
+Attributes:
+    ILSBDParams (class): Parameters for the Integer L-Shaped solver.
+
+Example:
+    >>> params = ILSBDParams(n_scenarios=50, time_limit=600.0)
+    >>> config_dict = params.to_dict()
 """
 
 from __future__ import annotations

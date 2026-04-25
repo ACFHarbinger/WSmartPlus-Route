@@ -36,6 +36,15 @@ References:
     Fischetti, M., Lodi, A., & Toth, P. (1997). "A Branch-and-Cut Algorithm for
     the Symmetric Generalized Traveling Salesman Problem". Operations Research,
     45(2), 326-349.
+
+Attributes:
+    MasterProblem (class): Gurobi master problem for Benders decomposition.
+    InventoryMasterProblem (class): Extended master problem for inventory-routing.
+
+Example:
+    >>> master = MasterProblem(model, params)
+    >>> master.build()
+    >>> routes, y_hat, theta_hat, obj = master.solve()
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -84,8 +93,8 @@ class MasterProblem:
         """Initialise the master problem container.
 
         Args:
-            model: VRPPModel instance providing graph topology, costs, and profits.
-            params: ILSBDParams controlling all solver parameters.
+            model (VRPPModel): VRPPModel instance providing graph topology, costs, and profits.
+            params (ILSBDParams): ILSBDParams controlling all solver parameters.
 
         Raises:
             ImportError: If gurobipy is not installed or not licensed.
@@ -236,12 +245,12 @@ class MasterProblem:
         ``params.time_limit`` (which the calling engine updates between iterations).
 
         Returns:
-            Tuple of (routes, y_hat, theta_hat, obj_MP):
-                routes: List of customer-only route lists (depot index excluded).
-                         Empty list if no feasible solution was found.
-                y_hat:  Dict {node_idx: 0.0 or 1.0} visit decisions.
-                theta_hat: Value of the surrogate variable θ in the optimal solution.
-                obj_MP:    Master problem objective value (travel_cost − revenue + θ).
+            Tuple[List[List[int]], Dict[int, float], float, float]: A tuple containing:
+                - routes: List of customer-only route lists (depot index excluded).
+                          Empty list if no feasible solution was found.
+                - y_hat: Dictionary {node_idx: 0.0 or 1.0} visit decisions.
+                - theta_hat: Value of the surrogate variable θ in the optimal solution.
+                - obj_MP: Master problem objective value (travel_cost − revenue + θ).
         """
         assert self._gurobi_model is not None
         assert GUROBI_AVAILABLE and GRB is not None
@@ -455,13 +464,12 @@ class InventoryMasterProblem(MasterProblem):
     ``day ∈ {0, …, T-1}``.
 
     Attributes:
-        T: Planning horizon (number of days).
-        demand_matrix: Array of shape ``(T, N)`` with expected demand increments
-            per day per node (mean scenario).
-        bin_capacities: Array of shape ``(N,)`` with capacity (100.0 for %).
-        initial_inventory: Array of shape ``(N,)`` with initial fill levels.
-        stockout_penalty: Penalty per unit of overflow slack.
-        big_m: Big-M constant for collection coupling constraints.
+        horizon (int): Planning horizon (number of days).
+        demand_matrix (np.ndarray): Array of shape (T, N) with expected demand increments.
+        bin_capacities (np.ndarray): Array of shape (N,) with capacity.
+        initial_inventory (np.ndarray): Array of shape (N,) with initial fill levels.
+        stockout_penalty (float): Penalty per unit of overflow slack.
+        big_m (float): Big-M constant for collection coupling constraints.
     """
 
     def __init__(
@@ -607,7 +615,7 @@ class InventoryMasterProblem(MasterProblem):
         """Extract the optimal inventory plan after solve().
 
         Returns:
-            Dict mapping ``(node_id, day)`` to inventory level :math:`I_{it}`.
+            Dict[Tuple[int, int], float]: Mapping of (node_id, day) to inventory level.
         """
         if self._gurobi_model is None or self._gurobi_model.SolCount == 0:
             return {}
@@ -617,7 +625,7 @@ class InventoryMasterProblem(MasterProblem):
         """Extract the optimal collection plan after solve().
 
         Returns:
-            Dict mapping ``(node_id, day)`` to collected quantity :math:`q_{it}`.
+            Dict[Tuple[int, int], float]: Mapping of (node_id, day) to collected quantity.
         """
         if self._gurobi_model is None or self._gurobi_model.SolCount == 0:
             return {}

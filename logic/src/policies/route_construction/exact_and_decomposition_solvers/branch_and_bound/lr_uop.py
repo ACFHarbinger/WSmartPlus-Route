@@ -1,5 +1,4 @@
-"""
-Lagrangian Relaxation + Branch-and-Bound (LR-UOP) solver for VRPP.
+"""Lagrangian Relaxation + Branch-and-Bound (LR-UOP) solver for VRPP.
 
 Entry point for the "lr_uop" formulation dispatched from dispatcher.py.
 
@@ -52,6 +51,16 @@ References:
 
     Fisher, M. L. (1981). The Lagrangian Relaxation Method for Solving Integer
     Programming Problems. Management Science, 27(1), 1–18.
+
+Attributes:
+    _LRNode (class): A node in the Lagrangian Relaxation B&B search tree.
+    _select_branch_customer (function): Branching logic helper.
+    run_bb_lr_uop (function): Main entry point for LR-UOP solver.
+    _visited_to_routes (function): Route reconstruction helper.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.lr_uop import run_bb_lr_uop
+    >>> routes, obj = run_bb_lr_uop(dist_matrix, wastes, capacity, R, C)
 """
 
 import heapq
@@ -173,6 +182,7 @@ def run_bb_lr_uop(
         mandatory_indices:  Customers that MUST appear in every feasible solution.
         env:              Optional shared Gurobi environment.
         recorder:         Optional telemetry recorder.
+        kwargs:           Additional arguments.
 
     Returns:
         (routes, objective_value) matching the dispatcher contract:

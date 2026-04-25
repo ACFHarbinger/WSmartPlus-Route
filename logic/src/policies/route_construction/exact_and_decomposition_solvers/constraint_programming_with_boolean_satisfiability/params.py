@@ -1,5 +1,11 @@
-"""
-Parameter dataclasses for Constraint Programming (CP-SAT) solver.
+"""Parameter dataclasses for Constraint Programming (CP-SAT) solver.
+
+Attributes:
+    CPSATParams (class): Standardized parameters for the CP-SAT solver.
+
+Example:
+    >>> params = CPSATParams(num_days=5, time_limit=60.0)
+    >>> config_dict = params.to_dict()
 """
 
 from dataclasses import dataclass
@@ -8,8 +14,19 @@ from typing import Any, Dict, Optional
 
 @dataclass
 class CPSATParams:
-    """
-    Standardized parameters for the CP-SAT solver.
+    """Standardized parameters for the CP-SAT solver.
+
+    Attributes:
+        num_days (int): Number of days in the planning horizon.
+        time_limit (float): Maximum time in seconds for the solver.
+        search_workers (int): Number of parallel search workers.
+        mip_gap (float): Relative gap for optimality tolerance.
+        scaling_factor (int): Multiplier for floating-to-integer conversion.
+        waste_weight (float): Multiplier for waste revenue in objective.
+        cost_weight (float): Multiplier for travel cost in objective.
+        overflow_penalty (float): Multiplier for overflow penalties in objective.
+        mean_increment (float): Average daily waste generation rate.
+        seed (Optional[int]): Random seed for reproducibility.
     """
 
     num_days: int = 3
@@ -50,8 +67,10 @@ class CPSATParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert parameters to a dictionary.
+        """Convert parameters to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of the parameters.
         """
         return {
             "num_days": self.num_days,

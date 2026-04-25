@@ -1,5 +1,15 @@
-"""
-Exact Stochastic Dynamic Programming (ESDP) engine for VRPP.
+"""Exact Stochastic Dynamic Programming (ESDP) engine for VRPP.
+
+Provides the backward induction implementation to solve discrete stochastic
+routing problems optimally over a fixed time horizon.
+
+Attributes:
+    ExactSDPEngine (class): Core solver engine for ESDP.
+
+Example:
+    >>> engine = ExactSDPEngine(params, dist_matrix, capacity)
+    >>> engine.solve()
+    >>> action = engine.get_optimal_action(day=1, state=(0, 1, 0))
 """
 
 from typing import Dict, FrozenSet, Tuple
@@ -13,8 +23,16 @@ from .state_space import StateSpaceManager
 
 
 class ExactSDPEngine:
-    """
-    Executes the backward induction for the exact SDP.
+    """Executes the backward induction for the exact SDP.
+
+    Attributes:
+        params (SDPParams): Configuration parameters for the solver.
+        num_nodes (int): Total number of nodes in the problem.
+        capacity (float): Vehicle capacity.
+        state_space (StateSpaceManager): Manager for discrete state transitions.
+        cop_eval (COPEvaluator): Evaluator for routing costs and feasibility.
+        policy_table (Dict[int, Dict[Tuple[int, ...], FrozenSet[int]]]): Day -> State -> Optimal Action.
+        value_table (Dict[int, Dict[Tuple[int, ...], float]]): Day -> State -> Expected Value.
     """
 
     def __init__(self, params: SDPParams, dist_matrix: np.ndarray, capacity: float):
@@ -39,14 +57,30 @@ class ExactSDPEngine:
         self.value_table: Dict[int, Dict[Tuple[int, ...], float]] = {}
 
     def _compute_overflow_penalty(self, state: Tuple[int, ...]) -> float:
-        """Calculate overflow penalties for the current state."""
+        """Calculate overflow penalties for the current state.
+
+        Args:
+            state (Tuple[int, ...]): Discrete state tuple.
+
+        Returns:
+            float: Calculated overflow penalty.
+        """
         overflows = sum(1 for val in state if val == self.params.discrete_levels - 1)
         return overflows * self.params.overflow_penalty
 
     def _evaluate_action(
         self, state: Tuple[int, ...], action: FrozenSet[int], next_val_table: Dict[Tuple[int, ...], float]
     ) -> float:
-        """Evaluate the Q-value of a state-action pair."""
+        """Evaluate the Q-value of a state-action pair.
+
+        Args:
+            state (Tuple[int, ...]): Current discrete state.
+            action (FrozenSet[int]): Set of node indices to visit.
+            next_val_table (Dict[Tuple[int, ...], float]): Value table for the next day.
+
+        Returns:
+            float: Expected long-term value (Q-value).
+        """
         # 1. Routing Cost
         routing_cost = self.cop_eval.get_route_cost(action)
 
@@ -69,12 +103,23 @@ class ExactSDPEngine:
         return stage_reward + self.params.discount_factor * expected_future
 
     def compute_overflow_penalty(self, state: Tuple[int, ...]) -> float:
-        """Calculate the total overflow penalty for the current state."""
+        """Calculate the total overflow penalty for the current state.
+
+        Args:
+            state (Tuple[int, ...]): Discrete state tuple.
+
+        Returns:
+            float: Total overflow penalty.
+        """
         # duplicated safe call for overflow
         return self._compute_overflow_penalty(state)
 
     def solve(self):
-        """Perform exact backward induction from Day D down to Day 1."""
+        """Perform exact backward induction from Day D down to Day 1.
+
+        Raises:
+            ValueError: If the problem parameters are inconsistent.
+        """
         all_states = self.state_space.get_all_states()
 
         # Initialize terminal condition V_{D+1} = 0
@@ -109,7 +154,15 @@ class ExactSDPEngine:
         print("SDP Backward Induction complete.")
 
     def get_optimal_action(self, day: int, state: Tuple[int, ...]) -> FrozenSet[int]:
-        """Return the optimal subset of nodes to visit."""
+        """Return the optimal subset of nodes to visit.
+
+        Args:
+            day (int): The current planning day.
+            state (Tuple[int, ...]): The current discrete state.
+
+        Returns:
+            FrozenSet[int]: The optimal set of node indices to visit.
+        """
         day = max(1, min(self.params.num_days, day))
         # Snap state to nearest discrete bounds just in case
         safe_state = tuple(max(0, min(self.params.discrete_levels - 1, int(v))) for v in state)

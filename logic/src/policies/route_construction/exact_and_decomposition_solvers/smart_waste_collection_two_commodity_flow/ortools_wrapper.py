@@ -1,6 +1,12 @@
-"""
-Google OR-Tools (MPSolver) implementation of the SWC-TCF algorithm.
+r"""Google OR-Tools (MPSolver) implementation of the SWC-TCF algorithm.
+
 Supports Gurobi, SCIP, CPLEX, and HiGHS backends natively.
+
+Attributes:
+    _run_ortools_tcf_optimizer: Solves TCF using OR-Tools MPSolver.
+
+Example:
+    >>> res = _run_ortools_tcf_optimizer(bins, dist, values, ids, mandatory)
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -22,8 +28,22 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
     seed: int = 42,
     dual_values: Optional[Dict[int, float]] = None,
 ) -> Tuple[List[int], float, float]:
-    """
-    Solves the SWC-TCF using Google OR-Tools MPSolver.
+    """Solves the SWC-TCF using Google OR-Tools MPSolver.
+
+    Args:
+        bins (NDArray[np.float64]): Array of bin fill levels.
+        distance_matrix (List[List[float]]): Distance matrix between nodes.
+        values (Dict[str, float]): Problem parameters (Omega, delta, psi, Q, R, B, C, V).
+        binsids (List[int]): Global identifiers for bins.
+        mandatory_nodes (List[int]): IDs of bins that must be collected.
+        number_vehicles (int): Maximum number of vehicles.
+        time_limit (int): Solver time limit in seconds.
+        solver_id (str): MPSolver backend ID ('SCIP', 'GUROBI', etc.).
+        seed (int): Random seed for reproducibility.
+        dual_values (Optional[Dict[int, float]]): Dual values for pricing subproblems.
+
+    Returns:
+        Tuple[List[int], float, float]: (route, profit, cost)
     """
     # Initialize the requested solver backend
     solver = pywraplp.Solver.CreateSolver(solver_id)

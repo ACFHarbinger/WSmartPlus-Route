@@ -1,10 +1,15 @@
-"""
-Gurobi Solver for VRPP.
+r"""Gurobi Solver for VRPP.
+
+Attributes:
+    _run_gurobi_optimizer: Solves the VRPP using a native Gurobi TCF formulation.
+
+Example:
+    >>> res = _run_gurobi_optimizer(bins, dist, env, values, ids, mandatory)
 """
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import gurobipy as gp
 import numpy as np
@@ -25,8 +30,27 @@ def _run_gurobi_optimizer(  # noqa: C901
     time_limit: int = 60,
     seed: int = 42,
     dual_values: Optional[Dict[int, float]] = None,
-):
-    """Solve the Vehicle Routing Problem with Profits."""
+) -> Tuple[List[int], float, float]:
+    """Solve the Vehicle Routing Problem with Profits using Two-Commodity Flow.
+
+    Args:
+        bins (NDArray[np.float64]): Array of bin fill levels.
+        distance_matrix (List[List[float]]): Distance matrix between nodes.
+        env (Optional[gp.Env]): Gurobi environment.
+        values (Dict[str, float]): Problem parameters (Omega, delta, psi, Q, R, B, C, V).
+        binsids (List[int]): Global identifiers for bins.
+        mandatory (List[int]): IDs of bins that must be collected.
+        number_vehicles (int): Maximum number of vehicles.
+        time_limit (int): Solver time limit in seconds.
+        seed (int): Random seed for reproducibility.
+        dual_values (Optional[Dict[int, float]]): Dual values for pricing subproblems.
+
+    Returns:
+        Tuple[List[int], float, float]: A tuple containing:
+            - route: Sequence of node IDs starting and ending at depot (0).
+            - profit: The total profit of the solution.
+            - cost: The total travel cost of the solution.
+    """
     Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
     Q, R, _B, C, _V = values["Q"], values["R"], values["B"], values["C"], values["V"]
 

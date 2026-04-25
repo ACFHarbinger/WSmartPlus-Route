@@ -1,5 +1,4 @@
-"""
-Branch-and-Price (BP) Policy Adapter.
+"""Branch-and-Price (BP) Policy Adapter.
 
 Adapts the core Branch-and-Price solver logic to the systems-agnostic policy
 interface, handling parameter mapping, profit calculation, and environment
@@ -13,6 +12,14 @@ References:
     Baldacci, R., Mingozzi, A., & Roberti, R. (2011). "New Route Relaxation
     and Pricing Strategies for the Vehicle Routing Problem". Operations
     Research, 59(5), 1269-1283.
+
+Attributes:
+    BranchAndPricePolicy (class): Adapter for the Branch-and-Price routing solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.policy_bp import BranchAndPricePolicy
+    >>> policy = BranchAndPricePolicy(config)
+    >>> routes, obj = policy.execute(context)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -39,8 +46,7 @@ from .params import BPParams
 )
 @RouteConstructorRegistry.register("bp")
 class BranchAndPricePolicy(BaseRoutingPolicy):
-    """
-    Adapter for the Branch-and-Price routing solver.
+    """Adapter for the Branch-and-Price routing solver.
 
     Implements a column generation method that handles large-scale optimisation
     by implicitly enumerating exponentially many variables (routes).
@@ -55,25 +61,11 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
     4. Branch-and-bound — optionally enforces integrality via edge branching
        or Ryan-Foster branching.
 
-    Configuration
-    -------------
-    ``branching_strategy``  (``"edge"`` | ``"ryan_foster"``, default ``"edge"``)
-        Selects the B&B branching scheme.
-
-    ``use_exact_pricing``  (bool, default False)
-        When True, uses the DP-based ``RCSPPSolver``; otherwise uses the
-        greedy heuristic ``PricingSubproblem``.
-
-    ``use_ng_routes``  (bool, default True)
-        When ``use_exact_pricing=True``, enables the ng-route relaxation of
-        Baldacci et al. (2011).  Dramatically reduces the label count on large
-        instances while still producing near-elementary routes.  Set False to
-        restore exact ESPPRC behaviour.
-
-    ``ng_neighborhood_size``  (int, default 8)
-        Size of each node's ng-neighborhood N_i (including the node itself).
-        Larger values tighten the relaxation (approaching exact ESPPRC) at the
-        cost of more labels per solve.
+    Attributes:
+        BranchingStrategy (Enum): The branching strategy to use (Edge or Ryan-Foster).
+        PricingSubproblem (Type): The pricing subproblem type to use.
+        Config (BPConfig): The configuration for the BP solver.
+        Solver (BranchAndPriceSolver): The internal solver instance.
     """
 
     def __init__(self, config: Optional[Union[BPConfig, Dict[str, Any]]] = None) -> None:
@@ -88,11 +80,19 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """Return the configuration dataclass type for automatic parsing."""
+        """Return the configuration dataclass type for automatic parsing.
+
+        Returns:
+            Type: The BPConfig class.
+        """
         return BPConfig
 
     def _get_config_key(self) -> str:
-        """Return the unique identification key for this policy's configuration."""
+        """Return the unique identification key for this policy's configuration.
+
+        Returns:
+            str: The config key 'bp'.
+        """
         return "bp"
 
     def execute(
@@ -111,7 +111,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         it falls back to the standard policy execution loop.
 
         Args:
-            **kwargs: Context dictionary containing:
+            kwargs: Context dictionary containing:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for
@@ -205,7 +205,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
                 BP parameters (ng_neighborhood_size, branching_strategy).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

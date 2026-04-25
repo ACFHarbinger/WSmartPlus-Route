@@ -1,7 +1,13 @@
-"""
-Configuration parameters for the Branch-and-Price-and-Cut (BPC) solver.
+"""Configuration parameters for the Branch-and-Price-and-Cut (BPC) solver.
 
 Based on Barnhart et al. (1998, 2000) and standard exact VRPP protocols.
+
+Attributes:
+    BPCParams (class): Data container for solver settings.
+
+Example:
+    >>> params = BPCParams(time_limit=120.0, optimality_gap=1e-6)
+    >>> dict_params = params.to_dict()
 """
 
 from __future__ import annotations
@@ -12,31 +18,44 @@ from typing import Any, Dict, Optional
 
 @dataclass
 class BPCParams:
-    """
-    Configuration parameters for the Branch-and-Price-and-Cut solver.
+    """Configuration parameters for the Branch-and-Price-and-Cut solver.
 
     Attributes:
-        optimality_gap: Relative gap for proven optimality.
-        early_termination_gap: Gap at which we stop the search (heuristic shortcut).
-        use_ng_routes: Whether to use ng-route relaxation in pricing.
-        ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
-        enable_heuristic_rcc_separation: Whether to enable (heuristic) fractional RCC separation.
-        enable_comb_cuts: Whether to enable heuristic comb inequalities.
-        cut_orthogonality_threshold: cosine similarity ceiling for cut filtering.
-        enable_column_pool_deduplication: Whether to enable column pool deduplication.
-        rc_tolerance: Minimum reduced cost to accept a new column.
-        exact_mode: Whether to enable strict exact management (no dual smoothing).
-        strong_branching_size: Number of candidates to evaluate in strong branching.
-        cg_at_root_only: Run column generation only at the root B&B node; at all
-            descendant nodes, no new columns are generated (use the pool built at
-            root).  Replicates the "CG at root only" experiment in Table 2 of
-            Barnhart, Hane, and Vance (2000).  Trades solution quality for speed.
-
-
-    Note:
-        enable_heuristic_rcc_separation replaces the legacy enable_fractional_capacity_cuts
-        to clarify that the connected-component-based separation is a heuristic,
-        not an exact max-flow separation on the full support graph.
+        time_limit (float): Max wall-clock time in seconds.
+        profit_aware_operators (bool): Enable VRPP profit logic in subproblems.
+        vrpp (bool): Problem type flag.
+        seed (Optional[int]): Random seed.
+        search_strategy (str): Tree search type (depth_first, etc).
+        cutting_planes (str): Cut type (rcc, etc).
+        branching_strategy (str): Branching rule (divergence, etc).
+        max_cg_iterations (int): Max CG rounds per node.
+        max_cut_iterations (int): Max cut rounds per node.
+        max_cuts_per_iteration (int): Max cuts added per round.
+        max_routes_per_pricing (int): Max columns added per pricing call.
+        max_bb_nodes (int): Global node limit.
+        optimality_gap (float): Relative gap for proven optimality.
+        early_termination_gap (float): Gap at which we stop the search.
+        use_ng_routes (bool): Whether to use ng-route relaxation in pricing.
+        ng_neighborhood_size (int): Size of ng-neighborhoods for relaxation.
+        enable_heuristic_rcc_separation (bool): Whether to enable fractional RCC separation.
+        enable_comb_cuts (bool): Whether to enable heuristic comb inequalities.
+        cut_orthogonality_threshold (float): Cosine similarity ceiling for cut filtering.
+        use_spatial_partitioning (bool): Enable spatial domain partitioning.
+        enable_strong_branching_heuristic (bool): Use fast divergence-based branching.
+        enable_column_pool_deduplication (bool): Whether to enable column pool deduplication.
+        rc_tolerance (float): Minimum reduced cost to accept a new column.
+        exact_mode (bool): Whether to enable strict exact management.
+        strong_branching_size (int): Number of candidates to evaluate in strong branching.
+        cg_at_root_only (bool): Generate columns only at the root node.
+        rcspp_timeout (float): Max time for a single pricer call.
+        rcspp_max_labels (int): Max labels in RCSPP solver.
+        lr_pre_pruning (bool): Enable Lagrangian pruning.
+        lr_lambda_init (float): Initial multiplier.
+        lr_max_subgradient_iters (int): Max iterations for LR.
+        lr_subgradient_theta (float): Step size multiplier.
+        lr_op_time_limit (float): Time limit for OP solver in LR.
+        lr_pre_pruning_depth_limit (int): Max depth for LR.
+        lr_warm_start_cg (bool): Seed CG with LR result.
     """
 
     time_limit: float = 60.0
@@ -119,6 +138,12 @@ class BPCParams:
 
         Performs explicit type casting for numeric fields to ensure compatibility
         with Hydra/YAML scientific notation which might be loaded as strings.
+
+        Args:
+            config: Configuration source (dict or Hydra config).
+
+        Returns:
+            BPCParams: Initialized parameter object.
         """
         if config is None:
             return cls()
@@ -155,5 +180,9 @@ class BPCParams:
         return cls(**kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert BPCParams to a dictionary for backend compatibility."""
+        """Convert BPCParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Mapping of parameter names to values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

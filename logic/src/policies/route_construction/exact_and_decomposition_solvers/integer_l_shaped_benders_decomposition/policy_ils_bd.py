@@ -37,6 +37,13 @@ References:
     Laporte, G., & Louveaux, F. V. (1993). "The integer L-shaped method for
     stochastic integer programs with complete recourse". Operations Research
     Letters, 13(3), 133-142.
+
+Attributes:
+    IntegerLShapedPolicy (class): Two-Stage Stochastic MPVRP policy adapter.
+
+Example:
+    >>> policy = IntegerLShapedPolicy(config)
+    >>> sol, plan, stats = policy.run(problem, multi_day_ctx)
 """
 
 from dataclasses import asdict
@@ -95,22 +102,37 @@ class IntegerLShapedPolicy(BaseMultiPeriodRoutingPolicy):
     .. note::
         Requires a Gurobi license (``gurobipy``). Without it, the policy
         will raise an ``ImportError`` during the execution phase.
+
+    Attributes:
+        config (IntegerLShapedBendersConfig): Policy configuration.
     """
 
     def __init__(
         self,
         config: Optional[Union[IntegerLShapedBendersConfig, Dict[str, Any]]] = None,
     ) -> None:
-        """Initialise the ILS policy adapter."""
+        """Initialise the ILS policy adapter.
+
+        Args:
+            config: Optional configuration object or dictionary.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Type[IntegerLShapedBendersConfig]:
-        """Return the typed configuration class."""
+        """Return the typed configuration class.
+
+        Returns:
+            Type[IntegerLShapedBendersConfig]: The configuration class.
+        """
         return IntegerLShapedBendersConfig
 
     def _get_config_key(self) -> str:
-        """Return the YAML config key."""
+        """Return the YAML config key.
+
+        Returns:
+            str: The config key.
+        """
         return "ils_bd"
 
     def _run_multi_period_solver(

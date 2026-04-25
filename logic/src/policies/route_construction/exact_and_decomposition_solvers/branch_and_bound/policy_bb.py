@@ -1,9 +1,16 @@
-"""
-Branch-and-Bound (BB) Policy Adapter.
+"""Branch-and-Bound (BB) Policy Adapter.
 
 Adapts the core mathematical Branch-and-Bound logic to the systems-agnostic
 policy interface, handling parameter mapping, profit calculation, and environment
 integration.
+
+Attributes:
+    BranchAndBoundPolicy (class): Adapter for the BB routing solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import BranchAndBoundPolicy
+    >>> policy = BranchAndBoundPolicy(config)
+    >>> routes, obj = policy.execute(context)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -27,8 +34,7 @@ from .params import BBParams
 )
 @RouteConstructorRegistry.register("bb")
 class BranchAndBoundPolicy(BaseRoutingPolicy):
-    """
-    Adapter for the exact Branch-and-Bound routing solver.
+    """Adapter for the exact Branch-and-Bound routing solver.
 
     This policy implements a deterministic Best-Bound-First Branch-and-Bound
     search engine based on LP relaxations, mapping high-level simulation
@@ -42,6 +48,9 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
 
     As an exact solver, it guarantees global optimality within the specified
     MIP gap, provided the search terminates within the time limit.
+
+    Attributes:
+        config (BBConfig): Configuration dataclass for the policy.
     """
 
     def __init__(self, config: Optional[Union[BBConfig, Dict[str, Any]]] = None):
@@ -55,11 +64,19 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """Return the configuration dataclass type for automatic parsing."""
+        """Return the configuration dataclass type for automatic parsing.
+
+        Returns:
+            Type: The BBConfig class.
+        """
         return BBConfig
 
     def _get_config_key(self) -> str:
-        """Return the unique identification key for this policy's configuration."""
+        """Return the unique identification key for this policy's configuration.
+
+        Returns:
+            str: The config key 'bb'.
+        """
         return "bb"
 
     def _run_solver(
@@ -73,8 +90,7 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the exact Branch-and-Bound (B&B) solver logic.
+        """Execute the exact Branch-and-Bound (B&B) solver logic.
 
         This method coordinates the search for a globally optimal routing solution
         by exploring a tree of linear relaxations. The search is pruned using
@@ -102,7 +118,7 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
                 BB parameters (formulation, mip_gap, time_limit).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

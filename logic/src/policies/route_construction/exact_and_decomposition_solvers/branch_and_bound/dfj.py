@@ -1,5 +1,4 @@
-"""
-DFJ-formulation Branch-and-Bound solver using Gurobi's built-in B&B engine.
+"""DFJ-formulation Branch-and-Bound solver using Gurobi's built-in B&B engine.
 
 Uses the Dantzig-Fulkerson-Johnson (DFJ) formulation with lazy subtour elimination
 constraints. This delegates the B&B tree search to Gurobi's highly optimized internal
@@ -9,6 +8,16 @@ Reference:
     Dantzig, G., Fulkerson, R., & Johnson, S. (1954).
     "Solution of a large-scale traveling-salesman problem".
     Journal of Operations Research, 2(4), 393-410.
+
+Attributes:
+    _dfj_callback (function): Subtour elimination callback for Gurobi.
+    _setup_bb_model (function): Factory for Gurobi model initialization.
+    _extract_routes_from_adj (function): Route reconstruction helper.
+    run_bb_dfj (function): Main entry point for DFJ solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj import run_bb_dfj
+    >>> routes, obj = run_bb_dfj(dist_matrix, wastes, capacity, R, C)
 """
 
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -24,7 +33,12 @@ from .params import BBParams
 
 
 def _dfj_callback(model, where):
-    """DFJ subtour elimination callback for Gurobi's built-in B&B."""
+    """DFJ subtour elimination callback for Gurobi's built-in B&B.
+
+    Args:
+        model (gp.Model): The Gurobi model being optimized.
+        where (int): Callback location code.
+    """
     if where == GRB.Callback.MIPSOL:
         x_vars = model._x_vars
         num_nodes = model._num_nodes
@@ -64,7 +78,20 @@ def _setup_bb_model(
     seed: int = 42,
     env: Optional[gp.Env] = None,
 ) -> Tuple[gp.Model, Dict[Tuple[int, int], gp.Var], Dict[int, gp.Var]]:
-    """Set up the Gurobi model for VRPP."""
+    """Set up the Gurobi model for VRPP.
+
+    Args:
+        dist_matrix: Symmetric distance matrix (n x n).
+        wastes: Mapping of customer IDs to fill levels/profits.
+        mandatory_indices: Set of mandatory customer nodes.
+        time_limit: Time limit for the optimizer. Defaults to 60.0.
+        mip_gap: Relative optimality gap. Defaults to 0.01.
+        seed: Random seed. Defaults to 42.
+        env: Optional Gurobi environment.
+
+    Returns:
+        Tuple containing (model, edge_vars, visit_vars).
+    """
     num_nodes = len(dist_matrix)
     nodes = range(num_nodes)
     customers = list(range(1, num_nodes))
@@ -93,7 +120,15 @@ def _setup_bb_model(
 
 
 def _extract_routes_from_adj(adj: Dict[int, List[int]], num_nodes: int) -> List[List[int]]:
-    """Extract routes starting from the depot using an adjacency list."""
+    """Extract routes starting from the depot using an adjacency list.
+
+    Args:
+        adj: Adjacency list mapping node to next node(s).
+        num_nodes: Total number of nodes in the graph.
+
+    Returns:
+        List of routes, where each route is a list of node IDs.
+    """
     routes = []
     for start in adj[0]:
         route = [start]
@@ -128,8 +163,7 @@ def run_bb_dfj(
     recorder: Optional[PolicyStateRecorder] = None,
     **kwargs: Any,
 ) -> Tuple[List[List[int]], float]:
-    """
-    Dispatcher entry point for the DFJ-formulation Branch-and-Bound solver.
+    """Dispatcher entry point for the DFJ-formulation Branch-and-Bound solver.
 
     Uses Dantzig-Fulkerson-Johnson (DFJ) formulation with lazy subtour elimination
     constraints. Delegates the branch-and-bound tree search to Gurobi's highly
@@ -141,11 +175,11 @@ def run_bb_dfj(
         capacity: Vehicle payload capacity.
         R: Revenue coefficient per unit collected.
         C: Cost coefficient per unit distance.
-        values: Configuration dictionary (time_limit, mip_gap, etc.).
+        params: Standardized BB parameters.
         mandatory_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
-        seed: Optional random seed.
         recorder: Optional telemetry recorder.
+        kwargs: Additional arguments.
 
     Returns:
         Tuple of (routes, objective_value).

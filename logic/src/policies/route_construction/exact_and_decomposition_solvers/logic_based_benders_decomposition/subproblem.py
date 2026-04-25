@@ -1,5 +1,11 @@
-"""
-Subproblem solver for Logic-Based Benders Decomposition (LBBD).
+r"""Subproblem solver for Logic-Based Benders Decomposition (LBBD).
+
+Attributes:
+    RoutingSubproblem: Subproblem solver for LBBD using OR-Tools Routing library.
+
+Example:
+    >>> solver = RoutingSubproblem(dist_matrix)
+    >>> is_feasible, dist, route = solver.solve([0, 1, 5])
 """
 
 from typing import List, Tuple
@@ -15,31 +21,36 @@ except ImportError:
 
 
 class RoutingSubproblem:
-    """
-    Subproblem solver for LBBD using OR-Tools Routing library.
+    r"""Subproblem solver for LBBD using OR-Tools Routing library.
+
     Solves the TSP for a fixed set of nodes.
+
+    Attributes:
+        distance_matrix (np.ndarray): Full N×N distance matrix.
+        timeout_seconds (float): Solver timeout in seconds.
     """
 
-    def __init__(self, distance_matrix: np.ndarray, timeout_seconds: float = 10.0):
-        """
-        Initializes the LBBD subproblem solver.
+    def __init__(self, distance_matrix: np.ndarray, timeout_seconds: float = 10.0) -> None:
+        """Initializes the LBBD subproblem solver.
 
         Args:
-            distance_matrix: Distance matrix.
-            timeout_seconds: Timeout in seconds.
+            distance_matrix (np.ndarray): Distance matrix.
+            timeout_seconds (float): Timeout in seconds.
         """
         self.distance_matrix = distance_matrix
         self.timeout_seconds = timeout_seconds
 
     def solve(self, assigned_nodes: List[int]) -> Tuple[bool, float, List[int]]:
-        """
-        Solves TSP for a given subset of nodes (including depot 0).
+        """Solves TSP for a given subset of nodes (including depot 0).
 
         Args:
-            assigned_nodes: List of node indices to visit (0 must be included).
+            assigned_nodes (List[int]): List of node indices to visit (0 must be included).
 
         Returns:
-            Tuple of (is_feasible, min_distance, optimal_route)
+            Tuple[bool, float, List[int]]: A tuple containing:
+                - is_feasible: True if a feasible TSP route was found.
+                - min_distance: The total distance of the optimal route.
+                - optimal_route: The sequence of node indices.
         """
         if not OR_TOOLS_AVAILABLE:
             # Fallback or error

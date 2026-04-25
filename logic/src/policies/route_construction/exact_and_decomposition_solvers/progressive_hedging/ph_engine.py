@@ -1,5 +1,4 @@
-r"""
-Progressive Hedging (PH) engine for stochastic VRPP.
+r"""Progressive Hedging (PH) engine for stochastic VRPP.
 
 Progressive Hedging (Rockafellar and Wets, 1991) is a horizontal
 decomposition algorithm for stochastic programs with non-anticipativity
@@ -24,6 +23,13 @@ The constant $\bar{y}_i^2$ is ignored in the subproblem optimization.
 
 The augmented cost for node $i$ in scenario $\omega$ is:
     $\Delta Cost_{i, \omega} = w_{i, \omega} + \frac{\rho}{2}(1 - 2\bar{y}_i)$
+
+Attributes:
+    ProgressiveHedgingEngine: Core iterative engine for PH decomposition.
+
+Example:
+    >>> engine = ProgressiveHedgingEngine(config)
+    >>> plan, profit, stats = engine.solve(dist, tree, cap, rev, cost, mand)
 """
 
 import logging
@@ -39,17 +45,24 @@ logger = logging.getLogger(__name__)
 
 
 class ProgressiveHedgingEngine:
-    """Core iterative engine for Progressive Hedging decomposition.
+    r"""Core iterative engine for Progressive Hedging decomposition.
 
     Manages scenario subproblems, performs consensus aggregation, and updates
     dual multipliers based on non-anticipativity residuals.
+
+    Attributes:
+        config (PHConfig): Progressive Hedging configuration.
+        sub_solver_name (str): Name of the subproblem solver.
+        y_consensus (Dict[int, Dict[int, float]]): Consensus solution map.
+        w_duals_mp (List[Dict[int, Dict[int, float]]]): Dual multipliers map.
+        history (List[Dict[str, float]]): Iteration convergence history.
     """
 
     def __init__(self, config: PHConfig) -> None:
         """Initialise the PH engine.
 
         Args:
-            config: Progressive Hedging configuration.
+            config (PHConfig): Progressive Hedging configuration.
         """
         self.config = config
         self.sub_solver_name = config.sub_solver
@@ -63,7 +76,14 @@ class ProgressiveHedgingEngine:
 
     @staticmethod
     def ensure_route_list(routes: Union[List[int], List[List[int]]]) -> List[List[int]]:
-        """Ensures that routes are represented as a list of lists (tours)."""
+        """Ensures that routes are represented as a list of lists (tours).
+
+        Args:
+            routes (Union[List[int], List[List[int]]]): Input routes (flat or nested).
+
+        Returns:
+            List[List[int]]: Nested list of tours.
+        """
         # 1. Check if already a list of lists
         if routes and isinstance(routes[0], list):
             return routes  # type: ignore[return-value]
@@ -91,16 +111,20 @@ class ProgressiveHedgingEngine:
         """Run the Multi-Period Progressive Hedging iterative algorithm.
 
         Args:
-            sub_dist_matrix: Localised N×N distance matrix.
-            scenario_tree: A ScenarioTree object (providing S paths/branches).
-            capacity: Vehicle capacity.
-            revenue: Revenue per unit of waste.
-            cost_unit: Travel cost per distance unit.
-            mandatory_nodes: Nodes that must be visited on Day 0.
-            **kwargs: Additional parameters for sub-solvers.
+            sub_dist_matrix (np.ndarray): Localised N×N distance matrix.
+            scenario_tree (Any): A ScenarioTree object (providing S paths/branches).
+            capacity (float): Vehicle capacity.
+            revenue (float): Revenue per unit of waste.
+            cost_unit (float): Travel cost per distance unit.
+            mandatory_nodes (List[int]): Nodes that must be visited on Day 0.
+            current_wastes (Optional[Dict[int, float]]): Current waste levels.
+            kwargs (Any): Additional parameters for sub-solvers.
 
         Returns:
-            Tuple of (full_plan[day][route][node], expected_profit, stats).
+            Tuple[List[List[List[int]]], float, Dict[str, Any]]: A tuple containing:
+                - full_plan: Collection plan [day][route][node].
+                - expected_profit: Expected profit from the solution.
+                - stats: Execution statistics and convergence history.
         """
         # 1. Prepare Scenarios from Tree
         # For PH, we typically decompose by full scenario paths.
