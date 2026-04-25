@@ -83,7 +83,14 @@ maintained for backtracking.  :math:`V_{\\mathrm{upper}}` is capped at
 when necessary, keeping peak memory well below 100 MB for typical VRP
 instance sizes (:math:`m \\leq 500`).
 
-Example::
+Attributes:
+    FPTASBiObjectiveKnapsackSelection: The FPTAS Bi-Objective Multiple-Knapsack
+        Selection strategy.
+    _EPS_GUARD: Epsilon guard for floating-point comparisons.
+    _DIST_EPS: Distance epsilon for insertion-distance lower-bound.
+    _MAX_DP_VALUES: Maximum number of DP values.
+
+Example:
 
     >>> from logic.src.policies.mandatory_selection.selection_fptas_bi_objective_knapsack import (
     ...     FPTASBiObjectiveKnapsackSelection,

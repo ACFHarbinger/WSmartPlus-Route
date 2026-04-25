@@ -12,6 +12,14 @@ Objective:
 
 We use the Lazy Greedy algorithm (Minoux, 1978) with a max-priority queue
 to efficiently select bins while respecting a cardinality budget.
+
+Attributes:
+    SubmodularGreedySelection(IMandatorySelectionStrategy): Selection strategy based on Submodular Facility Location Coverage.
+
+Example:
+    >>> from logic.src.policies.mandatory_selection.selection_submodular_greedy import SubmodularGreedySelection
+    >>> strategy = SubmodularGreedySelection()
+    >>> bins, ctx = strategy.select_bins(context)
 """
 
 import heapq

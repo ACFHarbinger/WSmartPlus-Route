@@ -6,6 +6,9 @@ to maintain a service level guarantee. It uses a linear projection of
 the expected accumulation and standard deviation over a defined horizon
 to ensure bins are collected before their worst-case prediction hits capacity.
 
+Attributes:
+    ServiceLevelSelection: Selection strategy using linear projection of future fill.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_service_level import ServiceLevelSelection
     >>> strategy = ServiceLevelSelection()

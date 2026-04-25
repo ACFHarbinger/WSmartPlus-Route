@@ -7,6 +7,9 @@ critical threshold is within a specified service radius of at least one hub.
 This is implemented using a greedy heuristic which provides a ln(n)
 approximation ratio.
 
+Attributes:
+    SetCoverSelection(IMandatorySelectionStrategy): Greedy heuristic for the Set Cover problem.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_set_cover import SetCoverSelection
     >>> strategy = SetCoverSelection()

@@ -12,6 +12,9 @@ Any bin that lies on the non-dominated Pareto front is strictly obligated for
 collection. This ensures that the policy never leaves behind a bin that is either
 critically urgent or trivially cheap to collect without a justified trade-off.
 
+Attributes:
+    ParetoFrontSelection(IMandatorySelectionStrategy): Combinatorial selection strategy utilizing non-dominated sorting.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_pareto import ParetoFrontSelection
     >>> strategy = ParetoFrontSelection()

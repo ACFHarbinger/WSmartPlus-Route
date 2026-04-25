@@ -59,7 +59,10 @@ Unbounded case
 If ``context.n_vehicles <= 0`` the strategy short-circuits to all bins deemed
 risky (non-zero expected overflow score).
 
-Example::
+Attributes:
+    MIPKnapsackSelection: The Mixed Integer Programming (MIP) knapsack selection strategy.
+
+Example:
 
     >>> from logic.src.policies.mandatory_selection.selection_mip_knapsack import (
     ...     MIPKnapsackSelection,
