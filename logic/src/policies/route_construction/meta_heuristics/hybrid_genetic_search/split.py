@@ -3,6 +3,14 @@ Split algorithm for Hybrid Genetic Search (HGS).
 
 This module implements the linear-time Split algorithm used to partition
 a giant tour into optimal routes based on vehicle capacity.
+
+Attributes:
+    LinearSplit: Solver class for the Split algorithm.
+    split_algorithm: Wrapper function for the Split algorithm.
+
+Example:
+    >>> split_manager = LinearSplit(dist_matrix, wastes, capacity, R, C)
+    >>> routes, profit = split_manager.split(giant_tour)
 """
 
 import warnings
@@ -32,6 +40,19 @@ class LinearSplit:
     References:
         - Vidal et al. (2022): Hybrid genetic search for the CVRP
         - Prins (2004): A simple and effective evolutionary algorithm for the VRP
+
+    Attributes:
+        dist_matrix (np.ndarray): NxN distance matrix.
+        wastes (Dict[int, float]): Dictionary of node wastes.
+        capacity (float): Maximum vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        max_vehicles (int): Maximum number of vehicles allowed.
+        mandatory_nodes (Set[int]): Set of nodes that MUST be visited.
+        vrpp (bool): True if skipping nodes is allowed.
+
+    Example:
+        >>> split_manager = LinearSplit(dist_matrix, wastes, capacity, R, C)
     """
 
     def __init__(
@@ -57,6 +78,9 @@ class LinearSplit:
             max_vehicles: Maximum number of vehicles allowed (0 for unlimited).
             mandatory_nodes: List of local node indices that MUST be visited.
             vrpp: Whether skipping nodes is allowed (VRPP mode).
+
+        Returns:
+            None.
         """
         self.dist_matrix = np.array(dist_matrix)
         self.wastes = wastes
@@ -131,7 +155,15 @@ class LinearSplit:
         return res
 
     def _fallback_split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
-        """Greedy fallback partition for cases where Split DP fails."""
+        """
+        Greedy fallback partition for cases where Split DP fails.
+
+        Args:
+            giant_tour: Giant tour to be split.
+
+        Returns:
+            Tuple[List[List[int]], float]: List of routes and total profit.
+        """
         routes = []
         current_route = []
         current_load = 0.0
@@ -183,6 +215,21 @@ class LinearSplit:
         d_0_x: List[float],
         d_x_0: List[float],
     ) -> Tuple[List[List[int]], float]:
+        """
+        Split algorithm with unlimited vehicles.
+
+        Args:
+            n: Number of nodes in giant tour.
+            nodes: Giant tour nodes.
+            cum_load: Cumulative load.
+            cum_rev: Cumulative revenue.
+            cum_dist: Cumulative distance.
+            d_0_x: Distance from depot to each node.
+            d_x_0: Distance from each node to depot.
+
+        Returns:
+            Tuple[List[List[int]], float]: Decoded routes and total profit.
+        """
         V = [-float("inf")] * (n + 1)
         P = [-1] * (n + 1)
         V[0] = 0.0
@@ -238,6 +285,21 @@ class LinearSplit:
         d_0_x: List[float],
         d_x_0: List[float],
     ) -> Tuple[List[List[int]], float]:
+        """
+        Split algorithm with limited vehicles.
+
+        Args:
+            n: Number of nodes in giant tour.
+            nodes: Giant tour nodes.
+            cum_load: Cumulative load.
+            cum_rev: Cumulative revenue.
+            cum_dist: Cumulative distance.
+            d_0_x: Distance from depot to each node.
+            d_x_0: Distance from each node to depot.
+
+        Returns:
+            Tuple[List[List[int]], float]: Decoded routes and total profit.
+        """
         K = self.max_vehicles
         V_prev = [-float("inf")] * (n + 1)
         V_prev[0] = 0.0
@@ -309,7 +371,19 @@ class LinearSplit:
         k_opt: int,
         total_profit: float,
     ) -> Tuple[List[List[int]], float]:
-        """Reconstruct routes from limited-vehicle DP table."""
+        """
+        Reconstruct routes from limited-vehicle DP table.
+
+        Args:
+            n: Number of nodes.
+            nodes: Giant tour nodes.
+            P: Predecessor table.
+            k_opt: Optimal number of vehicles.
+            total_profit: Total profit calculated.
+
+        Returns:
+            Tuple[List[List[int]], float]: Decoded routes and total profit.
+        """
         # Fix 7: Follow the exact DP path for k_opt vehicles.
         routes = []
         curr = n
@@ -340,6 +414,18 @@ class LinearSplit:
     def _reconstruct(
         self, n: int, nodes: List[int], P: List[int], total_profit: float
     ) -> Tuple[List[List[int]], float]:
+        """
+        Reconstruct routes from unlimited-vehicle predecessor array.
+
+        Args:
+            n: Number of nodes.
+            nodes: Giant tour nodes.
+            P: Predecessor array.
+            total_profit: Total profit calculated.
+
+        Returns:
+            Tuple[List[List[int]], float]: Decoded routes and total profit.
+        """
         if total_profit == -float("inf"):
             return [], -float("inf")
         routes = []

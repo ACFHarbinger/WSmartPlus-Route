@@ -1,46 +1,14 @@
-"""
-Memetic Differential Evolution (MDE/rand/1/exp) algorithm for VRPP.
+r"""Memetic Differential Evolution (MDE/rand/1/exp) algorithm for VRPP.
 
 This module implements the rigorous Differential Evolution algorithm as formulated
 by Storn & Price (1997), using continuous Random Key (RK) representation to properly
 handle the discrete VRPP domain.
 
-Random Key Encoding:
-    - Each solution is represented as a continuous vector in [-1.0, 1.0]^n
-    - Decoding: nodes with positive keys are selected, sorted by key value
-    - This enables true continuous DE operators while maintaining discrete feasibility
-
-Algorithm (Core DE):
-    1. Initialize population with NP ≥ 4 continuous vectors (Gaussian-augmented)
-    2. For each generation:
-        a. Mutation: For each target vector x_i, create mutant v_i = x_r1 + F(x_r2 - x_r3)
-           where r1, r2, r3 are mutually exclusive indices distinct from i
-        b. Crossover: Create trial vector u_i by exponential crossover
-        c. Local Search (Memetic Addition): Refine discrete phenotypic solution
-        d. Selection: Greedy replacement - keep u_i if f(u_i) ≥ f(x_i), else keep x_i
-
-Mutual Exclusivity Axiom:
-    The MDE/rand/1/exp strategy REQUIRES that indices r1, r2, r3 used in mutation
-    satisfy: r1 ≠ r2 ≠ r3 ≠ i. This mandates a minimum population size of 4.
-
-    Without this constraint, the algorithm degenerates to:
-        - Random search (if r1 = r2 = r3): differential vector becomes zero
-        - Cloning (if any r_i = i): no mutation from current solution
-
-    This is NOT a hyperparameter choice—it is a mathematical requirement of the
-    algorithm as defined by the original authors.
-
-Key Advantages over Set-Theoretic DE:
-    - Preserves routing sequence information through continuous ordering
-    - Enables true differential mathematics (not probabilistic set operations)
-    - Prevents population stagnation through continuous diversity
-    - No information loss during mutation/crossover operations
-
 Attributes:
-    DESolver (Type): Core solver class for Differential Evolution.
-    DEParams (Type): Parameter dataclass for the solver.
+    DESolver: Core solver class for Differential Evolution.
 
 Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
     >>> solver = DESolver(dist_matrix, wastes, capacity, R, C, params)
     >>> routes, profit, cost = solver.solve()
 
@@ -85,13 +53,20 @@ class DESolver:
     - Bounce-back boundary handling for genetic diversity
 
     Attributes:
-        dist_matrix (np.ndarray): Symmetric distance matrix.
-        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-        capacity (float): Maximum vehicle collection capacity.
-        R (float): Revenue per kg of waste.
-        C (float): Cost per km traveled.
-        params (DEParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per km traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        pop_size: Population size (NP).
+        rng: NumPy random number generator.
+        py_rng: Python random number generator.
+        evo_strategy: Strategy for handling local search improvements.
+        ls: Local search optimizer.
     """
 
     def __init__(
@@ -107,13 +82,16 @@ class DESolver:
         """Initializes the Memetic Differential Evolution solver.
 
         Args:
-            dist_matrix (np.ndarray): Symmetric distance matrix.
-            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-            capacity (float): Maximum vehicle collection capacity.
-            R (float): Revenue per kg of waste.
-            C (float): Cost per km traveled.
-            params (DEParams): Algorithm-specific parameters (F, CR, pop_size).
-            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+            dist_matrix: Symmetric distance matrix.
+            wastes: Mapping of bin IDs to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            R: Revenue per kg of waste.
+            C: Cost per km traveled.
+            params: Algorithm-specific parameters (F, CR, pop_size).
+            mandatory_nodes: Nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
@@ -197,18 +175,6 @@ class DESolver:
 
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
-
-        Complexity:
-            Time: O(G × NP × n²) where G = max_iterations, NP = pop_size
-                  - Continuous ops (mutation/crossover): O(G × NP × n) [vectorized]
-                  - Discrete ops (decode/eval): O(G × NP × n²) [sequential]
-            Space: O(NP × n) to store continuous population
-
-        References:
-            Storn, R., & Price, K. (1997). "Differential Evolution – A Simple and
-            Efficient Heuristic for Global Optimization over Continuous Spaces."
-            Journal of Global Optimization, 11(4), 341-359.
-            DOI: 10.1023/A:1008202821328
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -312,13 +278,16 @@ class DESolver:
     # ------------------------------------------------------------------
 
     def _generate_mutation_indices(self, pop_size: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Pure NumPy implementation of 3 mutually exclusive random indices for all i.
+        """Pure NumPy implementation of 3 mutually exclusive random indices for all i.
 
         Ensures r1[i] != r2[i] != r3[i] != i for all i in [0, pop_size) using
         offset-based modulo arithmetic, avoiding sequential Python loops.
 
-        Complexity: O(NP^2) for offset generation, hardware-accelerated.
+        Args:
+            pop_size: The size of the population.
+
+        Returns:
+            Tuple of three NumPy arrays (r1, r2, r3).
         """
         # Generate 3 distinct offsets in [1, pop_size-1] for each individual i.
         # By adding these offsets to i modulo pop_size, we guarantee r_j != i.
@@ -336,16 +305,17 @@ class DESolver:
         return r_indices[:, 0], r_indices[:, 1], r_indices[:, 2]
 
     def _vectorized_exponential_crossover(self, target_pop: np.ndarray, mutant_pop: np.ndarray) -> np.ndarray:
-        """
-        Fully vectorized implementation of Exponential Crossover.
+        """Fully vectorized implementation of Exponential Crossover.
 
         Replaces the sequential population loop with a single matrix operation
         using 2D Boolean masks and probabilistic sequence length calculation.
 
-        Behavior:
-            - Start index 'n' is random for each participant.
-            - Continuous inheritance from mutant until geometric stop or full cycle.
-            - Mathematically equivalent to the do...while loop across NP individuals.
+        Args:
+            target_pop: The current population matrix.
+            mutant_pop: The mutated population matrix.
+
+        Returns:
+            The trial population matrix.
         """
         NP, D = target_pop.shape
         CR = self.params.crossover_rate
@@ -374,17 +344,7 @@ class DESolver:
     # ------------------------------------------------------------------
 
     def _initialize_population(self) -> np.ndarray:
-        """
-        Initialize population as continuous Random Key vectors.
-
-        Strategy:
-            - Heuristic seeding: Seed first 10% of NP with Gaussian-noisy versions
-              of the greedy solution (sigma=0.1) as per Storn & Price (1997).
-            - Remaining individuals: Uniform random in [-1.0, 1.0].
-
-        By adding normally distributed deviations to a preliminary solution, we
-        create a high-quality initial exploration manifold, accelerating
-        convergence while the remaining random individuals preserve diversity.
+        """Initialize population as continuous Random Key vectors.
 
         Returns:
             Population matrix of shape (pop_size, n_nodes) in [-1.0, 1.0].
@@ -417,35 +377,13 @@ class DESolver:
         return population
 
     def _encode_routes(self, routes: List[List[int]]) -> np.ndarray:
-        """
-        Encode discrete routes into a continuous Random Key vector with noise injection.
-
-        This robust encoding prevents the Lamarckian Encoding Trap by maintaining
-        genetic diversity through:
-        1. Random initialization of unvisited nodes across negative domain
-        2. Noise injection into visited node encodings
-
-        Without noise, all locally-optimized solutions would encode to nearly
-        identical vectors, causing population collapse and premature convergence.
-
-        Strategy:
-            - Unvisited nodes: Random uniform values in [-1.0, -0.01]
-            - Visited nodes: Linearly spaced base values [0.1, 0.9] + noise [-0.05, 0.05]
+        """Encode discrete routes into a continuous Random Key vector with noise injection.
 
         Args:
-            routes: Discrete routing solution
+            routes: Discrete routing solution.
 
         Returns:
-            Continuous vector of shape (n_nodes,) in [-1.0, 1.0]
-
-        Mathematical Justification:
-            The noise injection preserves phenotypic quality (route sequence is unchanged
-            by small perturbations during decoding) while maintaining genotypic diversity
-            (population members have distinct continuous representations).
-
-        References:
-            Bean, J.C. (1994). "Genetic Algorithms and Random Keys for Sequencing
-            and Optimization." ORSA Journal on Computing, 6(2), 154-160.
+            Continuous vector of shape (n_nodes,) in [-1.0, 1.0].
         """
         # Initialize all nodes with random negative values (unvisited representation)
         # Distributing across [-1.0, -0.01] prevents genetic uniformity
@@ -480,19 +418,13 @@ class DESolver:
     # ------------------------------------------------------------------
 
     def _decode_vector(self, vector: np.ndarray) -> List[List[int]]:
-        """
-        Decode continuous Random Key vector into discrete VRPP routes.
-
-        Algorithm:
-            1. Selection: Include node i if vector[i] >= 0 OR i+1 in mandatory_nodes
-            2. Sequencing: Sort selected nodes by their Random Key values (ascending)
-            3. Route Packing: Greedily pack nodes into routes respecting capacity
+        """Decode continuous Random Key vector into discrete VRPP routes.
 
         Args:
-            vector: Continuous vector of shape (n_nodes,) in [-1.0, 1.0]
+            vector: Continuous vector of shape (n_nodes,) in [-1.0, 1.0].
 
         Returns:
-            Discrete routing solution satisfying capacity constraints
+            Discrete routing solution satisfying capacity constraints.
         """
         # Step 1: Node selection
         selected_nodes = []
@@ -539,14 +471,7 @@ class DESolver:
     # ------------------------------------------------------------------
 
     def _apply_boundary_handling(self, vector: np.ndarray, base_vector: np.ndarray) -> np.ndarray:
-        """
-        Apply bounce-back boundary handling to preserve genetic diversity.
-
-        While Storn & Price (1997) suggested incorporating parameter bounds via
-        penalty constraints, we employ a "bounce-back" method here. This is a
-        modern alternative that reassigns out-of-bounds values to a uniform
-        random position between the base vector and the violated boundary,
-        effectively preventing "boundary accumulation" in Random Key domains.
+        """Apply bounce-back boundary handling to preserve genetic diversity.
 
         Args:
             vector: The continuous vector to bound.
@@ -575,19 +500,14 @@ class DESolver:
     # ------------------------------------------------------------------
 
     def _exponential_crossover(self, target: np.ndarray, mutant: np.ndarray) -> np.ndarray:
-        """
-        Perform exponential crossover (DE/rand/1/exp).
+        """Perform exponential crossover (DE/rand/1/exp).
 
-        Following Storn & Price (1997), a series of consecutive parameters
-        are inherited from the mutant starting from a random index j.
+        Args:
+            target: Target vector.
+            mutant: Mutant vector.
 
-        Mathematical Logic:
-            n = rand(D); L = 0;
-            do {
-                u[n] = v[n];
-                n = (n + 1) % D;
-                L = L + 1;
-            } while (rand() < CR && L < D);
+        Returns:
+            The trial vector.
         """
         trial = target.copy()
         n = self.rng.randint(0, self.n_nodes)
@@ -616,40 +536,30 @@ class DESolver:
         diff2: np.ndarray,
         F: float,
     ) -> np.ndarray:
-        """
-        Continuous DE mutation operator: v = x_r1 + F * (x_r2 - x_r3).
-
-        This is the exact classical DE mutation formula operating in continuous space.
+        """Continuous DE mutation operator: v = x_r1 + F * (x_r2 - x_r3).
 
         Args:
-            base: Base vector (x_r1)
-            diff1: First differential vector (x_r2)
-            diff2: Second differential vector (x_r3)
-            F: Mutation scale factor
+            base: Base vector (x_r1).
+            diff1: First differential vector (x_r2).
+            diff2: Second differential vector (x_r3).
+            F: Mutation scale factor.
 
         Returns:
-            Mutant vector, clipped to domain [-1.0, 1.0]
+            Mutant vector, clipped to domain [-1.0, 1.0].
         """
         mutant = base + F * (diff1 - diff2)
         return np.clip(mutant, -1.0, 1.0)
 
     def _binomial_crossover(self, target: np.ndarray, mutant: np.ndarray, CR: float) -> np.ndarray:
-        """
-        Binomial crossover operator with domain enforcement.
-
-        For each dimension j, inherit from mutant with probability CR,
-        otherwise inherit from target. At least one dimension must come from mutant.
-
-        The resulting trial vector is clipped to [-1.0, 1.0] to prevent domain
-        violations that could occur if target or mutant values are near boundaries.
+        """Binomial crossover operator with domain enforcement.
 
         Args:
-            target: Target vector (x_i)
-            mutant: Mutant vector (v_i)
-            CR: Crossover probability [0, 1]
+            target: Target vector (x_i).
+            mutant: Mutant vector (v_i).
+            CR: Crossover probability [0, 1].
 
         Returns:
-            Trial vector (u_i), clipped to domain [-1.0, 1.0]
+            Trial vector (u_i), clipped to domain [-1.0, 1.0].
         """
         trial = np.copy(target)
 
@@ -668,14 +578,13 @@ class DESolver:
     # ------------------------------------------------------------------
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """
-        Evaluate fitness (net profit) of a solution.
+        """Evaluate fitness (net profit) of a solution.
 
         Args:
-            routes: Routing solution to evaluate
+            routes: Routing solution to evaluate.
 
         Returns:
-            Net profit = Revenue - Cost
+            Net profit = Revenue - Cost.
         """
         if not routes:
             return 0.0
@@ -683,14 +592,13 @@ class DESolver:
         return revenue - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """
-        Calculate total routing distance.
+        """Calculate total routing distance.
 
         Args:
-            routes: Routing solution
+            routes: Routing solution.
 
         Returns:
-            Total distance traveled
+            Total distance traveled.
         """
         total = 0.0
         for route in routes:

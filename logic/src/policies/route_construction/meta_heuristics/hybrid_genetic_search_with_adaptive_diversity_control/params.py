@@ -1,8 +1,12 @@
 """
 Configuration parameters for Hybrid Genetic Search Adaptive Diversity Control.
-"""
 
-from __future__ import annotations
+Attributes:
+    HGSADCParams: Data class for HGS-ADC parameters.
+
+Example:
+    >>> params = HGSADCParams(pop_size=50)
+"""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -17,11 +21,14 @@ class HGSADCParams:
     Parameters for the HGSADC algorithm.
 
     Attributes:
-        pop_size: Population size
-        mu: Number of elitist parents
-        nb_close: Number of nearest neighbors to consider for elitism
-        generations: Number of generations
-        n_vehicles: Number of vehicles
+        pop_size: Population size.
+        mu: Number of elitist parents.
+        nb_close: Number of nearest neighbors to consider for elitism.
+        generations: Number of generations.
+        n_vehicles: Number of vehicles.
+
+    Example:
+        >>> params = HGSADCParams()
     """
 
     pop_size: int = 25
@@ -32,7 +39,15 @@ class HGSADCParams:
 
     @classmethod
     def from_config(cls, config: "HGSADCConfig") -> "HGSADCParams":
-        """from_config docstring."""
+        """
+        Create params from config.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            HGSADCParams: Parameters instance.
+        """
         return cls(
             pop_size=getattr(config, "pop_size", 25),
             mu=getattr(config, "mu", 25),

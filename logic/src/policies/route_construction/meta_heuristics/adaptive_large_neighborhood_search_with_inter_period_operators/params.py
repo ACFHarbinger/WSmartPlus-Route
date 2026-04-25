@@ -1,5 +1,11 @@
-"""
-Configuration parameters for the ALNS-IPO solver.
+r"""Configuration parameters for the ALNS-IPO solver.
+
+Attributes:
+    ALNSIPOParams: Configuration parameters for the ALNS-IPO solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.params import ALNSIPOParams
+    >>> params = ALNSIPOParams(horizon=7)
 """
 
 from __future__ import annotations

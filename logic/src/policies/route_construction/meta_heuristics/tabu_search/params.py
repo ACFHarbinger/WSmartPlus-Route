@@ -1,7 +1,10 @@
-"""
-Configuration parameters for the Tabu Search (TS) solver.
+"""Configuration parameters for the Tabu Search (TS) solver.
 
-Based on Fred Glover's "Tabu Search Fundamentals and Uses" (1995).
+Attributes:
+    TSParams: Parameter dataclass for the Tabu Search.
+
+Example:
+    >>> params = TSParams(max_iterations=1000)
 """
 
 from __future__ import annotations
@@ -14,53 +17,37 @@ from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
 @dataclass
 class TSParams:
-    """
-    Configuration for the Tabu Search solver.
-
-    TS uses adaptive memory (short-term and long-term) and responsive
-    exploration through recency-based and frequency-based memory structures.
+    """Configuration for the Tabu Search solver.
 
     Attributes:
-        # Short-term memory (Recency-based)
-        tabu_tenure: Fixed tabu tenure (number of iterations).
-        dynamic_tenure: Whether to use dynamic tenure based on solution quality.
+        tabu_tenure: Fixed tabu tenure.
+        dynamic_tenure: Whether to use dynamic tenure.
         min_tenure: Minimum tenure for dynamic adjustment.
         max_tenure: Maximum tenure for dynamic adjustment.
-
-        # Aspiration criteria
-        aspiration_enabled: Enable aspiration criteria to override tabu.
-
-        # Long-term memory (Frequency-based)
+        aspiration_enabled: Enable aspiration criteria.
         intensification_enabled: Enable intensification strategies.
         diversification_enabled: Enable diversification strategies.
         intensification_interval: Iterations between intensification phases.
         diversification_interval: Iterations between diversification phases.
         elite_size: Number of elite solutions to maintain.
         frequency_penalty_weight: Weight for frequency-based penalties.
-
-        # Candidate list strategies
         candidate_list_enabled: Use candidate list to restrict neighborhood.
         candidate_list_size: Maximum size of candidate list.
-
-        # Strategic oscillation
         oscillation_enabled: Enable strategic oscillation.
         feasibility_tolerance: Tolerance for infeasibility during oscillation.
-
-        # General search parameters
         max_iterations: Maximum number of iterations.
-        max_iterations_no_improve: Restart if no improvement for this many iterations.
-        n_removal: Number of nodes to remove per destroy step.
-        n_llh: Number of low-level heuristics in the pool.
-        time_limit: Wall-clock time limit in seconds.
-        seed: Random seed for reproducibility.
-        vrpp: Whether the problem is VRPP (True) or CVRP (False).
-        profit_aware_operators: Whether to use profit-aware insertion/removal.
-
-        # Neighborhood structure
+        max_iterations_no_improve: Restart threshold.
+        n_removal: Number of nodes to remove.
+        n_llh: Number of low-level heuristics.
+        time_limit: Wall-clock time limit.
+        seed: Random seed.
+        vrpp: Whether the problem is VRPP.
+        profit_aware_operators: Whether to use profit-aware operators.
         use_swap: Enable swap neighborhood.
         use_relocate: Enable relocate neighborhood.
         use_2opt: Enable 2-opt neighborhood.
         use_insertion: Enable insertion-based neighborhoods.
+        acceptance_criterion: Criterion for accepting moves.
     """
 
     # Short-term memory
@@ -107,7 +94,11 @@ class TSParams:
     acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
 
     def __post_init__(self):
-        """Ensure acceptance criterion is initialized even if not passed in config."""
+        """Ensure acceptance criterion is initialized.
+
+        Returns:
+            None.
+        """
         if self.acceptance_criterion is None:
             # Standard Tabu Search uses Aspiration Criterion acceptance
             from logic.src.policies.acceptance_criteria.base.factory import (
@@ -118,7 +109,14 @@ class TSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> TSParams:
-        """Build parameters from a configuration object."""
+        """Build parameters from a configuration source.
+
+        Args:
+            config: Configuration source.
+
+        Returns:
+            Instantiated TSParams.
+        """
         # Build parameters
         params = cls(
             tabu_tenure=getattr(config, "tabu_tenure", 7),

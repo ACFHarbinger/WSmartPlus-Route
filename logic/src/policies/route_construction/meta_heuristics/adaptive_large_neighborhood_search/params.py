@@ -1,5 +1,10 @@
-"""
-Configuration parameters for the Adaptive Large Neighborhood Search (ALNS).
+r"""Configuration parameters for the Adaptive Large Neighborhood Search (ALNS).
+
+Attributes:
+    ALNSParams: Dataclass for ALNS solver configuration.
+
+Example:
+    >>> params = ALNSParams(time_limit=30.0, max_iterations=1000)
 """
 
 from __future__ import annotations

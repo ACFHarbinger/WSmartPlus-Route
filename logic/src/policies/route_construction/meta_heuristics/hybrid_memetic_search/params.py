@@ -1,8 +1,12 @@
 """
 Parameters for the Hybrid Memetic Search (HMS).
-"""
 
-from __future__ import annotations
+Attributes:
+    HybridMemeticSearchParams: Configuration dataclass for HMS.
+
+Example:
+    >>> params = HybridMemeticSearchParams(population_size=50)
+"""
 
 from dataclasses import dataclass, field
 from typing import Any, Optional
@@ -29,8 +33,12 @@ class HybridMemeticSearchParams:
         crossover_rate: Probability of recombining two parents.
         mutation_rate: Probability of local perturbation.
         elitism_count: Number of best solutions to preserve across generations.
+        n_removal: Number of nodes to remove in mutation.
         aco_init_iterations: ACO iterations for population seeding.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve the VRP with profits.
+        profit_aware_operators: Whether to use profit-aware heuristics.
         aco_params: ACO configuration.
         alns_params: ALNS configuration.
     """
@@ -56,7 +64,14 @@ class HybridMemeticSearchParams:
     alns_params: Optional[ALNSParams] = field(default_factory=lambda: None)
 
     def __post_init__(self):
-        """Initialize sub-algorithm parameters with defaults if not provided."""
+        """Initialize sub-algorithm parameters with defaults if not provided.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         if self.aco_params is None:
             self.aco_params = KSACOParams(
                 n_ants=20,
@@ -95,8 +110,15 @@ class HybridMemeticSearchParams:
             self.alns_params.profit_aware_operators = self.profit_aware_operators
 
     @classmethod
-    def from_config(cls, config: Any) -> HybridMemeticSearchParams:
-        """Create HybridMemeticSearchParams from an HMSConfig dataclass or dict."""
+    def from_config(cls, config: Any) -> "HybridMemeticSearchParams":
+        """Create HybridMemeticSearchParams from an HMSConfig dataclass or dict.
+
+        Args:
+            config: Configuration source (dataclass or dictionary).
+
+        Returns:
+            HybridMemeticSearchParams: Initialized parameter object.
+        """
         if isinstance(config, dict):
             return cls(
                 population_size=config.get("population_size", 30),
@@ -121,6 +143,7 @@ class HybridMemeticSearchParams:
             crossover_rate=config.crossover_rate,
             mutation_rate=config.mutation_rate,
             elitism_count=config.elitism_count,
+            max_iterations=config.max_iterations,  # type: ignore[attr-defined]
             aco_init_iterations=config.aco_init_iterations,
             time_limit=config.time_limit,
             n_removal=config.n_removal,
@@ -136,5 +159,12 @@ class HybridMemeticSearchParams:
 
     @property
     def max_iterations(self) -> int:
-        """Alias for max_generations to match HVPL exactly."""
+        """Alias for max_generations to match HVPL exactly.
+
+        Args:
+            None.
+
+        Returns:
+            int: Total generations.
+        """
         return self.max_generations

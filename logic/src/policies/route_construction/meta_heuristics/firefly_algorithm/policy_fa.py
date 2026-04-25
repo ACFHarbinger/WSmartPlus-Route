@@ -1,19 +1,15 @@
-"""
-FA Policy Adapter.
+"""FA Policy Adapter.
 
 Adapts the Discrete Firefly Algorithm (FA) solver to the agnostic
 BaseRoutingPolicy interface.
 
 Attributes:
-    FAConfig (Type): Configuration schema for the FA solver.
-    BaseRoutingPolicy (Type): Abstract base for routing policies.
-    RouteConstructorRegistry (Type): Global registry for constructors.
+    FAPolicy: Policy class for Discrete Firefly Algorithm.
 
 Example:
     >>> from logic.src.configs.policies.fa import FAConfig
     >>> config = FAConfig(pop_size=20)
     >>> policy = FAPolicy(config)
-    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -30,22 +26,20 @@ from .solver import FASolver
 
 @RouteConstructorRegistry.register("fa")
 class FAPolicy(BaseRoutingPolicy):
-    """
-    FA policy class.
-
-    Visits bins using the Discrete Firefly Algorithm.
+    """FA policy class.
 
     Attributes:
-        solver (FASolver): Internal solver instance.
-        params (FAParams): Algorithm parameters.
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[FAConfig, Dict[str, Any]]] = None):
         """Initializes the FA policy.
 
         Args:
-            config (Optional[Union[FAConfig, Dict[str, Any]]]): Configuration
-                source for the Discrete Firefly Algorithm.
+            config: Configuration source for the Discrete Firefly Algorithm.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
@@ -54,7 +48,7 @@ class FAPolicy(BaseRoutingPolicy):
         """Returns the configuration class for FA.
 
         Returns:
-            Optional[Type]: The FAConfig class.
+            The FAConfig class.
         """
         return FAConfig
 
@@ -62,7 +56,7 @@ class FAPolicy(BaseRoutingPolicy):
         """Returns the configuration key for the FA policy.
 
         Returns:
-            str: The registry key 'fa'.
+            The registry key 'fa'.
         """
         return "fa"
 
@@ -77,42 +71,22 @@ class FAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Discrete Firefly Algorithm (FA) solver logic.
+        """Execute the Discrete Firefly Algorithm (FA) solver logic.
 
-        FA is a nature-inspired metaheuristic based on the flashing behavior
-        of fireflies. In this discrete version for the VRPP:
-        - Attraction: Fireflies (solutions) are attracted to others with
-          higher "brightness" (better profit).
-        - Movement: Attraction triggers a movement where the less bright
-          firefly shifts its structure towards the brighter one using
-          probabilistic edge swaps and removals.
-        - Light Intensity: Diminishes with distance, modeled through the
-          gamma parameter to balance exploration and intensification.
+        FA is a nature-inspired metaheuristic based on the behavior of fireflies.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                FA parameters (pop_size, beta0, gamma, alpha_profit).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            kwargs (Any): Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Mapping of local node indices to waste levels.
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste.
+            cost_unit: Monetary cost incurred per kilometer.
+            values: Merged configuration dictionary.
+            mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple of (routes, profit, cost).
         """
         params = FAParams(
             pop_size=int(values.get("pop_size", 20)),

@@ -3,6 +3,14 @@ QDE Policy Adapter.
 
 Adapts the Quantum-Inspired Differential Evolution (QDE) logic to the
 agnostic BaseRoutingPolicy interface.
+
+Attributes:
+    QDEPolicy: Policy class registering the QDE solver under key "qde".
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.policy_qde import QDEPolicy
+    >>> policy = QDEPolicy()
+    >>> routes, profit, cost = policy.run(dist_matrix, wastes, capacity, revenue, cost_unit, values, mandatory_nodes)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -23,6 +31,9 @@ class QDEPolicy(BaseRoutingPolicy):
     QDE policy class.
 
     Visits bins using Quantum-Inspired Differential Evolution.
+
+    Attributes:
+        config: QDEConfig or equivalent dict with solver hyperparameters.
     """
 
     def __init__(self, config: Optional[Union[QDEConfig, Dict[str, Any]]] = None):
@@ -36,9 +47,19 @@ class QDEPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the config dataclass used by this policy.
+
+        Returns:
+            Type: QDEConfig dataclass.
+        """
         return QDEConfig
 
     def _get_config_key(self) -> str:
+        """Return the YAML config key for this solver.
+
+        Returns:
+            str: Config key "qde".
+        """
         return "qde"
 
     def _run_solver(
@@ -78,7 +99,7 @@ class QDEPolicy(BaseRoutingPolicy):
                 QDE parameters (pop_size, F, CR, delta_theta).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

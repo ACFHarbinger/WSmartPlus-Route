@@ -33,6 +33,16 @@ References:
     Ai, T. J., & Kachitvichyanukul, V. (2009). "A particle swarm optimization
     for the vehicle routing problem with simultaneous pickup and delivery."
     Computers & Operations Research, 36(6), 1693-1702.
+
+Attributes:
+    DistancePSOSolver: PSO solver class with velocity momentum for VRPP.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.solver import DistancePSOSolver
+    >>> from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params import DistancePSOParams
+    >>> params = DistancePSOParams()
+    >>> solver = DistancePSOSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -59,6 +69,15 @@ class DistancePSOSolver:
     - Current position x(t): routing solution
     - Velocity v(t): tendency to change solution (represented as node sets)
     - Personal best pbest: best solution this particle has found
+
+    Attributes:
+        dist_matrix: Distance matrix including depot at index 0.
+        wastes: Node-to-waste-quantity mapping.
+        capacity: Vehicle capacity constraint.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance.
+        params: PSO hyperparameter configuration.
+        mandatory_nodes: Nodes that must be visited.
     """
 
     def __init__(

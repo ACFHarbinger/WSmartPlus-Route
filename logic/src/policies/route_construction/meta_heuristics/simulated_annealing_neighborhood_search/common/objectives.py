@@ -1,5 +1,24 @@
 """
 Objective functions for SANS.
+
+Attributes:
+    compute_profit: Calculate the total objective value (Profit - Penalties).
+    compute_real_profit: Calculate the "real" profit (Revenue - Travel Cost - Vehicle penalty).
+    compute_total_profit: Calculate the total profit considering revenue and cost.
+
+Example:
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> cost, profit = compute_profit(
+    ...     routes,
+    ...     p_vehicle=0.1,
+    ...     p_load=0.1,
+    ...     p_route_difference=0.1,
+    ...     p_shift=0.1,
+    ...     data=data,
+    ...     distance_matrix=distance_matrix,
+    ...     values=values,
+    ... )
+    >>> print(f"Cost: {cost}, Profit: {profit}")
 """
 
 from logic.src.constants import MAX_CAPACITY_PERCENT
@@ -95,9 +114,22 @@ def compute_real_profit(routes_list, p_vehicle, data, distance_matrix, values):
 
 def compute_total_profit(routes, distance_matrix, id_to_index, data, R, V, density, cost_per_km=1.0):
     """
-    Calcula o lucro total considerando:
-    - Receita: soma dos pesos (kg) coletados multiplicado por R (€/kg)
-    - Custo: soma das distâncias multiplicada por custo por km (default = 1.0 €/km)
+    Calculate the total profit considering:
+    - Revenue: sum of weights (kg) collected multiplied by R (€/kg)
+    - Cost: sum of distances multiplied by cost per km (default = 1.0 €/km)
+
+    Args:
+        routes (List[List[int]]): Current routing solution.
+        distance_matrix (np.ndarray): Distance matrix.
+        id_to_index (Dict): Mapping of bin IDs to their indices.
+        data (pd.DataFrame): Bin data.
+        R (float): Revenue per kg.
+        V (float): Bin volume.
+        density (float): Bin density.
+        cost_per_km (float, optional): Cost per km. Defaults to 1.0.
+
+    Returns:
+        float: Total calculated profit.
     """
     total_kg = 0
     total_km = 0

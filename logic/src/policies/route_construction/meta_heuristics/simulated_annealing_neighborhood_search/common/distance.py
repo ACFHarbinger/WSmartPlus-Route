@@ -1,5 +1,24 @@
 """
 Distance and time calculations for SANS.
+
+Attributes:
+    compute_distance_per_route: Calculate the total travel distance for each individual route.
+    compute_route_time: Calculate the total travel duration for each individual route.
+    compute_sans_route_cost: Calculate the total travel cost for each individual route.
+    compute_total_cost: Calculate the total travel cost for all routes.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.distance import compute_distance_per_route, compute_route_time, compute_sans_route_cost, compute_total_cost
+    >>> routes_list = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> distance_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+    >>> compute_distance_per_route(routes_list, distance_matrix)
+    [3, 3]
+    >>> compute_route_time(routes_list, [3, 3])
+    [21.0, 21.0]
+    >>> compute_sans_route_cost([0, 1, 2, 0], distance_matrix, {0: 0, 1: 1, 2: 2})
+    4
+    >>> compute_total_cost(routes_list, distance_matrix, {0: 0, 1: 1, 2: 2, 3: 3, 4: 4})
+    6
 """
 
 from logic.src.constants.routing import (

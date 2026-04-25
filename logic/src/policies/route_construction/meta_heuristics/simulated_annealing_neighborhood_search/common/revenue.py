@@ -1,5 +1,13 @@
 """
 Revenue calculations for SANS.
+
+Attributes:
+    compute_waste_collection_revenue: Calculate the total revenue from waste collected in the current routes.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.revenue import compute_waste_collection_revenue
+    >>> revenue = compute_waste_collection_revenue(routes_list, data, E, B, R)
+    >>> print(revenue)
 """
 
 

@@ -1,5 +1,10 @@
-"""
-Configuration parameters for the Harmony Search (HS) solver.
+"""Configuration parameters for the Harmony Search (HS) solver.
+
+Attributes:
+    HSParams: Parameter dataclass for the Harmony Search.
+
+Example:
+    >>> params = HSParams(hm_size=20)
 """
 
 from __future__ import annotations
@@ -10,24 +15,19 @@ from typing import Any, Optional
 
 @dataclass
 class HSParams:
-    """
-    Configuration parameters for the Harmony Search solver.
-
-    The algorithm maintains a Harmony Memory (HM) that archives the most
-    profitable route topologies.  New harmonies are improvised node-by-node
-    using three probability-driven mechanisms: HM consideration, pitch
-    adjustment, and random selection.
+    """Configuration parameters for the Harmony Search solver.
 
     Attributes:
         hm_size: Size of the Harmony Memory (archive capacity).
-        HMCR: Harmony Memory Considering Rate ∈ [0, 1].
-        PAR: Pitch Adjusting Rate ∈ [0, 1] (conditional on HMCR success).
+        HMCR: Harmony Memory Considering Rate.
+        PAR: Pitch Adjusting Rate.
+        BW: Bandwidth for adjustment.
         max_iterations: Total number of improvisation cycles.
         local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
         seed: Random seed for reproducibility.
-        vrpp: Whether the problem is VRPP (True) or CVRP (False).
-        profit_aware_operators: Whether to use profit-aware insertion/removal.
+        vrpp: Whether solving VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware operators.
     """
 
     hm_size: int = 10
@@ -43,7 +43,14 @@ class HSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> HSParams:
-        """Build parameters from a configuration object."""
+        """Build parameters from a configuration object.
+
+        Args:
+            config: Configuration source.
+
+        Returns:
+            Instantiated HSParams.
+        """
         return cls(
             hm_size=getattr(config, "hm_size", 10),
             HMCR=getattr(config, "HMCR", 0.95),

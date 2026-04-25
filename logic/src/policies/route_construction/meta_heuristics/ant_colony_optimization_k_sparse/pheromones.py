@@ -1,5 +1,4 @@
-"""
-Sparse Pheromone Management Module.
+r"""Sparse Pheromone Management Module.
 
 This module implements the sparse pheromone matrix used in K-Sparse ACO
 following the MMAS_exp methodology from Hale (2021).
@@ -8,11 +7,11 @@ It uses dynamic default_value tracking and precision-based pruning
 instead of fixed-capacity storage.
 
 Attributes:
-    None
+    SparsePheromoneTau: Sparse pheromone matrix with precision-based pruning.
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization_k_sparse.pheromones import SparsePheromoneTau
-    >>> pheromone = SparsePheromoneTau(n_nodes=100, tau_0=1.0, scale=5.0, ...)
+    >>> from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones import SparsePheromoneTau
+    >>> pheromone = SparsePheromoneTau(n_nodes=100, tau_0=1.0, scale=5.0, tau_min=0.001, tau_max=10.0)
     >>> val = pheromone.get(0, 1)
 
 Reference:
@@ -26,8 +25,7 @@ from typing import Dict
 
 
 class SparsePheromoneTau:
-    """
-    Sparse pheromone matrix using MMAS_exp with precision-based pruning.
+    """Sparse pheromone matrix using MMAS_exp with precision-based pruning.
 
     Instead of maintaining a fixed k-capacity cache, this implementation
     tracks a dynamic default_value that evaporates globally. Edge values
@@ -37,6 +35,13 @@ class SparsePheromoneTau:
     This approach follows the experimental MAX-MIN Ant System (MMAS_exp)
     described in Hale (2021), optimizing both memory usage and computation
     time while maintaining MMAS convergence properties.
+
+    Attributes:
+        n_nodes: Total number of nodes (including depot).
+        scale: Precision parameter for pruning edge values.
+        tau_min: Minimum pheromone bound (MMAS lower limit).
+        tau_max: Maximum pheromone bound (MMAS upper limit).
+        default_value: Dynamic default value that evaporates globally.
     """
 
     def __init__(self, n_nodes: int, tau_0: float, scale: float, tau_min: float, tau_max: float):
@@ -87,6 +92,9 @@ class SparsePheromoneTau:
             i: Source node index.
             j: Destination node index.
             value: New pheromone value (will be clamped to [tau_min, tau_max]).
+
+        Returns:
+            None.
         """
         # Apply MMAS bounds
         value = max(self.tau_min, min(self.tau_max, value))
@@ -105,6 +113,9 @@ class SparsePheromoneTau:
             i: Source node index.
             j: Destination node index.
             delta: Amount of pheromone to deposit.
+
+        Returns:
+            None.
         """
         current = self.get(i, j)
         self.set(i, j, current + delta)
@@ -120,6 +131,9 @@ class SparsePheromoneTau:
 
         Args:
             rho: Evaporation rate (0 < rho < 1).
+
+        Returns:
+            None.
         """
         # Step 1: Evaporate the default value and apply MMAS lower bound
         self.default_value = max(self.tau_min, self.default_value * (1 - rho))

@@ -1,5 +1,20 @@
 """
 Inter-route swap operators for the Look-Ahead policy.
+
+Attributes:
+    swap_2_routes(routes_list, rng): Swaps one bin from one route with another bin
+    from a different route.
+
+    swap_n_2_routes_random(routes_list, rng, n): Swaps n random bins between two different routes.
+
+    swap_n_2_routes_consecutive(routes_list, rng, n): Swaps two consecutive sequences of n bins
+    between two different routes.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_swap import swap_2_routes
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> swap_2_routes(routes, rng)
+    >>> print(routes)
 """
 
 from random import Random

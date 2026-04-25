@@ -1,5 +1,14 @@
 """
 Particle class for the Particle Swarm Optimization Memetic Algorithm (PSOMA).
+
+Attributes:
+    PSOMAParticle: Single-particle class holding position, velocity and personal best.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle import PSOMAParticle
+    >>> particle = PSOMAParticle(routes=[[1, 2, 3]], profit=10.5)
+    >>> print(particle.pbest_profit)
+    10.5
 """
 
 import copy

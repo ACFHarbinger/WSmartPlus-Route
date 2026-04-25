@@ -1,26 +1,11 @@
-"""
-Simulated Annealing (SA) core solver for VRPP.
-
-This implementation executes a discrete-time Markov chain traversal of the
-routing solution space. It evaluates candidate neighborhood structures utilizing
-the stochastic Metropolis acceptance criterion, mathematically formulated to
-allow controlled objective deterioration to escape local optima.
-
-The objective function f(s) evaluates Net Profit. As this is a maximization
-problem, the Boltzmann acceptance probability for a deteriorating move (Δf < 0)
-is defined exactly as: P = exp(Δf / T).
+"""Simulated Annealing (SA) core solver for VRPP.
 
 Attributes:
-    SASolver (Type): Core solver class for Simulated Annealing.
-    SAParams (Type): Parameter dataclass for the solver.
+    SASolver: Core solver class for Simulated Annealing.
 
 Example:
     >>> solver = SASolver(dist_matrix, wastes, capacity, R, C, params)
     >>> routes, profit, cost = solver.solve()
-
-References:
-    Kirkpatrick, S., et al. (1983). "Optimization by simulated annealing". Science.
-    Metropolis, N., et al. (1953). "Equation of state calculations by fast computing machines".
 """
 
 import math
@@ -28,6 +13,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
 from logic.src.policies.helpers.local_search.local_search_base import LocalSearch
 from logic.src.policies.helpers.operators import (
     greedy_insertion,
@@ -40,17 +26,13 @@ from .params import SAParams
 
 
 class SASolver(LocalSearch):
-    """
-    Simulated Annealing exact solver logic.
+    """Simulated Annealing exact solver logic.
 
     Attributes:
-        dist_matrix (np.ndarray): Symmetric distance matrix.
-        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-        capacity (float): Maximum vehicle collection capacity.
-        R (float): Revenue per kg of waste.
-        C (float): Cost per km traveled.
-        params (SAParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        mandatory_nodes: Nodes that must be visited.
+        nodes: List of node indices.
+        thermal_log: Log of temperature and fitness metrics.
+        acceptance_criterion: Criterion for accepting moves.
     """
 
     def __init__(
@@ -66,13 +48,13 @@ class SASolver(LocalSearch):
         """Initializes the Simulated Annealing solver.
 
         Args:
-            dist_matrix (np.ndarray): Symmetric distance matrix.
-            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-            capacity (float): Maximum vehicle collection capacity.
-            R (float): Revenue per kg of waste.
-            C (float): Cost per km traveled.
-            params (SAParams): Algorithm-specific parameters (T_0, alpha).
-            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+            dist_matrix: Symmetric distance matrix.
+            wastes: Mapping of bin IDs to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            R: Revenue per kg of waste.
+            C: Cost per km traveled.
+            params: Algorithm-specific parameters.
+            mandatory_nodes: Nodes that must be visited.
         """
         super().__init__(
             dist_matrix=dist_matrix,
@@ -88,14 +70,28 @@ class SASolver(LocalSearch):
         self.acceptance_criterion = params.acceptance_criterion
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Calculate net profit: Revenue - Cost."""
+        """Calculate net profit: Revenue - Cost.
+
+        Args:
+            routes: Routing solution.
+
+        Returns:
+            Net profit value.
+        """
         if not routes:
             return 0.0
         revenue = sum(self.waste.get(node, 0.0) for r in routes for node in r)
         return (revenue * self.R) - (self._cost(routes) * self.C)
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Calculate total distance cost."""
+        """Calculate total distance cost.
+
+        Args:
+            routes: Routing solution.
+
+        Returns:
+            Total distance traveled.
+        """
         total = 0.0
         for route in routes:
             if not route:
@@ -108,7 +104,14 @@ class SASolver(LocalSearch):
         return total
 
     def _get_route_arcs(self, route: List[int]) -> List[Tuple[int, int]]:
-        """Helper to extract arcs from a route."""
+        """Extract arcs from a route.
+
+        Args:
+            route: Sequence of nodes.
+
+        Returns:
+            List of (from_node, to_node) tuples.
+        """
         if not route:
             return []
         arcs = [(0, route[0])]
@@ -120,7 +123,21 @@ class SASolver(LocalSearch):
     def _get_affected_arcs(
         self, op: str, current_routes: List[List[int]], u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int
     ) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]]]:
-        """Fix 7: Extract removed and inserted arcs for an operator."""
+        """Extract removed and inserted arcs for an operator.
+
+        Args:
+            op: Operator name.
+            current_routes: Current solution.
+            u: Node u.
+            v: Node v.
+            r_u: Route index for u.
+            p_u: Position index for u.
+            r_v: Route index for v.
+            p_v: Position index for v.
+
+        Returns:
+            Tuple of (removed_arcs, inserted_arcs).
+        """
         removed = []
         inserted = []
 
@@ -155,13 +172,28 @@ class SASolver(LocalSearch):
         return removed, inserted
 
     def _delta_evaluate(self, removed: List[Tuple[int, int]], inserted: List[Tuple[int, int]]) -> float:
-        """Calculate profit delta from arc changes."""
+        """Calculate profit delta from arc changes.
+
+        Args:
+            removed: List of removed arcs.
+            inserted: List of inserted arcs.
+
+        Returns:
+            Change in profit.
+        """
         dist_delta = sum(self.d[i, j] for i, j in inserted) - sum(self.d[i, j] for i, j in removed)
         return -dist_delta * self.C
 
     def _perturb(self, current_routes: List[List[int]], T: float, T_0: float) -> Tuple[str, List[List[int]], float]:
-        """
-        Generate neighbor, returning (op, solution, delta_profit).
+        """Generate neighbor, returning (op, solution, delta_profit).
+
+        Args:
+            current_routes: Current solution.
+            T: Current temperature.
+            T_0: Initial temperature.
+
+        Returns:
+            Tuple of (operator_name, new_solution, profit_delta).
         """
         roll = self.random.random()
         if roll < 0.1:
@@ -244,7 +276,14 @@ class SASolver(LocalSearch):
             return op, copied, rev_gain - (dist_change * self.C)
 
     def _calibrate_initial_temperature(self, start_routes: List[List[int]]) -> float:
-        """Solve for T_0 such that initial acceptance of worsening moves is approx 80%."""
+        """Solve for T_0 such that initial acceptance of worsening moves is approx 80%.
+
+        Args:
+            start_routes: Initial solution.
+
+        Returns:
+            Calibrated initial temperature.
+        """
         worsening_deltas = []
         for _ in range(self.params.calibration_samples):
             _, _, delta_f = self._perturb(
@@ -260,21 +299,25 @@ class SASolver(LocalSearch):
         return -avg_w / math.log(self.params.target_initial_acceptance)
 
     def optimize(self, solution: List[List[int]]) -> List[List[int]]:
-        """Implementation for LocalSearch ABC."""
+        """Implementation for LocalSearch ABC.
+
+        Args:
+            solution: Starting solution.
+
+        Returns:
+            Optimized solution.
+        """
         best_routes, _, __ = self.solve(initial_solution=solution)
         return best_routes
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:  # noqa: C901
-        """
-        Kirkpatrick (1983) Simulated Annealing.
-        Adaptive Markov chains, specific heat tracking, and multi-start.
+        """Kirkpatrick (1983) Simulated Annealing.
 
         Args:
-            initial_solution (Optional[List[List[int]]]): Starting solution.
-                If None, builds a greedy initial solution.
+            initial_solution: Starting solution.
 
         Returns:
-            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
+            Tuple of (routes, profit, cost).
         """
         start_time = time.time()
         global_best_routes = []

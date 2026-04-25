@@ -9,6 +9,16 @@ amplitudes and calling greedy_insertion.
 Reference:
     Li, B., & Li, P. (2015). "Quantum Inspired Differential Evolution Algorithm."
     Chen, S., Li, Z., Yang, B., & Rudolph, G. (2015). "Quantum-inspired hyper-heuristics for energy-aware scheduling on heterogeneous computing systems."
+
+Attributes:
+    QDESolver: Quantum-Inspired DE solver for VRPP.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver import QDESolver
+    >>> from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params import QDEParams
+    >>> params = QDEParams()
+    >>> solver = QDESolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -34,6 +44,15 @@ from logic.src.policies.route_construction.meta_heuristics.quantum_differential_
 class QDESolver:
     """
     Quantum-Inspired Differential Evolution solver for VRPP.
+
+    Attributes:
+        dist_matrix: Distance matrix between nodes including depot at index 0.
+        wastes: Node-to-waste-quantity mapping.
+        capacity: Vehicle capacity constraint.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance.
+        params: QDE hyperparameter configuration.
+        mandatory_nodes: Nodes that must be included in the solution.
     """
 
     def __init__(

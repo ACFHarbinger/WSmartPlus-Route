@@ -7,6 +7,13 @@ Reference:
     Moghdani, R., & Salimifard, K. (2018). "Volleyball Premier League
     Algorithm." Applied Soft Computing, 64, 161-185.
     DOI: https://doi.org/10.1016/j.asoc.2017.11.043
+
+Attributes:
+    VPLPolicy: The VPL policy class.
+
+Example:
+    >>> policy = VPLPolicy()
+    >>> routes, profit, cost = policy._run_solver(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, values, mandatory_nodes)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -27,6 +34,9 @@ class VPLPolicy(BaseRoutingPolicy):
 
     Visits pre-selected 'mandatory' bins using the population-based VPL metaheuristic
     with dual population structure (active and passive teams).
+
+    Attributes:
+        config (Optional[Union[VPLConfig, Dict[str, Any]]]): VPL configuration.
     """
 
     def __init__(self, config: Optional[Union[VPLConfig, Dict[str, Any]]] = None):
@@ -39,10 +49,21 @@ class VPLPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """
+        Return the configuration class for this policy.
+
+        Returns:
+            Optional[Type[VPLConfig]]: The configuration class.
+        """
         return VPLConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for VPL."""
+        """
+        Return config key for VPL.
+
+        Returns:
+            str: The config key.
+        """
         return "vpl"
 
     def _run_solver(
@@ -83,7 +104,7 @@ class VPLPolicy(BaseRoutingPolicy):
                 VPL parameters (n_teams, substitution_rate, coaching_weights).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

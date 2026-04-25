@@ -8,6 +8,13 @@ Reference:
     Vidal, T. (2022). Hybrid genetic search for the CVRP: Open-source
     implementation and SWAP* neighborhood. Computers & Operations Research,
     140, 105643.
+
+Attributes:
+    HGSSolver: Main solver class for the Hybrid Genetic Search.
+
+Example:
+    >>> solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import random
@@ -28,6 +35,23 @@ from .split import LinearSplit
 class HGSSolver:
     """
     Implements Hybrid Genetic Search for VRPP.
+
+    Attributes:
+        d (np.ndarray): NxN distance matrix.
+        wastes (Dict[int, float]): Dictionary of node wastes.
+        Q (float): Maximum vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        params (HGSParams): Detailed HGS parameters.
+        mandatory_nodes (Optional[List[int]]): List of nodes that must be visited.
+        random (random.Random): Random number generator.
+        n_nodes (int): Number of nodes excluding depot.
+        nodes (List[int]): List of node IDs [1, ..., n_nodes].
+        split_manager (LinearSplit): Manager for the Split algorithm.
+        ls (HGSLocalSearch): Local search engine.
+
+    Example:
+        >>> solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params)
     """
 
     def __init__(
@@ -57,6 +81,9 @@ class HGSSolver:
                       When provided together with y_coords, enables SWAP* polar sector pruning.
             y_coords: Optional array of y-coordinates indexed by node id (index 0 = depot).
                       When provided together with x_coords, enables SWAP* polar sector pruning.
+
+        Returns:
+            None.
         """
         self.d = dist_matrix
         self.wastes = wastes
@@ -115,7 +142,16 @@ class HGSSolver:
         return pop_feasible, pop_infeasible
 
     def _trim_one(self, pop: List[Individual], distance_cache: Optional[dict] = None) -> None:
-        """Trim one sub-population to mu, removing clones first then worst by fitness."""
+        """
+        Trim one sub-population to mu, removing clones first then worst by fitness.
+
+        Args:
+            pop: Subpopulation to trim.
+            distance_cache: Optional cache for diversity distances.
+
+        Returns:
+            None.
+        """
         # Fix 1: Subpopulation survivor selection is triggered when size reaches mu + lambda
         if len(pop) < self.params.mu + self.params.n_offspring:
             return
@@ -131,7 +167,15 @@ class HGSSolver:
             pop.pop(worst_idx)
 
     def _find_clone(self, pop: List[Individual]) -> Optional[int]:
-        """Return the index of any individual whose routes are identical to another's, or None."""
+        """
+        Return the index of any individual whose routes are identical to another's, or None.
+
+        Args:
+            pop: Subpopulation to search for clones.
+
+        Returns:
+            Optional[int]: Index of the clone, or None if no clone found.
+        """
         seen: set = set()
         for i, ind in enumerate(pop):
             # Use a frozenset of tuples as a hashable route signature
@@ -147,7 +191,17 @@ class HGSSolver:
         ind_b: Individual,
         cache: dict,
     ) -> float:
-        """Get diversity distance between two individuals using object-ID based cache."""
+        """
+        Get diversity distance between two individuals using object-ID based cache.
+
+        Args:
+            ind_a: First individual.
+            ind_b: Second individual.
+            cache: Cache for diversity distances.
+
+        Returns:
+            float: Diversity distance.
+        """
         from .evolution import _compute_broken_pairs_distance
 
         key = (id(ind_a), id(ind_b))
@@ -268,7 +322,18 @@ class HGSSolver:
         penalty_capacity: float,
         diversity_cache: Optional[dict] = None,
     ) -> Individual:
-        """Generate and educate offspring via crossover and local search."""
+        """
+        Generate and educate offspring via crossover and local search.
+
+        Args:
+            pop_feasible: Feasible subpopulation.
+            pop_infeasible: Infeasible subpopulation.
+            penalty_capacity: Current penalty coefficient.
+            diversity_cache: Optional cache for diversity distances.
+
+        Returns:
+            Individual: Educated offspring.
+        """
         # Fix 2: Ranks are maintained per subpopulation as specified in Vidal (2022).
         # Recompute before selection so tournament uses current values.
         if pop_feasible:
@@ -291,7 +356,18 @@ class HGSSolver:
         pop_infeasible: List[Individual],
         penalty_capacity: float,
     ) -> None:
-        """Insert child into subpopulation and optionally repair if infeasible."""
+        """
+        Insert child into subpopulation and optionally repair if infeasible.
+
+        Args:
+            child: Offspring individual.
+            pop_feasible: Feasible subpopulation.
+            pop_infeasible: Infeasible subpopulation.
+            penalty_capacity: Current penalty coefficient.
+
+        Returns:
+            None.
+        """
         if child.is_feasible:
             pop_feasible.append(child)
         else:
@@ -308,7 +384,16 @@ class HGSSolver:
     def _get_best_solution(
         self, pop_feasible: List[Individual], pop_infeasible: List[Individual]
     ) -> Tuple[List[List[int]], float, float]:
-        """Return best feasible solution or best infeasible if none exists."""
+        """
+        Return best feasible solution or best infeasible if none exists.
+
+        Args:
+            pop_feasible: Feasible subpopulation.
+            pop_infeasible: Infeasible subpopulation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
+        """
         if pop_feasible:
             best_ind = max(pop_feasible, key=lambda x: x.profit_score)
         elif pop_infeasible:
@@ -349,7 +434,15 @@ class HGSSolver:
             return current_penalty
 
     def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
-        """Binary tournament selection on pre-computed fitness values."""
+        """
+        Binary tournament selection on pre-computed fitness values.
+
+        Args:
+            population: Population to select from.
+
+        Returns:
+            Tuple[Individual, Individual]: Selected parent pair.
+        """
 
         def tournament() -> Individual:
             """Performs binary tournament selection."""

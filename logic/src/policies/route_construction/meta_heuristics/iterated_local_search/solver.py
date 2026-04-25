@@ -1,14 +1,13 @@
-"""
-Iterated Local Search (ILS) for VRPP.
+"""Iterated Local Search (ILS) for VRPP.
 
 ILS alternates between a local search descent phase and a perturbation phase.
-The descent phase applies destroy/repair LLHs until no improvement is found.
-The perturbation phase randomly disrupts the current solution to escape the
-local optimum.  If the perturbed + re-optimised solution beats the incumbent,
-it replaces the current solution (hill-climbing acceptance).
 
-Reference:
-    Lourenco, H. R., Martin, O. C., & Stutzle, T. "Iterated Local Search", 2001
+Attributes:
+    ILSSolver: Main solver class for the Iterated Local Search.
+
+Example:
+    >>> solver = ILSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -34,8 +33,19 @@ from .params import ILSParams
 
 
 class ILSSolver:
-    """
-    Iterated Local Search solver for VRPP.
+    """Iterated Local Search solver for VRPP.
+
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of node indices.
+        random: Random number generator.
     """
 
     def __init__(
@@ -59,6 +69,9 @@ class ILSSolver:
             C: Cost per unit distance.
             params: ILS parameters.
             mandatory_nodes: Optional list of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -84,8 +97,7 @@ class ILSSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run Iterated Local Search.
+        """Run Iterated Local Search.
 
         Returns:
             Tuple of (routes, profit, cost).
@@ -178,7 +190,14 @@ class ILSSolver:
     # ------------------------------------------------------------------
 
     def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """Apply strong perturbation to escape local optimum."""
+        """Apply strong perturbation to escape local optimum.
+
+        Args:
+            routes: Current routes.
+
+        Returns:
+            Perturbed routes.
+        """
         flat = [n for r in routes for n in r]
         if len(flat) < 4:
             return routes
@@ -217,7 +236,15 @@ class ILSSolver:
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """Random removal + Greedy insertion."""
+        """Random removal + Greedy insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         partial, removed = random_removal(routes, n, self.random)
         if self.params.profit_aware_operators:
             return greedy_profit_insertion(
@@ -243,7 +270,15 @@ class ILSSolver:
             )
 
     def _llh1(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """Worst removal + Regret-2 insertion."""
+        """Worst removal + Regret-2 insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
             return regret_2_profit_insertion(
@@ -264,7 +299,15 @@ class ILSSolver:
             )
 
     def _llh2(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """Cluster removal + Greedy insertion."""
+        """Cluster removal + Greedy insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes, self.random)
         if self.params.profit_aware_operators:
             return greedy_profit_insertion(
@@ -290,7 +333,15 @@ class ILSSolver:
             )
 
     def _llh3(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """Worst removal + Greedy insertion."""
+        """Worst removal + Greedy insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
             return greedy_profit_insertion(
@@ -317,7 +368,15 @@ class ILSSolver:
             )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """Random removal + Regret-2 insertion."""
+        """Random removal + Regret-2 insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         partial, removed = random_removal(routes, n, self.random)
         if self.params.profit_aware_operators:
             return regret_2_profit_insertion(
@@ -347,6 +406,11 @@ class ILSSolver:
     # ------------------------------------------------------------------
 
     def _build_initial_solution(self) -> List[List[int]]:
+        """Construct initial solution.
+
+        Returns:
+            Set of routes.
+        """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -358,12 +422,28 @@ class ILSSolver:
         )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
+        """Net profit for a set of routes.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
+        """Total routing distance.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Total distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

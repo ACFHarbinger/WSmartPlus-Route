@@ -3,6 +3,13 @@ HGS Policy Adapter.
 
 Adapts the Hybrid Genetic Search (HGS) logic to the common policy interface.
 Now agnostic to bin selection.
+
+Attributes:
+    HGSPolicy: Policy adapter class for the Hybrid Genetic Search.
+
+Example:
+    >>> policy = HGSPolicy(config)
+    >>> routes, profit, cost = policy._run_solver(...)
 """
 
 import math
@@ -52,6 +59,12 @@ class HGSPolicy(BaseRoutingPolicy):
     within the framework.
 
     Registry key: ``"hgs"``
+
+    Attributes:
+        config (Optional[Union[HGSConfig, Dict[str, Any]]]): Configuration object.
+
+    Example:
+        >>> policy = HGSPolicy(config)
     """
 
     def __init__(self, config: Optional[Union[HGSConfig, Dict[str, Any]]] = None):
@@ -59,15 +72,29 @@ class HGSPolicy(BaseRoutingPolicy):
 
         Args:
             config: HGSConfig dataclass, raw dict from YAML, or None.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """
+        Get the configuration class for HGS.
+
+        Returns:
+            Optional[Type]: The HGSConfig class.
+        """
         return HGSConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for HGS."""
+        """
+        Return config key for HGS.
+
+        Returns:
+            str: The configuration key "hgs".
+        """
         return "hgs"
 
     def _run_solver(
@@ -112,7 +139,7 @@ class HGSPolicy(BaseRoutingPolicy):
                 collected in this period.
             x_coords (Optional[np.ndarray]): Longitude coordinates for sector pruning.
             y_coords (Optional[np.ndarray]): Latitude coordinates for sector pruning.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

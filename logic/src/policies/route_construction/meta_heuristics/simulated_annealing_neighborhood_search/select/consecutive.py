@@ -1,14 +1,51 @@
 """
 Consecutive selection strategies for bin management.
+
+Attributes:
+    remove_n_bins_consecutive: Remove n consecutive bins from a route.
+    add_n_bins_consecutive: Add n consecutive bins from the removed set to a random route.
+    add_route_consecutive: Create a new route by extracting a consecutive segment from an existing route.
+    add_route_with_removed_bins_consecutive: Create a new route using a consecutive sequence of removed bins.
+
+Example:
+    from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.consecutive import (
+        remove_n_bins_consecutive,
+        add_n_bins_consecutive,
+        add_route_consecutive,
+        add_route_with_removed_bins_consecutive,
+    )
+    routes_list = []
+    removed_bins = []
+    bins_cannot_removed = []
+    rng = random.Random()
+    distance_matrix = np.ndarray()
+    remove_n_bins_consecutive(routes_list, removed_bins, bins_cannot_removed, rng)
+    add_n_bins_consecutive(routes_list, removed_bins, rng)
+    add_route_consecutive(routes_list, distance_matrix, rng)
+    add_route_with_removed_bins_consecutive(routes_list, removed_bins, distance_matrix, rng)
 """
+
+import random
 
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes import (
     organize_route,
 )
 
 
-def _extract_valid_segment(chosen_route, chosen_n, bins_cannot_removed, rng):
-    """Attempt to find a valid segment of length chosen_n to remove."""
+def _extract_valid_segment(
+    chosen_route: list[int], chosen_n: int, bins_cannot_removed: list[int], rng: random.Random
+) -> list[int]:
+    """Attempt to find a valid segment of length chosen_n to remove.
+
+    Args:
+        chosen_route (list[int]): Route from which to remove bins.
+        chosen_n (int): Number of bins to remove.
+        bins_cannot_removed (list[int]): Bins that cannot be removed.
+        rng (random.Random): Random number generator.
+
+    Returns:
+        list[int]: Valid segment of length chosen_n to remove.
+    """
     # Try finding a valid segment up to 100 times
     # Note: original loop just tried 100 times randomly.
     # A more deterministic approach would be sliding window, but let's stick to the stochastic nature.

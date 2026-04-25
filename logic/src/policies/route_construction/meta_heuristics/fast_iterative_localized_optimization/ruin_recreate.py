@@ -1,7 +1,13 @@
-"""
-Ruin and Recreate operator for Fast Iterative Localized Optimization (FILO).
+r"""Ruin and Recreate operator for Fast Iterative Localized Optimization (FILO).
 
 Upgraded to be strictly Profit-Aware for the VRPP and topologically rigorous.
+
+Attributes:
+    RuinAndRecreate: Shaking operator for FILO.
+
+Example:
+    >>> rr = RuinAndRecreate(dist_matrix, wastes, capacity, R, C, rng)
+    >>> new_routes, n_removed, footprint = rr.apply(routes, seed, customers, mandatory)
 """
 
 import copy
@@ -11,9 +17,20 @@ import numpy as np
 
 
 class RuinAndRecreate:
-    """
-    Operator that applies localized Ruin & Recreate (shaking) to a solution.
+    """Operator that applies localized Ruin & Recreate (shaking) to a solution.
+
     Modified to accurately reflect Accorsi & Vigo (2021) Random Walk.
+
+    Attributes:
+        d: Symmetric distance matrix.
+        waste: Mapping of bin IDs to waste quantities.
+        Q: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per km traveled.
+        rng: Random number generator.
+        profit_aware_operators: Whether to use profit-aware operators.
+        vrpp: Whether solving VRP with Profits.
+        neighbors: Pre-computed list of neighbors for each node.
     """
 
     def __init__(
@@ -27,7 +44,21 @@ class RuinAndRecreate:
         profit_aware_operators: bool = False,
         vrpp: bool = True,
     ):
-        """Initialize RuinAndRecreate operator."""
+        """Initialize RuinAndRecreate operator.
+
+        Args:
+            dist_matrix: Symmetric distance matrix.
+            wastes: Mapping of bin IDs to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            R: Revenue per kg of waste.
+            C: Cost per km traveled.
+            rng: Random number generator.
+            profit_aware_operators: Whether to use profit-aware operators.
+            vrpp: Whether solving VRP with Profits.
+
+        Returns:
+            None.
+        """
         self.d = dist_matrix
         self.waste = wastes
         self.Q = capacity
@@ -52,9 +83,19 @@ class RuinAndRecreate:
         mandatory_nodes: List[int],
         omega_intensity: float = 1.0,
     ) -> Tuple[List[List[int]], int, List[int]]:
-        """
-        Apply Ruin and Recreate to the current routing solution.
+        """Apply Ruin and Recreate to the current routing solution.
+
         Random Walk length is strictly omega_intensity.
+
+        Args:
+            routes: Current routing sequences.
+            seed: Initial node to start the random walk.
+            all_customers: List of all customer node indices.
+            mandatory_nodes: Nodes that must be visited.
+            omega_intensity: Shaking intensity (walk length).
+
+        Returns:
+            Tuple of (new_routes, num_removed, footprint_nodes).
         """
         working_routes = copy.deepcopy(routes)
         current_loads = [sum(self.waste.get(node, 0.0) for node in route) for route in working_routes]

@@ -1,5 +1,10 @@
-"""
-Individual representation for the (μ,κ,λ) Evolution Strategy.
+"""Individual representation for the (μ,κ,λ) Evolution Strategy.
+
+Attributes:
+    Individual: Data structure for ES individuals with age tracking.
+
+Example:
+    >>> ind = Individual(routes=[[1, 2, 0]])
 """
 
 import copy
@@ -17,12 +22,10 @@ class Individual:
     mutation_strength).
 
     Attributes:
-        routes (List[List[int]]): The discrete solution representation (set of routes).
-        mutation_strength (float): The self-adaptive 'step-size' controlling the
-            intensity of the destroy-repair mutation.
-        fitness (float): The objective value (net profit).
-        age (int): The number of generations this individual has survived.
-            Offspring are born with age 1.
+        routes: The discrete solution representation (set of routes).
+        mutation_strength: The self-adaptive 'step-size'.
+        fitness: The objective value (net profit).
+        age: The number of generations this individual has survived.
     """
 
     def __init__(
@@ -40,6 +43,9 @@ class Individual:
             fitness: Initial fitness value.
             age: Starting age (default 1).
             mutation_strength: Initial mutation intensity (discrete σ).
+
+        Returns:
+            None.
         """
         self.routes = copy.deepcopy(routes)
         self.fitness = fitness

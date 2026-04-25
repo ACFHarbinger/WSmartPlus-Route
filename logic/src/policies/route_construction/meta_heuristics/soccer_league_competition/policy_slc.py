@@ -3,6 +3,13 @@ SLC Policy Adapter.
 
 Adapts the Soccer League Competition (SLC) solver to the agnostic
 BaseRoutingPolicy interface.
+
+Attributes:
+    SLCPolicy: The SLC policy class.
+
+Example:
+    >>> policy = SLCPolicy()
+    >>> sol, plan, stats = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -22,6 +29,9 @@ class SLCPolicy(BaseRoutingPolicy):
     SLC policy class.
 
     Visits bins using the Soccer League Competition algorithm.
+
+    Attributes:
+        None.
     """
 
     def __init__(self, config: Optional[Union[SLCConfig, Dict[str, Any]]] = None):
@@ -35,6 +45,11 @@ class SLCPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for the SLC policy.
+
+        Returns:
+            Optional[Type]: The configuration class for the SLC policy.
+        """
         return SLCConfig
 
     def _get_config_key(self) -> str:
@@ -83,7 +98,7 @@ class SLCPolicy(BaseRoutingPolicy):
                 SLC parameters (n_teams, team_size, stagnation_limit).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

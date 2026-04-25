@@ -1,10 +1,16 @@
-"""
-Adaptive Large Neighborhood Search with Inter-Period Operators (ALNS-IPO).
+r"""Adaptive Large Neighborhood Search with Inter-Period Operators (ALNS-IPO).
 
 Extends the standard ``ALNSSolver`` to optimise a full T-day horizon
 chromosome ``horizon_routes: List[List[List[int]]]`` by incorporating
 inter-period destroy/repair operators (IPO) that can move and remove visits
 across days.
+
+Attributes:
+    ALNSSolverIPO: Core ALNS-IPO implementation.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo import ALNSSolverIPO
+    >>> solver = ALNSSolverIPO(dist, wastes, 50.0, 1.0, 1.0, params)
 
 Architecture
 ------------
@@ -69,12 +75,25 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
 class ALNSSolverIPO(ALNSSolver):
-    """ALNS with Inter-Period Operators (IPO) for T-day horizon optimization.
+    r"""ALNS with Inter-Period Operators (IPO) for T-day horizon optimization.
 
     Adds inter-period destroy operators (ShiftVisitRemoval, PatternRemoval)
     and the ForwardLookingInsertion repair to the adaptive weight registry.
     Single-day operators inherited from ``ALNSSolver`` are preserved and
     can be applied to individual days of the horizon.
+
+    Attributes:
+        horizon: Planning horizon T.
+        stockout_penalty: Penalty for bin overflow.
+        forward_looking_depth: Lookahead depth for insertion.
+        shift_direction: Direction for ShiftVisitRemoval.
+        inventory_lambda: Weight on inventory terms.
+        inter_period_weight_init: Initial weight for IPO operators.
+        inter_period_operators_enabled: Whether IPO is active.
+        stochastic_repair: Whether to use scenario tree for repair.
+        ip_destroy_start: Index where IP destroy operators start.
+        ip_repair_start: Index where IP repair operators start.
+        _scenario_tree: Current scenario tree for evaluation.
     """
 
     def __init__(
@@ -138,7 +157,11 @@ class ALNSSolverIPO(ALNSSolver):
     # ------------------------------------------------------------------
 
     def _append_inter_period_destroy_ops(self) -> None:
-        """Append ShiftVisitRemoval, PatternRemoval, and new horizon operators to the destroy registry."""
+        """Append ShiftVisitRemoval, PatternRemoval, and new horizon operators to the destroy registry.
+
+        Returns:
+            None.
+        """
         direction = self.shift_direction
 
         # 1. ShiftVisitRemoval
@@ -182,7 +205,11 @@ class ALNSSolverIPO(ALNSSolver):
             self.destroy_counts.append(0)
 
     def _append_inter_period_repair_ops(self) -> None:
-        """Append Horizon insertion operators to the repair registry."""
+        """Append Horizon insertion operators to the repair registry.
+
+        Returns:
+            None.
+        """
 
         def _greedy_h(r: Any, rem: Any, _noise: float = 0.0) -> Any:
             return greedy_horizon_insertion(
@@ -230,7 +257,11 @@ class ALNSSolverIPO(ALNSSolver):
             self.repair_counts.append(0)
 
     def _make_fl_repair(self) -> Callable:
-        """Build the forward-looking repair operator closure."""
+        """Build the forward-looking repair operator closure.
+
+        Returns:
+            The repair operator function.
+        """
 
         def _fl(horizon_routes: List[List[List[int]]], removed: Any, _noise: float = 0.0) -> List[List[List[int]]]:
             return forward_looking_insertion(
@@ -254,7 +285,11 @@ class ALNSSolverIPO(ALNSSolver):
     # ------------------------------------------------------------------
 
     def build_initial_horizon_solution(self) -> List[List[List[int]]]:
-        """Build an initial T-day horizon solution using the parent greedy heuristic."""
+        """Build an initial T-day horizon solution using the parent greedy heuristic.
+
+        Returns:
+            A full T-day initial plan.
+        """
         horizon: List[List[List[int]]] = []
         for _ in range(self.horizon):
             day_routes = build_greedy_routes(
@@ -274,14 +309,28 @@ class ALNSSolverIPO(ALNSSolver):
     # ------------------------------------------------------------------
 
     def calculate_horizon_cost(self, horizon_routes: List[List[List[int]]]) -> float:
-        """Compute total routing cost across the horizon."""
+        """Compute total routing cost across the horizon.
+
+        Args:
+            horizon_routes: Full T-day solution to evaluate.
+
+        Returns:
+            Total routing cost.
+        """
         total = 0.0
         for day_routes in horizon_routes:
             total += self.calculate_cost(day_routes)
         return total
 
     def calculate_horizon_profit(self, horizon_routes: List[List[List[int]]]) -> float:
-        """Compute total profit (revenue − routing cost) across the horizon."""
+        """Compute total profit (revenue − routing cost) across the horizon.
+
+        Args:
+            horizon_routes: Full T-day solution to evaluate.
+
+        Returns:
+            Total net profit.
+        """
         total_cost = self.calculate_horizon_cost(horizon_routes)
         total_rev = sum(
             self.wastes.get(node, 0.0) * self.R
@@ -405,7 +454,15 @@ class ALNSSolverIPO(ALNSSolver):
         return best_horizon, best_profit, best_cost
 
     def _apply_single_day_ops(self, day_routes: List[List[int]], d_idx: int) -> Tuple[List[List[int]], List[int]]:
-        """Apply a single-day destroy operator and greedily repair."""
+        """Apply a single-day destroy operator and greedily repair.
+
+        Args:
+            day_routes: Routes for the selected day.
+            d_idx: Index of the destroy operator to apply.
+
+        Returns:
+            Tuple containing (repaired_routes, removed_nodes).
+        """
         destroy_op = self.destroy_ops[d_idx]
         n_nodes = sum(len(r) for r in day_routes)
         if n_nodes == 0:
@@ -436,7 +493,17 @@ class ALNSSolverIPO(ALNSSolver):
     def _check_accept(
         self, current_profit: float, new_profit: float, best_profit: float, iteration: int
     ) -> Tuple[bool, Any]:
-        """Delegate acceptance check to the criterion from the parent class."""
+        """Delegate acceptance check to the criterion from the parent class.
+
+        Args:
+            current_profit: Objective value of the current solution.
+            new_profit: Objective value of the candidate solution.
+            best_profit: Objective value of the best solution found so far.
+            iteration: Current iteration index.
+
+        Returns:
+            Tuple containing (accepted, additional_data).
+        """
         if self.acceptance_criterion is None:
             return (new_profit > current_profit + 1e-6, None)
         return self.acceptance_criterion.accept(  # type: ignore[return-value]

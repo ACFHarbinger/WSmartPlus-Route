@@ -5,6 +5,13 @@ Reference:
     Gendreau, M., Hertz, A., & Laporte, G. (1992).
     "New Insertion and Postoptimization Procedures for the Traveling Salesman Problem"
     Operations Research, 40(6), 1086-1094.
+
+Attributes:
+    GENIUSPolicy: Policy adapter class for the GENIUS meta-heuristic.
+
+Example:
+    >>> policy = GENIUSPolicy(config)
+    >>> routes, profit, cost = policy._run_solver(...)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -21,7 +28,15 @@ from .solver import GENIUSSolver
 
 @RouteConstructorRegistry.register("genius")
 class GENIUSPolicy(BaseRoutingPolicy):
-    """GENIUS (GENI + US) policy class."""
+    """
+    GENIUS (GENI + US) policy class.
+
+    Attributes:
+        config (Optional[Union[GENIUSConfig, Dict[str, Any]]]): Configuration object.
+
+    Example:
+        >>> policy = GENIUSPolicy(config)
+    """
 
     def __init__(self, config: Optional[Union[GENIUSConfig, Dict[str, Any]]] = None):
         """
@@ -29,14 +44,29 @@ class GENIUSPolicy(BaseRoutingPolicy):
 
         Args:
             config: Optional Hydra configuration.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """
+        Get the configuration class for GENIUS.
+
+        Returns:
+            Optional[Type]: The GENIUSConfig class.
+        """
         return GENIUSConfig
 
     def _get_config_key(self) -> str:
+        """
+        Get the configuration key for GENIUS.
+
+        Returns:
+            str: The configuration key "genius".
+        """
         return "genius"
 
     def _run_solver(
@@ -76,7 +106,7 @@ class GENIUSPolicy(BaseRoutingPolicy):
                 GENIUS parameters (neighborhood_size, unstring_type, string_type).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

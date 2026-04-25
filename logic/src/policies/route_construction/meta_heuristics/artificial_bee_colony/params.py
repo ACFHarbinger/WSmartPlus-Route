@@ -1,5 +1,11 @@
-"""
-Configuration parameters for the Artificial Bee Colony (ABC) solver.
+r"""Configuration parameters for the Artificial Bee Colony (ABC) solver.
+
+Attributes:
+    ABCParams: Configuration parameters for the ABC solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.artificial_bee_colony.params import ABCParams
+    >>> params = ABCParams(n_sources=30, limit=20)
 """
 
 from __future__ import annotations
@@ -24,6 +30,9 @@ class ABCParams:
         n_removal: Number of nodes removed per neighbourhood perturbation.
         local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve as a Vehicle Routing Problem with Profits.
+        profit_aware_operators: Whether to use operators biased towards profit.
     """
 
     n_sources: int = 20
@@ -37,8 +46,15 @@ class ABCParams:
     profit_aware_operators: bool = False
 
     @classmethod
-    def from_config(cls, config: Any) -> "ABCParams":
-        """Create parameters from a configuration object."""
+    def from_config(cls, config: Any) -> ABCParams:
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object (Hydra config or DictConfig).
+
+        Returns:
+            An instance of ABCParams.
+        """
         return cls(
             n_sources=max(1, getattr(config, "n_sources", 20)),
             limit=max(1, getattr(config, "limit", 10)),

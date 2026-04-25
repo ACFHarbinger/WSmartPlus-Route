@@ -2,6 +2,13 @@
 Hybrid Memetic Search (HMS) Policy Adapter.
 
 Adapts the rigorous Hybrid Memetic Search (replaces HVPL).
+
+Attributes:
+    HybridMemeticSearchPolicy: Policy adapter for the HMS solver.
+
+Example:
+    >>> policy = HybridMemeticSearchPolicy(config)
+    >>> routes, profit, cost = policy.run(state)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -24,6 +31,9 @@ class HybridMemeticSearchPolicy(BaseRoutingPolicy):
     Hybrid Memetic Search policy class.
 
     Multi-phase hybrid solver (ACO + GA + ALNS). Replaces HVPL.
+
+    Attributes:
+        config: Policy configuration.
     """
 
     def __init__(self, config: Optional[Union[HybridMemeticSearchConfig, Dict[str, Any]]] = None):
@@ -31,15 +41,33 @@ class HybridMemeticSearchPolicy(BaseRoutingPolicy):
 
         Args:
             config: HybridMemeticSearchConfig dataclass, raw dict from YAML, or None.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for this policy.
+
+        Args:
+            None.
+
+        Returns:
+            Optional[Type]: HybridMemeticSearchConfig class.
+        """
         return HybridMemeticSearchConfig
 
     def _get_config_key(self) -> str:
-        """Return config key."""
+        """Return config key.
+
+        Args:
+            None.
+
+        Returns:
+            str: "hms".
+        """
         return "hms"
 
     def _run_solver(
@@ -68,18 +96,18 @@ class HybridMemeticSearchPolicy(BaseRoutingPolicy):
         intensification phases.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+            sub_dist_matrix: Symmetric distance matrix for the current
                 sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+            sub_wastes: Mapping of local node indices to their
                 current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste collected.
+            cost_unit: Monetary cost incurred per kilometer traveled.
+            values: Merged configuration dictionary containing
                 HMS parameters and nested ACO/ALNS configs.
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
+            mandatory_nodes: Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

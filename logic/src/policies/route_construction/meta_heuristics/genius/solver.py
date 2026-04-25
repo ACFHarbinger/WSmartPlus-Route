@@ -9,6 +9,14 @@ Reference:
     Gendreau, M., Hertz, A., & Laporte, G. (1992).
     "New Insertion and Postoptimization Procedures for the Traveling Salesman Problem"
     Operations Research, 40(6), 1086-1094.
+
+Attributes:
+    GENIUSSolver: The main solver class for the GENIUS meta-heuristic.
+
+Example:
+    >>> params = GENIUSParams()
+    >>> solver = GENIUSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import random
@@ -35,6 +43,21 @@ class GENIUSSolver:
     GENIUS meta-heuristic solver for VRPP.
 
     Combines GENI insertion with Unstringing/Stringing post-optimization.
+
+    Attributes:
+        dist_matrix (np.ndarray): Symmetric distance matrix.
+        wastes (Dict[int, float]): Mapping of node indices to demands.
+        capacity (float): Vehicle capacity constraint.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        params (GENIUSParams): GENIUS algorithm parameters.
+        mandatory_nodes (List[int]): List of nodes that must be visited.
+        n_nodes (int): Total number of nodes (excluding depot).
+        nodes (List[int]): List of node IDs [1, ..., n_nodes].
+        random (random.Random): Random number generator.
+
+    Example:
+        >>> solver = GENIUSSolver(dist_matrix, wastes, capacity, R, C, params)
     """
 
     def __init__(

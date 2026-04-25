@@ -1,7 +1,12 @@
-"""
-(μ,λ) Evolution Strategy Policy Adapter.
+r"""(μ,λ) Evolution Strategy Policy Adapter.
 
 Adapts the rigorous (μ,λ)-ES implementation into the overarching policy registry.
+
+Attributes:
+    MuCommaLambdaESPolicy: Policy class for (μ,λ)-ES.
+
+Example:
+    >>> policy = MuCommaLambdaESPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -18,27 +23,40 @@ from .solver import MuCommaLambdaESSolver
 
 @RouteConstructorRegistry.register("es_mcl")
 class MuCommaLambdaESPolicy(BaseRoutingPolicy):
-    """
-    (μ,λ) Evolution Strategy policy class.
+    """(μ,λ) Evolution Strategy policy class.
 
     Executes a strict generational evolutionary algorithm with truncation selection.
+
+    Attributes:
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[MuCommaLambdaESConfig, Dict[str, Any]]] = None):
-        """
-        Initialize (μ,λ)-ES policy with optional config.
+        """Initialize (μ,λ)-ES policy with optional config.
 
         Args:
-            config: MuCommaLambdaESConfig dataclass, raw dict from YAML, or None.
+            config: Configuration object or dictionary.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for this policy.
+
+        Returns:
+            MuCommaLambdaESConfig class.
+        """
         return MuCommaLambdaESConfig
 
     def _get_config_key(self) -> str:
-        """Return config key."""
+        """Return the configuration key for this policy.
+
+        Returns:
+            The string key "es_mcl".
+        """
         return "es_mcl"
 
     def _run_solver(
@@ -52,41 +70,27 @@ class MuCommaLambdaESPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the (mu, lambda) Evolution Strategy (ES) solver logic.
+        """Execute the (mu, lambda) Evolution Strategy (ES) solver logic.
 
         (mu, lambda)-ES is a rigorous generational evolutionary algorithm:
         - mu: The number of parents selected to produce the next generation.
         - lambda: The number of offspring generated from the parents.
-        - सिलेक्शन (Selection): Only the lambda offspring are considered for
-          the next generation (the parents are discarded), using truncation
-          selection (best mu out of lambda).
-        This implementation applies discrete mutation (node swaps/removals)
-        and optional local search to refine offspring.
+        - Selection: Only the lambda offspring are considered for the next
+          generation (the parents are discarded), using truncation selection
+          (best mu out of lambda).
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                ES parameters (mu, lambda, max_iterations).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Mapping of local node indices to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste.
+            cost_unit: Monetary cost incurred per kilometer.
+            values: Merged configuration dictionary.
+            mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple of (routes, profit, cost).
         """
         # Map configuration dictionary to strict ES parameters
         params = MuCommaLambdaESParams(

@@ -1,5 +1,10 @@
-"""
-Configuration parameters for the Discrete Firefly Algorithm (FA) solver.
+"""Configuration parameters for the Discrete Firefly Algorithm (FA) solver.
+
+Attributes:
+    FAParams: Parameter dataclass for the Firefly Algorithm.
+
+Example:
+    >>> params = FAParams(pop_size=10)
 """
 
 from __future__ import annotations
@@ -10,25 +15,26 @@ from typing import Any, Optional
 
 @dataclass
 class FAParams:
-    """
-    Configuration parameters for the Discrete Firefly Algorithm.
+    """Configuration parameters for the Discrete Firefly Algorithm.
 
-    Firefly brightness = net profit.  Attractiveness decays with the
-    discrete routing distance (swap distance between route sets).  A less
-    bright firefly moves toward a brighter one via node-extraction and
-    guided insertion using a favourability score.
+    Firefly brightness = net profit. Attractiveness decays with the
+    discrete routing distance.
 
     Attributes:
         pop_size: Number of fireflies.
         beta0: Maximum attractiveness (at distance 0).
         gamma: Light absorption coefficient controlling distance decay.
         alpha_profit: Weight of node profit in favourability score.
-        beta_will: Weight of node willingness (waste fill fraction) in score.
-        gamma_cost: Weight of insertion cost in favourability score (penalty).
-        alpha_rnd: Probability of random-walk perturbation per firefly per iter.
+        beta_will: Weight of node willingness (waste fill fraction).
+        gamma_cost: Weight of insertion cost in score (penalty).
+        alpha_rnd: Probability of random-walk perturbation.
+        n_removal: Number of nodes to remove during random walk.
         max_iterations: Maximum algorithm iterations.
         local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed.
+        vrpp: Whether solving VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware operators.
     """
 
     pop_size: int = 20
@@ -48,7 +54,14 @@ class FAParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "FAParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            FAParams instance.
+        """
         return cls(
             pop_size=getattr(config, "pop_size", 20),
             beta0=getattr(config, "beta0", 1.0),

@@ -1,5 +1,12 @@
 """
 Multi-Period Iterated Local Search (MP-ILS) policy.
+
+Attributes:
+    MultiPeriodILSPolicy: Policy class for the MP-ILS approach.
+
+Example:
+    >>> policy = MultiPeriodILSPolicy(config)
+    >>> sol, plan, meta = policy._run_multi_period_solver(problem, multi_day_ctx)
 """
 
 import copy
@@ -38,18 +45,28 @@ from logic.src.utils.policy.wrappers import (
 class MultiPeriodILSPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Multi-Period Iterated Local Search (ILS) metaheuristic.
+
     1. Initial solution (greedy + 2-opt)
     2. Local search (steepest descent)
     3. Perturbation (destroy and recreate)
     4. Acceptance criterion
+
+    Attributes:
+        params: MPILS specific parameters.
+        max_iter: Maximum number of iterations.
+        perturb_size: Number of nodes to remove during perturbation.
+        seed: Random seed.
+        rng: Random number generator.
     """
 
     def __init__(self, config: Any = None):
-        """
-        Initializes the Multi-Period ILS policy.
+        """Initializes the Multi-Period ILS policy.
 
         Args:
             config: Optional configuration dictionary or Hydra config.
+
+        Returns:
+            None.
         """
         super().__init__(config)
         self.params = MP_ILS_Params.from_config(config)
@@ -59,6 +76,15 @@ class MultiPeriodILSPolicy(BaseMultiPeriodRoutingPolicy):
         self.rng = random.Random(self.seed)
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """Evaluate the multi-period plan and return total profit.
+
+        Args:
+            plan: The multi-period routing plan.
+            problem: The problem context.
+
+        Returns:
+            float: Total net profit across all periods.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):
@@ -68,6 +94,15 @@ class MultiPeriodILSPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _local_search(self, plan: List[List[List[int]]], problem: ProblemContext) -> List[List[List[int]]]:
+        """Apply local search (2-opt) to each day of the plan.
+
+        Args:
+            plan: The multi-period plan to refine.
+            problem: The initial problem context.
+
+        Returns:
+            List[List[List[int]]]: The refined multi-period plan.
+        """
         # Apply 2-opt to each day
         new_plan = []
         cur_prob = problem
@@ -79,6 +114,17 @@ class MultiPeriodILSPolicy(BaseMultiPeriodRoutingPolicy):
         return new_plan
 
     def _perturb(self, plan: List[List[List[int]]], problem: ProblemContext) -> List[List[List[int]]]:
+        """Perturb the current plan to escape local optima.
+
+        Destroys `perturb_size` nodes and tries to re-insert them.
+
+        Args:
+            plan: The current multi-period plan.
+            problem: The initial problem context.
+
+        Returns:
+            List[List[List[int]]]: The perturbed multi-period plan.
+        """
         # Destroys `perturb_size` nodes and tries to re-insert them
         # (or just simple random drop for a VRPP where we can drop)
         new_plan = copy.deepcopy(plan)
@@ -110,8 +156,7 @@ class MultiPeriodILSPolicy(BaseMultiPeriodRoutingPolicy):
         problem: ProblemContext,
         multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
-        """
-        Execute the Iterated Local Search (ILS) metaheuristic solver logic.
+        """Execute the Iterated Local Search (ILS) metaheuristic solver logic.
 
         ILS is a simple yet powerful metaheuristic that iteratively applies a
         local search to a perturbed solution. It operates in a loop:

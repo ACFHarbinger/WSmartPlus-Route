@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Variable Neighborhood Search (VNS) solver.
+
+Attributes:
+    VNSParams: Main parameters class for the VNS solver.
+
+Example:
+    >>> params = VNSParams()
+    >>> params.k_max
+    5
 """
 
 from __future__ import annotations
@@ -44,7 +52,12 @@ class VNSParams:
     acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
 
     def __post_init__(self):
-        """Ensure acceptance criterion is initialized even if not passed in config."""
+        """
+        Ensure acceptance criterion is initialized even if not passed in config.
+
+        Args:
+            self: VNSParams object.
+        """
         if self.acceptance_criterion is None:
             # Standard VNS uses Improving-Only acceptance
             from logic.src.policies.acceptance_criteria.base.factory import (
@@ -55,7 +68,15 @@ class VNSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> VNSParams:
-        """Build parameters from a configuration object."""
+        """
+        Build parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            VNSParams: VNS parameters.
+        """
         # Build parameters
         params = cls(
             k_max=getattr(config, "k_max", 5),

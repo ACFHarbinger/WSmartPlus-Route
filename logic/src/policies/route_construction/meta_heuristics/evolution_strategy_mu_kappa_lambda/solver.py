@@ -1,20 +1,15 @@
-"""
-(μ,κ,λ) Evolution Strategy for Vehicle Routing Problems (VRP).
+r"""(μ,κ,λ) Evolution Strategy for Vehicle Routing Problems (VRP).
 
 This module implements a structurally correct Evolution Strategy (ES) specifically
 adapted for discrete routing domains. It follows the metric-based design guidelines
 and the age-based selection scheme described in Emmerich et al. (2015).
 
-Key Algorithmic Components:
-    - **Self-Adaptive Mutation**: Each individual evolves its own mutation strength
-      (n_removal), serving as the discrete analog to the continuous step-size σ
-      .
-    - **Independent Recombination Selection**: Parents are sampled with replacement
-      to maintain high selection pressure.
-    - **(μ,κ,λ) Selection Pool**: The survivor pool consists of λ offspring and
-      μ parents whose age has not exceeded κ generations.
-    - **Memetic Refinement**: Post-mutation local search ensures offspring reach
-      local minima within the discrete landscape.
+Attributes:
+    MuKappaLambdaESSolver: Main solver class for (μ,κ,λ)-ES.
+
+Example:
+    >>> solver = MuKappaLambdaESSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 
 References:
     [2] Emmerich, M., Shir, O. M., & Wang, H. (2015). Evolution Strategies.
@@ -46,12 +41,24 @@ from logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu
 
 
 class MuKappaLambdaESSolver:
-    """
-    (μ,κ,λ) Evolution Strategy solver adapted for VRP.
+    """(μ,κ,λ) Evolution Strategy solver adapted for VRP.
 
-    This solver optimizes the Vehicle Routing Problem with Profits (VRPP) by
-    simulating a generational evolutionary process. It employs deterministic
-    truncation selection over an age-limited pool.
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        rng: Random number generator.
+        np_rng: NumPy random generator.
+        ls: Local search optimizer.
+        n_evaluations: Total number of fitness evaluations.
+        best_individual: Elitist solution found during search.
+        convergence_curve: History of best fitness values.
     """
 
     def __init__(
@@ -73,8 +80,11 @@ class MuKappaLambdaESSolver:
             capacity: Vehicle capacity constraint.
             R: Revenue per unit waste.
             C: Cost per unit distance.
-            params: Configuration dataclass for (μ,κ,λ) parameters.
-            mandatory_nodes: Nodes that must be included in feasible solutions.
+            params: Configuration for (μ,κ,λ) parameters.
+            mandatory_nodes: Nodes that must be included.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -116,7 +126,7 @@ class MuKappaLambdaESSolver:
         This follows the high-level loop defined in Algorithm 1.
 
         Returns:
-            A tuple of (best_routes, best_profit, best_cost).
+            Tuple of (best_routes, best_profit, best_cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -343,7 +353,14 @@ class MuKappaLambdaESSolver:
         return mutant
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Calculates net profit and increments evaluation counter."""
+        """Calculates net profit and increments evaluation counter.
+
+        Args:
+            routes: Routing sequences to evaluate.
+
+        Returns:
+            Calculated net profit.
+        """
         self.n_evaluations += 1
         if not routes:
             return 0.0
@@ -351,7 +368,14 @@ class MuKappaLambdaESSolver:
         return revenue - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Calculates total distance traveled across all routes."""
+        """Calculates total distance traveled across all routes.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Total distance traveled.
+        """
         total = 0.0
         for route in routes:
             if not route:
@@ -363,7 +387,14 @@ class MuKappaLambdaESSolver:
         return total
 
     def _update_best(self, population: List[Individual]):
-        """Updates the global elitist solution tracker."""
+        """Updates the global elitist solution tracker.
+
+        Args:
+            population: Current population to select the best from.
+
+        Returns:
+            None.
+        """
         current_best = max(population, key=lambda ind: ind.fitness)
         if self.best_individual is None or current_best.fitness > self.best_individual.fitness:
             self.best_individual = current_best.copy()

@@ -1,28 +1,16 @@
-"""
-Evolution strategies for Memetic Differential Evolution (MDE).
+r"""Evolution strategies for Memetic Differential Evolution (MDE).
 
 This module implements the Strategy Pattern to support different approaches for
 handling local search optimization within the MDE framework.
 
-Theoretical Background:
-    The original Differential Evolution (DE) algorithm (Storn & Price, 1997)
-    is a "parallel direct search method" that does not include local search.
-    By incorporating Lamarckian or Baldwinian learning, we extend DE into a
-    Memetic Algorithm (MA) specifically designed for the discrete routing domain.
+Attributes:
+    EvolutionStrategy: Abstract base class for evolution strategies.
+    BaldwinianStrategy: Baldwinian evolution strategy.
+    LamarckianStrategy: Lamarckian evolution strategy.
+    create_evolution_strategy: Factory function to create evolution strategy instances.
 
-    Baldwinian Evolution (Baldwin, 1896):
-        Phenotypic learning - improved fitness is used for selection, but
-        genetic material (continuous vector) remains unchanged.
-
-    Lamarckian Evolution (Lamarck, 1809):
-        Genotypic learning - genetic material is reverse-engineered from the
-        improved solution, allowing offspring to inherit learned improvements.
-
-References:
-    Storn, R., & Price, K. (1997). "Differential Evolution – A Simple and
-    Efficient Heuristic for Global Optimization over Continuous Spaces."
-    Whitley, D., Gordon, V.S., & Mathias, K. (1994). "Lamarckian Evolution, the
-    Baldwin Effect and Function Optimization."
+Example:
+    >>> strategy = create_evolution_strategy("lamarckian")
 """
 
 from abc import ABC, abstractmethod
@@ -33,10 +21,11 @@ import numpy as np
 
 class EvolutionStrategy(ABC):
     """
-    Abstract base class for evolution strategies.
-
     Defines the interface for determining which continuous vector survives
     the selection process when local search has been applied.
+
+    Attributes:
+        None.
     """
 
     @abstractmethod
@@ -78,6 +67,9 @@ class BaldwinianStrategy(EvolutionStrategy):
         - You suspect premature convergence issues
         - Local search may produce overfitted solutions
         - Genotype-phenotype mapping is expensive
+
+    Attributes:
+        None.
     """
 
     def get_surviving_vector(
@@ -118,6 +110,9 @@ class LamarckianStrategy(EvolutionStrategy):
         - Local search consistently produces improvements
         - Computational budget is limited
         - You have a robust encoder that preserves solution quality
+
+    Attributes:
+        None.
     """
 
     def get_surviving_vector(

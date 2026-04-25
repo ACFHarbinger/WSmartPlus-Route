@@ -5,6 +5,12 @@ This module provides routines to verify that routing solutions adhere to
 physical constraints (tanker capacity) and temporal predictions (overflow
 risk). It is used during the local search process to prune inadmissible
 mutations and ensure valid final outputs for the simulator.
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 # Functions for condition checks

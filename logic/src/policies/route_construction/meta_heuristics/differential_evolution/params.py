@@ -1,9 +1,15 @@
-"""
-Configuration parameters for the Memetic Differential Evolution (MDE) solver.
+r"""Configuration parameters for the Memetic Differential Evolution (MDE) solver.
 
 This module defines the structural constraints and hyper-parameters for MDE,
 hybridizing the rigorous global search of Storn & Price (1997) with
 Lamarckian/Baldwinian local exploitation for efficient VRPP optimization.
+
+Attributes:
+    DEParams: Configuration parameters for Memetic Differential Evolution.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
+    >>> params = DEParams(pop_size=50, max_iterations=200)
 """
 
 from __future__ import annotations
@@ -63,6 +69,12 @@ class DEParams:
         time_limit (float): Wall-clock time limit in seconds. Algorithm terminates
             early if process time exceeds this threshold.
 
+        seed (Optional[int]): Random seed for reproducibility.
+
+        vrpp (bool): Whether to solve as a VRP with Profits.
+
+        profit_aware_operators (bool): Whether to use operators biased towards profit.
+
     Mathematical Foundation (Core Differential Evolution):
         MDE/rand/1/exp strategy:
 
@@ -102,7 +114,14 @@ class DEParams:
 
     @classmethod
     def from_config(cls, config: Any) -> DEParams:
-        """Build parameters from a configuration object."""
+        """Build parameters from a configuration object.
+
+        Args:
+            config: Hydra configuration or dictionary.
+
+        Returns:
+            An instance of DEParams.
+        """
         return cls(
             pop_size=getattr(config, "pop_size", None),
             mutation_factor=getattr(config, "mutation_factor", 0.8),

@@ -2,6 +2,13 @@
 KGLS Policy Adapter.
 
 Adapts the Knowledge-Guided Local Search (KGLS) to the global routing interface.
+
+Attributes:
+    KGLSPolicy: Policy adapter for the KGLS metaheuristic.
+
+Example:
+    >>> policy = KGLSPolicy()
+    >>> routes, profit, cost = policy(obs)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -22,6 +29,9 @@ class KGLSPolicy(BaseRoutingPolicy):
     KGLS policy class.
 
     Explores CVRP solutions by penalizing structurally sub-optimal connections.
+
+    Attributes:
+        config: Configuration parameters for the policy.
     """
 
     def __init__(self, config: Optional[Union[KGLSConfig, Dict[str, Any]]] = None):
@@ -29,15 +39,33 @@ class KGLSPolicy(BaseRoutingPolicy):
 
         Args:
             config: KGLSConfig dataclass, raw dict from YAML, or None.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for KGLS.
+
+        Args:
+            None.
+
+        Returns:
+            Optional[Type]: The KGLSConfig class.
+        """
         return KGLSConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for KGLS."""
+        """Return config key for KGLS.
+
+        Args:
+            None.
+
+        Returns:
+            str: "kgls".
+        """
         return "kgls"
 
     def _run_solver(
@@ -51,8 +79,7 @@ class KGLSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Knowledge-Guided Local Search (KGLS) metaheuristic solver logic.
+        """Execute the Knowledge-Guided Local Search (KGLS) metaheuristic solver logic.
 
         KGLS is an advanced variant of GLS that incorporates domain-specific
         structural "knowledge" to guide the search. It penalizes features that
@@ -63,18 +90,18 @@ class KGLSPolicy(BaseRoutingPolicy):
         while prioritizing structural integrity.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+            sub_dist_matrix: Symmetric distance matrix for the current
                 sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+            sub_wastes: Mapping of local node indices to their
                 current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste collected.
+            cost_unit: Monetary cost incurred per kilometer traveled.
+            values: Merged configuration dictionary containing
                 KGLS parameters (num_perturbations, neighborhood_size, moves).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
+            mandatory_nodes: Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - data_nodes (Optional[Dict]): Raw nodes data for coordinate mapping.
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.

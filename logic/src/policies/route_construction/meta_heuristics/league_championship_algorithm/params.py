@@ -1,5 +1,11 @@
 """
 Configuration parameters for the League Championship Algorithm (LCA) solver.
+
+Attributes:
+    LCAParams: Parameters for the LCA solver.
+
+Example:
+    >>> params = LCAParams(n_teams=10, max_iterations=100, seed=42)
 """
 
 from __future__ import annotations
@@ -29,6 +35,9 @@ class LCAParams:
         n_removal: Nodes removed per perturbation step.
         local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve as a VRP with profits.
+        profit_aware_operators: Whether to use profit-aware heuristics.
     """
 
     n_teams: int = 10
@@ -44,7 +53,14 @@ class LCAParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "LCAParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration source (dataclass or object).
+
+        Returns:
+            LCAParams: Initialized runtime parameters.
+        """
         return cls(
             n_teams=getattr(config, "n_teams", 10),
             max_iterations=getattr(config, "max_iterations", 100),

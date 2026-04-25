@@ -1,5 +1,4 @@
-"""
-Augmented Hybrid Volleyball Premier League (AHVPL) Solver.
+r"""Augmented Hybrid Volleyball Premier League (AHVPL) Solver.
 
 Integrates four metaheuristic components into a unified optimization engine:
   1. ACO  — Ant Colony Optimization for intelligent heuristic initialization
@@ -10,6 +9,14 @@ Integrates four metaheuristic components into a unified optimization engine:
 The HGS integration replaces the standard VPL deterministic learning phase
 with genetic crossover operators and bi-criteria fitness evaluation (profit +
 diversity), preventing premature convergence.
+
+Attributes:
+    AHVPLSolver: Core solver class for the Augmented Hybrid Volleyball Premier League.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl import AHVPLSolver
+    >>> solver = AHVPLSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 
 Reference:
     Hybrid Volleyball Algorithm Research (reports/).
@@ -42,11 +49,27 @@ from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search
 
 
 class AHVPLSolver:
-    """
-    Augmented Hybrid Volleyball Premier League solver for VRP variants.
+    """Augmented Hybrid Volleyball Premier League solver for VRP variants.
 
     Combines ACO-driven initialization, VPL population management, HGS
     diversity-driven crossover/mutation, and ALNS deep local search.
+
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per unit collected.
+        C: Cost per unit distance.
+        params: AHVPL parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        random: Random number generator.
+        aco_solver: Internal ACO solver for initialization.
+        pheromone: Shared sparse pheromone matrix.
+        constructor: Solution constructor from ACO.
+        alns_solver: Internal ALNS solver for refinement.
+        split_manager: LinearSplit manager for giant tour decoding.
     """
 
     def __init__(
@@ -104,7 +127,12 @@ class AHVPLSolver:
         )
 
     def _initialize_population(self) -> List[Individual]:
-        population = []
+        """Initialize the population with ACO-constructed solutions.
+
+        Returns:
+            List of Individual objects.
+        """
+        population: List[Individual] = []
         for _ in range(self.params.n_teams):
             ind = self._construct_individual()
             if ind:
@@ -112,6 +140,11 @@ class AHVPLSolver:
         return population
 
     def _construct_individual(self) -> Optional[Individual]:
+        """Construct a single individual using ACO.
+
+        Returns:
+            A new Individual object or None.
+        """
         routes = self.constructor.construct()
         if not routes:
             return None
@@ -250,7 +283,14 @@ class AHVPLSolver:
     # ── HGS Operators ────────────────────────────────────────────────
 
     def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
-        """Binary tournament selection."""
+        """Binary tournament selection.
+
+        Args:
+            population: Current pool of individuals.
+
+        Returns:
+            Tuple of selected parents (p1, p2).
+        """
 
         def tournament() -> Individual:
             """Selects the best of two randomly chosen individuals."""
@@ -260,13 +300,19 @@ class AHVPLSolver:
         return tournament(), tournament()
 
     def _active_crossover(self, p1: Individual, p2: Individual) -> Individual:
-        """
-        Ordered Crossover on active (visited) nodes only.
+        """Ordered Crossover on active (visited) nodes only.
 
         Uses the union of both parents' active node sets so both
         temporary individuals are permutations of the same set
         (required by OX). Each parent's ordering is preserved for its
         own active nodes; the other parent's exclusive nodes are appended.
+
+        Args:
+            p1: First parent individual.
+            p2: Second parent individual.
+
+        Returns:
+            A new child individual.
         """
         # Identify active nodes from each parent's routes
         p1_active = set(n for r in p1.routes for n in r)
@@ -298,7 +344,14 @@ class AHVPLSolver:
         return child
 
     def _mutate(self, ind: Individual) -> None:
-        """Apply SWAP mutation to giant tour."""
+        """Apply SWAP mutation to giant tour.
+
+        Args:
+            ind: Individual to mutate.
+
+        Returns:
+            None.
+        """
         size = len(ind.giant_tour)
         if size < 2:
             return
@@ -307,8 +360,14 @@ class AHVPLSolver:
         ind.is_coached = False
 
     def _alns_coaching(self, ind: Individual, iterations: int = 100) -> Individual:
-        """
-        Apply ALNS deep local search to an individual's routes.
+        """Apply ALNS deep local search to an individual's routes.
+
+        Args:
+            ind: Individual to refine.
+            iterations: Number of ALNS iterations to perform.
+
+        Returns:
+            The refined individual.
         """
         # Temporarily override iterations for this coaching session
         old_iters = self.alns_solver.params.max_iterations
@@ -340,6 +399,16 @@ class AHVPLSolver:
     # ── ACO Pheromone Management ─────────────────────────────────────
 
     def _update_pheromones(self, routes: List[List[int]], profit: float, cost: float) -> None:
+        """Update ACO pheromones based on the best solution found.
+
+        Args:
+            routes: Best set of routes.
+            profit: Profit score of the best solution.
+            cost: Total cost of the best solution.
+
+        Returns:
+            None.
+        """
         if not routes or profit <= 0:
             return
 
@@ -359,7 +428,14 @@ class AHVPLSolver:
 
     @staticmethod
     def _routes_to_giant_tour(routes: List[List[int]]) -> List[int]:
-        """Flatten routes into a single giant tour (node sequence)."""
+        """Flatten routes into a single giant tour (node sequence).
+
+        Args:
+            routes: List of routes to flatten.
+
+        Returns:
+            List of node indices in sequence.
+        """
         gt: List[int] = []
         for route in routes:
             gt.extend(route)

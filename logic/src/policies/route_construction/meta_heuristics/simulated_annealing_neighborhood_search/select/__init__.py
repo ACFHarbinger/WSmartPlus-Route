@@ -1,5 +1,11 @@
 """
 Select sub-package export for Simulated Annealing Neighborhood Search (SANS).
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 from .consecutive import (

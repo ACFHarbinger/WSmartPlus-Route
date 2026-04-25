@@ -1,20 +1,11 @@
 """
 Configuration parameters for Stochastic Tournament Genetic Algorithm (STGA).
 
-This is the rigorous parameter mapping for the League Championship Algorithm (LCA)
-with proper Operations Research terminology.
+Attributes:
+    MemeticAlgorithmToleranceBasedSelectionParams: Parameters for the MATBS solver.
 
-TERMINOLOGY MAPPING (LCA → MA-TS):
-- n_teams → population_size
-- tolerance_pct → tolerance_pct (UNCHANGED - critical LCA feature)
-- crossover_prob → recombination_rate
-- n_removal → perturbation_strength
-- max_iterations → max_iterations
-
-Reference:
-    Kashan, A. H. (2013). "League Championship Algorithm (LCA): An algorithm
-    for global optimization inspired by sport championships."
-    Applied Soft Computing, 13(5), 2171-2200.
+Example:
+    >>> params = MemeticAlgorithmToleranceBasedSelectionParams(population_size=10)
 """
 
 from __future__ import annotations
@@ -28,44 +19,18 @@ class MemeticAlgorithmToleranceBasedSelectionParams:
     """
     Parameters for Memetic Algorithm with Tolerance-based Selection (MA-TS).
 
-    Algorithm Structure:
-        1. Initialize population of N solutions
-        2. For each generation:
-            a. Round-Robin Schedule: Random pairwise matching
-            b. For each match (i vs j):
-                - Determine winner using infeasibility tolerance
-                - If |fitness_i - fitness_j| ≤ tolerance: random winner
-                - Otherwise: higher fitness wins
-                - Loser generates new solution (recombination or mutation)
-                - Loser ALWAYS accepts new solution
-
-    KEY FEATURE: Infeasibility Tolerance
-        Solutions with similar fitness compete randomly, preserving diversity
-        and allowing exploration of alternative feasible basins. This is the
-        distinguishing characteristic of LCA vs standard tournament GA.
-
     Attributes:
-        population_size: Number of candidate solutions (LCA: n_teams).
-        max_iterations: Maximum number of evolution cycles (LCA: max_iterations).
+        seed: Random seed for reproducibility.
+        population_size: Number of candidate solutions (islands).
+        max_iterations: Maximum number of evolution cycles.
         tolerance_pct: Infeasibility tolerance as fraction of average fitness.
-                      Solutions within this tolerance compete randomly.
-                      (LCA: tolerance_pct). Typical: 0.01-0.10.
-        recombination_rate: Probability of crossover vs mutation (LCA: crossover_prob).
-        perturbation_strength: Number of nodes to remove in mutation (LCA: n_removal).
+        recombination_rate: Probability of crossover vs mutation.
+        perturbation_strength: Number of nodes to remove in mutation.
+        n_removal: Alternative name for perturbation strength.
         local_search_iterations: Local search refinement iterations.
+        vrpp: Whether to solve as a VRP with profits.
+        profit_aware_operators: Whether to use profit-aware heuristics.
         time_limit: Wall-clock time limit in seconds (0 = no limit).
-
-    Mathematical Foundation:
-        Infeasibility Tolerance Formula:
-            tolerance = tolerance_pct × (|fitness_a| + |fitness_b|) / 2
-            if |fitness_a - fitness_b| ≤ tolerance:
-                winner = random choice (diversity preservation)
-            else:
-                winner = argmax(fitness_a, fitness_b)
-
-    Complexity:
-        - Space: O(N × n) for population storage
-        - Time per generation: O(N × eval_cost) for pairwise matches
     """
 
     seed: Optional[int] = None
@@ -97,7 +62,14 @@ class MemeticAlgorithmToleranceBasedSelectionParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "MemeticAlgorithmToleranceBasedSelectionParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration source (dataclass or object).
+
+        Returns:
+            MemeticAlgorithmToleranceBasedSelectionParams: Initialized runtime parameters.
+        """
         return cls(
             population_size=getattr(config, "population_size", 10),
             max_iterations=getattr(config, "max_iterations", 100),
@@ -113,7 +85,14 @@ class MemeticAlgorithmToleranceBasedSelectionParams:
         )
 
     def __post_init__(self):
-        """Validate parameter constraints."""
+        """Validate parameter constraints.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         assert self.population_size > 0, "population_size must be positive"
         assert self.population_size % 2 == 0, "population_size must be even for pairwise matching"
         assert 0 <= self.tolerance_pct <= 1, "tolerance_pct must be in [0, 1]"

@@ -1,5 +1,33 @@
 """
 Random selection strategies for bin management.
+
+Attributes:
+    remove_bin: Drop one bin from one random chosen route
+    add_bin: Add one bin from the removed bins set to one random chosen route
+    remove_n_bins_random: Remove n random bins from the routing solution
+    add_n_bins_random: Add n random bins from the removed bins set to any route randomly
+    add_route_random: Add one route random
+    add_route_with_removed_bins_random: Add one route with bins from removed bins
+
+Example:
+    from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.random import (
+        remove_bin,
+        add_bin,
+        remove_n_bins_random,
+        add_n_bins_random,
+        add_route_random,
+        add_route_with_removed_bins_random,
+    )
+    routes_list = []
+    removed_bins = []
+    bins_cannot_removed = []
+    rng = random.Random()
+    remove_bin(routes_list, removed_bins, bins_cannot_removed, rng)
+    add_bin(routes_list, removed_bins, rng)
+    remove_n_bins_random(routes_list, removed_bins, bins_cannot_removed, rng)
+    add_n_bins_random(routes_list, removed_bins, rng)
+    add_route_random(routes_list, distance_matrix, rng)
+    add_route_with_removed_bins_random(routes_list, removed_bins, distance_matrix, rng)
 """
 
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes import (

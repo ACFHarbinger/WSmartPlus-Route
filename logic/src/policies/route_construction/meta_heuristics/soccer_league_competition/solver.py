@@ -20,6 +20,13 @@ Reference:
     Moosavian, N., & Rppdsarou, B. K. (2014).
     "Soccer league competition algorithm: A novel meta-heuristic
     algorithm for optimal design of water distribution networks."
+
+Attributes:
+    SLCSolver: Solver for the Soccer League Competition algorithm.
+
+Example:
+    >>> solver = SLCSolver()
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -50,6 +57,17 @@ from logic.src.policies.route_construction.meta_heuristics.soccer_league_competi
 class SLCSolver:
     """
     Soccer League Competition solver for VRPP.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste quantities.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue per kg of waste.
+        C (float): Cost per km traveled.
+        params (SLCParams): Algorithm parameters.
+        mandatory_nodes (Optional[List[int]]): Mandatory nodes.
+        random (np.random.Generator): Random number generator.
+        ls (ACOLocalSearch): Local search instance.
     """
 
     def __init__(
@@ -187,14 +205,33 @@ class SLCSolver:
 
         return best_routes, best_profit, best_cost
 
-    def _update_superstars(self, teams: List[List[Tuple[List[List[int]], float]]]):
-        """Maintain top 3 global solutions (Superstars)."""
+    def _update_superstars(self, teams: List[List[Tuple[List[List[int]], float]]]) -> None:
+        """Maintain top 3 global solutions (Superstars).
+
+        Args:
+            teams: List of teams.
+
+        Returns:
+            None.
+        """
         all_players = [p for team in teams for p in team]
         all_players.sort(key=lambda x: x[1], reverse=True)
         self.superstars = all_players[:3]
 
-    def _play_match(self, team_a: List[Tuple[List[List[int]], float]], team_b: List[Tuple[List[List[int]], float]]):
-        """Teams compete; loser's weakest player learns from winner's best (Moosavian 2014)."""
+    def _play_match(
+        self,
+        team_a: List[Tuple[List[List[int]], float]],
+        team_b: List[Tuple[List[List[int]], float]],
+    ) -> None:
+        """Teams compete; loser's weakest player learns from winner's best (Moosavian 2014).
+
+        Args:
+            team_a: First team.
+            team_b: Second team.
+
+        Returns:
+            None.
+        """
         fit_a = sum(p for _, p in team_a)
         fit_b = sum(p for _, p in team_b)
 
@@ -222,6 +259,13 @@ class SLCSolver:
 
         Moosavian (2014): Weaker players imitate the best solutions (superstars).
         In discrete VRR, this corresponds to recombining with the global best.
+
+        Args:
+            player: Player to be coached.
+            superstar: Best player.
+
+        Returns:
+            Coached player.
         """
         current_routes, current_profit = player
         superstar_routes, _ = superstar
@@ -238,7 +282,11 @@ class SLCSolver:
     # ------------------------------------------------------------------
 
     def _new_team(self) -> List[Tuple[List[List[int]], float]]:
-        """Create a fresh team of `team_size` random players."""
+        """Create a fresh team of `team_size` random players.
+
+        Returns:
+            Team of random players.
+        """
         team = []
         for _ in range(self.params.team_size):
             routes = self._build_random_solution()
@@ -247,7 +295,11 @@ class SLCSolver:
         return team
 
     def _build_random_solution(self) -> List[List[int]]:
-        """Order-dependent sequential construction (matches ALNS style)."""
+        """Order-dependent sequential construction (matches ALNS style).
+
+        Returns:
+            Randomly constructed routes.
+        """
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -371,7 +423,14 @@ class SLCSolver:
         return self.ls.optimize(child_routes)
 
     def _league_best(self, teams: List[List[Tuple[List[List[int]], float]]]) -> Tuple[List[List[int]], float]:
-        """Return the best (routes, profit) across all teams."""
+        """Return the best (routes, profit) across all teams.
+
+        Args:
+            teams: List of teams.
+
+        Returns:
+            Best routes and profit.
+        """
         best_p = -float("inf")
         best_r: List[List[int]] = []
         for team in teams:
@@ -382,14 +441,28 @@ class SLCSolver:
         return copy.deepcopy(best_r), best_p
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Total routing distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

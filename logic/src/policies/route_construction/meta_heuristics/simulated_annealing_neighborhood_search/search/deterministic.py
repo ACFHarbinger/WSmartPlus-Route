@@ -1,8 +1,24 @@
 """
 Deterministic local search strategies.
+
+Attributes:
+    _evaluate_move: Evaluate moving a bin to a new position.
+    local_search_2: Apply a deterministic set of local search operators to improve a solution.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search.deterministic import local_search_2
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> distance_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+    >>> values = np.array([10, 10, 10])
+    >>> data = {'nodes': 5}
+    >>> local_search_2(routes, 1, 1, 1, 1, data, distance_matrix, values)
+    ([0, 1, 2, 0], [0, 3, 4, 0]), 0, 0
 """
 
 from copy import deepcopy
+from typing import List, Tuple
+
+import numpy as np
 
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives import (
     compute_profit,
@@ -11,21 +27,40 @@ from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_n
 
 
 def _evaluate_move(
-    routes_list,
-    idx_route,
-    position,
-    bin_to_move,
-    previous_solution,
-    previous_profit,
-    p_vehicle,
-    p_load,
-    p_route_difference,
-    p_shift,
-    data,
-    distance_matrix,
-    values,
-):
-    """Evaluate moving a bin to a new position."""
+    routes_list: List[List[int]],
+    idx_route: int,
+    position: int,
+    bin_to_move: int,
+    previous_solution: List[List[int]],
+    previous_profit: float,
+    p_vehicle: float,
+    p_load: float,
+    p_route_difference: float,
+    p_shift: float,
+    data: dict,
+    distance_matrix: np.ndarray,
+    values: np.ndarray,
+) -> Tuple[float, bool]:
+    """Evaluate moving a bin to a new position.
+
+    Args:
+        routes_list (List[List[int]]): Current routing solution.
+        idx_route (int): Index of the route to move the bin to.
+        position (int): Position to move the bin to.
+        bin_to_move (int): Bin to move.
+        previous_solution (List[List[int]]): Previous routing solution.
+        previous_profit (float): Previous profit.
+        p_vehicle (float): Penalty for using an extra vehicle.
+        p_load (float): Penalty for exceeding vehicle load capacity.
+        p_route_difference (float): Penalty for route length differences.
+        p_shift (float): Penalty for route time differences.
+        data (dict): Input data containing bin information.
+        distance_matrix (np.ndarray): All-pairs shortest path distances.
+        values (np.ndarray): Vehicle capacity.
+
+    Returns:
+        Tuple[float, bool]: New profit and whether the move improved the solution.
+    """
     index_route_to_remove = -1
     for z_idx, z in enumerate(previous_solution):
         if bin_to_move in z:
@@ -69,17 +104,30 @@ def _evaluate_move(
 
 
 def local_search_2(
-    previous_solution,
-    p_vehicle,
-    p_load,
-    p_route_difference,
-    p_shift,
-    data,
-    distance_matrix,
-    values,
-):
+    previous_solution: List[List[int]],
+    p_vehicle: float,
+    p_load: float,
+    p_route_difference: float,
+    p_shift: float,
+    data: dict,
+    distance_matrix: np.ndarray,
+    values: np.ndarray,
+) -> Tuple[List[List[int]], float, float]:
     """
     Apply a deterministic set of local search operators to improve a solution.
+
+    Args:
+        previous_solution (List[List[int]]): Current routing solution.
+        p_vehicle (float): Penalty for using an extra vehicle.
+        p_load (float): Penalty for exceeding vehicle load capacity.
+        p_route_difference (float): Penalty for route length differences.
+        p_shift (float): Penalty for route time differences.
+        data (dict): Input data containing bin information.
+        distance_matrix (np.ndarray): All-pairs shortest path distances.
+        values (np.ndarray): Vehicle capacity.
+
+    Returns:
+        Tuple[List[List[int]], float, float]: Optimized routing solution, its profit, and real profit.
     """
     previous_profit = compute_profit(
         previous_solution,

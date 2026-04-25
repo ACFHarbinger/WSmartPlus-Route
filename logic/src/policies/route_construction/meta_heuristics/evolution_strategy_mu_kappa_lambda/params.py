@@ -1,5 +1,10 @@
-"""
-Parameters for the (μ,κ,λ) Evolution Strategy.
+r"""Parameters for the (μ,κ,λ) Evolution Strategy.
+
+Attributes:
+    MuKappaLambdaESParams: Parameter dataclass for (μ,κ,λ)-ES.
+
+Example:
+    >>> params = MuKappaLambdaESParams(mu=15, kappa=7)
 """
 
 from __future__ import annotations
@@ -32,9 +37,9 @@ class MuKappaLambdaESParams:
         n_removal: Number of nodes to remove in mutation (for routing problems).
         stagnation_limit: Stagnation threshold for restart (for routing problems).
         local_search_iterations: Local search iterations (for routing problems).
-        seed (Optional[int]): Random seed for reproducibility.
-        vrpp (bool): Whether the problem is VRP with Profits.
-        profit_aware_operators (bool): Whether to use profit-aware insertion/removal.
+        seed: Random seed for reproducibility.
+        vrpp: Whether the problem is VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware insertion/removal.
     """
 
     mu: int = 15
@@ -60,7 +65,11 @@ class MuKappaLambdaESParams:
     profit_aware_operators: bool = False
 
     def __post_init__(self):
-        """Validate parameters."""
+        """Validate parameters.
+
+        Returns:
+            None.
+        """
         assert self.mu > 0, "μ must be positive"
         assert self.kappa > 0, "κ must be positive"
         assert self.lambda_ >= self.mu, "λ must be >= μ for (μ,κ,λ)-selection"
@@ -75,7 +84,14 @@ class MuKappaLambdaESParams:
 
     @classmethod
     def from_config(cls, config: Any) -> MuKappaLambdaESParams:
-        """Build parameters from a configuration object."""
+        """Build parameters from a configuration object.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            MuKappaLambdaESParams instance.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
 

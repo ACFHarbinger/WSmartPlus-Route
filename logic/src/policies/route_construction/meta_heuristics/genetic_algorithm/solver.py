@@ -41,17 +41,19 @@ from .params import GAParams
 
 
 class GASolver:
-    """
-    Genetic Algorithm solver for VRPP.
+    """Genetic Algorithm solver for VRPP.
 
     Attributes:
-        dist_matrix (np.ndarray): Symmetric distance matrix.
-        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-        capacity (float): Maximum vehicle collection capacity.
-        R (float): Revenue per kg of waste.
-        C (float): Cost per kg traveled.
-        params (GAParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of node indices.
+        random: Random number generator.
     """
 
     def __init__(
@@ -75,6 +77,9 @@ class GASolver:
             C: Cost per unit distance.
             params: GA parameters.
             mandatory_nodes: Optional list of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -92,11 +97,10 @@ class GASolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run GA optimisation.
+        """Run GA optimisation.
 
         Returns:
-            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
+            Tuple of (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -167,7 +171,11 @@ class GASolver:
     # ------------------------------------------------------------------
 
     def _init_population(self) -> List[List[List[int]]]:
-        """Initialise population with randomised greedy solutions."""
+        """Initialise population with randomised greedy solutions.
+
+        Returns:
+            List of initial individuals (solutions).
+        """
         population = []
         for _ in range(self.params.pop_size):
             # Use seed/rng from params
@@ -188,7 +196,15 @@ class GASolver:
         population: List[List[List[int]]],
         fitnesses: List[float],
     ) -> List[List[int]]:
-        """Select individual via tournament selection."""
+        """Select individual via tournament selection.
+
+        Args:
+            population: List of solutions.
+            fitnesses: List of calculated profits.
+
+        Returns:
+            Selected individual.
+        """
         indices = self.random.sample(
             range(len(population)),
             min(self.params.tournament_size, len(population)),
@@ -201,7 +217,15 @@ class GASolver:
         parent1: List[List[int]],
         parent2: List[List[int]],
     ) -> List[List[int]]:
-        """OX crossover: inject a segment from parent2 into parent1."""
+        """OX crossover: inject a segment from parent2 into parent1.
+
+        Args:
+            parent1: First parent solution.
+            parent2: Second parent solution.
+
+        Returns:
+            New child solution.
+        """
         p1_flat = [n for r in parent1 for n in r]
         p2_flat = [n for r in parent2 for n in r]
 
@@ -241,7 +265,14 @@ class GASolver:
             )
 
     def _mutate(self, routes: List[List[int]]) -> List[List[int]]:
-        """Random relocate mutation using shared ruin/recreate."""
+        """Random relocate mutation.
+
+        Args:
+            routes: Individual routes.
+
+        Returns:
+            Mutated routes.
+        """
         if not any(routes):
             return routes
 
@@ -276,15 +307,17 @@ class GASolver:
             return routes
 
     def _local_search(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Prins (2004) style local search (2-opt).
+        """Prins (2004) style local search (2-opt).
 
-        Systematically improves the best individual to a local optimum.
+        Args:
+            routes: Individual routes.
+
+        Returns:
+            Improved routes.
         """
         improved = True
         current_routes = [list(r) for r in routes]
         current_profit = self._evaluate(current_routes)
-
         while improved:
             improved = False
             # Try 2-opt on each route
@@ -324,12 +357,28 @@ class GASolver:
     # ------------------------------------------------------------------
 
     def _evaluate(self, routes: List[List[int]]) -> float:
+        """Evaluate net profit of routes.
+
+        Args:
+            routes: Individual routes.
+
+        Returns:
+            Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
+        """Calculate total routing distance.
+
+        Args:
+            routes: Individual routes.
+
+        Returns:
+            Total cost.
+        """
         total = 0.0
         for route in routes:
             if not route:

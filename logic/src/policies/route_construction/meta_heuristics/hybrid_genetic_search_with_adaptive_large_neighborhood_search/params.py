@@ -1,8 +1,12 @@
 """
 Parameters for the Hybrid Genetic Search with Adaptive Large Neighborhood Search (HGS-ALNS).
-"""
 
-from __future__ import annotations
+Attributes:
+    HGSALNSParams: Configuration parameters for the HGS-ALNS solver.
+
+Example:
+    >>> params = HGSALNSParams()
+"""
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
@@ -21,6 +25,14 @@ class HGSALNSParams:
     Uses ALNS for the education phase and HGS for the routing phase, combining
     the exploration power of genetic algorithms with the exploitation strength
     of adaptive large neighborhood search.
+
+    Attributes:
+        time_limit: Maximum execution time in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve for VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware neighborhood moves.
+        hgs_params: Parameters for the HGS component.
+        alns_params: Parameters for the ALNS component.
     """
 
     # Hybrid-specific parameters
@@ -59,8 +71,15 @@ class HGSALNSParams:
     )
 
     @classmethod
-    def from_config(cls, config: Any) -> HGSALNSParams:
-        """Create HGSALNSParams from a configuration object."""
+    def from_config(cls, config: Any) -> "HGSALNSParams":
+        """Create HGSALNSParams from a configuration object.
+
+        Args:
+            config: Configuration source for parameters.
+
+        Returns:
+            HGSALNSParams: The initialized parameters object.
+        """
         return cls(
             time_limit=getattr(config, "time_limit", 60.0),
             seed=getattr(config, "seed", None),
@@ -71,7 +90,14 @@ class HGSALNSParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert Params to a dictionary."""
+        """Convert Params to a dictionary.
+
+        Args:
+            None.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of parameters.
+        """
         return {
             "time_limit": self.time_limit,
             "seed": self.seed,

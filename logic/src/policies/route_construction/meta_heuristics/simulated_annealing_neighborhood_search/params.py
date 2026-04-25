@@ -1,5 +1,14 @@
 """
 Configuration parameters for the Simulated Annealing Neighborhood Search (SANS) policy.
+
+Attributes:
+    SANSParams: Configuration parameters for the SANS solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params import SANSParams
+    >>> sans_params = SANSParams()
+    >>> sans_params.to_dict()
+    {'engine': 'new', 'T_init': 75.0, 'iterations_per_T': 5000, 'alpha': 0.95, 'T_min': 0.01, 'time_limit': 60.0, 'perc_bins_can_overflow': 0.0, 'V': 0.0, 'shift_duration': 28800.0, 'combination': 'best', 'seed': 42}
 """
 
 from __future__ import annotations
@@ -41,7 +50,14 @@ class SANSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> SANSParams:
-        """Create SANSParams from a configuration object or dictionary."""
+        """Create SANSParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            SANSParams: SANS parameters.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -60,5 +76,9 @@ class SANSParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert Params to a dictionary."""
+        """Convert Params to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of Params.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

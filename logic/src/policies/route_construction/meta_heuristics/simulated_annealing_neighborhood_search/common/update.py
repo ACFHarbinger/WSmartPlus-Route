@@ -5,6 +5,50 @@ Manages the evolution of bin fill levels and determines optimal collection
 schedules based on predicted overflow. Provides utilities for updating bin
 states after collection and identifying 'mandatory' candidates for upcoming
 planning cycles.
+
+Attributes:
+    MAX_CAPACITY_PERCENT (int): Maximum fill capacity percentage.
+    should_bin_be_collected: Check if a bin's fill level will exceed MAX_CAPACITY_PERCENT% by the next day.
+    add_bins_to_collect: Predictively identify bins that will overflow before the next planned collection day and add them to the must-collect list.
+    update_fill_levels_after_first_collection: Simulate bin emptying after collection by resetting fill levels to zero.
+    initialize_lists_of_bins: Initialize a zeroed list for tracking next collection days.
+    calculate_next_collection_days: Calculate how many days remain until each mandatory bin overflows again.
+    get_next_collection_day: Determine the minimum number of days until the first bin in the set overflows.
+
+Example:
+    >>> import numpy as np
+    >>> from logic.src.data.bins import Bins
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params import SANSParams
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.sans_policy import SANSPolicy
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher import Dispatcher
+    >>>
+    >>> # Setup data (same as LAC)
+    >>> bin_data = Bins.from_yaml("tests/data/bins.yaml")
+    >>> bin_coords = {b.id: (b.location.latitude, b.location.longitude) for b in bin_data.bins}
+    >>> customer_location = bin_coords[0]
+    >>> bin_state = pd.DataFrame({"fill_level": [0] * len(bin_data.bins), "last_collection": pd.to_datetime(["2024-05-01"] * len(bin_data.bins))})
+    >>> # Simulation parameters
+    >>> sim_params = SANSParams(
+    ...     max_iterations=10,
+    ...     num_sim_days=15,
+    ...     initial_temp=100.0,
+    ...     cooling_rate=0.95,
+    ...     max_route_time_minutes=480,
+    ...     vehicle_capacity=12.0,
+    ...     route_collection_size_ratio=1.0,
+    ...     max_bins_per_route=5,
+    ... )
+    >>> # Create policy and dispatcher
+    >>> policy = SANSPolicy(sim_params, bins_df=bin_data.bins, bin_coordinates=bin_coords)
+    >>> dispatcher = Dispatcher(policy=policy, bin_coordinates=bin_coords)
+    >>> # Run simulation
+    >>> routes_results, bin_state_final = dispatcher.execute_og(
+    ...     start_time=pd.to_datetime("2024-05-05"),
+    ...     bin_data=bin_data,
+    ...     bin_state=bin_state,
+    ... )
+    >>> print(f"Simulation completed. Routes generated: {len(routes_results)}")
+    Simulation completed. Routes generated: 1
 """
 
 import numpy as np

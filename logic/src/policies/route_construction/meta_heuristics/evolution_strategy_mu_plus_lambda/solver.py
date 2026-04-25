@@ -1,19 +1,15 @@
-"""
-(μ+λ) Evolution Strategy for VRPP.
+r"""(μ+λ) Evolution Strategy for VRPP.
 
 This module implements a rigorous, elitist (μ+λ) Evolution Strategy.
 The search in Evolution Strategies is characterized by the alternating
 application of variation and selection operators.
 
-Algorithm:
-    1. Initialize a parent population of μ solutions.
-    2. For each generation:
-        a. Variation: Generate λ offspring by recombining parents and
-           applying mutative perturbations.
-        b. Evaluation: Calculate the net profit for all λ offspring.
-        c. Selection: Combine the μ parents and λ offspring into a single
-           pool, sort by fitness, and select the top μ individuals to survive
-           into the next generation.
+Attributes:
+    MuPlusLambdaESSolver: Main solver class.
+
+Example:
+    >>> solver = MuPlusLambdaESSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -39,11 +35,20 @@ from logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu
 
 
 class MuPlusLambdaESSolver:
-    """
-    (μ+λ) Evolution Strategy solver for the Vehicle Routing Problem with Profits.
+    """(μ+λ) Evolution Strategy solver for the Vehicle Routing Problem with Profits.
 
-    This solver enforces strict elitism by allowing parent solutions to compete
-    directly with their offspring for survival into the next generation.
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of node IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        params: Configuration for (μ+λ) parameters.
+        mandatory_nodes: Nodes that must be included.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        rng: Random number generator.
+        ls: Local search optimizer.
     """
 
     def __init__(
@@ -60,13 +65,16 @@ class MuPlusLambdaESSolver:
         Initializes the (μ+λ)-ES solver and pre-allocates the local search operator.
 
         Args:
-            dist_matrix: Distance matrix of shape (n+1, n+1), where index 0 is the depot.
-            wastes: Mapping of node IDs to their available waste quantities.
-            capacity: Maximum capacity constraint for a single vehicle route.
-            R: Revenue generated per unit of waste collected.
-            C: Cost incurred per unit of distance traveled.
-            params: Configuration dataclass defining $\mu$, $\lambda$, and limits.
-            mandatory_nodes: List of node IDs that must be included in any feasible solution.
+            dist_matrix: Distance matrix of shape (n+1, n+1).
+            wastes: Mapping of node IDs to waste quantities.
+            capacity: Maximum capacity constraint.
+            R: Revenue per unit waste.
+            C: Cost per unit distance.
+            params: Configuration defining mu and lambda.
+            mandatory_nodes: Nodes that must be included.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -100,10 +108,7 @@ class MuPlusLambdaESSolver:
         Executes the (μ+λ) Evolution Strategy optimization loop.
 
         Returns:
-            A tuple containing:
-                - best_routes: The routing sequence of the best solution found.
-                - best_profit: The net profit (fitness) of the best solution.
-                - best_cost: The total routing distance of the best solution.
+            Tuple of (best_routes, best_profit, best_cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -166,8 +171,10 @@ class MuPlusLambdaESSolver:
         return best_routes, best_profit, best_cost
 
     def _initialize_solution(self) -> List[List[int]]:
-        """
-        Initializes a single solution using the greedy profit-aware heuristic.
+        """Initializes a single solution using the greedy heuristic.
+
+        Returns:
+            A list of routes.
         """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
@@ -180,8 +187,14 @@ class MuPlusLambdaESSolver:
         )
 
     def _recombine_and_mutate(self, parent1: List[List[int]], parent2: List[List[int]]) -> List[List[int]]:
-        """
-        Applies discrete recombination and mutation to generate a single offspring.
+        """Applies discrete recombination and mutation.
+
+        Args:
+            parent1: First parent solution.
+            parent2: Second parent solution.
+
+        Returns:
+            A new offspring solution.
         """
         if not parent1 or not parent2:
             return copy.deepcopy(parent1)
@@ -235,14 +248,28 @@ class MuPlusLambdaESSolver:
             return copy.deepcopy(parent1)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Evaluates the fitness (net profit) of a given solution."""
+        """Evaluates the fitness (net profit) of a given solution.
+
+        Args:
+            routes: Routing sequences to evaluate.
+
+        Returns:
+            Calculated net profit.
+        """
         if not routes:
             return 0.0
         revenue = sum(self.wastes.get(n, 0.0) * self.R for route in routes for n in route)
         return revenue - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Calculates the total routing distance for a given solution."""
+        """Calculates the total routing distance for a given solution.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Total distance traveled.
+        """
         total = 0.0
         for route in routes:
             if not route:

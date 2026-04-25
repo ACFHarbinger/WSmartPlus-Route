@@ -1,8 +1,12 @@
 """
 Configuration parameters for Hybrid Genetic Search.
-"""
 
-from __future__ import annotations
+Attributes:
+    HGSParams: Dataclass for configuration parameters.
+
+Example:
+    >>> params = HGSParams(mu=25, lambda_param=40)
+"""
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
@@ -44,6 +48,9 @@ class HGSParams:
         penalty_increase: Multiplier for increasing penalty (when too many feasible).
         penalty_decrease: Multiplier for decreasing penalty (when too many infeasible).
         engine: Engine to use for the solver.
+
+    Example:
+        >>> params = HGSParams(mu=25)
     """
 
     # Core HGS parameters (Vidal 2022)
@@ -84,7 +91,7 @@ class HGSParams:
     acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     @classmethod
-    def from_config(cls, config: HGSConfig) -> HGSParams:
+    def from_config(cls, config: HGSConfig) -> "HGSParams":
         """Create HGSParams from a HGSConfig dataclass.
 
         Args:
@@ -140,7 +147,12 @@ class HGSParams:
 
     @property
     def lambda_param(self) -> int:
-        """Alias for n_offspring (Vidal 2022 terminology)."""
+        """
+        Alias for n_offspring (Vidal 2022 terminology).
+
+        Returns:
+            int: The number of offspring per generation.
+        """
         return self.n_offspring
 
     @lambda_param.setter
@@ -149,12 +161,20 @@ class HGSParams:
 
         Args:
             value (int): New generation size.
+
+        Returns:
+            None.
         """
         self.n_offspring = value
 
     @property
     def population_size(self) -> int:
-        """Alias for mu (common evolutionary terminology)."""
+        """
+        Alias for mu (common evolutionary terminology).
+
+        Returns:
+            int: The minimum population size per subpopulation.
+        """
         return self.mu
 
     @population_size.setter
@@ -163,12 +183,20 @@ class HGSParams:
 
         Args:
             value (int): New minimum population size.
+
+        Returns:
+            None.
         """
         self.mu = value
 
     @property
     def elite_size(self) -> int:
-        """Alias for nb_elite."""
+        """
+        Alias for nb_elite.
+
+        Returns:
+            int: The number of elite individuals.
+        """
         return self.nb_elite
 
     @elite_size.setter
@@ -177,12 +205,20 @@ class HGSParams:
 
         Args:
             value (int): New elite size.
+
+        Returns:
+            None.
         """
         self.nb_elite = value
 
     @property
     def no_improvement_threshold(self) -> int:
-        """Alias for n_iterations_no_improvement."""
+        """
+        Alias for n_iterations_no_improvement.
+
+        Returns:
+            int: The stop threshold.
+        """
         return self.n_iterations_no_improvement
 
     @no_improvement_threshold.setter
@@ -191,12 +227,20 @@ class HGSParams:
 
         Args:
             value (int): Max iterations without improvement.
+
+        Returns:
+            None.
         """
         self.n_iterations_no_improvement = value
 
     @property
     def neighbor_list_size(self) -> int:
-        """Alias for nb_granular."""
+        """
+        Alias for nb_granular.
+
+        Returns:
+            int: The neighbor list size.
+        """
         return self.nb_granular
 
     @neighbor_list_size.setter
@@ -205,5 +249,8 @@ class HGSParams:
 
         Args:
             value (int): New neighbor list size.
+
+        Returns:
+            None.
         """
         self.nb_granular = value

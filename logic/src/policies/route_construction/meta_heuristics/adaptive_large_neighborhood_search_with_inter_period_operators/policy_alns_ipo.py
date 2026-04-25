@@ -1,8 +1,14 @@
-"""
-ALNS with Inter-Period Operators (ALNS-IPO) Policy Adapter.
+r"""ALNS with Inter-Period Operators (ALNS-IPO) Policy Adapter.
 
 Adapts the ALNS-IPO solver (``ALNSSolverIPO``) to the ``BaseMultiPeriodRoutingPolicy``
 interface, enabling it to be invoked via ``test_sim`` with the key ``"alns_ipo"``.
+
+Attributes:
+    ALNSInterPeriodOperatorsPolicy: Policy class for ALNS-IPO.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators import ALNSInterPeriodOperatorsPolicy
+    >>> policy = ALNSInterPeriodOperatorsPolicy()
 """
 
 from dataclasses import asdict
@@ -29,6 +35,12 @@ class ALNSInterPeriodOperatorsPolicy(BaseMultiPeriodRoutingPolicy):
 
     Registry key: ``"alns_ipo"``
 
+    Attributes:
+        config: Configuration for the policy.
+
+    Example:
+        >>> policy = ALNSInterPeriodOperatorsPolicy()
+
     References:
         Coelho, L. C., Cordeau, J.-F., & Laporte, G. (2012).
         "The inventory-routing problem with transshipment."
@@ -39,14 +51,28 @@ class ALNSInterPeriodOperatorsPolicy(BaseMultiPeriodRoutingPolicy):
         self,
         config: Optional[Union[ALNSIPOConfig, Dict[str, Any]]] = None,
     ) -> None:
-        """Initialise the ALNS-IPO policy adapter."""
+        """Initialise the ALNS-IPO policy adapter.
+
+        Args:
+            config: Configuration for the policy.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Type[ALNSIPOConfig]:
+        """Return the configuration class for ALNS-IPO.
+
+        Returns:
+            The ALNSIPOConfig class.
+        """
         return ALNSIPOConfig
 
     def _get_config_key(self) -> str:
+        """Return the config key for ALNS-IPO.
+
+        Returns:
+            The string "alns_ipo".
+        """
         return "alns_ipo"
 
     def _run_multi_period_solver(

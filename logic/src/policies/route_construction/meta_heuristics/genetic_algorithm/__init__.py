@@ -1,9 +1,13 @@
-"""
-Genetic Algorithm (GA) solver for VRPP.
+"""Genetic Algorithm (GA) solver for VRPP.
 
-Exports:
-    GASolver: The main solver class.
-    GAParams: Configuration parameters dataclass.
+Attributes:
+    GASolver: Main solver class for the Genetic Algorithm.
+    GAPolicy: Policy class for the Genetic Algorithm.
+    GAParams: Parameter dataclass for the Genetic Algorithm.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.genetic_algorithm import GAPolicy
+    >>> policy = GAPolicy()
 """
 
 from .params import GAParams

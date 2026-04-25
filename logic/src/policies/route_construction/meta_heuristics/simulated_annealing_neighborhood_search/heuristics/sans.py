@@ -1,12 +1,28 @@
 """
 Simulated Annealing Algorithm.
+
+Attributes:
+    improved_simulated_annealing: Refine routing solutions using a multi-neighborhood Simulated Annealing algorithm.
+
+Example:
+    >>> import random
+    >>> routes = [[0, 1, 2, 3, 0], [0, 4, 5, 6, 0]]
+    >>> bins_cannot_removed = {1, 4}
+    >>> rng = random.Random()
+    >>> removed_bins = set()
+    >>> new_routes = remove_bins_from_route(routes, bins_cannot_removed, rng, num_bins=1)
+    >>> new_routes
+    [[0, 2, 3, 0], [0, 4, 5, 6, 0]]
 """
 
 import copy
 import math
 import random
 import time
-from typing import Optional
+from random import Random
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+import numpy as np
 
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes import (
     uncross_arcs_in_sans_routes,
@@ -20,10 +36,28 @@ from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_n
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
-def _initialize_solution_state(routes, id_to_index, distance_matrix, data):
-    """Initialize SANS solution state."""
-    # State Sync: Capture any bins missed by the initial greedy solution.
-    # Every bin ID must be either in a route or in the 'removed_bins' set.
+def _initialize_solution_state(
+    routes: List[List[int]],
+    id_to_index: Dict[int, int],
+    distance_matrix: np.ndarray,
+    data: Dict[str, Any],
+) -> Tuple[List[List[int]], Set[int]]:
+    """Initialize SANS solution state.
+
+    Args:
+        routes: Initial routes to optimize.
+        id_to_index: Mapping from bin IDs to indices.
+        distance_matrix: Distance matrix for routes.
+        data: Problem data.
+
+    Returns:
+        Tuple: (current_solution, missing_bins).
+
+    Notes:
+        - State Sync: Captures any bins missed by the initial greedy solution.
+        - Every bin ID must be either in a route or in the 'removed_bins' set.
+        - Route improvement: Uncross arcs in the initial solution to start from a geometric optimum.
+    """
     all_bins_ids = set(data["#bin"].tolist()) - {0}
     scheduled_bins = set()
     for r in routes:
@@ -40,9 +74,32 @@ def _initialize_solution_state(routes, id_to_index, distance_matrix, data):
 
 
 def _select_neighbor(
-    solution, removed_bins, data, vehicle_capacity, id_to_index, stocks, mandatory_bins, distance_matrix, rng
-):
-    """Select and apply a neighbor operator."""
+    solution: List[List[int]],
+    removed_bins: Set[int],
+    data: Dict[str, Any],
+    vehicle_capacity: float,
+    id_to_index: Dict[int, int],
+    stocks: Dict[int, float],
+    mandatory_bins: Set[int],
+    distance_matrix: np.ndarray,
+    rng: Random,
+) -> Tuple[Optional[List[List[int]]], Optional[str]]:
+    """Select and apply a neighbor operator.
+
+    Args:
+        solution: The current solution.
+        removed_bins: Set of bins that have been removed.
+        data: Problem data.
+        vehicle_capacity: Capacity of vehicles.
+        id_to_index: Mapping from bin IDs to indices.
+        stocks: Stock levels for each bin.
+        mandatory_bins: Set of bins that must be included in the solution.
+        distance_matrix: Distance matrix for routes.
+        rng: Random number generator.
+
+    Returns:
+        A tuple containing the new solution and the operator applied.
+    """
     route_ops = [
         "2opt",
         "move",

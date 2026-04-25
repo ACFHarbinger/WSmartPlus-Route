@@ -5,6 +5,13 @@ Reference:
     Moghdani, R., & Salimifard, K. (2018). "Volleyball Premier League
     Algorithm." Applied Soft Computing, 64, 161-185.
     DOI: https://doi.org/10.1016/j.asoc.2017.11.043
+
+Attributes:
+    VPLParams: The VPLParams class.
+
+Example:
+    >>> params = VPLParams()
+    >>> params = VPLParams.from_config(config)
 """
 
 from __future__ import annotations
@@ -60,7 +67,11 @@ class VPLParams:
     profit_aware_operators: bool = False
 
     def __post_init__(self):
-        """Validate parameter constraints."""
+        """Validate parameter constraints.
+
+        Raises:
+            AssertionError: If parameters are invalid.
+        """
         assert self.n_teams > 0, "n_teams must be positive"
         assert 0 <= self.substitution_rate <= 1, "substitution_rate must be in [0, 1]"
         assert self.elite_size >= 1, "elite_size must be at least 1"
@@ -71,7 +82,14 @@ class VPLParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "VPLParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            VPLParams: Parameter instance.
+        """
         return cls(
             n_teams=getattr(config, "n_teams", 30),
             max_iterations=getattr(config, "max_iterations", 200),

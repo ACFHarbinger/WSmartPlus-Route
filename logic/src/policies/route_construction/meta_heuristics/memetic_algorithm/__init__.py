@@ -1,9 +1,13 @@
-"""
-Memetic Algorithm (MA) implementation for VRPP.
+"""Memetic Algorithm (MA) implementation for VRPP.
 
-Follows the Moscato, Cotta, & Mendes (2004) framework:
-- Population-based evolutionary search (GA)
-- Local Search refinement (Hill-climbing)
+Attributes:
+    MASolver: Main solver class for the Memetic Algorithm.
+    MAPolicy: Policy class for the Memetic Algorithm.
+    MAParams: Parameter dataclass for the Memetic Algorithm.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.memetic_algorithm import MAPolicy
+    >>> policy = MAPolicy()
 """
 
 from .params import MAParams

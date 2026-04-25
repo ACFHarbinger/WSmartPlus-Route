@@ -1,6 +1,15 @@
 """
 Solution refinement strategies for the look-ahead policy.
 Provides iterative improvement passes using uncrossing and local search variants.
+
+Attributes:
+    refine_solution: Apply a sequence of uncrossing and local search passes to refine a solution.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.refinement import refine_solution
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> cost, profit = refine_solution(routes, distance_matrix, values, capacities, mandatory_nodes)
+    >>> print(f"Cost: {cost}, Profit: {profit}")
 """
 
 from typing import Dict, List, Tuple
