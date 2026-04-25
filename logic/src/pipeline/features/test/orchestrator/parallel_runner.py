@@ -1,4 +1,19 @@
-"""Parallel execution engine for simulations."""
+"""Parallel execution engine for simulations.
+
+Attributes:
+    run_parallel_simulations: Executes simulations in parallel using a multiprocessing pool.
+    execute_and_monitor_tasks: Executes parallel tasks and monitors their progress.
+    handle_shutdown: Handles graceful shutdown on keyboard interrupt.
+    cleanup_multiprocessing_pool: Safely closes and joins the multiprocessing pool.
+
+Example:
+    >>> from logic.src.pipeline.features.test.orchestrator.parallel_runner import run_parallel_simulations
+    >>> run_parallel_simulations(cfg, device, indices, sample_idx_ls, weights_path, lock, manager, n_cores, task_count, log_file, original_stderr, shared_metrics)
+    ({'random': [array([164.02479, 181.58765, 167.54913, ...,  76.02663,  83.97055,
+         56.46619])], 'ours': [array([156.92104, 138.96408, 165.01206, ..., 110.50811, 110.56278,
+         56.57213])], 'ours2': [array([151.85719, 136.31088, 166.38385, ..., 127.60449, 127.63972,
+         87.26818])]}, {'random': [nan], 'ours': [nan], 'ours2': [nan]}, [])
+"""
 
 import multiprocessing as mp
 import os
@@ -54,6 +69,12 @@ def run_parallel_simulations(
         shared_metrics: Multiprocessing Manager.dict for real-time stats.
         tracking_uri: Directory of the WSTracker database (passed to workers).
         tracking_run_id: Parent run UUID that workers should attach to.
+
+    Returns:
+        Tuple containing:
+            - log (Dict[str, Any]): Aggregated simulation results.
+            - log_std (Optional[Dict[str, Any]]): Standard deviation of results.
+            - failed_log (List[Dict[str, Any]]): List of failed simulation results.
     """
     sim = cfg.sim
     udef.update_lock_wait_time(n_cores)
@@ -104,6 +125,24 @@ def execute_and_monitor_tasks(
 ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Execute parallel tasks and monitor their progress.
+
+    Args:
+        pool: multiprocessing pool for parallel execution.
+        cfg: Root configuration.
+        device: Torch device.
+        args: Task arguments.
+        weights_path: Path to model weights.
+        n_cores: Number of cores.
+        counter: Task counter.
+        manager: Multiprocessing Manager.
+        lock: Multiprocessing lock.
+        shared_metrics: Multiprocessing Manager.dict for real-time stats.
+
+    Returns:
+        Tuple containing:
+            - log (Dict[str, Any]): Aggregated simulation results.
+            - log_std (Optional[Dict[str, Any]]): Standard deviation of results.
+            - failed_log (List[Dict[str, Any]]): List of failed simulation results.
     """
     sim = cfg.sim
     policies = sim.full_policies
@@ -162,6 +201,10 @@ def execute_and_monitor_tasks(
 def handle_shutdown(pool: Pool, original_stderr: Any) -> None:
     """
     Handle graceful shutdown on keyboard interrupt.
+
+    Args:
+        pool: Multiprocessing pool.
+        original_stderr: Original stderr.
     """
     original_stderr.write("\n\n[WARNING] Caught CTRL+C. Forcing immediate shutdown...\n")
     original_stderr.flush()
@@ -178,6 +221,9 @@ def handle_shutdown(pool: Pool, original_stderr: Any) -> None:
 def cleanup_multiprocessing_pool(pool: Pool) -> None:
     """
     Safely close and join the multiprocessing pool.
+
+    Args:
+        pool: Multiprocessing pool.
     """
     try:
         pool.close()

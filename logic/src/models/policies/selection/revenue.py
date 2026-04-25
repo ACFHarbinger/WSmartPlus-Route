@@ -3,6 +3,13 @@
 This module provides a revenue-based selection strategy that marks bins for
 collection only when the expected profit from their waste exceeds a specified
 monetary threshold.
+
+Attributes:
+    RevenueSelector: Revenue-based selection policy.
+
+Example:
+    >>> selector = RevenueSelector(threshold=10.0)
+    >>> mask = selector.select(fill_levels)
 """
 
 from __future__ import annotations
@@ -20,6 +27,11 @@ class RevenueSelector(VectorizedSelector):
     Selects bins where the expected collection revenue exceeds a threshold.
     Revenue is calculated as the product of fill level, bin capacity, and
     revenue per kilogram.
+
+    Attributes:
+        revenue_kg: Profit per unit of mass.
+        bin_capacity: Max mass per bin.
+        threshold: Minimum profit to trigger collection.
     """
 
     def __init__(
@@ -50,11 +62,11 @@ class RevenueSelector(VectorizedSelector):
         """Select bins where expected revenue exceeds threshold.
 
         Args:
-            fill_levels: Current fill levels [B, N] in [0, 1].
-            revenue_kg: Optional override for revenue per kg.
-            bin_capacity: Optional override for bin capacity.
-            threshold: Optional override for revenue threshold.
-            **kwargs: Extra parameters (ignored).
+            fill_levels: Current fill levels [B, N].
+            revenue_kg: Override for profit rate.
+            bin_capacity: Override for bin capacity.
+            threshold: Override for selection threshold.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.

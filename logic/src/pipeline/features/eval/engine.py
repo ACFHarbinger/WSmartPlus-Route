@@ -1,5 +1,47 @@
 """
 Evaluation engine for WSmart-Route.
+
+Attributes:
+    get_best: Get the best sequence and cost from a list of sequences and costs.
+    _build_dataset_kwargs: Build keyword arguments for make_dataset from Config.
+    _build_eval_kwargs: Build keyword arguments for evaluate_policy from Config.
+    eval_dataset_mp: Worker function for multiprocessing evaluation.
+    _eval_dataset: Inner evaluation loop for a single batch/process.
+
+Example:
+    >>> from logic.src.configs import Config
+    >>> from logic.src.pipeline.features.eval.engine import get_best, _build_dataset_kwargs, _build_eval_kwargs, eval_dataset_mp, _eval_dataset
+    >>>
+    >>> # Example for get_best
+    >>> sequences = np.array([[1, 2, 3], [1, 3, 2]])
+    >>> cost = np.array([10, 5])
+    >>> best_sequences, best_costs = get_best(sequences, cost)
+    >>> print(f"Best sequence: {best_sequences}")
+    >>> print(f"Best cost: {best_costs}")
+    >>>
+    >>> # Example for _build_dataset_kwargs
+    >>> cfg = Config()
+    >>> dataset_kwargs = _build_dataset_kwargs(cfg)
+    >>> print(f"Dataset kwargs: {dataset_kwargs}")
+    >>>
+    >>> # Example for _build_eval_kwargs
+    >>> eval_kwargs = _build_eval_kwargs(cfg)
+    >>> print(f"Evaluation kwargs: {eval_kwargs}")
+    >>>
+    >>> # Example for eval_dataset_mp (simplified - requires actual dataset and model)
+    >>> # This would typically be run in a multiprocessing context
+    >>> # dataset_path = "path/to/dataset.pkl"
+    >>> # beam_width = 5
+    >>> # softmax_temp = 1.0
+    >>> # results = eval_dataset_mp((dataset_path, beam_width, softmax_temp, cfg, 0, 1))
+    >>> # print(f"Evaluation results: {results}")
+    >>>
+    >>> # Example for _eval_dataset (simplified - requires actual dataset, model, and device)
+    >>> # This would typically be run in a multiprocessing context
+    >>> # model = load_model("path/to/model.pth")
+    >>> # dataset = model.problem.make_dataset(filename="path/to/dataset.pkl", num_samples=100)
+    >>> # results = _eval_dataset(model, dataset, 5, 1.0, cfg, torch.device("cuda:0"))
+    >>> # print(f"Evaluation results: {results}")
 """
 
 import contextlib
@@ -31,6 +73,15 @@ def get_best(
 ) -> Tuple[List[Optional[np.ndarray]], List[float]]:
     """
     Ids contains [0, 0, 0, 1, 1, 2, ..., n, n, n] if 3 solutions found for 0th instance, 2 for 1st, etc
+
+    Args:
+        sequences: All found solutions.
+        cost: Costs of all found solutions.
+        ids: IDs of the solutions (should be [0, 0, ..., 1, 1, ...]).
+        batch_size: Expected batch size (number of instances).
+
+    Returns:
+        Tuple of (best_sequences, best_costs).
     """
     if ids is None:
         idx = cost.argmin()
@@ -47,7 +98,14 @@ def get_best(
 
 
 def _build_dataset_kwargs(cfg: Config) -> Dict[str, Any]:
-    """Build keyword arguments for make_dataset from Config."""
+    """Build keyword arguments for make_dataset from Config.
+
+    Args:
+        cfg: Configuration object containing evaluation parameters.
+
+    Returns:
+        Dictionary of keyword arguments for make_dataset.
+    """
     ev = cfg.eval
     graph = ev.graph
     return {
@@ -68,7 +126,14 @@ def _build_dataset_kwargs(cfg: Config) -> Dict[str, Any]:
 
 
 def _build_eval_kwargs(cfg: Config) -> Dict[str, Any]:
-    """Build keyword arguments for evaluate_policy from Config."""
+    """Build keyword arguments for evaluate_policy from Config.
+
+    Args:
+        cfg: Configuration object containing evaluation parameters.
+
+    Returns:
+        Dictionary of keyword arguments for evaluate_policy.
+    """
     ev = cfg.eval
     result: Dict[str, Any] = {
         "eval_batch_size": ev.eval_batch_size,
@@ -88,7 +153,14 @@ def _build_eval_kwargs(cfg: Config) -> Dict[str, Any]:
 def eval_dataset_mp(
     args: Tuple[str, int, float, Config, int, int],
 ) -> List[Dict[str, Any]]:
-    """Worker function for multiprocessing evaluation."""
+    """Worker function for multiprocessing evaluation.
+
+    Args:
+        args: Tuple of (dataset_path, beam_width, softmax_temp, cfg, process_id, num_processes).
+
+    Returns:
+        List of evaluation results.
+    """
     (dataset_path, beam_width, softmax_temp, cfg, i, num_processes) = args
     ev = cfg.eval
     model_path = ""
@@ -116,7 +188,19 @@ def _eval_dataset(
     cfg: Config,
     device: torch.device,
 ) -> List[Dict[str, Any]]:
-    """Inner evaluation loop for a single batch/process."""
+    """Inner evaluation loop for a single batch/process.
+
+    Args:
+        model: Trained model to evaluate.
+        dataset: Dataset to evaluate on.
+        beam_width: Beam width for decoding.
+        softmax_temp: Softmax temperature for decoding.
+        cfg: Configuration object.
+        device: Device to evaluate on.
+
+    Returns:
+        List of evaluation results.
+    """
     ev = cfg.eval
     strategy = ev.decoding.strategy if ev.decoding else "greedy"
 
@@ -328,7 +412,17 @@ def eval_dataset(
 
 
 def _eval_multiprocessing(dataset_path: str, beam_width: int, softmax_temp: float, cfg: Config) -> List[Dict[str, Any]]:
-    """Helper for multiprocessing evaluation."""
+    """Helper for multiprocessing evaluation.
+
+    Args:
+        dataset_path: Path to dataset.
+        beam_width: Beam width for decoding.
+        softmax_temp: Softmax temperature for decoding.
+        cfg: Configuration object.
+
+    Returns:
+        List of evaluation results.
+    """
     num_processes = torch.cuda.device_count()
     assert cfg.eval.val_size % num_processes == 0, "val_size must be divisible by num_processes"
 
@@ -346,7 +440,19 @@ def _eval_multiprocessing(dataset_path: str, beam_width: int, softmax_temp: floa
 def _eval_singleprocess(
     model: Any, dataset_path: str, beam_width: int, softmax_temp: float, cfg: Config, use_cuda: bool
 ) -> List[Dict[str, Any]]:
-    """Helper for single-process evaluation."""
+    """Helper for single-process evaluation.
+
+    Args:
+        model: Model to evaluate.
+        dataset_path: Path to dataset.
+        beam_width: Beam width for decoding.
+        softmax_temp: Softmax temperature for decoding.
+        cfg: Configuration object.
+        use_cuda: Whether to use CUDA.
+
+    Returns:
+        List of evaluation results.
+    """
     device = torch.device("cpu" if not use_cuda else "cuda:0")
 
     ds_kwargs = _build_dataset_kwargs(cfg)
@@ -363,7 +469,20 @@ def _get_eval_output_path(
     softmax_temp: float,
     num_costs: int,
 ) -> str:
-    """Generate evaluation result output path."""
+    """Generate evaluation result output path.
+
+    Args:
+        model: Model used for evaluation.
+        dataset_path: Path to dataset.
+        cfg: Configuration object.
+        model_name: Name of the model.
+        beam_width: Beam width for decoding.
+        softmax_temp: Softmax temperature for decoding.
+        num_costs: Number of costs to evaluate.
+
+    Returns:
+        Path to evaluation results file.
+    """
     ev = cfg.eval
     strategy = ev.decoding.strategy if ev.decoding else "greedy"
     dataset_basename, ext = os.path.splitext(os.path.split(dataset_path)[-1])

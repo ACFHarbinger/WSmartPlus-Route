@@ -6,6 +6,10 @@ capacity of Mixture of Experts.
 
 Attributes:
     MoETemporalAttentionModel: Temporal model with expert-routed encoding.
+
+Example:
+    >>> model = MoETemporalAttentionModel(embed_dim=128, hidden_dim=512, problem=env.problem)
+    >>> out = model(td)
 """
 
 from __future__ import annotations
@@ -48,19 +52,19 @@ class MoETemporalAttentionModel(TemporalAttentionModel):
         """Initializes the MoE Temporal Attention Model.
 
         Args:
-            embed_dim: dimensionality of latent features.
-            hidden_dim: multi-expert sub-layer width.
-            problem: domain context.
-            n_encode_layers: transformer depth.
-            n_encode_sublayers: multi-context sub-layer count.
-            n_decode_layers: decoder block count.
-            dropout_rate: probability of feature zeroing.
-            normalization: type of feature normalization.
-            n_heads: attention heads.
-            num_experts: population of experts per layer.
-            k: active experts per token.
-            noisy_gating: enable stochastic routing.
-            **kwargs: extra parameters for base TemporalAttentionModel.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            problem: Environment or problem logic wrapper.
+            n_encode_layers: Number of transformer encoder layers.
+            n_encode_sublayers: Optional internal encoder depth.
+            n_decode_layers: Optional decoder depth.
+            dropout_rate: Dropout probability for regularization.
+            normalization: Type of layer normalization.
+            n_heads: Number of attention heads.
+            num_experts: Total number of experts in the MoE layer.
+            k: Number of experts to activate per token (top-k).
+            noisy_gating: Whether to use noise in the gating network.
+            kwargs: Additional keyword arguments.
         """
         # Create the MoE Factory for component instantiation
         component_factory = MoEComponentFactory(num_experts=num_experts, k=k, noisy_gating=noisy_gating)

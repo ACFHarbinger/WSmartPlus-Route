@@ -3,6 +3,14 @@
 This module provides the `CriticNetwork` class, which serves as the base
 Value function for Actor-Critic algorithms. It aggregates node-level latent
 representations into a single scalar value prediction.
+
+Attributes:
+    CriticNetwork: Value function for Actor-Critic algorithms.
+    create_critic_from_actor: Creates a critic network from an actor network.
+
+Example:
+    >>> critic = CriticNetwork(env_name="tsp", embed_dim=128)
+    >>> value = critic(td)
 """
 
 from __future__ import annotations
@@ -46,17 +54,19 @@ class CriticNetwork(nn.Module):
     ) -> None:
         """Initialize the CriticNetwork.
 
+
+
         Args:
-            env_name: Name of the environment (defines the embedding layer).
-            embed_dim: Latent representation dimensionality.
-            hidden_dim: Dimensionality of the value head MLP.
-            n_layers: Number of encoder layers if not provided.
+            env_name: Name of the environment identifier.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            n_layers: Number of graph encoder layers.
             n_heads: Number of attention heads.
-            normalization: Type of normalization layer.
-            dropout_rate: Dropout probability.
-            aggregation: Aggregation strategy for node features.
-            encoder: Optional pre-defined encoder to reuse.
-            **kwargs: Additional parameters for the encoder.
+            normalization: Type of layer normalization.
+            dropout_rate: Dropout probability for regularization.
+            aggregation: Global pooling mode ("avg", "sum", "max").
+            encoder: Optional pre-initialized encoder module.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.aggregation = aggregation
@@ -117,10 +127,12 @@ def create_critic_from_actor(policy: nn.Module, backbone_name: str = "encoder", 
     Useful for Actor-Critic methods where the encoder features are shared
     between the policy and the value network.
 
+
+
     Args:
-        policy: The actor policy containing the encoder.
-        backbone_name: Attribute name of the encoder within the policy.
-        **critic_kwargs: Overrides for the CriticNetwork configuration.
+        policy: The actor policy containing the backbone to clone.
+        backbone_name: Attribute name of the backbone within the policy.
+        critic_kwargs: Additional arguments for CriticNetwork initialization.
 
     Returns:
         CriticNetwork: An initialized critic with an independent copy of the
@@ -128,6 +140,7 @@ def create_critic_from_actor(policy: nn.Module, backbone_name: str = "encoder", 
 
     Raises:
         ValueError: If the specified backbone name is not found in the policy.
+
     """
     encoder = getattr(policy, backbone_name, None)
     if encoder is None:

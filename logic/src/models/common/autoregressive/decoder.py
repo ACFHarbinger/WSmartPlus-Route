@@ -3,6 +3,13 @@
 This module provides the abstract base class for decoders that construct
 solutions step-by-step by sequentially selecting actions based on
 the current state and encoded embeddings.
+
+Attributes:
+    AutoregressiveDecoder: Base class for autoregressive decoders.
+
+Example:
+    >>> decoder = AutoregressiveDecoder()
+    >>> log_p, actions = decoder(td, embeddings, env)
 """
 
 from __future__ import annotations
@@ -30,9 +37,11 @@ class AutoregressiveDecoder(nn.Module, ABC):
     def __init__(self, embed_dim: int = 128, **kwargs: Any) -> None:
         """Initialize the AutoregressiveDecoder.
 
+
+
         Args:
             embed_dim: Internal dimensionality for decoding features.
-            **kwargs: Additional parameters passed to the parent Module.
+            kwargs: Additional parameters passed to the parent Module.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -51,7 +60,7 @@ class AutoregressiveDecoder(nn.Module, ABC):
             td: TensorDict containing the current problem/environment state.
             embeddings: Encoded state representation(s) from the encoder.
             env: Environment object used for state transitions and masking.
-            **kwargs: Control parameters for decoding (e.g., strategy, mask).
+            kwargs: Control parameters for decoding (e.g., strategy, mask).
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:

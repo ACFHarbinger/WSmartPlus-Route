@@ -3,6 +3,14 @@
 This module defines the abstract interface for vectorized bin selection
 strategies, including an instrumentation mechanism for automatic telemetry
 recording across all subclasses.
+
+Attributes:
+    VectorizedSelector: Abstract interface for batch-wise bin selection.
+
+Example:
+    >>> class MySelector(VectorizedSelector):
+    >>>     def select(self, fill_levels, **kwargs):
+    >>>         return fill_levels > 0.8
 """
 
 from __future__ import annotations
@@ -22,13 +30,19 @@ class VectorizedSelector(PolicyVizMixin, ABC):
     This class serves as the foundation for all selection heuristics that
     determine which bins should be collected based on their current fill levels
     and other environmental features.
+
+    Attributes:
+        None
     """
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         """Auto-wrap ``select`` in every concrete subclass to record telemetry.
 
         Args:
-            **kwargs: Class creation arguments passed to super.
+            kwargs: Class creation arguments passed to super.
+
+        Returns:
+            None.
         """
         super().__init_subclass__(**kwargs)
         if "select" in cls.__dict__:
@@ -56,8 +70,8 @@ class VectorizedSelector(PolicyVizMixin, ABC):
         """Select bins that must be collected.
 
         Args:
-            fill_levels: Current fill levels [B, N] in [0, 1].
-            **kwargs: Strategy-specific parameters (e.g., threshold, current_day).
+            fill_levels: Current fill levels of all bins [B, N].
+            kwargs: Additional environmental features (history, coordinates, etc.).
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.

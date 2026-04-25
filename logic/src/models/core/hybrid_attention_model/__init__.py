@@ -7,6 +7,9 @@ Attributes:
     HybridTwoStagePolicy: Unified init-refinement model.
     NeuralHeuristicHybrid: Simple constructive-refinement wrapper.
     ImprovementStepDecoder: Operator selection network.
+
+Example:
+    None
 """
 
 from .hybrid_neural_heuristic_policy import NeuralHeuristicHybrid as NeuralHeuristicHybrid

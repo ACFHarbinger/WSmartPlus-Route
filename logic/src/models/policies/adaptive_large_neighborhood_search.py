@@ -8,6 +8,9 @@ constraints and apply inter-route operators (e.g., Cross-exchange, Swap*).
 
 Attributes:
     VectorizedALNS: Solver for parallelized neighborhood search on CUDA.
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -63,6 +66,7 @@ class VectorizedALNS(PolicyVizMixin):
         device: str = "cuda",
         seed: int = 42,
         generator: Optional[torch.Generator] = None,
+        **kwargs: Any,
     ) -> None:
         """Initializes the vectorized ALNS solver.
 
@@ -74,6 +78,7 @@ class VectorizedALNS(PolicyVizMixin):
             device: computation device ('cpu' or 'cuda').
             seed: random constant for search reproducibility.
             generator: existing torch generator to share state.
+            kwargs: Additional keyword arguments.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes

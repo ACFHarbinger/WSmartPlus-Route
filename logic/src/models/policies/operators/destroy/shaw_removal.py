@@ -3,6 +3,16 @@
 This module provides a GPU-accelerated implementation of the Shaw removal
 heuristic (relatedness-based), which ejects nodes from the tour that are
 similar based on distance, demand, and time windows.
+
+Attributes:
+    vectorized_shaw_removal: Removes a set of related nodes based on distance,
+    time windows, and waste metrics.
+
+Example:
+    >>> from logic.src.models.policies.operators.destroy.shaw_removal import vectorized_shaw_removal
+    >>> tours, removed_nodes = vectorized_shaw_removal(
+    ...     tours, dist_matrix, n_remove, wastes, time_windows
+    ... )
 """
 
 from __future__ import annotations

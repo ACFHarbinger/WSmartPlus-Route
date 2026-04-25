@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the 2-opt heuristic,
 evaluating all possible edge-swap combinations in parallel across
 problem batches using meshgrid-based gain computation.
+
+Attributes:
+    vectorized_two_opt: Vectorized 2-opt local search using parallel gain evaluation.
+
+Example:
+    >>> from logic.src.models.policies.operators.route.two_opt import vectorized_two_opt
+    >>> optimized_tours = vectorized_two_opt(tours, dist_matrix)
 """
 
 from __future__ import annotations

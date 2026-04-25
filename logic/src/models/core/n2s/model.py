@@ -48,12 +48,12 @@ class N2S(nn.Module):
         """Initializes the N2S model.
 
         Args:
-            env: Targeted optimization environment.
-            policy: Optional pre-defined policy instance.
-            embed_dim: Dimension of latent feature vectors.
-            num_heads: Parallel attention head count for policy subnets.
-            k_neighbors: Size of the local candidate pool for moves.
-            **policy_kwargs: Extra parameters passed to N2SPolicy.
+            env: Optional environment for state transitions.
+            policy: Optional pre-instantiated N2SPolicy.
+            embed_dim: Dimensionality of node features.
+            num_heads: Number of attention heads.
+            k_neighbors: Number of candidate neighbors to consider per node.
+            **policy_kwargs: Additional arguments for N2SPolicy.
         """
         super().__init__()
         if policy is None:
@@ -76,10 +76,10 @@ class N2S(nn.Module):
         """Executes the improvement pass.
 
         Args:
-            td: Environment state container.
+            td: TensorDict containing current solution state.
             env: Optional environment override.
-            strategy: Move selection tactic ('greedy' or 'sampling').
-            **kwargs: Extra parameters for policy execution.
+            strategy: Decoding strategy (e.g., "greedy", "sampling").
+            kwargs: Additional keyword arguments for the policy.
 
         Returns:
             Dict[str, Any]: Improvement results containing actions and weights.

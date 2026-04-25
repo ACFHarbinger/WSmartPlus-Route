@@ -60,19 +60,19 @@ class GFACSPolicy(DeepACOPolicy):
         """Initializes the GFACSPolicy.
 
         Args:
-            encoder: problem-specific encoder.
-            decoder: constructive decoder.
-            embed_dim: internal feature width.
-            num_encoder_layers: depth of the GNN blocks.
-            num_heads: attention count for the encoder.
-            n_ants: population size for ACO construction.
-            n_iterations: count of ACO refinement passes.
-            alpha: relative importance of pheromone trails.
-            beta: relative importance of heuristic visibility.
-            rho: evaporation coefficient for trail updates.
-            use_local_search: whether to apply 2-opt/swap after construction.
-            env_name: targeting optimization task.
-            **kwargs: Extra parameters for sub-modules.
+            encoder: Optional GFlowNet problem encoder.
+            decoder: Optional ACO path decoder.
+            embed_dim: Dimensionality of latent embeddings.
+            num_encoder_layers: Number of encoder processing layers.
+            num_heads: Number of attention heads.
+            n_ants: Number of concurrent agents for solution discovery.
+            n_iterations: Number of sequential ACO updates per forward pass.
+            alpha: Pheromone importance factor.
+            beta: Heuristic importance factor.
+            rho: Pheromone evaporation rate.
+            use_local_search: Whether to refine solutions via local search.
+            env_name: Name of the environment identifier.
+            kwargs: Additional keyword arguments.
         """
         if encoder is None:
             encoder = GFACSEncoder(
@@ -111,10 +111,10 @@ class GFACSPolicy(DeepACOPolicy):
         """Performs constructive sampling with flow normalization.
 
         Args:
-            td: problem state.
-            env: environment dynamics.
-            num_starts: construction entry points (multi-start).
-            **kwargs: execution flags (e.g., 'return_all').
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            num_starts: Number of parallel construction starts.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: map with 'actions', 'reward', 'log_likelihood', and 'logZ'.

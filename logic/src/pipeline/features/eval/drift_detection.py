@@ -31,6 +31,23 @@ Programmatic usage::
         problem="vrpp",
     )
     print(f"Report saved to: {report_path}")
+
+Attributes:
+    run_drift_detection: Runs drift detection between a reference and current dataset.
+    _load_npz_as_df: Load an NPZ file into a 2-D DataFrame for drift analysis.
+    _load_json_or_jsonl_as_df: Load a JSON or JSONL file into a DataFrame.
+    _load_and_flatten: Load a dataset from disk (CSV, NPZ, JSON/JSONL, or PKL) and flatten it into a 2-D DataFrame.
+    _check_evidently: Check if Evidently AI is installed.
+
+Example:
+    >>> from logic.src.pipeline.features.eval.drift_detection import run_drift_detection
+    >>>
+    >>> report_path = run_drift_detection(
+    ...     reference_path="assets/datasets/april_2024_summary.csv",
+    ...     current_path="assets/datasets/eval_synthetic.npz",
+    ...     problem="vrpp",
+    ... )
+    >>> print(f"Report saved to: {report_path}")
 """
 
 from __future__ import annotations
@@ -323,6 +340,12 @@ def _npz_to_dataframe(path: str) -> pd.DataFrame:
     Arrays of shape ``(N, D)`` → four columns: mean, std, min, max.
     Arrays of shape ``(N, K, D)`` → flattened to ``(N, K*D)`` then summarised.
     Scalar arrays are skipped.
+
+    Args:
+        path: Path to the NPZ file.
+
+    Returns:
+        A 2-D DataFrame containing the summary statistics.
     """
     data = np.load(path, allow_pickle=True)
     rows: Dict[str, np.ndarray] = {}
@@ -364,7 +387,11 @@ def _check_evidently() -> None:
 
 
 def _log_drift_summary(report: Any) -> None:
-    """Print a brief drift summary to the logger (non-critical)."""
+    """Print a brief drift summary to the logger (non-critical).
+
+    Args:
+        report: The generated drift report.
+    """
     try:
         result = report.as_dict()
         metrics = result.get("metrics", [])
@@ -387,6 +414,11 @@ def _log_drift_summary(report: Any) -> None:
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
+    """Build command-line argument parser for drift detection.
+
+    Returns:
+        The argument parser.
+    """
     parser = argparse.ArgumentParser(
         description=(
             "Run Evidently data drift detection between a reference (real-world) and current (synthetic) dataset."

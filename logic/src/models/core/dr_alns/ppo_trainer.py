@@ -132,7 +132,11 @@ class PPOBuffer:
         }
 
     def __len__(self) -> int:
-        """Returns the current step count in the buffer."""
+        """Returns the current step count in the buffer.
+
+        Returns:
+            int: Number of stored experience steps.
+        """
         return len(self.states)
 
 

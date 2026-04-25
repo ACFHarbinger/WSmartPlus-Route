@@ -6,11 +6,15 @@ context.
 
 Attributes:
     ImprovementStepDecoder: Neural selector for local search moves.
+
+Example:
+    >>> decoder = ImprovementStepDecoder(embed_dim=128, n_operators=5)
+    >>> logits, mask = decoder(td, embeddings, env)
 """
 
 from __future__ import annotations
 
-from typing import Any, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -51,16 +55,16 @@ class ImprovementStepDecoder(ImprovementDecoder):
         self,
         td: TensorDict,
         embeddings: Union[torch.Tensor, Tuple[torch.Tensor, ...]],
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Calculates operator selection logits from graph context.
 
         Args:
-            td: Environment state including current solution.
-            embeddings: Contextual node features [B, N, D].
-            env: Task dynamics.
-            **kwargs: Extra parameters.
+            td: TensorDict containing the current problem and solution state.
+            embeddings: Node-level embeddings from the encoder [B, N, D].
+            env: The environment defining the search operators.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:

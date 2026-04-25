@@ -55,18 +55,18 @@ class DeepACO(nn.Module):
         """Initializes the DeepACO model.
 
         Args:
-            embed_dim: Embedding vector size.
-            num_encoder_layers: Number of transformer encoder blocks.
-            num_heads: Attention head count.
-            n_ants: Population size (number of ants) per iteration.
+            embed_dim: Dimensionality of the node features.
+            num_encoder_layers: Number of Transformer encoder layers.
+            num_heads: Number of attention heads.
+            n_ants: Number of parallel ants in the colony.
             n_iterations: Number of ACO pheromone update cycles.
-            alpha: relative weight of pheromone in edge selection.
-            beta: relative weight of learned heuristic in edge selection.
+            alpha: Pheromone importance exponent.
+            beta: Heuristic visibility importance exponent.
             rho: Pheromone evaporation rate.
-            use_local_search: Whether to apply 2-opt refinement to ant paths.
-            baseline: Baseline calculation method.
-            env_name: Targeted problem environment name.
-            **kwargs: Extra arguments for policy instantiation.
+            use_local_search: Whether to apply refinement after construction.
+            baseline: RL baseline type ("rollout", "exponential", "none").
+            env_name: Name of the environment identifier.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.policy = DeepACOPolicy(
@@ -94,9 +94,9 @@ class DeepACO(nn.Module):
         """Calculates construction output and computes REINFORCE loss.
 
         Args:
-            td: Problem state container.
-            env: Environment managing dynamics and rewards.
-            **kwargs: Additional parameters for construction.
+            td: TensorDict containing problem instance data.
+            env: Environment managing the problem physics.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Policy outputs including rewards, actions, and `loss`.
@@ -130,8 +130,8 @@ class DeepACO(nn.Module):
         """Configures constructive decoding strategy.
 
         Args:
-            strategy: Mode identifier (e.g., 'ac_search', 'sampling').
-            **kwargs: Extra parameters for the specific strategy.
+            strategy: Identifier for the decoding strategy (e.g., "greedy").
+            kwargs: Additional parameters for the decoding strategy.
         """
         self.policy.set_strategy(strategy, **kwargs)
 

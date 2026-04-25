@@ -3,6 +3,13 @@
 This module provides the `VectorizedALNS` class, which wraps the high-performance
 ALNS engine to satisfy the `AutoregressivePolicy` interface used in training
 and evaluation pipelines.
+
+Attributes:
+    VectorizedALNS: ALNS solver wrapper for the RL4CO pipeline.
+
+Example:
+    >>> policy = VectorizedALNS(env_name="wcvrp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -52,15 +59,15 @@ class VectorizedALNS(AutoregressivePolicy):
         """Initialize the ALNS policy wrapper.
 
         Args:
-            env_name: Identifier for the target RL4CO environment.
-            time_limit: Search timeout in seconds.
-            max_iterations: Number of improvement steps per instance.
-            max_vehicles: Fleet size constraint for the split operator.
-            start_temp: Initial SA temperature.
-            cooling_rate: Decay rate for SA cooling.
-            device: Hardware target.
-            seed: Random initialization constant.
-            **kwargs: Additional policy parameters.
+            env_name: Name of the environment identifier.
+            time_limit: Maximum search time in seconds.
+            max_iterations: Maximum number of improvement iterations.
+            max_vehicles: Fleet size limit (0 for unlimited).
+            start_temp: Initial temperature for Simulated Annealing.
+            cooling_rate: Decay rate for the temperature.
+            device: Computing device for operations.
+            seed: Random seed for search reproducibility.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=env_name, device=device, seed=seed, **kwargs)
         self.time_limit = time_limit
@@ -87,14 +94,14 @@ class VectorizedALNS(AutoregressivePolicy):
         action sequences.
 
         Args:
-            td: State bundle containing problem nodes and constraints.
-            env: Relevant environment instance for reward calculation.
-            strategy: Search strategy (ignored; ALNS is meta-heuristic).
-            num_starts: Number of restarts (not applicable).
-            max_steps: Sequence length limit (ignored).
-            phase: Current execution phase ('train', 'val', or 'test').
-            return_actions: Whether to include action tensors in the output.
-            **kwargs: Execution-time overrides (e.g., max_vehicles).
+            td: TensorDict containing instance data.
+            env: Optional environment for reward calculation.
+            strategy: Solver strategy (e.g., "greedy").
+            num_starts: Unused in ALNS.
+            max_steps: Maximum step constraint.
+            phase: Current phase ("train", "val", "test").
+            return_actions: Whether to return full action sequences.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results including:

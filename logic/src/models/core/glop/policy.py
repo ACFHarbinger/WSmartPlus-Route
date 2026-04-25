@@ -56,13 +56,13 @@ class GLOPPolicy(NonAutoregressivePolicy):
         """Initializes the GLOP policy.
 
         Args:
-            env_name: Targeted optimization task.
-            n_samples: Count of sampling trials for the partitioner.
-            temperature: Softness of the partition sampling.
-            embed_dim: Intermediate feature width.
-            subprob_solver: Identifier or callback for the local router.
-            subprob_batch_size: Throughput limit for local solver execution.
-            **encoder_kwargs: Extra parameters for the NAR encoder.
+            env_name: Name of the environment identifier.
+            n_samples: Number of parallel partition samples.
+            temperature: Softmax temperature for partition exploration.
+            embed_dim: Dimensionality of latent embeddings.
+            subprob_solver: Local solver identifier or callable.
+            subprob_batch_size: Max sub-problems processed per local pass.
+            encoder_kwargs: Additional keyword arguments for the NAR encoder.
         """
         super().__init__(
             env_name=env_name,
@@ -94,14 +94,14 @@ class GLOPPolicy(NonAutoregressivePolicy):
         """Encodes partitions and refines them via local construction.
 
         Args:
-            td: Environment state.
-            env: Current optimization task.
-            phase: Execution phase.
-            calc_reward: Whether to evaluate final tour quality.
-            return_actions: Whether to include the full refined tour in output.
-            return_entropy: Whether to track partitioner uncertainty.
-            strategy: Overriding decoding strategy for the partitioner.
-            **decoding_kwargs: Extra parameters for NAR decoding.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            phase: Current execution phase ("train", "val", "test").
+            calc_reward: Whether to calculate environment rewards.
+            return_actions: Whether to include refined actions in results.
+            return_entropy: Whether to calculate partition entropy.
+            strategy: Optional decoding strategy override.
+            decoding_kwargs: Additional keyword arguments for NAR decoding.
 
         Returns:
             Dict[str, Any]: Results including 'reward' and optionally 'actions'.
@@ -188,7 +188,11 @@ class GLOPPolicy(NonAutoregressivePolicy):
         return {"actions": actions}
 
     def _get_solver(self) -> SubProblemSolverType:
-        """Retrieves the concrete solver implementation based on config."""
+        """Retrieves the concrete solver implementation based on config.
+
+        Returns:
+            SubProblemSolverType: The resolved local solver function.
+        """
         if isinstance(self.subprob_solver, str):
             if self.subprob_solver == "greedy":
                 return self._greedy_tsp_solver
@@ -228,5 +232,12 @@ class GLOPPolicy(NonAutoregressivePolicy):
 
     @staticmethod
     def _nearest_neighbor_solver(coords: torch.Tensor) -> torch.Tensor:
-        """Alias for greedy TSP construction."""
+        """Alias for greedy TSP construction.
+
+        Args:
+            coords: Spatial coordinates [N_sub, 2].
+
+        Returns:
+            torch.Tensor: Node sequence trial [N_sub].
+        """
         return GLOPPolicy._greedy_tsp_solver(coords)

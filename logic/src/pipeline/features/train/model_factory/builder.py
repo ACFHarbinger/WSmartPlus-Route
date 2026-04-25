@@ -49,7 +49,14 @@ logger = get_pylogger(__name__)
 
 
 def create_model(cfg: Config) -> pl.LightningModule:
-    """Helper to create the RL model based on config."""
+    """Helper to create the RL model based on config.
+
+    Args:
+        cfg: Root configuration object.
+
+    Returns:
+        RL model.
+    """
     # 1. Initialize Environment
     env = _init_environment(cfg)
 
@@ -109,7 +116,14 @@ def create_model(cfg: Config) -> pl.LightningModule:
 
 
 def _init_environment(cfg: Config):
-    """Initialize the environment based on config."""
+    """Initialize the environment based on config.
+
+    Args:
+        cfg: Root configuration object.
+
+    Returns:
+        Initialized environment.
+    """
     env_name = cfg.env.name
     env_kwargs = {k: v for k, v in vars(cfg.env).items() if k not in ["name", "graph", "reward"]}
 
@@ -152,7 +166,15 @@ def _init_environment(cfg: Config):
 
 
 def _init_policy(cfg: Config, env: Any):
-    """Initialize the policy based on config."""
+    """Initialize the policy based on config.
+
+    Args:
+        cfg: Root configuration object.
+        env: Initialized environment.
+
+    Returns:
+        Initialized policy.
+    """
     policy_map = {
         "am": AttentionModelPolicy,
         "moe": MoEPolicy,
@@ -211,7 +233,14 @@ def _init_policy(cfg: Config, env: Any):
 
 
 def _init_hybrid_policy(cfg: Config):
-    """Special handling for hybrid construction-refinement policy."""
+    """Special handling for hybrid construction-refinement policy.
+
+    Args:
+        cfg: Root configuration object.
+
+    Returns:
+        Initialized hybrid policy.
+    """
     # 1. Neural construction policy
     neural_cfg = cast(Any, cfg).copy()  # Simplified copy
     neural_cfg.model.name = "am"
@@ -233,7 +262,14 @@ def _init_hybrid_policy(cfg: Config):
 
 
 def _config_to_dict(obj: Any) -> Dict[str, Any]:
-    """Convert config object (dataclass or DictConfig) to dict."""
+    """Convert config object (dataclass or DictConfig) to dict.
+
+    Args:
+        obj: Config object.
+
+    Returns:
+        Dictionary representation of config.
+    """
     if is_dataclass(obj):
         return asdict(obj)  # type: ignore[arg-type]
     elif isinstance(obj, DictConfig):
@@ -246,7 +282,16 @@ def _config_to_dict(obj: Any) -> Dict[str, Any]:
 
 
 def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
-    """Prepare keyword arguments for RL module initialization."""
+    """Prepare keyword arguments for RL module initialization.
+
+    Args:
+        cfg: Root configuration object.
+        env: Initialized environment.
+        policy: Initialized policy.
+
+    Returns:
+        Keyword arguments for RL module initialization.
+    """
     # Prepare base dicts
     common_kwargs: Dict[str, Any] = _config_to_dict(cfg.rl)
 

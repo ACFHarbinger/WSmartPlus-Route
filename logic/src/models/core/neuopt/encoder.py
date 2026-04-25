@@ -6,6 +6,10 @@ for iterative optimization.
 
 Attributes:
     NeuOptEncoder: Transformer encoder for global problem state representation.
+
+Example:
+    >>> encoder = NeuOptEncoder(embed_dim=128)
+    >>> h = encoder(td)
 """
 
 from __future__ import annotations
@@ -43,10 +47,10 @@ class NeuOptEncoder(ImprovementEncoder):
         """Initializes the NeuOpt encoder.
 
         Args:
-            embed_dim: dimensionality of the feature space.
-            num_heads: count of parallel attention heads.
-            num_layers: number of stacked Transformer blocks.
-            **kwargs: Unused parameters.
+            embed_dim: Dimensionality of the node embeddings.
+            num_heads: Number of attention heads.
+            num_layers: Number of Transformer blocks.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim=embed_dim)
         self.num_layers = num_layers
@@ -77,8 +81,8 @@ class NeuOptEncoder(ImprovementEncoder):
         """Encodes the problem instance into high-dimensional node features.
 
         Args:
-            td: state container with environment data ('locs', 'depot').
-            **kwargs: Unused.
+            td: TensorDict containing "depot" and "locs" keys.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Encoded node embeddings [B, N, embed_dim].

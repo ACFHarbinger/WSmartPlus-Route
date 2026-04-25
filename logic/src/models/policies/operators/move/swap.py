@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the Swap operator,
 which improves tours by exchanging two nodes within the same route across
 problem batches simultaneously.
+
+Attributes:
+    vectorized_swap: Exchanges two nodes within the same route.
+
+Example:
+    >>> from logic.src.models.policies.operators.move.swap import vectorized_swap
+    >>> optimized_tours = vectorized_swap(tours, dist_matrix)
 """
 
 from __future__ import annotations

@@ -39,7 +39,7 @@ class NonAutoregressiveDecoder(nn.Module, ABC):
         """Initializes the NonAutoregressiveDecoder.
 
         Args:
-            **kwargs: Additional parameters passed to the parent Module.
+            kwargs: Additional configuration parameters for the decoder.
         """
         super().__init__()
 
@@ -54,10 +54,10 @@ class NonAutoregressiveDecoder(nn.Module, ABC):
         """Produces logits and mask for the current construction step.
 
         Args:
-            td: TensorDict containing the current environment state.
-            heatmap: Pre-computed feature heatmap (e.g., edge probabilities).
-            env: Environment object for transition logic.
-            **kwargs: Additional arguments for step-wise decoding.
+            td: TensorDict with current environment state.
+            heatmap: Pre-computed edge probability matrix.
+            env: Environment providing step logic and constraints.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:
@@ -79,10 +79,10 @@ class NonAutoregressiveDecoder(nn.Module, ABC):
         algorithms (e.g., ACO, Guided Search).
 
         Args:
-            td: TensorDict containing the problem instance.
-            heatmap: Global heatmap representing edge or node importance.
-            env: Environment object used for state management.
-            **kwargs: Configuration parameters for the construction process.
+            td: TensorDict with initial environment state.
+            heatmap: Pre-computed edge probability matrix.
+            env: Environment providing step logic.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, torch.Tensor]: Dictionary of construction results,

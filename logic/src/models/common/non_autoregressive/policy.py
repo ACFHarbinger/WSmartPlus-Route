@@ -3,6 +3,15 @@
 This module provides the `NonAutoregressivePolicy` base class, which decouples
 global graph feature prediction (heatmap generation) from solution
 construction (decoding from heatmaps).
+
+Attributes:
+    NonAutoregressivePolicy: Base class for non-autoregressive policies.
+
+Example:
+    >>> encoder = NonAutoregressiveEncoder(embed_dim=128)
+    >>> decoder = NonAutoregressiveDecoder(embed_dim=128)
+    >>> policy = NonAutoregressivePolicy(encoder, decoder, env_name="tsp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -45,11 +54,11 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         """Initialize the NonAutoregressivePolicy.
 
         Args:
-            encoder: Encoder instance for predicting edge/node logits.
-            decoder: Decoder instance for creating routes from heatmaps.
-            env_name: Name of the environment.
-            embed_dim: Internal feature dimensionality.
-            **kwargs: Additional parameters for the package.
+            encoder: Encoder module for global heatmap prediction.
+            decoder: Decoder module for solution construction.
+            env_name: Optional environment identifier.
+            embed_dim: Dimensionality of latent embeddings.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.encoder = encoder
@@ -68,11 +77,11 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         """Perform a full forward pass: heatmap prediction followed by decoding.
 
         Args:
-            td: TensorDict containing the problem instance.
-            env: Environment object for transition logic and reward calculation.
-            strategy: Decoding strategy (e.g., 'sampling', 'greedy').
-            num_starts: Number of parallel solution attempts.
-            **kwargs: Additional control arguments for encoder/decoder.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem logic and rules.
+            strategy: Decoding strategy identifier (e.g., "greedy", "sampling").
+            num_starts: Number of parallel construction starts.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results dictionary containing:
@@ -102,8 +111,8 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         parameters (e.g., temperature, beam width).
 
         Args:
-            strategy: Strategy identifier string.
-            **kwargs: Configuration parameters for the strategy.
+            strategy: Strategy name (e.g., "beam_search", "greedy").
+            kwargs: Additional strategy-specific parameters (e.g., temperature).
         """
         self._strategy = strategy
         for k, v in kwargs.items():
@@ -124,12 +133,12 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         and the iterative selection loop driven by the pre-computed heatmap.
 
         Args:
-            strategy: Decoding strategy ('sampling', 'greedy', etc.).
-            td: Initial state TensorDict.
-            env: Environment instance.
-            heatmap: Global feature matrix produced by the encoder.
+            strategy: Name of the decoding strategy.
+            td: TensorDict with current environment state.
+            env: Environment providing step logic.
+            heatmap: Pre-computed edge probability matrix.
             actions: Optional pre-defined actions for evaluation.
-            **decoding_kwargs: Parameters for the decoding strategy.
+            decoding_kwargs: Strategy-specific parameters.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor, TensorDict, RL4COEnvBase]:

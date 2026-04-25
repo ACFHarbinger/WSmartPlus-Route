@@ -2,6 +2,13 @@
 
 This module provides a periodic collection strategy that marks all bins for
 collection on scheduled days based on a fixed frequency interval.
+
+Attributes:
+    RegularSelector: Periodic collection strategy policy.
+
+Example:
+    >>> selector = RegularSelector(frequency=3)
+    >>> mask = selector.select(fill_levels, current_day=4)
 """
 
 from __future__ import annotations
@@ -19,6 +26,9 @@ class RegularSelector(VectorizedSelector):
     Selects all bins on scheduled collection days based on a fixed frequency.
     If it is a collection day for a specific batch, all active bins in that
     batch are marked as mandatory.
+
+    Attributes:
+        frequency: Default collection interval in days.
     """
 
     def __init__(self, frequency: int = 3) -> None:
@@ -39,10 +49,10 @@ class RegularSelector(VectorizedSelector):
         """Select all bins if today is a scheduled collection day.
 
         Args:
-            fill_levels: Current fill levels [B, N].
-            current_day: Current simulation day [B] or scalar.
-            frequency: Optional override for collection frequency.
-            **kwargs: Extra parameters (ignored).
+            fill_levels: Current fill levels of bins [B, N].
+            current_day: The simulation day index (scalar or [B]).
+            frequency: Override for the default frequency interval.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.

@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the greedy insertion
 repair heuristic, which sequentially reinserts nodes into the position that
 results in the minimum cost increase.
+
+Attributes:
+    vectorized_greedy_insertion: Inserts nodes greedily into the first valid position that minimizes cost.
+
+Example:
+    >>> from logic.src.models.policies.operators.repair.greedy_insertion import vectorized_greedy_insertion
+    >>> tours, wastes = vectorized_greedy_insertion(tours, removed_nodes, dist_matrix)
 """
 
 from __future__ import annotations

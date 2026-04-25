@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the Regret-K insertion
 repair heuristic, which prioritizes reinserting nodes that have a large
 difference (regret) between their best and kth-best insertion positions.
+
+Attributes:
+    vectorized_regret_k_insertion: Inserts nodes by choosing the position that maximizes "regret" (cost difference between best and k-th best insertions).
+
+Example:
+    >>> from logic.src.models.policies.operators.repair.regret_k_insertion import vectorized_regret_k_insertion
+    >>> tours, wastes = vectorized_regret_k_insertion(tours, removed_nodes, dist_matrix)
 """
 
 from __future__ import annotations

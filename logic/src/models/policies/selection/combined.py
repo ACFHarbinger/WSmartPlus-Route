@@ -2,6 +2,15 @@
 
 This module provides a mechanism to combine multiple bin selection strategies
 using logical operators (AND/OR).
+
+Attributes:
+    CombinedSelector: Strategy for merging multiple selectors with logic.
+
+Example:
+    >>> s1 = RevenueSelector(threshold=10)
+    >>> s2 = ServiceLevelSelector(confidence_factor=1.5)
+    >>> combo = CombinedSelector([s1, s2], logic="or")
+    >>> mask = combo.select(fill_levels)
 """
 
 from __future__ import annotations
@@ -18,6 +27,10 @@ class CombinedSelector(VectorizedSelector):
 
     A bin is selected if the logical combination (AND/OR) of all constituent
     selectors results in a True value.
+
+    Attributes:
+        selectors: List of constituent selection strategies.
+        logic: Boolean reduction method ('and' or 'or').
     """
 
     def __init__(self, selectors: List[VectorizedSelector], logic: str = "or") -> None:
@@ -44,7 +57,7 @@ class CombinedSelector(VectorizedSelector):
 
         Args:
             fill_levels: Current fill levels [B, N].
-            **kwargs: parameters passed to all constituent selectors.
+            kwargs: Shared arguments passed to all constituent selectors.
 
         Returns:
             torch.Tensor: Boolean mask [B, N] of selected bins.

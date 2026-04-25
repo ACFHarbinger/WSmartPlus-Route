@@ -6,6 +6,9 @@ long-term agent performance, enabling automated multi-objective tuning.
 
 Attributes:
     WeightAdjustmentRNN: Recurrent meta-model for objective weighting.
+
+Example:
+    None
 """
 
 from __future__ import annotations

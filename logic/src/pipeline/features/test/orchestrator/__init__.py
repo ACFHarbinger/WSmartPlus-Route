@@ -1,6 +1,16 @@
 """
 Simulation Orchestrator.
 Refactored into modular components.
+
+Attributes:
+    simulator_testing: Main entry point for orchestrating parallel simulation runs.
+
+Example:
+    >>> from logic.src.pipeline.features.test.orchestrator import simulator_testing
+    >>> simulator_testing(cfg, data_size, device)
+    Traceback (most recent call last):
+        ...  # doctest: +ELLIPSIS
+    SystemExit: 1
 """
 
 import multiprocessing as mp

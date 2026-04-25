@@ -52,15 +52,15 @@ class MatNet(nn.Module):
         """Initializes the MatNet wrapper.
 
         Args:
-            embed_dim: Internal feature dimensionality.
-            hidden_dim: Hidden layer expansion size.
-            num_layers: Depth of the matrix encoder.
-            n_heads: Attention head count.
-            tanh_clipping: Range for logit clipping.
-            normalization: Type of normalization layer.
-            baseline: RL baseline strategy ('rollout', 'exponential', 'none').
-            env_name: Optional environment identifier.
-            **kwargs: Extra arguments passed to MatNetPolicy.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            num_layers: Number of transformer encoder layers.
+            n_heads: Number of attention heads.
+            tanh_clipping: Range for logit clipping (0 to disable).
+            normalization: Type of layer normalization.
+            baseline: RL baseline type ("rollout", "exponential", "no").
+            env_name: Name of the environment identifier.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.policy = MatNetPolicy(
@@ -85,9 +85,9 @@ class MatNet(nn.Module):
         """Performs a forward pass and computes the REINFORCE loss.
 
         Args:
-            td: Problem state container.
-            env: Optional environment for reward calculation.
-            **kwargs: Additional parameters for the policy execution.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results containing rewards, actions, and calculated loss.
@@ -126,7 +126,7 @@ class MatNet(nn.Module):
         """Configures the action selection tactic in the policy.
 
         Args:
-            strategy: Identifier for the mode (e.g. 'greedy', 'sampling').
-            **kwargs: Additional strategy parameters (e.g. temperature).
+            strategy: Decoding strategy identifier (e.g., "greedy", "sampling").
+            kwargs: Additional keyword arguments.
         """
         self.policy.set_strategy(strategy, **kwargs)

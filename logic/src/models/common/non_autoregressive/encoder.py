@@ -37,8 +37,8 @@ class NonAutoregressiveEncoder(nn.Module, ABC):
         """Initializes the NonAutoregressiveEncoder.
 
         Args:
-            embed_dim: Internal dimensionality for feature representations.
-            **kwargs: Additional parameters passed to the parent Module.
+            embed_dim: Dimensionality of latent embeddings.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -52,8 +52,8 @@ class NonAutoregressiveEncoder(nn.Module, ABC):
         """Computes heatmap logits for the given problem instance.
 
         Args:
-            td: TensorDict containing instance metadata (e.g., coordinates).
-            **kwargs: Additional control arguments for heatmap generation.
+            td: TensorDict containing problem instance features.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Union[torch.Tensor, Tuple[torch.Tensor, ...]]:

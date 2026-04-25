@@ -8,6 +8,9 @@ whether to dispatch a fleet at all.
 
 Attributes:
     MandatoryManager: Neural decision agent for hierarchical routing control.
+
+Example:
+    None
 """
 
 from __future__ import annotations

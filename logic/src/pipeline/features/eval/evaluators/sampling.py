@@ -1,4 +1,13 @@
-"""Sampling evaluation implementation."""
+"""Sampling evaluation implementation.
+
+Attributes:
+    SamplingEval: Evaluates a policy using sampling.
+
+Example:
+    >>> from logic.src.pipeline.features.eval.evaluators import SamplingEval
+    >>> evaluator = SamplingEval(config)
+    >>> evaluator.evaluate()
+"""
 
 from __future__ import annotations
 
@@ -16,7 +25,13 @@ from logic.src.utils.functions import do_batch_rep, move_to
 
 
 class SamplingEval(EvalBase):
-    """Sampling evaluation with multiple samples."""
+    """Sampling evaluation with multiple samples.
+
+    Attributes:
+        env: The environment to evaluate on.
+        samples: Number of samples to generate per batch.
+        progress: Whether to show progress bar.
+    """
 
     def __init__(self, env: Any, samples: int = 1280, progress: bool = True, **kwargs):
         """Initialize Class.

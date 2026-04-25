@@ -7,6 +7,10 @@ encourage strategy specialization.
 
 Attributes:
     PolyNet: Diversity-focused training wrapper with Poppy loss.
+
+Example:
+    >>> model = PolyNet(env, k=128)
+    >>> out = model(td, env, phase="train")
 """
 
 from __future__ import annotations
@@ -52,14 +56,14 @@ class PolyNet(nn.Module):
         """Initializes the PolyNet model.
 
         Args:
-            env: Targeted problem environment.
-            policy: Pre-instantiated PolyNet policy.
-            k: Population size of strategies.
-            val_num_solutions: Parallel construction budget for validation.
-            encoder_type: Backbone architecture ('AM', 'MatNet').
-            policy_kwargs: Dictionary for default policy setup.
-            num_augment: Count of transformations for data augmentation.
-            **kwargs: Extra parameters.
+            env: Environment managing states and rewards.
+            policy: Optional custom PolyNet policy.
+            k: Number of strategies in the population.
+            val_num_solutions: Solution candidates for validation.
+            encoder_type: Base model architecture (e.g., "AM").
+            policy_kwargs: Hyper-parameters for the underlying policy.
+            num_augment: Data augmentation factor for training.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
 
@@ -89,10 +93,10 @@ class PolyNet(nn.Module):
         """Routes execution to the strategy-conditioned policy.
 
         Args:
-            td: problem state container.
-            env: Environment reference.
-            phase: Current mode ('train', 'val').
-            **kwargs: Extra parameters.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            phase: Current execution phase ("train", "val", "test").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results containing rewards and log probabilities.

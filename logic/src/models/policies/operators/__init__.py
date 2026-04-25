@@ -13,6 +13,12 @@ Operators are organized into categories:
 - Repair operators: greedy insertion, regret-k insertion
 - Unstringing operators: Type I, II, III, IV (sophisticated k-opt moves)
 - Advanced operators: LKH (Lin-Kernighan-Helsgaun)
+
+Attributes:
+    None
+
+Example:
+    None
 """
 
 # Destroy operators

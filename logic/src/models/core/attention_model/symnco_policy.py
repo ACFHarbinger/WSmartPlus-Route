@@ -40,9 +40,9 @@ class SymNCOPolicy(AttentionModelPolicy):
         """Initializes the SymNCOPolicy.
 
         Args:
-            embed_dim: Feature vector size.
-            use_projection_head: Whether to instantiate the auxiliary projection head.
-            **kwargs: Additional parameters for the underlying AttentionModelPolicy.
+            embed_dim: Dimensionality of node features and latent projections.
+            use_projection_head: Whether to include the invariance projection MLP.
+            kwargs: Additional keyword arguments for AttentionModelPolicy.
         """
         super().__init__(embed_dim=embed_dim, **kwargs)
         self.use_projection_head = use_projection_head
@@ -69,12 +69,12 @@ class SymNCOPolicy(AttentionModelPolicy):
         """Executes decoding and computes projection embeddings.
 
         Args:
-            td: Problem state container.
-            env: Environment managing rewards and dynamics.
-            strategy: constructive decoding strategy.
-            num_starts: Multi-start construction count.
-            actions: Expert/target paths for comparison.
-            **kwargs: Configuration flags for base policy call.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "greedy").
+            num_starts: Number of parallel construction starts.
+            actions: Optional pre-selected actions.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Policy outputs extended with `proj_embeddings`.

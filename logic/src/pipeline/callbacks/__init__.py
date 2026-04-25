@@ -1,5 +1,20 @@
 """
 Callbacks for WSmart-Route.
+
+Provides PyTorch Lightning callbacks for training monitoring and
+non-Lightning callbacks for simulation display.
+
+Attributes:
+    TrainingDisplayCallback: Rich/Plotext terminal dashboard for live training metrics.
+    ReptileCallback: Reptile meta-learning outer-loop update callback.
+    SpeedMonitor: Per-step and per-epoch timing monitor callback.
+    ModelSummaryCallback: Detailed model architecture summary at training start.
+    SimulationDisplayCallback: Real-time terminal dashboard for simulation runs.
+    PolicySummaryCallback: Policy configuration summary before simulation.
+
+Example:
+    >>> from logic.src.pipeline.callbacks import TrainingDisplayCallback, SpeedMonitor
+    >>> callbacks = [TrainingDisplayCallback(metric_keys="train/reward"), SpeedMonitor()]
 """
 
 from .pytorch.model_summary import ModelSummaryCallback

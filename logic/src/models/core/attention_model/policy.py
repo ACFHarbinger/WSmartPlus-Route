@@ -60,13 +60,13 @@ class AttentionModelPolicy(AutoregressivePolicy):
         """Initializes the AttentionModelPolicy.
 
         Args:
-            env_name: Name of the environment registry entry.
-            embed_dim: Latent representation size.
-            hidden_dim: Hidden size for FFN and attention sublayers.
-            n_encode_layers: Number of transformer encoder layers.
-            n_heads: Parallel attention heads.
-            normalization: Type of normalization ('batch', 'instance', 'layer').
-            **kwargs: Additional parameters for the sub-components.
+            env_name: Name of the environment identifier.
+            embed_dim: Dimensionality of node features.
+            hidden_dim: Dimensionality of hidden layers.
+            n_encode_layers: Number of GAT encoder layers.
+            n_heads: Number of attention heads.
+            normalization: Type of normalization ("batch", "layer").
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=env_name, embed_dim=embed_dim)
 
@@ -101,12 +101,12 @@ class AttentionModelPolicy(AutoregressivePolicy):
         """Executes one-shot or multi-start constructive decoding.
 
         Args:
-            td: TensorDict containing instance metadata and state.
-            env: Environment object for reward and state updates.
-            strategy: Action selection tactic ('greedy', 'sampling').
-            num_starts: Number of parallel construction attempts.
-            actions: Pre-defined tour to evaluate (for teacher forcing).
-            **kwargs: Control arguments including 'return_init_embeds'.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "greedy").
+            num_starts: Number of parallel construction starts.
+            actions: Optional pre-selected actions.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Policy results including:

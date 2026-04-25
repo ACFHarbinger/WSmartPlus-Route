@@ -1,5 +1,13 @@
 """
 Validation logic for evaluation pipeline.
+
+Attributes:
+    validate_eval_config: Validate and sanitize evaluation configuration.
+    validate_eval_args: Alias for validate_eval_config.
+
+Example:
+    >>> config = Config()
+    >>> validate_eval_config(config)
 """
 
 import re
