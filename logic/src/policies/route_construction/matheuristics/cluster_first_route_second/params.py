@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Cluster-First Route-Second (CF-RS) policy.
+
+Attributes:
+    CFRSParams: Dataclass holding CF-RS solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.params import CFRSParams
+    >>> params = CFRSParams(num_clusters=5, assignment_method="angular")
+    >>> d = params.to_dict()
 """
 
 from __future__ import annotations
@@ -35,7 +43,14 @@ class CFRSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> CFRSParams:
-        """Create CFRSParams from a configuration object or dictionary."""
+        """Create CFRSParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dict with CF-RS parameter attributes.
+
+        Returns:
+            CFRSParams: Populated parameter dataclass.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -51,5 +66,9 @@ class CFRSParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert Params to a dictionary."""
+        """Convert Params to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Mapping of parameter names to their values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

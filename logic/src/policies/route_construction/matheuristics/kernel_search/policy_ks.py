@@ -4,6 +4,14 @@ Simulator adapter for the Kernel Search matheuristic.
 This module provides the `KernelSearchPolicy` class, which acts as a bridge between the
 WSmart+ Route simulator environment and the Gurobi-based Kernel Search solver logic.
 It handles configuration parsing, state extraction, and results formatting.
+
+Attributes:
+    KernelSearchPolicy: The Kernel Search policy class.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.kernel_search.policy_ks import KernelSearchPolicy
+    >>> policy = KernelSearchPolicy()
+    >>> routes, cost, obj_val, search_context, multi_day_context = policy.execute(**kwargs)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -93,7 +101,21 @@ class KernelSearchPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - KS requires specialized execute()."""
+        """Not used — KS uses a specialized execute() method.
+
+        Args:
+            sub_dist_matrix: Distance matrix for the subproblem.
+            sub_wastes: Waste amounts keyed by node index.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit of waste.
+            cost_unit: Cost per unit of distance.
+            values: Additional solver values.
+            mandatory_nodes: Node indices that must be visited.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Empty tour, zero objective, zero cost.
+        """
         return [], 0.0, 0.0
 
     def execute(
@@ -112,7 +134,7 @@ class KernelSearchPolicy(BaseRoutingPolicy):
         subtour elimination dynamically.
 
         Args:
-            **kwargs: Context for matheuristic execution, including:
+            kwargs: Context for matheuristic execution, including:
                 - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
                 - wastes (Dict[int, float]): Map of customer IDs to current waste levels.
                 - capacity (float): Maximum vehicle load.

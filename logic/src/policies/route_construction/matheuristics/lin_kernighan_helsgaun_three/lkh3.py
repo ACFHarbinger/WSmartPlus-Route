@@ -55,9 +55,15 @@ References:
     Helsgaun, K. (2017). An extension of the LKH-TSP solver for constrained
       traveling salesman and vehicle routing problems.
 
+Attributes:
+    solve_lkh3: Main LKH-3 solver entry point for TSP/CVRP instances.
+    solve_lkh3_with_alns: LKH-3 solver with integrated ALNS post-processing.
+
 Example:
-    >>> tour, cost = solve_lkh3(distance_matrix)
-    >>> tour, cost = solve_lkh3(distance_matrix, waste=demands, capacity=cap)
+    >>> import numpy as np
+    >>> from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.lkh3 import solve_lkh3
+    >>> dm = np.zeros((3, 3))
+    >>> routes, cost, penalty = solve_lkh3(dm)
 """
 
 from __future__ import annotations
@@ -142,19 +148,23 @@ def _improve_tour(  # noqa: C901
 
     Args:
         curr_tour: Current closed tour.
-        curr_pen, curr_cost: Current (penalty, cost).
+        curr_pen: Current penalty.
+        curr_cost: Current cost.
         candidates: α-nearest-neighbour candidate lists.
         distance_matrix: Cost matrix.
-        waste, capacity: VRP parameters (None for TSP).
+        waste: Waste for each node.
+        capacity: Capacity of the vehicle.
         rng: Random number generator forwarded to operators.
         dont_look_bits: Boolean array; nodes with True are skipped.
             Allocated up to max(nodes_count, n_original + n_vehicles) to
             avoid IndexError on augmented graphs.
         max_k_opt: Maximum k for k-opt moves (2-5).
         n_original: Original graph size before augmentation.
+        dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
 
     Returns:
-        (new_tour, new_penalty, new_cost, any_improvement, updated_bits).
+        Tuple[List[int], float, float, bool, Optional[np.ndarray]]: New tour,
+            updated penalty, updated cost, improvement flag, and updated bits.
     """
     nodes_count = len(curr_tour) - 1
     d = distance_matrix
@@ -520,9 +530,12 @@ def solve_lkh3(  # noqa: C901
         np_rng: Numpy random generator; seeded from 42 if not provided.
         rng: Random number generator forwarded to operators.
         seed: Seed for the random number generator.
+        dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
+        native_prize_collecting: Whether to use native prize collecting algorithm.
+        subgradient_iterations: Number of subgradient optimization iterations.
 
     Returns:
-        (best_tour, best_cost, best_penalty) where best_tour is a closed node sequence.
+        Tuple[List[List[int]], float, float]: Best routes, travel cost, and penalty.
     """
     n = len(distance_matrix)
 
@@ -773,11 +786,13 @@ def solve_lkh3_with_alns(
         np_rng: NumPy random generator.
         rng: Random generator.
         seed: Seed for the random number generator.
+        dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
+        native_prize_collecting: Whether to use native prize collecting algorithm.
+        subgradient_iterations: Number of subgradient optimization iterations.
 
     Returns:
-        Tuple of (routes, objective) where:
-        - routes: List of routes (each is list of node IDs, no depot)
-        - objective: Profit (VRPP) or negative cost (CVRP)
+        Tuple[List[List[int]], float, float]: Routes (each a list of node IDs
+            without depot), objective value, and travel cost.
 
     Example:
         >>> # VRPP mode

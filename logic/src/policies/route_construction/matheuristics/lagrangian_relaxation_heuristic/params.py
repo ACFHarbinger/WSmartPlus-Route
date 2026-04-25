@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Lagrangian Relaxation Heuristic (LRH).
+
+Attributes:
+    LRHParams: Dataclass holding LRH solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params import LRHParams
+    >>> params = LRHParams(max_iter=50, step_size=2.0)
+    >>> d = params.to_dict()
 """
 
 from __future__ import annotations
@@ -27,7 +35,14 @@ class LRHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> LRHParams:
-        """Create LRHParams from a configuration object or dictionary."""
+        """Create LRHParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dict with LRH parameter attributes.
+
+        Returns:
+            LRHParams: Populated parameter dataclass.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -39,5 +54,9 @@ class LRHParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert LRHParams to a dictionary for backend compatibility."""
+        """Convert LRHParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Mapping of parameter names to their values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

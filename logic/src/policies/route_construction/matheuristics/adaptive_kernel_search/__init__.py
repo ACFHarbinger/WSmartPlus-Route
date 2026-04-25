@@ -8,6 +8,13 @@ Programs" (Guastaroba et al., 2017).
 AKS is a standalone decomposition-based solver that dynamically manages the
 optimization process by adjusting bucket sizes and promoting variables between
 restricted sub-MIPs.
+
+Attributes:
+    AdaptiveKernelSearchPolicy: Policy class for the AKS matheuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.adaptive_kernel_search import AdaptiveKernelSearchPolicy
+    >>> policy = AdaptiveKernelSearchPolicy()
 """
 
 from .policy_aks import AdaptiveKernelSearchPolicy

@@ -1,5 +1,12 @@
 """
 Lagrangian Relaxation Heuristic (LRH) policy implementation.
+
+Attributes:
+    LagrangianRelaxationHeuristicPolicy: Multi-period LRH policy using subgradient optimization.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh import LagrangianRelaxationHeuristicPolicy
+    >>> policy = LagrangianRelaxationHeuristicPolicy()
 """
 
 import copy
@@ -34,9 +41,17 @@ from logic.src.utils.policy.wrappers import (
 class LagrangianRelaxationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Lagrangian Relaxation Heuristic.
+
     Relaxes capacity constraints into the objective via Lagrangian multipliers.
     Resolves simplified subproblems and uses a subgradient method to tune multipliers.
     Converts relaxed solutions to feasible using greedy repair.
+
+    Attributes:
+        params: LRH runtime parameters.
+        max_iter: Maximum number of subgradient iterations.
+        step_size_initial: Initial step size for the subgradient method.
+        halving_freq: Iteration frequency at which the step size is halved.
+        seed: Random seed for reproducibility.
     """
 
     def __init__(self, config: Any = None):
@@ -54,6 +69,15 @@ class LagrangianRelaxationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         self.seed = self.params.seed
 
     def _solve_relaxed_subproblem(self, problem: ProblemContext, lambdas: List[float]) -> List[List[List[int]]]:
+        """Solve the Lagrangian-relaxed subproblem for each day in the horizon.
+
+        Args:
+            problem: Multi-day problem context.
+            lambdas: Lagrangian multipliers, one per day in the planning horizon.
+
+        Returns:
+            List[List[List[int]]]: Relaxed plan with one route list per day.
+        """
         # This is a very simplistic relaxation purely for structural demonstration.
         # It treats the routing without capacity constraints, effectively solving
         # a prize-collecting TSP (or multiple) per day, where prize is modified by lambda * waste.
@@ -102,7 +126,15 @@ class LagrangianRelaxationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         return sim_plan
 
     def _repair_to_feasible(self, problem: ProblemContext, plan: List[List[List[int]]]) -> List[List[List[int]]]:
-        """Repair capacity violations by dropping least profitable nodes."""
+        """Repair capacity violations by dropping least profitable nodes.
+
+        Args:
+            problem: Multi-day problem context.
+            plan: Relaxed plan with one route list per day.
+
+        Returns:
+            List[List[List[int]]]: Feasible plan with capacity constraints respected.
+        """
         feas_plan = []
         cur_prob = problem
         for d in range(problem.horizon):
@@ -137,7 +169,15 @@ class LagrangianRelaxationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         return feas_plan
 
     def _evaluate(self, plan, problem):
-        """Evaluates the objective value of the given plan."""
+        """Evaluate the total profit of a multi-day plan.
+
+        Args:
+            plan: Plan with one route list per day.
+            problem: Multi-day problem context.
+
+        Returns:
+            float: Total net profit across all days.
+        """
         tot = 0.0
         cur_prob = problem
         for idx in range(problem.horizon):
@@ -149,6 +189,16 @@ class LagrangianRelaxationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
     def _run_multi_period_solver(
         self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """Run the LRH subgradient loop over the full planning horizon.
+
+        Args:
+            problem: Multi-day problem context.
+            multi_day_ctx: Optional multi-day context for inter-day state propagation.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: Today's
+                solution context, best feasible plan, and solver metadata.
+        """
         D = problem.horizon
         lambdas = [0.0] * D
         pi = self.step_size_initial

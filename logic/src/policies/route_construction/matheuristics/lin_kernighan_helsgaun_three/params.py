@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Lin-Kernighan-Helsgaun 3 (LKH-3) policy.
+
+Attributes:
+    LKH3Params: Dataclass holding LKH-3 solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params import LKH3Params
+    >>> params = LKH3Params(runs=10, time_limit=60.0)
+    >>> d = params.to_dict()
 """
 
 from __future__ import annotations
@@ -56,7 +64,14 @@ class LKH3Params:
 
     @classmethod
     def from_config(cls, config: Any) -> LKH3Params:
-        """Create LKH3Params from a configuration object or dictionary."""
+        """Create LKH3Params from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dict with LKH-3 parameter attributes.
+
+        Returns:
+            LKH3Params: Populated parameter dataclass.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -83,5 +98,9 @@ class LKH3Params:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert Params to a dictionary."""
+        """Convert Params to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Mapping of parameter names to their values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

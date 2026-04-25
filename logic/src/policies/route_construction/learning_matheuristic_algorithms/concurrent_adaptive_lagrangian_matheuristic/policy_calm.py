@@ -42,6 +42,15 @@ Algorithmic loop (high-level):
         if stopping_criteria(): break
 
     return best_primal
+
+Attributes:
+    _RunState: Mutable state threaded through the outer loop.
+    CALMPolicy: The CALM policy.
+
+Example:
+    >>> policy = CALMPolicy()
+    >>> policy._run_multi_period_solver(problem_ctx, solution_ctx)
+    <objective_value>
 """
 
 from __future__ import annotations
@@ -88,7 +97,26 @@ from .selection import (
 
 @dataclass
 class _RunState:
-    """Mutable state threaded through the outer loop."""
+    """Mutable state threaded through the outer loop.
+
+    Attributes:
+        tables (LookaheadTables): The lookahead tables.
+        scenario_tree (ScenarioTree): The scenario tree.
+        lag_state (LagrangianState): The Lagrangian state.
+        coordinator (LagrangianCoordinator): The Lagrangian coordinator.
+        oracle (InsertionCostOracle): The insertion cost oracle.
+        bandit (LinUCBBandit): The bandit.
+        regret_preprocessor (RegretPreprocessor): The regret preprocessor.
+        best_primal (float): The best primal.
+        best_per_period_tours (Dict[int, List[int]]): The best per-period tours.
+        best_per_period_selection (Dict[int, List[int]]): The best per-period selection.
+        best_per_period_cost (Dict[int, float]): The best per-period cost.
+        outer_iter (int): The outer iteration.
+        iters_since_improvement (int): The number of iterations since improvement.
+        prior_cuts (Dict[int, Dict[int, float]]): The prior cuts.
+        selection_history (List[List[SelectionResult]]): The selection history.
+        start_time (float): The start time.
+    """
 
     tables: LookaheadTables
     scenario_tree: ScenarioTree
@@ -127,10 +155,25 @@ class _RunState:
 )
 @RouteConstructorRegistry.register("calm")
 class CALMPolicy(BaseMultiPeriodRoutingPolicy):
-    """Multi-period Concurrent Adaptive Lagrangian Matheuristic (CALM) policy."""
+    """Multi-period Concurrent Adaptive Lagrangian Matheuristic (CALM) policy.
+
+    The CALM (Concurrent Adaptive Lagrangian Matheuristic) policy is designed for multi-period vehicle routing problems where demand is uncertain
+    and revealed over time. It addresses the challenge of coordinating routing decisions across multiple time periods under uncertainty by combining
+    probabilistic lookahead with adaptive Lagrangian relaxation.
+
+    Attributes:
+        params (CALMParams): The parameters for the CALM policy.
+        horizon (int): The horizon for the multi-period problem.
+        stockout_penalty (float): The penalty for stockouts.
+    """
 
     def __init__(self, config: Any = None):
-        """__init__ docstring."""
+        """
+        Initialize the CALM policy.
+
+        Args:
+            config (Any): The configuration for the policy.
+        """
         super().__init__(config)
         self.params = CALMParams.from_config(self.config) if config else CALMParams()
         # Align BaseMultiPeriodRoutingPolicy defaults.
@@ -143,9 +186,21 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
 
     @classmethod
     def _config_class(cls):
+        """
+        Get the configuration class.
+
+        Returns:
+            Type[CALMParams]: The configuration class.
+        """
         return None
 
     def _get_config_key(self) -> str:
+        """
+        Get the configuration key.
+
+        Returns:
+            str: The configuration key.
+        """
         return "lagrangian_matheuristic"
 
     # ------------------------------------------------------------------
@@ -157,6 +212,16 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         problem: ProblemContext,
         multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Run the multi-period solver.
+
+        Args:
+            problem (ProblemContext): The problem context.
+            multi_day_ctx (Optional[MultiDayContext]): The multi-day context.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: The solution context, routing results, and metadata.
+        """
         # --- 1. Initialisation ---
         state = self._initialise(problem)
 
@@ -263,6 +328,15 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
     # ------------------------------------------------------------------
 
     def _initialise(self, problem: ProblemContext) -> _RunState:
+        """
+        Initialize the internal state of the policy.
+
+        Args:
+            problem (ProblemContext): The problem context.
+
+        Returns:
+            _RunState: The internal state of the policy.
+        """
         lookahead_params = self.params.lookahead
         # Populate revenue-conversion parameters from the problem if not set.
         if lookahead_params.volume is None:
@@ -339,6 +413,18 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         engine: str,
         plan: RegretPlan,
     ) -> List[SelectionResult]:
+        """
+        Solve the selection layer.
+
+        Args:
+            state (_RunState): The internal state of the policy.
+            problem (ProblemContext): The problem context.
+            engine (str): The engine.
+            plan (RegretPlan): The regret plan.
+
+        Returns:
+            List[SelectionResult]: The selection results.
+        """
         tpks_params = self.params.tpks
         insertion_snapshot = state.oracle.snapshot()
         lambdas_snapshot = state.coordinator.lambdas_snapshot()
@@ -395,6 +481,17 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         problem: ProblemContext,
         selection_results: List[SelectionResult],
     ) -> List[RoutingResult]:
+        """
+        Solve the routing layer.
+
+        Args:
+            state (_RunState): The internal state of the policy.
+            problem (ProblemContext): The problem context.
+            selection_results (List[SelectionResult]): The selection results.
+
+        Returns:
+            List[RoutingResult]: The routing results.
+        """
         lambdas_snapshot = state.coordinator.lambdas_snapshot()
         V = state.tables.V
 
@@ -441,7 +538,17 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         state: _RunState,
         problem: ProblemContext,
     ) -> Dict[int, Dict[int, float]]:
-        """Return per-period {bin: penalty} dicts."""
+        """Return per-period {bin: penalty} dicts.
+
+        Args:
+            strategy (str): The cut generation strategy.
+            selection_results (List[SelectionResult]): The selection results.
+            state (_RunState): The internal state of the policy.
+            problem (ProblemContext): The problem context.
+
+        Returns:
+            Dict[int, Dict[int, float]]: The per-period {bin: penalty} dicts.
+        """
         if strategy == "plain":
             return {}
         out: Dict[int, Dict[int, float]] = {}
@@ -478,6 +585,13 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         Primal objective = sum over periods of
             (sum_{i in S_t} V[i, t]) - C * cost(S_t)
         minus stockout penalty for any bin that overflows before being visited.
+
+        Args:
+            state (_RunState): The internal state of the policy.
+            problem (ProblemContext): The problem context.
+
+        Returns:
+            Tuple[float, bool]: The primal value and whether it's an improvement.
         """
         V = state.tables.V
         cost_unit = problem.cost_unit
@@ -511,6 +625,13 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         Approximate stockout penalty: for each bin that is projected to
         exceed capacity_cap in expectation over the horizon and is NOT in any
         period's best-known selection, add the overflow amount to the penalty.
+
+        Args:
+            state (_RunState): The internal state of the policy.
+            problem (ProblemContext): The problem context.
+
+        Returns:
+            float: The stockout penalty.
         """
         visited_any: set[int] = set()
         for sel in state.best_per_period_selection.values():
@@ -528,6 +649,15 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         return penalty
 
     def _should_stop(self, state: _RunState) -> bool:
+        """
+        Determine whether to stop the algorithm.
+
+        Args:
+            state (_RunState): The internal state of the policy.
+
+        Returns:
+            bool: True if the algorithm should stop, False otherwise.
+        """
         if state.outer_iter >= self.params.lagrangian.max_outer_iterations:
             return True
         elapsed = time.perf_counter() - state.start_time
@@ -552,6 +682,17 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
     # ------------------------------------------------------------------
 
     def _assemble_x_K(self, selection_results: List[SelectionResult], n_bins: int, horizon: int) -> np.ndarray:
+        """
+        Assemble the full selection matrix x_K.
+
+        Args:
+            selection_results (List[SelectionResult]): The selection results.
+            n_bins (int): The number of bins.
+            horizon (int): The horizon.
+
+        Returns:
+            np.ndarray: The selection matrix.
+        """
         x_K = np.zeros((n_bins, horizon), dtype=float)
         for sr in selection_results:
             for b in sr.selection:
@@ -572,12 +713,29 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         Under the convention used in lookahead.lagrangian_corrected_prizes,
         the per-period contributions are already computed on each side; we
         just sum.
+
+        Args:
+            selection_results (List[SelectionResult]): The selection results.
+            routing_results (List[RoutingResult]): The routing results.
+
+        Returns:
+            float: The full Lagrangian value.
         """
         knapsack_side = sum(sr.lagrangian_objective for sr in selection_results)
         routing_side = sum(rr.lagrangian_value_contrib for rr in routing_results)
         return float(knapsack_side + routing_side)
 
     def _build_context(self, state: _RunState, problem: ProblemContext) -> np.ndarray:
+        """
+        Build the context for the neural network.
+
+        Args:
+            state (_RunState): The internal state of the policy.
+            problem (ProblemContext): The problem context.
+
+        Returns:
+            np.ndarray: The context for the neural network.
+        """
         dual = state.coordinator.current_dual_bound()
         primal = state.best_primal
         if np.isfinite(dual) and np.isfinite(primal):
@@ -634,6 +792,18 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         lagrangian: float,
         coord_stats: Dict[str, float],
     ) -> None:
+        """
+        Log the current iteration.
+
+        Args:
+            state (_RunState): The internal state of the policy.
+            arm_idx (int): The index of the arm.
+            engine (str): The engine.
+            cut_strategy (str): The cut strategy.
+            primal (float): The primal value.
+            lagrangian (float): The Lagrangian value.
+            coord_stats (Dict[str, float]): The coordinator statistics.
+        """
         dual = state.coordinator.current_dual_bound()
         msg = (
             f"[lagrangian_matheuristic] iter={state.outer_iter} "
@@ -656,6 +826,13 @@ class CALMPolicy(BaseMultiPeriodRoutingPolicy):
         """
         Produce the triple expected by BaseMultiPeriodRoutingPolicy.execute:
             (today's SolutionContext, full_plan, telemetry)
+
+        Args:
+            state (_RunState): The internal state of the policy.
+            problem (ProblemContext): The problem context.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: The solution context, full plan, and telemetry.
         """
         full_plan: List[List[List[int]]] = []
         for t in range(self.horizon):

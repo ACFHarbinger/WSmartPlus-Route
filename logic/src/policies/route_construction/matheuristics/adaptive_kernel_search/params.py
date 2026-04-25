@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Adaptive Kernel Search (AKS) matheuristic.
+
+Attributes:
+    AKSParams: Dataclass holding AKS solver hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.adaptive_kernel_search.params import AKSParams
+    >>> params = AKSParams(initial_kernel_size=50, bucket_size=20, time_limit=300.0)
+    >>> d = params.to_dict()
 """
 
 from __future__ import annotations
@@ -39,7 +47,14 @@ class AKSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> AKSParams:
-        """Create AKSParams from a configuration object or dictionary."""
+        """Create AKSParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dict with AKS parameter attributes.
+
+        Returns:
+            AKSParams: Populated parameter dataclass.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -56,5 +71,9 @@ class AKSParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert AKSParams to a dictionary for backend compatibility."""
+        """Convert AKSParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Mapping of parameter names to their values.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

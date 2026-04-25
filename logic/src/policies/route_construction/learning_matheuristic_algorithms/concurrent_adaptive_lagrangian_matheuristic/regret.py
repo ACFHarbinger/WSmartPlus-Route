@@ -22,6 +22,38 @@ Escalation policy (adaptive):
 
 The module does NOT itself modify a Gurobi model; it produces a `RegretPlan`
 that the selection-subproblem builder applies when constructing the Master.
+
+Attributes:
+----------
+    soft_bias : np.ndarray of shape (N, T)
+        Additive bias to apply to the knapsack's objective coefficients.
+        Zero for bins / periods not in the high-regret set.
+    hard_fix : Dict[int, List[int]]
+        Map from bin_id -> list of periods among which exactly one must be
+        chosen (sum of x_K[bin, periods] >= 1).  Empty when phase == "soft".
+    phase : str
+        "soft" or "hard".
+    high_regret_bin_ids : Set[int]
+        Bins flagged by the regret preprocessing (used by downstream
+        diagnostics / reward shaping).
+
+Example:
+    >>> # Assume early_regret is computed from the lookahead module.
+    >>> N = 100
+    >>> T = 5
+    >>> regret_params = RegretParams(enabled=True, ...)
+    >>> preproc = RegretPreprocessor(regret_params, n_bins=N, horizon=T)
+    >>> early_regret = np.random.uniform(0, 100, size=N)
+    >>> plan = preproc.build_plan(early_regret)
+    >>> print(plan.phase)
+    "soft"
+    >>> # Hard phase after enough primal stagnation
+    >>> for _ in range(10):
+    ...     preproc.observe_iteration(primal_improved=False)
+    >>> plan = preproc.build_plan(early_regret)
+    >>> print(plan.phase)
+    "hard"
+    >>> # plan.hard_fix might be {42: [0, 1, 2, 3, 4], ...}
 """
 
 from __future__ import annotations
@@ -39,19 +71,18 @@ class RegretPlan:
     """
     Concrete instructions for the selection-subproblem builder.
 
-    Attributes
-    ----------
-    soft_bias : np.ndarray of shape (N, T)
-        Additive bias to apply to the knapsack's objective coefficients.
-        Zero for bins / periods not in the high-regret set.
-    hard_fix : Dict[int, List[int]]
-        Map from bin_id -> list of periods among which exactly one must be
-        chosen (sum of x_K[bin, periods] >= 1).  Empty when phase == "soft".
-    phase : str
-        "soft" or "hard".
-    high_regret_bin_ids : Set[int]
-        Bins flagged by the regret preprocessing (used by downstream
-        diagnostics / reward shaping).
+    Attributes:
+        soft_bias : np.ndarray of shape (N, T)
+            Additive bias to apply to the knapsack's objective coefficients.
+            Zero for bins / periods not in the high-regret set.
+        hard_fix : Dict[int, List[int]]
+            Map from bin_id -> list of periods among which exactly one must be
+            chosen (sum of x_K[bin, periods] >= 1).  Empty when phase == "soft".
+        phase : str
+            "soft" or "hard".
+        high_regret_bin_ids : Set[int]
+            Bins flagged by the regret preprocessing (used by downstream
+            diagnostics / reward shaping).
     """
 
     soft_bias: np.ndarray
@@ -64,6 +95,18 @@ class RegretPreprocessor:
     """
     Maintains escalation state across outer iterations.
 
+    Attributes:
+        params : RegretParams
+            Regret parameters.
+        n_bins : int
+            Number of bins.
+        horizon : int
+            Horizon.
+        _phase : str
+            Current phase ("soft" or "hard").
+        _iters_since_improvement : int
+            Number of iterations since last improvement.
+
     Usage
     -----
     preproc = RegretPreprocessor(params, n_bins=N, horizon=T)
@@ -75,7 +118,16 @@ class RegretPreprocessor:
     """
 
     def __init__(self, params: RegretParams, n_bins: int, horizon: int):
-        """__init__ docstring."""
+        """__init__ docstring.
+
+        Args:
+            params: Regret parameters.
+            n_bins: Number of bins.
+            horizon: Horizon.
+
+        Returns:
+            None
+        """
         self.params = params
         self.n_bins = n_bins
         self.horizon = horizon
@@ -88,17 +140,23 @@ class RegretPreprocessor:
 
     @property
     def phase(self) -> str:
-        """phase docstring."""
+        """Returns the current phase.
+
+        Returns:
+            str: Current phase ("soft" or "hard").
+        """
         return self._phase
 
     def build_plan(self, early_regret: np.ndarray) -> RegretPlan:
         """
         Produce a plan for the current outer iteration.
 
-        Parameters
-        ----------
-        early_regret : np.ndarray of shape (N,)
-            Sum of rho[i, 0] + rho[i, 1] from the lookahead tables.
+        Args:
+            early_regret : np.ndarray of shape (N,)
+                Sum of rho[i, 0] + rho[i, 1] from the lookahead tables.
+
+        Returns:
+            RegretPlan: Plan for the current outer iteration.
         """
         if not self.params.enabled or self.n_bins == 0:
             return RegretPlan(
@@ -163,7 +221,14 @@ class RegretPreprocessor:
         )
 
     def observe_iteration(self, primal_improved: bool) -> None:
-        """Update escalation state at the end of an outer iteration."""
+        """Update escalation state at the end of an outer iteration.
+
+        Args:
+            primal_improved: Whether the primal objective improved in the last iteration.
+
+        Returns:
+            None
+        """
         if primal_improved:
             self._iters_since_improvement = 0
             # Relax back to soft if we're climbing again (optional; keeps the
@@ -175,6 +240,13 @@ class RegretPreprocessor:
                 self._phase = "hard"
 
     def force_phase(self, phase: str) -> None:
-        """Manual override, for testing / ablations."""
+        """Manual override, for testing / ablations.
+
+        Args:
+            phase: Phase to force ("soft" or "hard").
+
+        Returns:
+            None
+        """
         assert phase in ("soft", "hard")
         self._phase = phase
