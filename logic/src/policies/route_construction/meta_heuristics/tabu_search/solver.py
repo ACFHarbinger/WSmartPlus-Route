@@ -1,13 +1,11 @@
-"""
-Tabu Search (TS) for VRPP.
+"""Tabu Search (TS) for VRPP.
 
-Classic metaheuristic using adaptive memory and responsive exploration.
-Implements short-term memory (recency-based), long-term memory
-(frequency-based), aspiration criteria, intensification, and diversification
-as described in Glover's "Tabu Search Fundamentals and Uses" (1995).
+Attributes:
+    TSSolver: Main solver class for Tabu Search.
 
-Reference:
-    Glover, F. "Tabu Search Fundamentals and Uses", 1995.
+Example:
+    >>> solver = TSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -39,8 +37,7 @@ from .params import TSParams
 
 
 class TSSolver:
-    """
-    Tabu Search solver for VRPP with comprehensive memory structures.
+    """Tabu Search solver for VRPP with comprehensive memory structures.
 
     Key Features:
     - Short-term memory: Recency-based tabu list with dynamic tenure
@@ -49,6 +46,28 @@ class TSSolver:
     - Elite solutions: Maintain pool of best solutions for path relinking
     - Strategic oscillation: Explore feasible/infeasible boundaries (optional)
     - Candidate lists: Restrict neighborhood exploration for efficiency
+
+
+    Attributes:
+        tabu_list: Short-term memory for tabu moves.
+        move_frequency: Frequency of moves.
+        node_frequency: Frequency of node usage.
+        elite_solutions: Pool of elite solutions.
+        best_routes: Best routes found so far.
+        best_profit: Best profit found so far.
+        best_solution_time: Time to find the best solution.
+        iteration: Current iteration number.
+        iterations_since_improvement: Number of iterations without improvement.
+        time_limit: Time limit for the search.
+        diversification_level: Current diversification level.
+        rrng: Random number generator.
+        params: Tabu search parameters.
+        dist_matrix: Distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per km traveled.
+        mandatory_nodes: List of mandatory nodes.
     """
 
     def __init__(
@@ -64,13 +83,13 @@ class TSSolver:
         """Initializes the Tabu Search solver.
 
         Args:
-            dist_matrix (np.ndarray): Symmetric distance matrix.
-            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-            capacity (float): Maximum vehicle collection capacity.
-            R (float): Revenue per kg of waste.
-            C (float): Cost per km traveled.
-            params (TSParams): Algorithm-specific parameters.
-            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+            dist_matrix: Symmetric distance matrix.
+            wastes: Mapping of bin IDs to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            R: Revenue per kg of waste.
+            C: Cost per km traveled.
+            params: Algorithm-specific parameters.
+            mandatory_nodes: Nodes that must be visited.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -239,6 +258,14 @@ class TSSolver:
     ) -> Tuple[Optional[List[List[int]]], float, Optional[Tuple[str, Any]]]:
         """
         Select best accepted candidate based on modular criterion (non-tabu or aspirated).
+
+        Args:
+            candidates (Sequence[Tuple[List[List[int]], Tuple[str, Any]]]): Candidates to evaluate.
+            current_profit (float): Current profit.
+            best_profit (float): Best profit found so far.
+
+        Returns:
+            Tuple[Optional[List[List[int]]], float, Optional[Tuple[str, Any]]]: Best candidate, best candidate profit, and best move descriptor.
         """
         best_candidate = None
         best_candidate_profit = float("-inf")
@@ -285,7 +312,14 @@ class TSSolver:
     # ========================================================================
 
     def _is_tabu(self, move_desc: Tuple[str, Any]) -> bool:
-        """Check if a move is currently tabu."""
+        """Check if a move is currently tabu.
+
+        Args:
+            move_desc (Tuple[str, Any]): Description of the move.
+
+        Returns:
+            bool: True if the move is tabu, False otherwise.
+        """
         move_type, move_attrs = move_desc
         for tabu_type, tabu_attrs, expiration in self.tabu_list:
             if tabu_type == move_type and tabu_attrs == move_attrs and expiration > self.iteration:
@@ -293,7 +327,11 @@ class TSSolver:
         return False
 
     def _add_to_tabu_list(self, move_desc: Tuple[str, Any]):
-        """Add a move to the tabu list with appropriate tenure."""
+        """Add a move to the tabu list with appropriate tenure.
+
+        Args:
+            move_desc (Tuple[str, Any]): Description of the move.
+        """
         move_type, move_attrs = move_desc
 
         # Compute tabu tenure
@@ -306,7 +344,10 @@ class TSSolver:
         self._clean_tabu_list()
 
     def _clean_tabu_list(self):
-        """Remove expired tabu entries."""
+        """Remove expired tabu entries.
+
+        While the tabu list is not empty and the first entry has expired, remove it.
+        """
         while self.tabu_list and self.tabu_list[0][2] <= self.iteration:
             self.tabu_list.popleft()
 
@@ -315,6 +356,9 @@ class TSSolver:
         Compute dynamic tabu tenure based on search state.
 
         Shorter tenure during improvement, longer during stagnation.
+
+        Returns:
+            int: Dynamic tabu tenure.
         """
         base_tenure = self.params.tabu_tenure
 
@@ -332,13 +376,21 @@ class TSSolver:
     # ========================================================================
 
     def _update_frequency_memory(self, routes: List[List[int]]):
-        """Update node frequency counters."""
+        """Update node frequency counters.
+
+        Args:
+            routes (List[List[int]]): Routes to update frequencies for.
+        """
         for route in routes:
             for node in route:
                 self.node_frequency[node] += 1
 
     def _update_move_frequency(self, move_desc: Tuple[str, Any]):
-        """Update move frequency counters."""
+        """Update move frequency counters.
+
+        Args:
+            move_desc (Tuple[str, Any]): Description of the move.
+        """
         self.move_frequency[move_desc] += 1
 
     def _compute_frequency_penalty(self, move_desc: Tuple[str, Any]) -> float:
@@ -346,6 +398,12 @@ class TSSolver:
         Compute penalty based on move frequency to encourage diversification.
 
         Frequently used moves receive higher penalties.
+
+        Args:
+            move_desc (Tuple[str, Any]): Description of the move.
+
+        Returns:
+            float: Penalty value.
         """
         freq = self.move_frequency.get(move_desc, 0)
         return self.params.frequency_penalty_weight * freq
@@ -355,7 +413,13 @@ class TSSolver:
     # ========================================================================
 
     def _update_elite_pool(self, routes: List[List[int]], profit: float):
-        """Maintain a pool of elite (high-quality) solutions."""
+        """
+        Update pool of elite (high-quality) solutions.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            profit (float): Profit of the routes.
+        """
         # Add to elite pool
         self.elite_solutions.append((copy.deepcopy(routes), profit))
 
@@ -370,6 +434,12 @@ class TSSolver:
         Intensification: Return to best solution and explore neighborhood intensively.
 
         This encourages exploitation of promising regions.
+
+        Args:
+            best_routes (List[List[int]]): Best routes found so far.
+
+        Returns:
+            List[List[int]]: Intensified routes.
         """
         # Start from best known solution
         routes = copy.deepcopy(best_routes)
@@ -401,6 +471,12 @@ class TSSolver:
         Diversification: Perturb current solution to explore new regions.
 
         Uses frequency-based penalties to favor rarely visited nodes.
+
+        Args:
+            current_routes (List[List[int]]): Current routes to perturb.
+
+        Returns:
+            List[List[int]]: Perturbed routes.
         """
         routes = copy.deepcopy(current_routes)
 
@@ -457,6 +533,9 @@ class TSSolver:
         Diversification restart: Build a new solution avoiding frequent patterns.
 
         This is triggered when search stagnates.
+
+        Returns:
+            List[List[int]]: New routes with diversified node selections.
         """
         # If we have elite solutions, use path relinking
         if len(self.elite_solutions) >= 2:
@@ -470,6 +549,9 @@ class TSSolver:
         Build a new solution that avoids frequently used nodes.
 
         Penalize nodes with high frequency to encourage exploration.
+
+        Returns:
+            List[List[int]]: New routes with diversified node selections.
         """
         # Modify wastes temporarily to penalize frequent nodes
         modified_wastes = {}
@@ -496,6 +578,13 @@ class TSSolver:
         Path relinking: Generate intermediate solution between two elite solutions.
 
         This explores trajectories between high-quality solutions.
+
+        Args:
+            routes1 (List[List[int]]): First set of routes.
+            routes2 (List[List[int]]): Second set of routes.
+
+        Returns:
+            List[List[int]]: New routes formed by blending node selections.
         """
         # Simple implementation: blend node selections
         nodes1 = set(node for route in routes1 for node in route)
@@ -543,7 +632,11 @@ class TSSolver:
         """
         Generate candidate neighborhood moves.
 
-        Returns list of (new_routes, move_description) tuples.
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+
+        Returns:
+            List[Tuple[List[List[int]], Tuple[str, Any]]]: List of new routes and move descriptors.
         """
         candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
@@ -581,7 +674,16 @@ class TSSolver:
     def _generate_swap_moves(
         self, routes: List[List[int]], max_new: int = 5
     ) -> Sequence[Tuple[List[List[int]], Tuple[str, Any]]]:
-        """Generate swap-based neighborhood moves."""
+        """
+        Generate swap-based neighborhood moves.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            max_new (int): Maximum number of new routes to generate.
+
+        Returns:
+            List[Tuple[List[List[int]], Tuple[str, Any]]]: List of new routes and move descriptors.
+        """
         candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
         for _ in range(max_new):
@@ -629,7 +731,16 @@ class TSSolver:
     def _generate_relocate_moves(
         self, routes: List[List[int]], max_new: int = 5
     ) -> Sequence[Tuple[List[List[int]], Tuple[str, Any]]]:
-        """Generate relocate-based neighborhood moves."""
+        """
+        Generate relocate-based neighborhood moves.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            max_new (int): Maximum number of new routes to generate.
+
+        Returns:
+            List[Tuple[List[List[int]], Tuple[str, Any]]]: List of new routes and move descriptors.
+        """
         candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
         for _ in range(max_new):
@@ -685,7 +796,16 @@ class TSSolver:
     def _generate_2opt_moves(
         self, routes: List[List[int]], max_new: int = 3
     ) -> Sequence[Tuple[List[List[int]], Tuple[str, Any]]]:
-        """Generate 2-opt neighborhood moves."""
+        """
+        Generate 2-opt neighborhood moves.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            max_new (int): Maximum number of new routes to generate.
+
+        Returns:
+            List[Tuple[List[List[int]], Tuple[str, Any]]]: List of new routes and move descriptors.
+        """
         candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
         for _ in range(max_new):
@@ -717,6 +837,16 @@ class TSSolver:
     # ========================================================================
 
     def _llh_random_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Random-greedy local search operator.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            n (int): Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: Improved routes.
+        """
         if self.params.profit_aware_operators:
             # random_profit_removal reverted to random_removal
             partial, removed = random_removal(routes, n, rng=self.random)
@@ -744,6 +874,16 @@ class TSSolver:
             )
 
     def _llh_worst_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Worst-regret (regret-2) local search operator.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            n (int): Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: Improved routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
             return regret_2_profit_insertion(
@@ -770,6 +910,16 @@ class TSSolver:
             )
 
     def _llh_cluster_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Cluster-greedy local search operator.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            n (int): Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: Improved routes.
+        """
         if self.params.profit_aware_operators:
             # cluster_profit_removal reverted to cluster_removal
             partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.random)
@@ -797,6 +947,16 @@ class TSSolver:
             )
 
     def _llh_worst_greedy(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Worst-greedy local search operator.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            n (int): Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: Improved routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
             return greedy_profit_insertion(
@@ -823,6 +983,16 @@ class TSSolver:
             )
 
     def _llh_random_regret(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Random regret (regret-2) local search operator.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+            n (int): Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: Improved routes.
+        """
         if self.params.profit_aware_operators:
             # random_profit_removal reverted to random_removal
             partial, removed = random_removal(routes, n, rng=self.random)
@@ -854,7 +1024,12 @@ class TSSolver:
     # ========================================================================
 
     def _build_initial_solution(self) -> List[List[int]]:
-        """Build initial solution using greedy profit-aware heuristic."""
+        """
+        Build initial solution using greedy profit-aware heuristic.
+
+        Returns:
+            List[List[int]]: Initial solution.
+        """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -866,14 +1041,30 @@ class TSSolver:
         )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Evaluate solution profit (revenue - cost)."""
+        """
+        Evaluate solution profit (revenue - cost).
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+
+        Returns:
+            float: Solution profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Compute total routing cost."""
+        """
+        Compute total routing cost.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+
+        Returns:
+            float: Total routing cost.
+        """
         total = 0.0
         for route in routes:
             if not route:
@@ -886,17 +1077,33 @@ class TSSolver:
 
 
 class TSLSAdapter:
-    """Adapter for HGS-style operators to work with TSSolver."""
+    """Adapter for HGS-style operators to work with TSSolver.
+
+    Attributes:
+        routes: Routing solution.
+        d: Distance matrix.
+        waste: Waste mapping.
+        Q: Capacity.
+        C: Cost unit.
+        params: Operator parameters.
+        _load_cache: Cache for route loads.
+
+    Example:
+        >>> adapter = TSLSAdapter(routes, dist, waste, cap, cost)
+    """
 
     def __init__(self, routes, dist_matrix, wastes, capacity, cost_unit):
         """Initializes the Tabu Search Local Search adapter.
 
         Args:
-            routes (List[List[int]]): Initial routes.
-            dist_matrix (np.ndarray): Symmetric distance matrix.
-            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-            capacity (float): Maximum vehicle collection capacity.
-            cost_unit (float): Cost per km traveled.
+            routes: Initial routes.
+            dist_matrix: Symmetric distance matrix.
+            wastes: Mapping of bin IDs to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            cost_unit: Cost per km traveled.
+
+        Returns:
+            None.
         """
         self.routes = routes
         self.d = dist_matrix
@@ -907,14 +1114,38 @@ class TSLSAdapter:
         self._load_cache = {}
 
     def _get_load_cached(self, r_idx: int) -> float:
+        """Get the load of a route using a cache.
+
+        Args:
+            r_idx: Route index.
+
+        Returns:
+            Load of the route.
+        """
         if r_idx not in self._load_cache:
             self._load_cache[r_idx] = sum(self.waste.get(n, 0) for n in self.routes[r_idx])
         return self._load_cache[r_idx]
 
     def _update_map(self, affected_indices: Set[int]):
+        """Update the load cache.
+
+        Args:
+            affected_indices: Indices of routes to update.
+
+        Returns:
+            None.
+        """
         for r_idx in affected_indices:
             if r_idx in self._load_cache:
                 del self._load_cache[r_idx]
 
     def _calc_load_fresh(self, r: List[int]) -> float:
+        """Calculate the load of a route.
+
+        Args:
+            r (List[int]): Route.
+
+        Returns:
+            float: Load of the route.
+        """
         return sum(self.waste.get(n, 0) for n in r)

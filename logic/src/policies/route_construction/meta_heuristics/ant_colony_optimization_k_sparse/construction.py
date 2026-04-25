@@ -1,15 +1,14 @@
-"""
-Solution Construction Module for K-Sparse ACO.
+r"""Solution Construction Module for K-Sparse ACO.
 
 This module implements the solution construction phase of the MMAS algorithm.
 Ants construct solutions using pure roulette-wheel proportional selection
 based on pheromone levels and heuristic information.
 
 Attributes:
-    None
+    SolutionConstructor: Constructs a single solution (route set) for an ant.
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization_k_sparse.construction import SolutionConstructor
+    >>> from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction import SolutionConstructor
     >>> constructor = SolutionConstructor(...)
     >>> routes = constructor.construct()
 
@@ -29,9 +28,24 @@ from .pheromones import SparsePheromoneTau
 
 
 class SolutionConstructor:
-    """
-    Constructs a single solution (route set) for an ant using the
-    k-sparse pheromone matrix and heuristic values.
+    """Constructs a single solution (route set) for an ant.
+
+    Uses the k-sparse pheromone matrix and heuristic values for selection.
+
+    Attributes:
+        dist_matrix: Square distance matrix.
+        wastes: Node fill levels.
+        capacity: Vehicle capacity.
+        pheromone: Sparse pheromone matrix.
+        eta: Heuristic visibility matrix.
+        candidate_lists: K-sparse candidate neighbor lists.
+        nodes: List of customer nodes.
+        params: Algorithm parameters.
+        tau_0: Initial pheromone level.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: Nodes that must be visited.
+        random: Thread-safe random number generator.
     """
 
     def __init__(
@@ -80,8 +94,7 @@ class SolutionConstructor:
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
     def construct(self) -> List[List[int]]:
-        """
-        Construct a solution using the MMAS proportional transition rule.
+        """Construct a solution using the MMAS proportional transition rule.
 
         This method uses pure exploration (roulette-wheel selection) without
         any local pheromone updates or exploitation bias (q0). All pheromone
@@ -130,7 +143,14 @@ class SolutionConstructor:
         return routes
 
     def _any_profitable_nodes(self, unvisited: Set[int]) -> bool:
-        """Check if any remaining node is profitable to visit from depot."""
+        """Check if any remaining node is profitable to visit from depot.
+
+        Args:
+            unvisited: Set of nodes not yet visited in the current construction.
+
+        Returns:
+            True if at least one node is profitable, False otherwise.
+        """
         # In CVRP (not VRPP), all nodes are considered "profitable" to visit until exhausted
         if not self.params.vrpp:
             return True
@@ -144,7 +164,17 @@ class SolutionConstructor:
     def _get_feasible_nodes(
         self, unvisited: Set[int], mandatory_unvisited: Set[int], load: float, current: int
     ) -> List[int]:
-        """Find nodes that can be added to the current route."""
+        """Find nodes that can be added to the current route.
+
+        Args:
+            unvisited: Set of nodes not yet visited.
+            mandatory_unvisited: Set of mandatory nodes not yet visited.
+            load: Current vehicle load.
+            current: Current node index.
+
+        Returns:
+            List of feasible node indices.
+        """
         feasible = []
         use_profit_check = self.params.vrpp and self.params.profit_aware_operators
 
@@ -167,7 +197,15 @@ class SolutionConstructor:
         return feasible
 
     def _cleanup_unvisited(self, unvisited: Set[int], mandatory_unvisited: Set[int]) -> None:
-        """Remove nodes that can never fit in any route to avoid infinite loops."""
+        """Remove nodes that can never fit in any route to avoid infinite loops.
+
+        Args:
+            unvisited: Set of nodes to potentially clean up.
+            mandatory_unvisited: Set of mandatory nodes to clean up.
+
+        Returns:
+            None.
+        """
         still_constructible = False
         for j in list(unvisited):
             if self.wastes.get(j, 0) <= self.capacity:

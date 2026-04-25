@@ -15,6 +15,13 @@ Reference:
     Sun, S., Ma, L., Liu, Y., & Wang, L. (2023). "Volleyball premier league
     algorithm with ACO and ALNS for simultaneous pickup–delivery location
     routing problem."
+
+Attributes:
+    HVPLSolver: Core HVPL solver logic.
+
+Example:
+    >>> solver = HVPLSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -45,6 +52,20 @@ class HVPLSolver:
     """
     Hybrid VPL solver integrating ACO, VPL population management, HGS evolution,
     and ALNS local search.
+
+    Attributes:
+        dist_matrix: NxN distance matrix.
+        wastes: Dictionary of node wastes.
+        capacity: Maximum vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        params: HVPL algorithm parameters.
+        mandatory_nodes: List of required nodes.
+        n_nodes: Number of nodes excluding depot.
+        nodes: List of node indices (1 to n_nodes).
+        random: Random number generator.
+        aco_solver: ACO solver for initialization.
+        alns_solver: ALNS solver for refinement.
     """
 
     def __init__(
@@ -57,8 +78,7 @@ class HVPLSolver:
         params: HVPLParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize HVPL solver.
+        """Initialize HVPL solver.
 
         Args:
             dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 = depot.
@@ -68,6 +88,9 @@ class HVPLSolver:
             C: Cost per unit of distance traveled.
             params: HVPL algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -111,11 +134,13 @@ class HVPLSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run the Hybrid VPL algorithm.
+        """Run the Hybrid VPL algorithm.
+
+        Args:
+            None.
 
         Returns:
-            Tuple of (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -203,14 +228,16 @@ class HVPLSolver:
     # ------------------------------------------------------------------
 
     def _aco_initialization(self) -> List[List[List[int]]]:
-        """
-        Initialize population using ACO for intelligent construction.
+        """Initialize population using ACO for intelligent construction.
 
         Runs truncated ACO to build high-quality diverse solutions using
         pheromone guidance.
 
+        Args:
+            None.
+
         Returns:
-            List of N initial routing solutions.
+            List[List[List[int]]]: List of N initial routing solutions.
         """
         population = []
 
@@ -229,7 +256,14 @@ class HVPLSolver:
         return self._select_diverse_elite(population, self.params.n_teams)
 
     def _random_construction(self) -> List[List[int]]:
-        """Build a random routing solution."""
+        """Build a random routing solution.
+
+        Args:
+            None.
+
+        Returns:
+            List[List[int]]: A set of routes.
+        """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -241,8 +275,7 @@ class HVPLSolver:
         )
 
     def _select_diverse_elite(self, population: List[List[List[int]]], n_select: int) -> List[List[List[int]]]:
-        """
-        Select N diverse high-quality solutions using bi-criteria ranking.
+        """Select N diverse high-quality solutions using bi-criteria ranking.
 
         Balances fitness and diversity using Pareto-style selection.
 
@@ -251,7 +284,7 @@ class HVPLSolver:
             n_select: Number of solutions to select.
 
         Returns:
-            Selected diverse elite solutions.
+            List[List[List[int]]]: Selected diverse elite solutions.
         """
         if len(population) <= n_select:
             return population[:]
@@ -271,8 +304,7 @@ class HVPLSolver:
     # ------------------------------------------------------------------
 
     def _hgs_evolution(self, active_teams: List[List[List[int]]], active_profits: List[float]) -> List[List[List[int]]]:
-        """
-        Apply HGS genetic operators for population evolution.
+        """Apply HGS genetic operators for population evolution.
 
         Replaces deterministic VPL coaching with crossover and mutation.
 
@@ -281,7 +313,7 @@ class HVPLSolver:
             active_profits: Fitness values for active teams.
 
         Returns:
-            Offspring population.
+            List[List[List[int]]]: Offspring population.
         """
         offspring = []
 
@@ -305,16 +337,31 @@ class HVPLSolver:
         return offspring
 
     def _tournament_select(self, teams: List[List[List[int]]], profits: List[float], k: int = 3) -> List[List[int]]:
-        """Select best solution from k random candidates."""
+        """Select best solution from k random candidates.
+
+        Args:
+            teams: Population of solutions.
+            profits: Fitness values of solutions.
+            k: Tournament size.
+
+        Returns:
+            List[List[int]]: Best solution from the tournament.
+        """
         candidates = self.random.sample(range(len(teams)), min(k, len(teams)))
         best_idx = max(candidates, key=lambda i: profits[i])
         return copy.deepcopy(teams[best_idx])
 
     def _crossover(self, parent1: List[List[int]], parent2: List[List[int]]) -> List[List[int]]:
-        """
-        Order-crossover (OX) style operator for routing solutions.
+        """Order-crossover (OX) style operator for routing solutions.
 
         Combines node selections from both parents.
+
+        Args:
+            parent1: First parent solution.
+            parent2: Second parent solution.
+
+        Returns:
+            List[List[int]]: Recombined child solution.
         """
         nodes_p1 = {node for route in parent1 for node in route}
         nodes_p2 = {node for route in parent2 for node in route}
@@ -357,7 +404,14 @@ class HVPLSolver:
             return copy.deepcopy(parent1)
 
     def _mutate(self, routes: List[List[int]]) -> List[List[int]]:
-        """Mutation operator using destroy-repair."""
+        """Mutation operator using destroy-repair.
+
+        Args:
+            routes: Routing solution to mutate.
+
+        Returns:
+            List[List[int]]: Mutated solution.
+        """
         try:
             n_remove = max(2, int(sum(len(r) for r in routes) * 0.2))
             partial, removed = random_removal(routes, n_remove, self.random)
@@ -389,15 +443,14 @@ class HVPLSolver:
     def _selection(
         self, teams: List[List[List[int]]], profits: List[float]
     ) -> Tuple[List[List[List[int]]], List[float]]:
-        """
-        Select next generation with elitism.
+        """Select next generation with elitism.
 
         Args:
             teams: Combined parent and offspring teams.
             profits: Fitness values.
 
         Returns:
-            Tuple of (selected teams, selected profits).
+            Tuple[List[List[List[int]]], List[float]]: (selected_teams, selected_profits).
         """
         # Sort by profit
         sorted_indices = sorted(range(len(profits)), key=lambda i: profits[i], reverse=True)
@@ -416,15 +469,14 @@ class HVPLSolver:
     def _substitution_phase(
         self, active_teams: List[List[List[int]]], passive_teams: List[List[List[int]]]
     ) -> List[List[List[int]]]:
-        """
-        Inject diversity by replacing weak teams with passive teams.
+        """Inject diversity by replacing weak teams with passive teams.
 
         Args:
             active_teams: Current active teams.
             passive_teams: Reserve passive teams.
 
         Returns:
-            Active teams with injected diversity.
+            List[List[List[int]]]: Active teams with injected diversity.
         """
         n_substitute = max(1, int(self.params.n_teams * self.params.substitution_rate))
 
@@ -441,14 +493,13 @@ class HVPLSolver:
     # ------------------------------------------------------------------
 
     def _alns_coaching(self, teams: List[List[List[int]]]) -> List[List[List[int]]]:
-        """
-        Apply ALNS refinement to each team (coaching session).
+        """Apply ALNS refinement to each team (coaching session).
 
         Args:
             teams: Active teams to coach.
 
         Returns:
-            Coached (refined) teams.
+            List[List[List[int]]]: Coached (refined) teams.
         """
         coached = []
 
@@ -464,12 +515,14 @@ class HVPLSolver:
     # ------------------------------------------------------------------
 
     def _update_pheromones(self, routes: List[List[int]], cost: float) -> None:
-        """
-        Update ACO pheromones with global best solution.
+        """Update ACO pheromones with global best solution.
 
         Args:
             routes: Best routing solution.
             cost: Total cost of best solution.
+
+        Returns:
+            None.
         """
         if not routes or cost <= 0:
             return
@@ -496,14 +549,28 @@ class HVPLSolver:
     # ------------------------------------------------------------------
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit evaluation."""
+        """Net profit evaluation.
+
+        Args:
+            routes: Routing solution.
+
+        Returns:
+            float: Calculated profit.
+        """
         if not routes:
             return 0.0
         revenue = sum(self.wastes.get(node, 0.0) * self.R for route in routes for node in route)
         return revenue - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: Routing solution.
+
+        Returns:
+            float: Calculated travel cost.
+        """
         total = 0.0
         for route in routes:
             if not route:

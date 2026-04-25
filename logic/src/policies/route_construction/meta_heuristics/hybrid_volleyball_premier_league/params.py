@@ -5,9 +5,13 @@ Reference:
     Sun, S., Ma, L., Liu, Y., & Wang, L. (2023). "Volleyball premier league
     algorithm with ACO and ALNS for simultaneous pickup–delivery location
     routing problem."
-"""
 
-from __future__ import annotations
+Attributes:
+    HVPLParams: Configuration dataclass for HVPL.
+
+Example:
+    >>> params = HVPLParams(n_teams=50)
+"""
 
 from dataclasses import dataclass, field
 from typing import Any, Optional
@@ -44,6 +48,9 @@ class HVPLParams:
         elite_size: Number of elite teams preserved.
         aco_init_iterations: ACO iterations for population initialization.
         time_limit: Wall-clock time limit in seconds.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to solve the VRP with profits.
+        profit_aware_operators: Whether to use profit-aware heuristics.
         aco_params: ACO algorithm parameters.
         alns_params: ALNS algorithm parameters.
     """
@@ -70,7 +77,14 @@ class HVPLParams:
     alns_params: Optional[ALNSParams] = field(default_factory=lambda: None)
 
     def __post_init__(self):
-        """Initialize sub-algorithm parameters with defaults if not provided."""
+        """Initialize sub-algorithm parameters with defaults if not provided.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         if self.aco_params is None:
             self.aco_params = KSACOParams(
                 n_ants=20,
@@ -118,8 +132,15 @@ class HVPLParams:
         assert self.elite_size >= 1, "elite_size must be at least 1"
 
     @classmethod
-    def from_config(cls, config: Any) -> HVPLParams:
-        """Create HVPLParams from a configuration object."""
+    def from_config(cls, config: Any) -> "HVPLParams":
+        """Create HVPLParams from a configuration object.
+
+        Args:
+            config: Configuration source (dataclass or dictionary).
+
+        Returns:
+            HVPLParams: Initialized parameter object.
+        """
         return cls(
             n_teams=getattr(config, "n_teams", 30),
             max_iterations=getattr(config, "max_iterations", 100),

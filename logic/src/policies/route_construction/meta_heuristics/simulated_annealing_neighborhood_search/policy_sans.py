@@ -5,6 +5,14 @@ Uses Simulated Annealing for route optimization.
 Supports two engines:
   - 'new': Improved SA with initial solution and iterative refinement
   - 'og': Original look-ahead algorithm for collection (LAC)
+
+Attributes:
+    SANSPolicy: Policy class for the SANS approach.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
+    >>> sans_policy = SANSPolicy()
+    >>> sans_policy.execute()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -34,6 +42,9 @@ class SANSPolicy(BaseRoutingPolicy):
     Supports two engines via the 'engine' parameter:
       - 'new': Improved simulated annealing with initial solution computation
       - 'og': Original look-ahead collection (LAC) algorithm
+
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Union[SANSConfig, Dict[str, Any]]] = None):
@@ -46,6 +57,11 @@ class SANSPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for the SANS policy.
+
+        Returns:
+            Optional[Type]: The configuration class for the SANS policy.
+        """
         return SANSConfig
 
     def _get_config_key(self) -> str:
@@ -67,7 +83,22 @@ class SANSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - SANS requires specialized execute()."""
+        """Not used - SANS requires specialized execute().
+
+        Args:
+            sub_dist_matrix: Distance matrix for the current route.
+            sub_wastes: Dictionary of wastes for the current route.
+            capacity: Vehicle capacity.
+            revenue: Revenue for the current route.
+            cost_unit: Cost per unit of distance.
+            values: Dictionary of values for the current route.
+            mandatory_nodes: List of mandatory nodes.
+            kwargs: Keyword arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]:
+                Tuple of (solution, profit, cost).
+        """
         return [[]], 0.0, 0.0
 
     def execute(
@@ -77,6 +108,13 @@ class SANSPolicy(BaseRoutingPolicy):
         Execute the SANS policy.
 
         Uses specialized data preparation for simulated annealing.
+
+        Args:
+            kwargs: Keyword arguments.
+
+        Returns:
+            Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+                Tuple of (solution, profit, cost, search_context, multi_day_context).
         """
         # Determine engine and parameters from typed config, raw config, or kwargs
         params = SANSParams.from_config(self._config or kwargs.get("config", {}).get("sans", {}))

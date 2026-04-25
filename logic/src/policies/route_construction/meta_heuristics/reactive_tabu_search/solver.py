@@ -235,6 +235,18 @@ class RTSSolver:
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Random removal followed by greedy insertion.
+        Uses random_removal to remove a sequence of nodes and greedy_profit_insertion
+        to insert them back.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+            n (int): The number of nodes to remove.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         if self.params.profit_aware_operators:
             partial, removed = random_removal(routes, n, self.random)
             return greedy_profit_insertion(
@@ -261,6 +273,18 @@ class RTSSolver:
             )
 
     def _llh1(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Worst profit removal followed by regret-2 insertion.
+        Uses worst_profit_removal to remove a sequence of nodes and regret_2_profit_insertion
+        to insert them back.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+            n (int): The number of nodes to remove.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
             return regret_2_profit_insertion(
@@ -287,6 +311,18 @@ class RTSSolver:
             )
 
     def _llh2(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Cluster removal followed by greedy insertion.
+        Uses cluster_removal to remove a sequence of nodes and greedy_profit_insertion
+        to insert them back.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+            n (int): The number of nodes to remove.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         if self.params.profit_aware_operators:
             partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes)
             return greedy_profit_insertion(
@@ -313,6 +349,18 @@ class RTSSolver:
             )
 
     def _llh3(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Worst profit removal followed by greedy insertion.
+        Uses worst_profit_removal to remove a sequence of nodes and greedy_profit_insertion
+        to insert them back.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+            n (int): The number of nodes to remove.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R, self.C)
             return greedy_profit_insertion(
@@ -339,6 +387,18 @@ class RTSSolver:
             )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Random removal followed by regret-2 insertion.
+        Uses random_removal to remove a sequence of nodes and regret_2_profit_insertion
+        to insert them back.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+            n (int): The number of nodes to remove.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         partial, removed = random_removal(routes, n, self.random)
         if self.params.profit_aware_operators:
             return regret_2_profit_insertion(
@@ -364,6 +424,18 @@ class RTSSolver:
             )
 
     def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        Shaw removal followed by regret-2 insertion.
+        Uses shaw_removal to remove a sequence of nodes and regret_2_profit_insertion
+        to insert them back.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+            n (int): The number of nodes to remove.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         if self.params.profit_aware_operators:
             partial, removed = shaw_profit_removal(
                 routes, n, self.dist_matrix, self.wastes, self.R, self.C, rng=self.random
@@ -392,6 +464,18 @@ class RTSSolver:
             )
 
     def _llh6(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """
+        String removal followed by greedy insertion.
+        Uses string_removal to remove a sequence of nodes and greedy_profit_insertion
+        to insert them back.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+            n (int): The number of nodes to remove.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         partial, removed = string_removal(routes, n, self.dist_matrix, rng=self.random)
         if self.params.profit_aware_operators:
             return greedy_profit_insertion(
@@ -421,10 +505,25 @@ class RTSSolver:
     # ------------------------------------------------------------------
 
     def _hash_routes(self, routes: List[List[int]]) -> int:
-        """Compute a hash of the route configuration for cycle detection."""
+        """Compute a hash of the route configuration for cycle detection.
+
+        Args:
+            routes (List[List[int]]): The routes to hash.
+
+        Returns:
+            int: The hash of the routes.
+        """
         return hash(tuple(tuple(r) for r in routes))
 
     def _build_initial_solution(self) -> List[List[int]]:
+        """Build an initial solution using the nearest neighbor heuristic.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+
+        Returns:
+            List[List[int]]: The routes evaluated.
+        """
         routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -437,12 +536,28 @@ class RTSSolver:
         return routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:
+        """Compute the total profit of the routes.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+
+        Returns:
+            float: The total profit of the routes.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
+        """Compute the total cost of the routes.
+
+        Args:
+            routes (List[List[int]]): The routes to evaluate.
+
+        Returns:
+            float: The total cost of the routes.
+        """
         total = 0.0
         for route in routes:
             if not route:

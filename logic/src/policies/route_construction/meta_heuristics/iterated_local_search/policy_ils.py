@@ -1,5 +1,12 @@
-"""
-ILS (Iterated Local Search) Policy Adapter.
+"""ILS (Iterated Local Search) Policy Adapter.
+
+Attributes:
+    ILSPolicy: Policy class for Iterated Local Search.
+
+Example:
+    >>> from logic.src.configs.policies.ils import ILSConfig
+    >>> config = ILSConfig(n_restarts=50)
+    >>> policy = ILSPolicy(config)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -24,22 +31,38 @@ from .solver import ILSSolver
 )
 @RouteConstructorRegistry.register("ils")
 class ILSPolicy(BaseRoutingPolicy):
-    """Iterated Local Search policy class."""
+    """Iterated Local Search policy class.
+
+    Attributes:
+        config: Configuration for the policy.
+    """
 
     def __init__(self, config: Optional[Union[ILSConfig, Dict[str, Any]]] = None):
-        """
-        Initializes the ILS policy.
+        """Initializes the ILS policy.
 
         Args:
             config: Optional configuration dictionary.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the config class.
+
+        Returns:
+            The ILSConfig class.
+        """
         return ILSConfig
 
     def _get_config_key(self) -> str:
+        """Returns the config key.
+
+        Returns:
+            The key 'ils'.
+        """
         return "ils"
 
     def _run_solver(
@@ -53,43 +76,22 @@ class ILSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Iterated Local Search (ILS) metaheuristic solver logic.
+        """Execute the Iterated Local Search (ILS) metaheuristic solver logic.
 
-        ILS is a simple yet powerful metaheuristic that iteratively applies a
-        local search to a perturbed solution. It operates in a loop:
-        - Perturbation: The current solution is modified (e.g., via ruin-and-recreate
-          or random moves) to escape the current local optimum.
-        - Local Search: The perturbed solution is refined using local search
-          operators until a new local optimum is found.
-        - Acceptance: The new local optimum is accepted or rejected based on
-          the objective function.
-        In this implementation, multiple restarts and inner iterations are
-        governed by the configuration parameters.
+        ILS iteratively applies a local search to a perturbed solution.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                ILS parameters (n_restarts, perturbation_strength, inner_iterations).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Mapping of local node indices to waste levels.
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue per kilogram of waste.
+            cost_unit: Monetary cost per kilometer.
+            values: Merged configuration dictionary.
+            mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple of (routes, profit, cost).
         """
         params = ILSParams(
             n_restarts=int(values.get("n_restarts", 30)),

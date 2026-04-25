@@ -3,6 +3,12 @@ HGS-RR Policy Adapter.
 
 Adapts the Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) logic
 to the common policy interface.
+
+Attributes:
+    HGSRRPolicy: Policy adapter class for the HGS-RR hybrid metaheuristic.
+
+Example:
+    >>> policy = HGSRRPolicy(config)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -39,6 +45,10 @@ class HGSRRPolicy(BaseRoutingPolicy):
     gets trapped in complex basins of attraction.
 
     Registry key: ``"hgs_rr"``
+
+    Attributes:
+        _config: Optional configuration dataclass for this policy.
+        _seed: Random seed for reproducibility.
     """
 
     def __init__(self, config: Optional[Union[HGSRRConfig, Dict[str, Any]]] = None):
@@ -46,15 +56,33 @@ class HGSRRPolicy(BaseRoutingPolicy):
 
         Args:
             config: HGSRRConfig dataclass, raw dict from YAML, or None.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return config key for HGS-RR.
+
+        Args:
+            None.
+
+        Returns:
+            Optional[Type]: HGSRRConfig class.
+        """
         return HGSRRConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for HGS-RR."""
+        """Return config key for HGS-RR.
+
+        Args:
+            None.
+
+        Returns:
+            str: "hgs_rr".
+        """
         return "hgs_rr"
 
     def _run_solver(
@@ -80,18 +108,18 @@ class HGSRRPolicy(BaseRoutingPolicy):
         local search, allowing for aggressive leaps across the solution space.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+            sub_dist_matrix: Symmetric distance matrix for the current
                 sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+            sub_wastes: Mapping of local node indices to their
                 current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste collected.
+            cost_unit: Monetary cost incurred per kilometer traveled.
+            values: Merged configuration dictionary containing
                 HGS-RR parameters, ruin operators, and repair heuristics.
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
+            mandatory_nodes: Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for
@@ -138,12 +166,12 @@ class HGSRRPolicy(BaseRoutingPolicy):
         )
 
         solver = HGSRRSolver(
-            sub_dist_matrix,
-            sub_wastes,
-            capacity,
-            revenue,
-            cost_unit,
-            params,
-            mandatory_nodes,
+            dist_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            capacity=capacity,
+            R=revenue,
+            C=cost_unit,
+            params=params,
+            mandatory_nodes=mandatory_nodes,
         )
         return solver.solve()

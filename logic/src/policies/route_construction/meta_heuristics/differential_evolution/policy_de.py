@@ -1,18 +1,13 @@
-"""
-Policy adapter for Memetic Differential Evolution (MDE/rand/1/exp).
+r"""Policy adapter for Memetic Differential Evolution (MDE/rand/1/exp).
 
 Provides the interface between the MDE solver and the policy factory system.
 
 Attributes:
-    DEConfig (Type): Configuration schema for the DE solver.
-    BaseRoutingPolicy (Type): Abstract base for routing policies.
-    RouteConstructorRegistry (Type): Global registry for constructors.
+    DEPolicyAdapter: Policy adapter for Memetic Differential Evolution.
 
 Example:
-    >>> from logic.src.configs.policies.de import DEConfig
-    >>> config = DEConfig(pop_size=50)
-    >>> policy = DEPolicyAdapter(config)
-    >>> routes = policy.solve(problem)
+    >>> from logic.src.policies.route_construction.meta_heuristics.differential_evolution.policy_de import DEPolicyAdapter
+    >>> policy = DEPolicyAdapter()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -29,8 +24,7 @@ from .solver import DESolver
 
 @RouteConstructorRegistry.register("de")
 class DEPolicyAdapter(BaseRoutingPolicy):
-    """
-    Policy adapter for Memetic Differential Evolution (MDE).
+    """Policy adapter for Memetic Differential Evolution (MDE).
 
     MDE hybridizes the global exploratory power of DE/rand/1/exp (Storn & Price,
     1997) with memetic local search for discrete optimization. The adapter
@@ -47,17 +41,18 @@ class DEPolicyAdapter(BaseRoutingPolicy):
         Journal of Global Optimization, 11(4), 341-359.
 
     Attributes:
-        solver (DESolver): Internal solver instance.
-        params (DEParams): Algorithm parameters.
+        solver: Internal solver instance.
+        params: Algorithm parameters.
+
+    Example:
+        >>> policy = DEPolicyAdapter()
     """
 
     def __init__(self, config: Optional[Union[DEConfig, Dict[str, Any]]] = None):
-        """
-        Initialize DE policy adapter.
+        """Initialize DE policy adapter.
 
         Args:
-            config (Optional[Union[DEConfig, Dict[str, Any]]]): DE configuration
-                parameters. If None, uses defaults.
+            config: DE configuration parameters. If None, uses defaults.
         """
         super().__init__(config)
 
@@ -101,28 +96,17 @@ class DEPolicyAdapter(BaseRoutingPolicy):
         resulting tours.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                DE parameters (pop_size, mutation_factor, crossover_rate).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            kwargs (Any): Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Square distance matrix.
+            sub_wastes: Node fill levels.
+            capacity: Vehicle capacity.
+            revenue: Revenue per kg.
+            cost_unit: Cost per km.
+            values: Merged config dictionary.
+            mandatory_nodes: Nodes that must be visited.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple containing (routes, profit, cost).
         """
         params = DEParams(
             pop_size=values.get("pop_size", 50),

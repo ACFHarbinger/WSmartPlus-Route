@@ -5,9 +5,13 @@ Reference:
     Gendreau, M., Hertz, A., & Laporte, G. (1992).
     "New Insertion and Postoptimization Procedures for the Traveling Salesman Problem"
     Operations Research, 40(6), 1086-1094.
-"""
 
-from __future__ import annotations
+Attributes:
+    GENIUSParams: Dataclass for configuration parameters.
+
+Example:
+    >>> params = GENIUSParams(neighborhood_size=5, n_iterations=2)
+"""
 
 import dataclasses
 from dataclasses import dataclass
@@ -46,6 +50,10 @@ class GENIUSParams:
         random_us_sampling: Whether to use random sampling (True) or deterministic
             p-neighborhood search (False) for US operators. Default: False for
             strict adherence to Gendreau et al. (1992).
+        seed: Random seed for reproducibility.
+
+    Example:
+        >>> params = GENIUSParams(neighborhood_size=5)
     """
 
     neighborhood_size: int = 5
@@ -59,8 +67,16 @@ class GENIUSParams:
     seed: Optional[int] = None
 
     @classmethod
-    def from_config(cls, config: Any) -> GENIUSParams:
-        """Build parameters from a configuration object."""
+    def from_config(cls, config: Any) -> "GENIUSParams":
+        """
+        Build parameters from a configuration object.
+
+        Args:
+            config: Configuration object (dict or Hydra-style object).
+
+        Returns:
+            GENIUSParams: Initialized parameter object.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
 

@@ -1,5 +1,12 @@
 """
 Multi-Period Particle Swarm Optimization (MP-PSO) policy.
+
+Attributes:
+    MultiPeriodPSOPolicy: Policy class for the MP-PSO approach.
+
+Example:
+    >>> policy = MultiPeriodPSOPolicy(config)
+    >>> sol, plan, meta = policy._run_multi_period_solver(problem, multi_day_ctx)
 """
 
 import copy
@@ -37,16 +44,26 @@ from logic.src.utils.policy.wrappers import (
 class MultiPeriodPSOPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Multi-Period Particle Swarm Optimization (PSO) for Discrete Routing.
+
     A particle is a sequence of routes over D days.
     Velocities are swap sequences.
+
+    Attributes:
+        params: MPPSO specific parameters.
+        swarm_size: Number of particles in the swarm.
+        iters: Number of iterations.
+        seed: Random seed.
+        rng: Random number generator.
     """
 
     def __init__(self, config: Any = None):
-        """
-        Initializes the Multi-Period PSO policy.
+        """Initializes the Multi-Period PSO policy.
 
         Args:
             config: Optional configuration dictionary or Hydra config.
+
+        Returns:
+            None.
         """
         super().__init__(config)
         self.params = MP_PSO_Params.from_config(config)
@@ -56,6 +73,15 @@ class MultiPeriodPSOPolicy(BaseMultiPeriodRoutingPolicy):
         self.rng = random.Random(self.seed)
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """Evaluate the multi-period plan and return total profit.
+
+        Args:
+            plan: The multi-period routing plan.
+            problem: The problem context.
+
+        Returns:
+            float: Total net profit across all periods.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):
@@ -65,11 +91,29 @@ class MultiPeriodPSOPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _subtract_plans(self, p1: List[List[List[int]]], p2: List[List[List[int]]]) -> List[tuple]:
+        """Subtract two plans to find the swap sequence.
+
+        Args:
+            p1: Target multi-period plan.
+            p2: Current multi-period plan.
+
+        Returns:
+            List[tuple]: List of (day, i, j) swaps needed to make p2 look like p1.
+        """
         # returns list of (day, i, j) swaps needed to make p2 look like p1
         # very simplified dummy logic
         return []
 
     def _add_velocity(self, plan: List[List[List[int]]], vel: List[tuple]) -> List[List[List[int]]]:
+        """Apply a swap sequence velocity to a plan.
+
+        Args:
+            plan: The current multi-period plan.
+            vel: The velocity as a swap sequence.
+
+        Returns:
+            List[List[List[int]]]: The updated multi-period plan.
+        """
         # applies swaps
         return plan
 
@@ -78,8 +122,7 @@ class MultiPeriodPSOPolicy(BaseMultiPeriodRoutingPolicy):
         problem: ProblemContext,
         multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
-        """
-        Execute the Particle Swarm Optimization (PSO) solver logic.
+        """Execute the Particle Swarm Optimization (PSO) solver logic.
 
         PSO is a computational method that optimizes a problem by iteratively
         trying to improve a candidate solution with regard to a given measure

@@ -1,5 +1,11 @@
 """
 Initialization module for HGS-ADC Generation 0 via Multi-Period Clarke-Wright Savings.
+
+Attributes:
+    generate_initial_individual: Creates an Individual using C-W savings.
+
+Example:
+    >>> ind = generate_initial_individual(N, T, base_wastes, daily_increments, dist, capacity)
 """
 
 import numpy as np
@@ -18,6 +24,17 @@ def generate_initial_individual(  # noqa: C901
     2. Compute loads.
     3. Construct daily routes using C-W savings.
     4. Form giant tours by concatenating the routes.
+
+    Args:
+        N: Number of nodes.
+        T: Planning horizon in days.
+        base_wastes: Initial waste quantities.
+        daily_increments: Expected daily accumulation.
+        dist: Distance matrix.
+        capacity: Vehicle capacity.
+
+    Returns:
+        Individual: The newly generated individual.
     """
     # 1. Random pattern assignment
     # Search space is [0, 2^T - 1]. Depot (0) does not matter, give it 0 or full.

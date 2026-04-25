@@ -43,17 +43,20 @@ from logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.par
 
 
 class FASolver:
-    """
-    Discrete Firefly Algorithm solver for VRPP.
+    """Discrete Firefly Algorithm solver for VRPP.
 
     Attributes:
-        dist_matrix (np.ndarray): Symmetric distance matrix.
-        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-        capacity (float): Maximum vehicle collection capacity.
-        R (float): Revenue per kg of waste.
-        C (float): Cost per kg traveled.
-        params (FAParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of node indices.
+        random: Random number generator.
+        ls: Local search optimizer instance.
     """
 
     def __init__(
@@ -69,13 +72,16 @@ class FASolver:
         """Initializes the Discrete Firefly Algorithm solver.
 
         Args:
-            dist_matrix (np.ndarray): Symmetric distance matrix.
-            wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-            capacity (float): Maximum vehicle collection capacity.
-            R (float): Revenue per kg of waste.
-            C (float): Cost per km traveled.
-            params (FAParams): Algorithm-specific parameters (beta0, gamma).
-            mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+            dist_matrix: Symmetric distance matrix.
+            wastes: Mapping of bin IDs to waste quantities.
+            capacity: Maximum vehicle collection capacity.
+            R: Revenue per kg of waste.
+            C: Cost per km traveled.
+            params: Algorithm-specific parameters (beta0, gamma).
+            mandatory_nodes: Nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -110,11 +116,10 @@ class FASolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run the Discrete Firefly Algorithm.
+        """Run the Discrete Firefly Algorithm.
 
         Returns:
-            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
+            Tuple of (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -186,11 +191,10 @@ class FASolver:
     # ------------------------------------------------------------------
 
     def _build_random_solution(self) -> List[List[int]]:
-        """Order-dependent sequential construction (matches ALNS style).
+        """Order-dependent sequential construction.
 
-        Random node ordering causes different capacity cutoffs, creating
-        genuinely diverse initial solutions. Uses self.C for the profitability
-        check so that economics are consistent with the solver's _evaluate().
+        Returns:
+            Initial set of routes.
         """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
@@ -203,18 +207,14 @@ class FASolver:
         )
 
     def _swap_distance(self, routes_a: List[List[int]], routes_b: List[List[int]]) -> int:
-        """
-        Compute discrete swap distance between two routing solutions.
-
-        Defined as the number of edges present in one solution but not the
-        other (symmetric edge set difference).
+        """Compute discrete swap distance between two routing solutions.
 
         Args:
             routes_a: First route set.
             routes_b: Second route set.
 
         Returns:
-            Integer swap distance ≥ 0.
+            Integer swap distance.
         """
         edges_a = self._edge_set(routes_a)
         edges_b = self._edge_set(routes_b)
@@ -222,7 +222,14 @@ class FASolver:
 
     @staticmethod
     def _edge_set(routes: List[List[int]]) -> set:
-        """Extract the set of directed edges (including depot arcs) from routes."""
+        """Extract the set of directed edges.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Set of (u, v) tuples.
+        """
         edges = set()
         for route in routes:
             if not route:
@@ -234,12 +241,7 @@ class FASolver:
         return edges
 
     def _attract(self, dim_routes: List[List[int]], bright_routes: List[List[int]]) -> List[List[int]]:
-        """
-        Move dim firefly toward bright firefly via Ai & Kachitvichyanukul (2009)
-        node extraction and guided insertion.
-
-        Favourability score per candidate node n:
-            score(n) = alpha_p * profit(n) + beta_w * willingness(n) - gamma_c * insertion_cost(n)
+        """Move dim firefly toward bright firefly.
 
         Args:
             dim_routes: Routes of the less bright firefly.
@@ -321,7 +323,14 @@ class FASolver:
         return self.ls.optimize(current_routes)
 
     def _partition_flat(self, nodes: List[int]) -> List[List[int]]:
-        """Partition flat nodes into feasible routes."""
+        """Partition flat nodes into feasible routes.
+
+        Args:
+            nodes: List of node indices.
+
+        Returns:
+            Grouped routes.
+        """
         routes: List[List[int]] = []
         curr: List[int] = []
         load = 0.0
@@ -346,15 +355,14 @@ class FASolver:
         return routes
 
     def _best_insertion_cost(self, node: int, routes: List[List[int]]) -> float:
-        """
-        Compute the minimum insertion cost of a node into existing routes.
+        """Compute the minimum insertion cost of a node.
 
         Args:
             node: Node index to insert.
             routes: Existing routes.
 
         Returns:
-            Minimum additional distance required to insert the node.
+            Minimum additional distance required.
         """
         min_cost = float("inf")
         for route in routes:
@@ -370,8 +378,7 @@ class FASolver:
         return max(0.0, min_cost)
 
     def _random_walk(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Random walk: remove one node randomly and reinsert greedily.
+        """Random walk: remove one node randomly and reinsert greedily.
 
         Args:
             routes: Current routes.
@@ -412,14 +419,28 @@ class FASolver:
             return copy.deepcopy(routes)
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Calculated net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Total distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

@@ -1,12 +1,45 @@
 """
 Simulated Annealing loop for the Look-Ahead policy.
+
+Attributes:
+    run_annealing_loop: Execute the simulated annealing loop to find an improved solution.
+    _update_removed_bins: Internal helper to update removed bins set on move acceptance.
+
+Example:
+    >>> import random
+    >>> import numpy as np
+    >>> import pandas as pd
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> data = pd.DataFrame({
+    ...     "#bin": [0, 1, 2, 3, 4],
+    ...     "w": [0, 1, 2, 3, 4],
+    ... })
+    >>> distance_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+    >>> mandatory_bins = [1]
+    >>> values = {
+    ...     "perc_bins_can_overflow": 0.5,
+    ...     "E": 10,
+    ...     "B": 10,
+    ... }
+    >>> n_bins = 5
+    >>> chosen_combination = (10, 10, 0.5, 0.1, 0.1, 0.1, 0.1)
+    >>> time_limit = 10.0
+    >>> rng = random.Random(42)
+    >>> np_rng = np.random.default_rng(42)
+    >>> optimized_solution, removed_bins = run_annealing_loop(
+    ...     routes, data, distance_matrix, mandatory_bins, values, n_bins, chosen_combination, time_limit, rng, np_rng
+    ... )
+    >>> optimized_solution
+    [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> removed_bins
+    []
 """
 
 import math
 import random
 import time
 from copy import deepcopy
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -172,8 +205,35 @@ def run_annealing_loop(
     return previous_sol, removed_bins
 
 
-def _update_removed_bins(proc, removed, b_rem, b_add, bs_rem_rnd, bs_rem_con, bs_add_rnd, bs_add_con, bs_rnd, bs_con):
-    """Internal helper to update removed bins set on move acceptance."""
+def _update_removed_bins(
+    proc: str,
+    removed: List[int],
+    b_rem: Optional[int],
+    b_add: Optional[int],
+    bs_rem_rnd: List[int],
+    bs_rem_con: List[int],
+    bs_add_rnd: List[int],
+    bs_add_con: List[int],
+    bs_rnd: List[int],
+    bs_con: List[int],
+):
+    """Internal helper to update removed bins set on move acceptance.
+
+    Args:
+        proc: The procedure that was applied.
+        removed: Set of removed bins.
+        b_rem: Bin to remove.
+        b_add: Bin to add.
+        bs_rem_rnd: Set of bins to remove randomly.
+        bs_rem_con: Set of bins to remove consecutively.
+        bs_add_rnd: Set of bins to add randomly.
+        bs_add_con: Set of bins to add consecutively.
+        bs_rnd: Set of bins to add.
+        bs_con: Set of bins to add.
+
+    Returns:
+        None
+    """
     if proc == "Drop bin" and b_rem is not None:
         removed.remove(b_rem)
     elif proc == "Add bin" and b_add is not None:
@@ -198,8 +258,35 @@ def _update_removed_bins(proc, removed, b_rem, b_add, bs_rem_rnd, bs_rem_con, bs
             removed.append(u)
 
 
-def _rollback_removed_bins(proc, removed, b_rem, b_add, bs_rem_rnd, bs_rem_con, bs_add_rnd, bs_add_con, bs_rnd, bs_con):
-    """Internal helper to rollback removed bins set on move rejection."""
+def _rollback_removed_bins(
+    proc: str,
+    removed: List[int],
+    b_rem: Optional[int],
+    b_add: Optional[int],
+    bs_rem_rnd: List[int],
+    bs_rem_con: List[int],
+    bs_add_rnd: List[int],
+    bs_add_con: List[int],
+    bs_rnd: List[int],
+    bs_con: List[int],
+):
+    """Internal helper to rollback removed bins set on move rejection.
+
+    Args:
+        proc: The procedure that was applied.
+        removed: Set of removed bins.
+        b_rem: Bin to remove.
+        b_add: Bin to add.
+        bs_rem_rnd: Set of bins to remove randomly.
+        bs_rem_con: Set of bins to remove consecutively.
+        bs_add_rnd: Set of bins to add randomly.
+        bs_add_con: Set of bins to add consecutively.
+        bs_rnd: Set of bins to add.
+        bs_con: Set of bins to add.
+
+    Returns:
+        None
+    """
     # Note: In the original code, some logic was slightly inconsistent or redundant.
     # We follow the original route_search.py logic closely.
     if proc == "Drop bin" and b_rem is not None:

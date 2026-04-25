@@ -1,37 +1,12 @@
 """
 Memetic Algorithm with Island Model (MA-IM) for VRPP.
 
-This solver is FUNCTIONALLY IDENTICAL to the Soccer League Competition (SLC)
-algorithm. It uses standard Genetic Algorithm and Evolutionary terminology
-instead of sports metaphors.
-
-Terminology mapping (SLC → MA-IM):
-- Teams → Islands (sub-populations)
-- Players → Chromosomes/Individuals
-- Seasons → Generations
-- Matches → Fitness-based selection tournaments
-- Superstar → Global best solution
-
-Algorithm structure:
-    1. Initialize K islands with N chromosomes each
-    2. For each generation:
-        a. Intra-island evolution: Each chromosome is perturbed and refined
-        b. Inter-island competition: Probabilistic recombination between islands
-        c. Stagnation management: Regenerate stagnant islands
-        d. Track global best solution
-
 Attributes:
-    MemeticAlgorithmIslandModelSolver (Type): Core solver class for MA-IM.
-    MemeticAlgorithmIslandModelParams (Type): Parameter dataclass for the solver.
+    MemeticAlgorithmIslandModelSolver: Core solver class for MA-IM.
 
 Example:
     >>> solver = MemeticAlgorithmIslandModelSolver(dist_matrix, wastes, capacity, R, C, params)
     >>> routes, profit, cost = solver.solve()
-
-References:
-    Moosavian, N., & Rppdsarou, B. K. (2014).
-    "Soccer league competition algorithm: A novel meta-heuristic
-    algorithm for optimal design of water distribution networks."
 """
 
 import copy
@@ -60,13 +35,17 @@ class MemeticAlgorithmIslandModelSolver:
     EXACT COPY of SLC with rigorous nomenclature.
 
     Attributes:
-        dist_matrix (np.ndarray): Symmetric distance matrix.
-        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-        capacity (float): Maximum vehicle collection capacity.
-        R (float): Revenue per kg of waste.
-        C (float): Cost per kg traveled.
-        params (MemeticAlgorithmIslandModelParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        random: Random number generator.
+        ls: Local search optimizer.
     """
 
     def __init__(
@@ -79,8 +58,7 @@ class MemeticAlgorithmIslandModelSolver:
         params: MemeticAlgorithmIslandModelParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initializes the Memetic Algorithm Island Model solver.
+        """Initializes the Memetic Algorithm Island Model solver.
 
         Args:
             dist_matrix: Distance matrix between nodes.
@@ -90,6 +68,9 @@ class MemeticAlgorithmIslandModelSolver:
             C: Cost per unit distance.
             params: MA-IM parameters.
             mandatory_nodes: Optional list of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -124,8 +105,7 @@ class MemeticAlgorithmIslandModelSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Memetic Island Model algorithm.
+        """Execute the Memetic Island Model algorithm.
 
         Returns:
             Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
@@ -216,7 +196,14 @@ class MemeticAlgorithmIslandModelSolver:
     # ------------------------------------------------------------------
 
     def _new_island(self) -> List[Tuple[List[List[int]], float]]:
-        """Create a fresh island of `island_size` chromosomes."""
+        """Create a fresh island of `island_size` chromosomes.
+
+        Args:
+            None.
+
+        Returns:
+            List[Tuple[List[List[int]], float]]: A list of chromosome-fitness pairs.
+        """
         island = []
         for _ in range(self.params.island_size):
             routes = self._build_random_solution()
@@ -225,7 +212,14 @@ class MemeticAlgorithmIslandModelSolver:
         return island
 
     def _build_random_solution(self) -> List[List[int]]:
-        """Order-dependent sequential construction (matches ALNS style)."""
+        """Order-dependent sequential construction (matches ALNS style).
+
+        Args:
+            None.
+
+        Returns:
+            List[List[int]]: A randomly constructed routing solution.
+        """
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -239,7 +233,14 @@ class MemeticAlgorithmIslandModelSolver:
         return optimized_routes
 
     def _mutate(self, routes: List[List[int]]) -> List[List[int]]:
-        """Mutation operator using destroy-repair."""
+        """Mutation operator using destroy-repair.
+
+        Args:
+            routes: The routing solution to mutate.
+
+        Returns:
+            List[List[int]]: The mutated and refined routing solution.
+        """
         try:
             partial, removed = random_removal(routes, self.params.n_removal, self.random)
             if self.params.profit_aware_operators:
@@ -270,8 +271,7 @@ class MemeticAlgorithmIslandModelSolver:
             return copy.deepcopy(routes)
 
     def _recombine(self, loser_routes: List[List[int]], winner_routes: List[List[int]]) -> List[List[int]]:
-        """
-        Recombine loser's route with winner's best route via OX-inspired crossover.
+        """Recombine loser's route with winner's best route via OX-inspired crossover.
 
         Extracts a random segment from the winner's flat tour and inserts
         unvisited nodes from that segment into the loser's solution.
@@ -281,7 +281,7 @@ class MemeticAlgorithmIslandModelSolver:
             winner_routes: Winner's best chromosome route set.
 
         Returns:
-            New child routing solution.
+            List[List[int]]: New child routing solution.
         """
         winner_flat = [n for r in winner_routes for n in r]
         loser_flat = [n for r in loser_routes for n in r]
@@ -327,7 +327,14 @@ class MemeticAlgorithmIslandModelSolver:
         return self.ls.optimize(child_routes)
 
     def _global_best(self, islands: List[List[Tuple[List[List[int]], float]]]) -> Tuple[List[List[int]], float]:
-        """Return the best (routes, profit) across all islands."""
+        """Return the best (routes, profit) across all islands.
+
+        Args:
+            islands: The set of all islands and their chromosomes.
+
+        Returns:
+            Tuple[List[List[int]], float]: The best routing solution and its profit.
+        """
         best_p = -float("inf")
         best_r: List[List[int]] = []
         for island in islands:
@@ -338,14 +345,28 @@ class MemeticAlgorithmIslandModelSolver:
         return copy.deepcopy(best_r), best_p
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: The routing solution to evaluate.
+
+        Returns:
+            float: The net profit (revenue - cost).
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: The routing solution to calculate distance for.
+
+        Returns:
+            float: Total distance traveled.
+        """
         total = 0.0
         for route in routes:
             if not route:

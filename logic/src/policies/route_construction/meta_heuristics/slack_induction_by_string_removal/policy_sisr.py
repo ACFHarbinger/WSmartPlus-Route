@@ -2,6 +2,13 @@
 SISR Policy Adapter.
 
 Adapts the Slack Induction by String Removal (SISR) logic to the common policy interface.
+
+Attributes:
+    SISRPolicy: SISR policy class.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr import SISRPolicy
+    >>> policy = SISRPolicy()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -28,6 +35,9 @@ from .solver import SISRSolver
 class SISRPolicy(BaseRoutingPolicy):
     """
     Policy adapter for the SISR metaheuristic.
+
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Union[SISRConfig, Dict[str, Any]]] = None):
@@ -40,9 +50,25 @@ class SISRPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return config class for SISR.
+
+        Args:
+            None.
+
+        Returns:
+            Optional[Type]: SISRConfig class.
+        """
         return SISRConfig
 
     def _get_config_key(self) -> str:
+        """Return config key for SISR.
+
+        Args:
+            None.
+
+        Returns:
+            str: "sisr".
+        """
         return "sisr"
 
     def _run_solver(
@@ -79,7 +105,7 @@ class SISRPolicy(BaseRoutingPolicy):
                 SISR parameters (max_string_len, avg_string_len, blink_rate).
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

@@ -3,10 +3,17 @@ Ruin-and-Recreate operators with adaptive selection mechanism.
 
 This module implements the destroy/repair paradigm integrated with HGS,
 including adaptive operator weight management using scoring feedback.
+
+Attributes:
+    AdaptiveOperatorManager: Manages adaptive selection of operators.
+    RuinRecreateOperator: Applies destroy/repair operators to individuals.
+
+Example:
+    >>> manager = AdaptiveOperatorManager(["random_removal"], ["greedy_insertion"])
 """
 
 import random
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
@@ -23,12 +30,16 @@ class AdaptiveOperatorManager:
     Manages adaptive selection of destroy/repair operators using a scoring mechanism.
 
     Attributes:
-        destroy_weights (Dict[str, float]): Current weights for destroy operators.
-        repair_weights (Dict[str, float]): Current weights for repair operators.
-        destroy_scores (Dict[str, float]): Accumulated scores for destroy operators.
-        repair_scores (Dict[str, float]): Accumulated scores for repair operators.
-        destroy_counts (Dict[str, int]): Usage counts for destroy operators.
-        repair_counts (Dict[str, int]): Usage counts for repair operators.
+        reaction_factor: Rate of weight updates (0.0-1.0).
+        decay_parameter: Exponential decay rate for weights (0.0-1.0).
+        destroy_weights: Current weights for destroy operators.
+        repair_weights: Current weights for repair operators.
+        destroy_scores: Accumulated scores for destroy operators.
+        repair_scores: Accumulated scores for repair operators.
+        destroy_counts: Usage counts for destroy operators.
+        repair_counts: Usage counts for repair operators.
+        segment_size: Number of iterations per adaptation segment.
+        current_iteration: Counter for iterations in current segment.
     """
 
     def __init__(
@@ -38,14 +49,16 @@ class AdaptiveOperatorManager:
         reaction_factor: float = 0.1,
         decay_parameter: float = 0.95,
     ):
-        """
-        Initialize the adaptive operator manager.
+        """Initialize the adaptive operator manager.
 
         Args:
             destroy_operators: List of destroy operator names.
             repair_operators: List of repair operator names.
             reaction_factor: Rate of weight updates (0.0-1.0).
             decay_parameter: Exponential decay rate for weights (0.0-1.0).
+
+        Returns:
+            None.
         """
         self.reaction_factor = reaction_factor
         self.decay_parameter = decay_parameter
@@ -67,14 +80,13 @@ class AdaptiveOperatorManager:
         self.current_iteration = 0
 
     def select_operators(self, rng: random.Random) -> Tuple[str, str]:
-        """
-        Select destroy and repair operators using roulette wheel selection.
+        """Select destroy and repair operators using roulette wheel selection.
 
         Args:
             rng: Random number generator.
 
         Returns:
-            Tuple of (destroy_operator_name, repair_operator_name).
+            Tuple[str, str]: Names of selected destroy and repair operators.
         """
         destroy_op = self._roulette_wheel(self.destroy_weights, rng)
         repair_op = self._roulette_wheel(self.repair_weights, rng)
@@ -85,13 +97,15 @@ class AdaptiveOperatorManager:
         return destroy_op, repair_op
 
     def update_scores(self, destroy_op: str, repair_op: str, score: float) -> None:
-        """
-        Update operator scores for the current segment.
+        """Update operator scores for the current segment.
 
         Args:
             destroy_op: Name of the destroy operator used.
             repair_op: Name of the repair operator used.
             score: Performance score (higher is better).
+
+        Returns:
+            None.
         """
         self.destroy_scores[destroy_op] += score
         self.repair_scores[repair_op] += score
@@ -104,7 +118,14 @@ class AdaptiveOperatorManager:
             self.current_iteration = 0
 
     def _end_segment(self) -> None:
-        """Update weights at the end of a segment using the reaction factor."""
+        """Update weights at the end of a segment using the reaction factor.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         for op in self.destroy_weights:
             if self.destroy_counts[op] > 0:
                 avg_score = self.destroy_scores[op] / self.destroy_counts[op]
@@ -124,15 +145,24 @@ class AdaptiveOperatorManager:
             self.repair_counts[op] = 0
 
     def decay_weights(self) -> None:
-        """Deprecated in favor of segment-based updates, but kept for compatibility."""
+        """Deprecated in favor of segment-based updates.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
         pass
 
     def entropy(self) -> float:
-        """
-        Compute entropy of operator weight distributions (measure of diversity).
+        """Compute entropy of operator weight distributions.
+
+        Args:
+            None.
 
         Returns:
-            Combined entropy of destroy and repair weights.
+            float: Combined entropy of destroy and repair weights.
         """
         destroy_entropy = self._compute_entropy(list(self.destroy_weights.values()))
         repair_entropy = self._compute_entropy(list(self.repair_weights.values()))
@@ -140,7 +170,14 @@ class AdaptiveOperatorManager:
 
     @staticmethod
     def _compute_entropy(weights: List[float]) -> float:
-        """Compute Shannon entropy of a probability distribution."""
+        """Compute Shannon entropy of a probability distribution.
+
+        Args:
+            weights: List of weights to compute entropy for.
+
+        Returns:
+            float: Shannon entropy.
+        """
         total = sum(weights)
         if total == 0:
             return 0.0
@@ -149,7 +186,15 @@ class AdaptiveOperatorManager:
 
     @staticmethod
     def _roulette_wheel(weights: Dict[str, float], rng: random.Random) -> str:
-        """Roulette wheel selection based on weights."""
+        """Roulette wheel selection based on weights.
+
+        Args:
+            weights: Mapping of item names to weights.
+            rng: Random number generator.
+
+        Returns:
+            str: Selected item name.
+        """
         total = sum(weights.values())
         if total == 0:
             return rng.choice(list(weights.keys()))
@@ -170,6 +215,16 @@ class RuinRecreateOperator:
 
     This class integrates ALNS-style ruin-and-recreate with the HGS framework,
     converting between giant tour representation and route-based representation.
+
+    Attributes:
+        dist_matrix: NxN distance matrix.
+        wastes: Dictionary of node wastes.
+        capacity: Maximum vehicle capacity.
+        revenue: Revenue multiplier.
+        cost_unit: Cost multiplier.
+        params: HGS-RR parameters.
+        split_manager: Giant tour splitting evaluator.
+        rng: Random number generator.
     """
 
     def __init__(
@@ -180,10 +235,9 @@ class RuinRecreateOperator:
         revenue: float,
         cost_unit: float,
         params: HGSRRParams,
-        split_manager,
+        split_manager: Any,
     ):
-        """
-        Initialize the ruin-recreate operator.
+        """Initialize the ruin-recreate operator.
 
         Args:
             dist_matrix: Distance matrix.
@@ -193,6 +247,9 @@ class RuinRecreateOperator:
             cost_unit: Cost per distance unit.
             params: HGSRR parameters.
             split_manager: Split algorithm manager for evaluating giant tours.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -209,8 +266,7 @@ class RuinRecreateOperator:
         destroy_operator: str,
         repair_operator: str,
     ) -> Individual:
-        """
-        Apply ruin-and-recreate to an individual.
+        """Apply ruin-and-recreate to an individual.
 
         Args:
             individual: The individual to mutate.
@@ -218,7 +274,7 @@ class RuinRecreateOperator:
             repair_operator: Name of the repair operator to use.
 
         Returns:
-            New mutated individual.
+            Individual: New mutated individual.
         """
         # 1. Convert giant tour to routes
         evaluate(individual, self.split_manager)
@@ -264,8 +320,7 @@ class RuinRecreateOperator:
     def _apply_destroy(
         self, routes: List[List[int]], operator_name: str, n_remove: int
     ) -> Tuple[List[List[int]], List[int]]:
-        """
-        Apply a destroy operator to the routes.
+        """Apply a destroy operator to the routes.
 
         Args:
             routes: List of routes.
@@ -273,7 +328,7 @@ class RuinRecreateOperator:
             n_remove: Number of nodes to remove.
 
         Returns:
-            Tuple of (modified routes, list of removed node IDs).
+            Tuple[List[List[int]], List[int]]: Modified routes and removed node IDs.
         """
         # Map operator name to function
         operator_map = {
@@ -336,8 +391,7 @@ class RuinRecreateOperator:
                 return routes, []
 
     def _apply_repair(self, routes: List[List[int]], removed_nodes: List[int], operator_name: str) -> List[List[int]]:
-        """
-        Apply a repair operator to reinsert removed nodes.
+        """Apply a repair operator to reinsert removed nodes.
 
         Args:
             routes: Current (partial) routes.
@@ -345,7 +399,7 @@ class RuinRecreateOperator:
             operator_name: Name of the repair operator.
 
         Returns:
-            Repaired routes.
+            List[List[int]]: Repaired routes.
         """
         if not removed_nodes:
             return routes
@@ -407,14 +461,13 @@ class RuinRecreateOperator:
 
     @staticmethod
     def _routes_to_giant_tour(routes: List[List[int]]) -> List[int]:
-        """
-        Convert routes to a giant tour (concatenated node sequence).
+        """Convert routes to a giant tour.
 
         Args:
             routes: List of routes.
 
         Returns:
-            Flattened list of node IDs.
+            List[int]: Flattened list of node IDs.
         """
         giant_tour = []
         for route in routes:

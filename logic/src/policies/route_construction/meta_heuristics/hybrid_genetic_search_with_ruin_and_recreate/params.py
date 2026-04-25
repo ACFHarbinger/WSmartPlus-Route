@@ -3,6 +3,12 @@ Parameters for Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR).
 
 This module defines the configuration parameters for the HGS-RR algorithm,
 extending standard HGS with adaptive destroy/repair operator management.
+
+Attributes:
+    HGSRRParams: Configuration parameters for the HGS-RR algorithm.
+
+Example:
+    >>> params = HGSRRParams(time_limit=60.0)
 """
 
 from dataclasses import dataclass, field
@@ -15,36 +21,31 @@ class HGSRRParams:
     Configuration parameters for HGS-RR algorithm.
 
     Attributes:
-        restart_timer (float): Maximum wall-clock seconds for optimization, before restarting the algorithm (0 = unlimited)
-        time_limit (float): Maximum execution time in seconds.
-        mu (int): Minimum population size (for each subpopulation).
-        nb_elite (int): Number of elite individuals preserved.
-        mutation_rate (float): Probability of applying ruin-recreate mutation.
-        n_offspring (int): Generation size (individuals created per iteration).
-        n_iterations_no_improvement (int): Max iterations without improvement.
-        survivor_threshold (float): Population size multiplier for survivor selection.
-        max_vehicles (int): Maximum number of vehicles (0 = unlimited).
-        crossover_rate (float): Probability of crossover operation.
-        nb_granular (int): Granular search parameter for local search.
-
-        # Ruin-and-Recreate specific parameters
-        min_removal_pct (float): Minimum percentage of nodes to remove (0.0-1.0).
-        max_removal_pct (float): Maximum percentage of nodes to remove (0.0-1.0).
-        noise_factor (float): Noise factor for randomized best insertion.
-        reaction_factor (float): Rate of operator weight updates.
-        decay_parameter (float): Decay rate for operator scores.
-
-        # Operator selection weights (initial)
-        destroy_operators (List[str]): List of destroy operator names.
-        repair_operators (List[str]): List of repair operator names.
-        operator_decay_rate (float): Exponential decay rate for operator weights.
-
-        # Scoring parameters for adaptive selection
-        score_sigma_1 (float): Score for new global best solution.
-        score_sigma_2 (float): Score for solution improving current.
-        score_sigma_3 (float): Score for solution accepted but not improving.
-
-        seed (Optional[int]): Random seed for reproducibility.
+        restart_timer: Maximum wall-clock seconds before algorithm restart (0 = unlimited).
+        time_limit: Maximum execution time in seconds.
+        population_size: Minimum population size (for each subpopulation).
+        elite_size: Number of elite individuals preserved.
+        mutation_rate: Probability of applying ruin-recreate mutation.
+        n_iterations_no_improvement: Max iterations without improvement.
+        no_improvement_threshold: Threshold for diversity/stopping.
+        survivor_threshold: Population size multiplier for survivor selection.
+        max_vehicles: Maximum number of vehicles (0 = unlimited).
+        crossover_rate: Probability of crossover operation.
+        neighbor_list_size: Granular search parameter for local search.
+        min_removal_pct: Minimum percentage of nodes to remove (0.0-1.0).
+        max_removal_pct: Maximum percentage of nodes to remove (0.0-1.0).
+        noise_factor: Noise factor for randomized best insertion.
+        reaction_factor: Rate of operator weight updates.
+        decay_parameter: Decay rate for operator scores.
+        destroy_operators: List of destroy operator names.
+        repair_operators: List of repair operator names.
+        operator_decay_rate: Exponential decay rate for operator weights.
+        score_sigma_1: Score for new global best solution.
+        score_sigma_2: Score for solution improving current.
+        score_sigma_3: Score for solution accepted but not improving.
+        seed: Random seed for reproducibility.
+        vrpp: Whether to use VRP with Profits mode.
+        profit_aware_operators: Whether to use profit-aware operators.
     """
 
     # Core HGS parameters
@@ -98,7 +99,14 @@ class HGSRRParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "HGSRRParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object (Hydra config or dataclass).
+
+        Returns:
+            HGSRRParams: Initialized parameters.
+        """
         return cls(
             time_limit=getattr(config, "time_limit", 10.0),
             population_size=getattr(config, "population_size", 50),

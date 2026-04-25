@@ -1,11 +1,29 @@
 """
 Initialization strategies for vehicle routing solutions.
 Extracts constructive heuristics from the legacy solutions module.
+
+Attributes:
+    find_initial_solution (Function): Constructs a feasible initial solution for the routing problem.
+    compute_initial_solution (Function): Simplified initial solution builder for SANS policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization import find_initial_solution
+    >>> routes = find_initial_solution()
+    >>> print(routes)
 """
 
 
 def _categorize_bins_by_zone(bins, bins_coordinates):
-    """Group bins into zones based on longitude."""
+    """
+    Group bins into zones based on longitude.
+
+    Args:
+        bins (List[int]): The bins to categorize.
+        bins_coordinates (List): The coordinates of the bins.
+
+    Returns:
+        Dict[int, List[int]]: The bins categorized by zone.
+    """
     max_lng = max(bins_coordinates["Lng"])
     min_lng = min(bins_coordinates["Lng"])
     lng_amp = max_lng - min_lng
@@ -30,6 +48,18 @@ def _categorize_bins_by_zone(bins, bins_coordinates):
 
 
 def _get_bin_stock(data, bin_id, E, B):
+    """
+    Get the stock of a bin.
+
+    Args:
+        data (pd.DataFrame): Bin weights and metadata.
+        bin_id (int): The bin ID.
+        E (float): Bin volume.
+        B (float): Bin density.
+
+    Returns:
+        float: The stock of the bin.
+    """
     row = data[data["#bin"] == bin_id]
     if row.empty:
         return 0
@@ -37,7 +67,19 @@ def _get_bin_stock(data, bin_id, E, B):
 
 
 def _find_closest_valid_bin(current_bin, potential_bins_in_zone, available_bins, current_route, distance_matrix):
-    """Find the closest bin in the zone that is available and valid."""
+    """
+    Find the closest bin in the zone that is available and valid.
+
+    Args:
+        current_bin (int): The current bin.
+        potential_bins_in_zone (List[int]): The potential bins in the zone.
+        available_bins (Set[int]): The available bins.
+        current_route (List[int]): The current route.
+        distance_matrix (np.ndarray): The distance matrix.
+
+    Returns:
+        int: The closest valid bin.
+    """
     if not potential_bins_in_zone:
         return None
 

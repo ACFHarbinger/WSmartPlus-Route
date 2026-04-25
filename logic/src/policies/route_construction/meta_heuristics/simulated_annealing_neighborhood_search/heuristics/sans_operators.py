@@ -1,6 +1,22 @@
 """
 Operator application logic for Simulated Annealing.
+
+Provides routines for applying neighborhood operators and perturbations to
+solutions within a Simulated Annealing framework. Supported operations include
+2-opt, moves between routes, swaps, insertions, removals, and various
+relocation, addition, and route-level modifications.
+
+Attributes:
+    None
+
+Example:
+    None
 """
+
+from random import Random
+from typing import Any, Dict, List, Set
+
+import numpy as np
 
 from .sans_neighborhoods import (
     cross_exchange,
@@ -26,8 +42,19 @@ from .sans_perturbations import (
 )
 
 
-def _handle_2opt(solution, rng):
-    """Apply 2-opt operator."""
+def _handle_2opt(
+    solution: List[List[int]],
+    rng: Random,
+) -> List[List[int]]:
+    """Apply 2-opt operator.
+
+    Args:
+        solution: The solution to apply the operator to.
+        rng: Random number generator.
+
+    Returns:
+        The solution after applying the operator.
+    """
     valid_indices = [i for i, r in enumerate(solution) if len(r) > 3]
     if valid_indices:
         r = rng.choice(valid_indices)
@@ -35,8 +62,25 @@ def _handle_2opt(solution, rng):
     return solution
 
 
-def _handle_move(solution, data, vehicle_capacity, id_to_index, rng):
-    """Apply move operator."""
+def _handle_move(
+    solution: List[List[int]],
+    data: Dict[str, Any],
+    vehicle_capacity: float,
+    id_to_index: Dict[int, int],
+    rng: Random,
+) -> List[List[int]]:
+    """Apply move operator.
+
+    Args:
+        solution: The solution to apply the operator to.
+        data: Problem data.
+        vehicle_capacity: Capacity of vehicles.
+        id_to_index: Mapping from bin IDs to indices.
+        rng: Random number generator.
+
+    Returns:
+        The solution after applying the operator.
+    """
     neighbors = move_between_routes(solution, data, vehicle_capacity, id_to_index, rng)
     if neighbors:
         return rng.choice(neighbors)
@@ -44,14 +88,45 @@ def _handle_move(solution, data, vehicle_capacity, id_to_index, rng):
 
 
 def _handle_swap(solution, rng):
-    """Apply swap operator."""
+    """Apply swap operator.
+
+    Args:
+        solution: The solution to apply the operator to.
+        rng: Random number generator.
+
+    Returns:
+        The solution after applying the operator.
+    """
     r = rng.choice(range(len(solution)))
     solution[r] = mutate_route_by_swapping_bins(solution[r], rng, num_bins=rng.choice([1, 2]))
     return solution
 
 
-def _handle_insert(solution, data, stocks, vehicle_capacity, id_to_index, distance_matrix, candidate_removed_bins, rng):
-    """Apply insert operator."""
+def _handle_insert(
+    solution: List[List[int]],
+    data: Dict[str, Any],
+    stocks: Dict[int, float],
+    vehicle_capacity: float,
+    id_to_index: Dict[int, int],
+    distance_matrix: np.ndarray,
+    candidate_removed_bins: Set[int],
+    rng: Random,
+) -> List[List[int]]:
+    """Apply insert operator.
+
+    Args:
+        solution: The solution to apply the operator to.
+        data: Problem data.
+        stocks: Stock levels for each bin.
+        vehicle_capacity: Capacity of vehicles.
+        id_to_index: Mapping from bin IDs to indices.
+        distance_matrix: Distance matrix for routes.
+        candidate_removed_bins: Set of bins that can be removed.
+        rng: Random number generator.
+
+    Returns:
+        The solution after applying the operator.
+    """
     if not solution:
         return solution
     r = rng.choice(range(len(solution)))
@@ -69,20 +144,35 @@ def _handle_insert(solution, data, stocks, vehicle_capacity, id_to_index, distan
 
 
 def apply_operator(
-    op,
-    new_solution,
-    candidate_removed_bins,
-    data,
-    vehicle_capacity,
-    id_to_index,
-    stocks,
-    mandatory_bins,
-    distance_matrix,
-    rng,
-):
+    op: str,
+    new_solution: List[List[int]],
+    candidate_removed_bins: Set[int],
+    data: dict,
+    vehicle_capacity: float,
+    id_to_index: dict,
+    stocks: Dict[int, float],
+    mandatory_bins: Set[int],
+    distance_matrix: np.ndarray,
+    rng: Random,
+) -> List[List[int]]:
     """
     Apply the selected operator to the solution.
     Modifies new_solution in place or returns a new one.
+
+    Args:
+        op: The operator to apply (string).
+        new_solution: The solution to apply the operator to.
+        candidate_removed_bins: Set of bins that can be removed.
+        data: Problem data.
+        vehicle_capacity: Capacity of vehicles.
+        id_to_index: Mapping from bin IDs to indices.
+        stocks: Stock levels for each bin.
+        mandatory_bins: Set of bins that cannot be removed.
+        distance_matrix: Distance matrix for routes.
+        rng: Random number generator.
+
+    Returns:
+        The solution after applying the operator.
     """
     # Simple operators using direct function calls or simple lambdas
     handlers = {
@@ -116,7 +206,7 @@ def apply_operator(
             sol.__setitem__(idx := rng.choice(range(len(sol))), relocate_within_route(sol[idx], rng)) or sol
         ),
         "cross": lambda sol: cross_exchange(sol, rng),
-        "or-opt": lambda sol: (sol.__setitem__(idx := rng.choice(range(len(sol))), or_opt_move(sol[idx], rng)) or sol),
+        "or-opt": lambda sol: sol.__setitem__(idx := rng.choice(range(len(sol))), or_opt_move(sol[idx], rng)) or sol,
         "insert": lambda sol: _handle_insert(
             sol, data, stocks, vehicle_capacity, id_to_index, distance_matrix, candidate_removed_bins, rng
         ),

@@ -1,15 +1,13 @@
-"""
-Tabu Search (TS) module.
+"""Tabu Search (TS) module.
 
-Implements classical Tabu Search metaheuristic with:
-- Short-term memory (recency-based tabu list)
-- Long-term memory (frequency-based memory)
-- Aspiration criteria
-- Intensification and diversification strategies
-- Elite solution pool
-- Path relinking
+Attributes:
+    TSParams: Parameter dataclass for the Tabu Search.
+    TSPolicy: Policy class for Tabu Search.
+    TSSolver: Main solver class for Tabu Search.
 
-Based on Fred Glover's "Tabu Search Fundamentals and Uses" (1995).
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.tabu_search import TSPolicy
+    >>> policy = TSPolicy()
 """
 
 from .params import TSParams

@@ -1,10 +1,10 @@
-"""
-Configuration parameters for the Memetic Algorithm (MA) solver.
+"""Configuration parameters for the Memetic Algorithm (MA) solver.
 
-This module defines the parameters used by the MASolver, mapped to the framework
-proposed in the seminal work:
-    Moscato, P., Cotta, C., & Mendes, A. (2004). "Memetic Algorithms".
-    Reference: bibliography/Memetic_Algorithms.pdf
+Attributes:
+    MAParams: Parameter dataclass for the Memetic Algorithm.
+
+Example:
+    >>> params = MAParams(pop_size=50)
 """
 
 from __future__ import annotations
@@ -15,38 +15,20 @@ from typing import Any, Optional
 
 @dataclass
 class MAParams:
-    """
-    Hyper-parameters for the Memetic Algorithm (MA) solver.
-
-    The paper defines a Memetic Algorithm as the synergistic combination of
-    population-level evolutionary search (Genetic Algorithm) and individual-level
-    intensive refinement (Local Search / Individual Search).
-
-    Paper Concept Mapping:
-    - pop_size: The constant size of the population denoted by |pop| in Fig. 3.1.
-    - max_generations: The number of times the Generational Step is executed.
-    - recombination: Controlled by crossover_rate within the reproduction pipeline (Fig. 3.2).
-    - mutation: Controlled by mutation_rate and n_removal (p. 4).
-    - local_improver: Intensive hill-climbing defined in Fig. 3.3.
-    - replacement: Implements 'Plus' strategy for global elitism (p. 3).
+    """Hyper-parameters for the Memetic Algorithm (MA) solver.
 
     Attributes:
-        pop_size: The number of active individuals in each generation (|pop|).
-                  Determines the breadth of the global search.
-        max_generations: The maximum number of generational iterations to perform.
-        crossover_rate: The probability [0.0, 1.0] that two parents will
-                         exchange information to create an offspring (Recombination).
-        mutation_rate: The probability [0.0, 1.0] that a child will undergo
-                       a random structural perturbation (Mutation).
-        local_search_rate: The probability [0.0, 1.0] that the Local-Improver (Fig. 3.3)
-                            will be applied to a newly generated offspring.
-                            In many MAs, this is set to 1.0 for intensive search.
-        tournament_size: The number of candidates selected for each fitness-based
-                         competitive selection (Tournament Selection).
-                         Higher values increase selection pressure.
-        n_removal: The number of nodes removed and re-inserted during the
-                   mutation operator. Represents the 'shake' magnitude.
-        time_limit: Maximum wall-clock duration in seconds allowed for the search.
+        pop_size: The number of active individuals in each generation.
+        max_generations: The maximum number of generational iterations.
+        crossover_rate: Probability parents exchange information.
+        mutation_rate: Probability of structural perturbation.
+        local_search_rate: Probability intensive local search is applied.
+        tournament_size: Candidates selected for competitive selection.
+        n_removal: Nodes removed/re-inserted during mutation.
+        time_limit: Maximum duration allowed for the search.
+        vrpp: Whether solving VRP with Profits.
+        profit_aware_operators: Whether to use profit-aware operators.
+        seed: Random seed for reproducibility.
     """
 
     # Population and Iteration Settings
@@ -70,7 +52,14 @@ class MAParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "MAParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration source.
+
+        Returns:
+            Instantiated MAParams.
+        """
         return cls(
             pop_size=getattr(config, "pop_size", 30),
             max_generations=getattr(config, "max_generations", 100),

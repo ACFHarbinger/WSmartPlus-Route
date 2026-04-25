@@ -1,5 +1,10 @@
-"""
-TS (Tabu Search) Policy Adapter.
+"""TS (Tabu Search) Policy Adapter.
+
+Attributes:
+    TSPolicy: Policy class for Tabu Search.
+
+Example:
+    >>> policy = TSPolicy(config)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -23,45 +28,37 @@ from logic.src.policies.route_construction.meta_heuristics.tabu_search.solver im
 )
 @RouteConstructorRegistry.register("ts")
 class TSPolicy(BaseRoutingPolicy):
-    """
-    Tabu Search (TS) Policy - Advanced Local Search with Deterministic Memory.
+    """Tabu Search (TS) Policy.
 
-    Tabu Search enhances local search by using a short-term memory (the "Tabu List")
-    to prevent the algorithm from returning to recently visited solutions.
-
-    Key Mechanisms:
-    1.  **Tabu List**: Stores forbidden moves (e.g., recently moved nodes) to
-        enforce a diversifying search trajectory and cycle avoidance.
-    2.  **Aspiration Criterion**: Allows a tabu move if it results in a new
-        best-found solution, overriding the tabu status to ensure optimality.
-    3.  **Intensification & Diversification**: Periodically restarts or adjusts
-        parameters to focus on high-quality regions or explore untouched areas
-        of the search space.
-
-    By systematically managing its search history, Tabu Search can navigate
-    complex routing topologies with high efficiency and precision.
-
-    Registry key: ``"ts"``
+    Attributes:
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[TSConfig, Dict[str, Any]]] = None):
-        """Initializes the Tabu Search policy with optional configuration.
+        """Initializes the Tabu Search policy.
 
         Args:
-            config (Optional[Union[TSConfig, Dict[str, Any]]]): Configuration dataclass,
-                raw dictionary from YAML, or None.
+            config: Configuration source.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Returns the configuration class for TS.
+
+        Returns:
+            TSConfig class.
+        """
         return TSConfig
 
     def _get_config_key(self) -> str:
         """Returns the configuration key for the TS policy.
 
         Returns:
-            str: The registry key 'ts'.
+            The registry key 'ts'.
         """
         return "ts"
 
@@ -76,43 +73,20 @@ class TSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the Tabu Search (TS) metaheuristic solver logic.
-
-        TS is a local search-based metaheuristic that uses a flexible memory system
-        to prevent the search from returning to recently visited solutions (tabu
-        list). This implementation features:
-        - Short-term Memory: Prevents cycling using a tabu tenure.
-        - Long-term Memory: Frequency-based diversification to explore new
-          regions and intensification to refine the best known neighborhoods.
-        - Aspiration Criteria: Allows tabu moves if they result in a new global
-          best solution.
-        - Candidate Lists: Restricts the move evaluations to high-potential
-          subsets to improve computational efficiency.
+        """Execute the Tabu Search (TS) metaheuristic solver logic.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                TS parameters (tabu_tenure, max_iterations, elite_size).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix.
+            sub_wastes: Mapping of local node indices to waste levels.
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue per kilogram of waste.
+            cost_unit: Monetary cost per kilometer.
+            values: Merged configuration dictionary.
+            mandatory_nodes: Local indices of bins that MUST be collected.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple of (routes, profit, cost).
         """
         params = TSParams(
             # Short-term memory

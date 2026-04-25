@@ -4,6 +4,26 @@ Local search neighborhood operators for SANS-style optimization.
 Provides standard neighborhood movement procedures adapted for the SANS policy,
 including 2-opt, Or-opt, relocate, and cross-exchange operators. These functions
 return modified copies of the input routes to support probabilistic acceptance logic.
+
+Attributes:
+    get_neighbors: Generate neighbors using all basic operators.
+    get_2opt_neighbors: Generate neighbors using 2-opt swaps.
+    relocate_within_route: Move a bin within the same route.
+    cross_exchange: Swap bins between two routes.
+    or_opt_move: Re-insert a bin at a different position in the same route.
+    move_between_routes: Move a bin from one route to another.
+    insert_bin_in_route: Insert a bin into a route.
+    mutate_route_by_swapping_bins: Swap bins within a route.
+
+Example:
+    >>> import random
+    >>> routes = [[0, 1, 2, 3, 0], [0, 4, 5, 6, 0]]
+    >>> bins_cannot_removed = {1, 4}
+    >>> rng = random.Random()
+    >>> removed_bins = set()
+    >>> new_routes = remove_bins_from_route(routes, bins_cannot_removed, rng, num_bins=1)
+    >>> new_routes
+    [[0, 2, 3, 0], [0, 4, 5, 6, 0]]
 """
 
 import copy

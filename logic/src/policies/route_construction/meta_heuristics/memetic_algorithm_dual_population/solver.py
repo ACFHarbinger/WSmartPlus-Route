@@ -1,32 +1,12 @@
 """
 Memetic Algorithm with Dual Population (MA-DP) for VRPP.
 
-EXACT COPY of Volleyball Premier League (VPL) with rigorous nomenclature.
+Attributes:
+    MemeticAlgorithmDualPopulationSolver: Core solver implementation for MA-DP.
 
-TERMINOLOGY MAPPING (VPL → MA-DP):
-- "Active Teams" → Active Population (competing solutions)
-- "Passive Teams" → Reserve Population (diversity pool)
-- "Substitution" → Diversity Injection Operator
-- "Coaching from Top 3" → Elite-Guided Solution Construction
-- "Seasons" → Generations/Iterations
-- "Team Formation" → Solution Construction
-
-Algorithm Structure (Moghdani & Salimifard, 2018):
-    1. Initialize dual population (N active + N reserve solutions)
-    2. For each iteration:
-        a. Competition Phase: Rank active solutions by fitness
-        b. Diversity Injection: Combine active solutions with reserve pool
-        c. Elite-Guided Construction: Weaker solutions learn from top-k performers
-        d. Local Search: Refine all solutions
-        e. Update best solution
-
-Reference:
-    Moghdani, R., & Salimifard, K. (2018). "Volleyball Premier League Algorithm."
-    Applied Soft Computing, 64, 161-185. DOI: 10.1016/j.asoc.2017.11.043
-
-IMPORTANT: This implementation EXACTLY matches the VPL algorithm with only
-           terminology changed from sports metaphors to OR terminology.
-           Uses identical RNG attribute name (self.random) and algorithm flow.
+Example:
+    >>> solver = MemeticAlgorithmDualPopulationSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -50,7 +30,21 @@ from .params import MemeticAlgorithmDualPopulationParams
 class MemeticAlgorithmDualPopulationSolver:
     """
     Memetic Algorithm with Dual Population for VRPP.
+
     EXACT COPY of VPL with rigorous nomenclature.
+
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of node indices to waste/profit values.
+        capacity: Vehicle capacity constraint.
+        R: Revenue per unit of waste collected.
+        C: Cost per unit of distance traveled.
+        params: MA-DP algorithm parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        random: Random number generator.
+        ls: Local search optimizer.
     """
 
     def __init__(
@@ -63,8 +57,7 @@ class MemeticAlgorithmDualPopulationSolver:
         params: MemeticAlgorithmDualPopulationParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize MA-DP solver.
+        """Initialize MA-DP solver.
 
         Args:
             dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 = depot.
@@ -74,6 +67,9 @@ class MemeticAlgorithmDualPopulationSolver:
             C: Cost per unit of distance traveled.
             params: MA-DP algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -107,14 +103,13 @@ class MemeticAlgorithmDualPopulationSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run the MA-DP algorithm.
+        """Run the MA-DP algorithm.
 
         Returns:
-            Tuple of (routes, profit, cost):
-                - routes: List of vehicle routes (each route is list of node indices)
-                - profit: Net profit of the solution
-                - cost: Total routing cost (distance)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: List of vehicle routes.
+                - profit: Net profit of the solution.
+                - cost: Total routing cost.
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -122,8 +117,6 @@ class MemeticAlgorithmDualPopulationSolver:
         start_time = time.process_time()
 
         # Phase 1: Population Formation and Initialization
-        # VPL: active_teams, passive_teams
-        # MA-DP: active_teams, passive_teams (keep same names for exact match)
         active_teams = self._initialize_population(self.params.population_size)
         passive_teams = self._initialize_population(self.params.population_size)
 
@@ -146,9 +139,6 @@ class MemeticAlgorithmDualPopulationSolver:
                 break
 
             # Phase 2: Racing and Interplays (Competition)
-            # Teams are already sorted by fitness from previous iteration
-            # In this phase, we simply maintain the ranking
-
             # Phase 3: Substitution Operator (Diversity Injection)
             active_teams = self._substitution_phase(active_teams, passive_teams)
 
@@ -185,8 +175,7 @@ class MemeticAlgorithmDualPopulationSolver:
     # ------------------------------------------------------------------
 
     def _initialize_population(self, pop_size: int) -> List[List[List[int]]]:
-        """
-        Initialize a population of routing solutions.
+        """Initialize a population of routing solutions.
 
         Creates diverse initial solutions using nearest-neighbor heuristic
         with randomized node orderings.
@@ -195,7 +184,7 @@ class MemeticAlgorithmDualPopulationSolver:
             pop_size: Number of solutions to generate.
 
         Returns:
-            List of routing solutions (each solution is a list of routes).
+            List[List[List[int]]]: List of routing solutions.
         """
         population = []
         for _ in range(pop_size):
@@ -219,8 +208,7 @@ class MemeticAlgorithmDualPopulationSolver:
     def _substitution_phase(
         self, active_teams: List[List[List[int]]], passive_teams: List[List[List[int]]]
     ) -> List[List[List[int]]]:
-        """
-        Apply substitution operator to inject diversity into active teams.
+        """Apply substitution operator to inject diversity into active teams.
 
         For each active team, randomly substitute solution components
         (routes or nodes) from passive teams with probability substitution_rate.
@@ -231,7 +219,7 @@ class MemeticAlgorithmDualPopulationSolver:
             passive_teams: List of passive team solutions (reserve pool).
 
         Returns:
-            Modified active teams with injected diversity.
+            List[List[List[int]]]: Modified active teams with injected diversity.
         """
         modified_teams = []
 
@@ -272,9 +260,6 @@ class MemeticAlgorithmDualPopulationSolver:
                         # Rebuild routes using greedy insertion
                         try:
                             if self.params.profit_aware_operators:
-                                # First remove nodes with profit-awareness if possible,
-                                # but substitution phase usually just randomizes.
-                                # However, we can use greedy_profit_insertion for repair.
                                 new_team = greedy_profit_insertion(
                                     [],
                                     flat_nodes,
@@ -305,22 +290,17 @@ class MemeticAlgorithmDualPopulationSolver:
         return modified_teams
 
     def _coaching_phase(self, active_teams: List[List[List[int]]]) -> List[List[List[int]]]:
-        """
-        Apply coaching and learning phase.
+        """Apply coaching and learning phase.
 
         Teams ranked below the top 3 learn from the best performers. Each
         weaker team creates a new formation by combining characteristics
         from the top 3 teams using weighted learning.
 
-        Mathematical formulation:
-            Team_i^(t+1) = w1 * Team_1 + w2 * Team_2 + w3 * Team_3
-            where w1 + w2 + w3 = 1.0
-
         Args:
             active_teams: List of active teams sorted by fitness (best first).
 
         Returns:
-            Modified active teams after coaching.
+            List[List[List[int]]]: Modified active teams after coaching.
         """
         if len(active_teams) < self.params.elite_size:
             return active_teams
@@ -351,8 +331,7 @@ class MemeticAlgorithmDualPopulationSolver:
         top2: List[List[int]],
         top3: List[List[int]],
     ) -> List[List[int]]:
-        """
-        Create a new formation by learning from top 3 teams.
+        """Create a new formation by learning from top 3 teams.
 
         Uses a weighted node selection strategy where nodes from better teams
         have higher probability of being included in the new formation.
@@ -364,7 +343,7 @@ class MemeticAlgorithmDualPopulationSolver:
             top3: Third-best team's routing solution.
 
         Returns:
-            New routing solution learned from elite teams.
+            List[List[int]]: New routing solution learned from elite teams.
         """
         # Extract all nodes from top 3 teams
         nodes_top1 = {node for route in top1 for node in route}
@@ -441,14 +420,13 @@ class MemeticAlgorithmDualPopulationSolver:
     # ------------------------------------------------------------------
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """
-        Evaluate net profit of a routing solution.
+        """Evaluate net profit of a routing solution.
 
         Args:
             routes: List of vehicle routes.
 
         Returns:
-            Net profit (revenue - cost).
+            float: Net profit (revenue - cost).
         """
         if not routes:
             return 0.0
@@ -456,14 +434,13 @@ class MemeticAlgorithmDualPopulationSolver:
         return revenue - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """
-        Calculate total routing distance.
+        """Calculate total routing distance.
 
         Args:
             routes: List of vehicle routes.
 
         Returns:
-            Total distance traveled.
+            float: Total distance traveled.
         """
         total = 0.0
         for route in routes:

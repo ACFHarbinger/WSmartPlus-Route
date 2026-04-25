@@ -3,6 +3,12 @@ Wrapper for the external `PyVRP` library.
 
 This module provides an interface to solve the routing problem using
 the high-performance PyVRP solver.
+
+Attributes:
+    solve_pyvrp: Function to solve routing using PyVRP.
+
+Example:
+    >>> routes, profit, cost = solve_pyvrp(dist_matrix, wastes, capacity, R, C, values)
 """
 
 import numpy as np
@@ -13,6 +19,17 @@ from pyvrp.stop import MaxRuntime
 def solve_pyvrp(dist_matrix, wastes, capacity, R, C, values):
     """
     Solve using external PyVRP library, matching WSmart-Route style.
+
+    Args:
+        dist_matrix: NxN distance matrix.
+        wastes: Dictionary of node wastes.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Configuration parameters.
+
+    Returns:
+        Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
     """
     # 1. Map active nodes
     active_nodes = [0] + sorted(list(wastes.keys()))

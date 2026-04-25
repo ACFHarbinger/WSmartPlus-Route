@@ -1,20 +1,13 @@
-"""
-Harmony Search (HS) algorithm for VRPP.
+"""Harmony Search (HS) algorithm for VRPP.
 
-Models the optimisation process as a musical improvisation session.  The
-Harmony Memory stores the most profitable route configurations found so
-far.  A new harmony (routing solution) is built node-by-node by consulting
-the HM (HMCR), applying pitch adjustment (PAR), or selecting a random
-unvisited node.
+Models the optimisation process as a musical improvisation session.
 
-Near-zero benchmark errors (<0.01%) on Orienteering Problem instances have
-been reported in the literature when HMCR and PAR are carefully tuned.
+Attributes:
+    HSSolver: Main solver class for the Harmony Search.
 
-Reference:
-    Rechenberg, I. (1973). "Evolutionsstrategie: Optimierung technischer
-    Systeme nach Prinzipien der biologischen Evolution."
-    Geem, Z. W., Kim, J. H., & Loganathan, G. V. "A New Heuristic
-    Optimization Algorithm: Harmony Search.", 2001
+Example:
+    >>> solver = HSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import copy
@@ -33,8 +26,20 @@ from logic.src.policies.route_construction.meta_heuristics.harmony_search.params
 
 
 class HSSolver:
-    """
-    Harmony Search solver for VRPP.
+    """Harmony Search solver for VRPP.
+
+    Attributes:
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of node indices.
+        random: Random number generator.
+        ls: ACOLocalSearch instance for refinement.
     """
 
     def __init__(
@@ -58,6 +63,9 @@ class HSSolver:
             C: Cost per unit distance.
             params: HS parameters.
             mandatory_nodes: Optional list of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -91,8 +99,7 @@ class HSSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run Harmony Search and return the best routing solution.
+        """Run Harmony Search and return the best routing solution.
 
         Returns:
             Tuple of (routes, profit, cost).
@@ -145,7 +152,9 @@ class HSSolver:
 
     def _build_random_solution(self) -> List[List[int]]:
         """Order-dependent sequential construction.
-        Uses greedy profit-aware construction.
+
+        Returns:
+            Set of routes.
         """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
@@ -158,8 +167,13 @@ class HSSolver:
         )
 
     def _improvise(self, hm: List[List[List[int]]]) -> List[List[int]]:
-        """
-        Improvise a new harmony using HMCR, PAR, and random selection.
+        """Improvise a new harmony using HMCR, PAR, and random selection.
+
+        Args:
+            hm: Harmony Memory list.
+
+        Returns:
+            New set of routes.
         """
         candidate_nodes: List[int] = []
         hm_node_pool: List[List[int]] = []
@@ -238,14 +252,28 @@ class HSSolver:
         return sorted(list(unvisited), key=lambda n: self.dist_matrix[node][n])
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Net profit value.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Total distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

@@ -3,6 +3,14 @@ Evolutionary operators for Hybrid Genetic Search (HGS).
 
 This module contains the crossover, evaluation, and fitness calculation
 logic for maintaining and improving the HGS population.
+
+Attributes:
+    update_biased_fitness: Updates biased fitness for a subpopulation.
+    evaluate: Decodes giant tour and calculates metrics.
+
+Example:
+    >>> evaluate(individual, split_manager)
+    >>> update_biased_fitness(population, nb_elite=4)
 """
 
 from typing import List, Optional
@@ -86,6 +94,9 @@ def update_biased_fitness(
         nb_elite: Number of elite individuals to protect.
         neighbor_size: Number of nearest neighbors (nbClose) to consider for diversity.
         distance_cache: Optional cache for pairwise diversity distances (Fix 9).
+
+    Returns:
+        None.
     """
     if not population:
         return
@@ -167,6 +178,9 @@ def evaluate(ind: Individual, split_manager: LinearSplit, penalty_capacity: floa
         ind: Individual to evaluate.
         split_manager: Split algorithm manager.
         penalty_capacity: Penalty coefficient for capacity violations.
+
+    Returns:
+        None.
     """
     routes, profit = split_manager.split(ind.giant_tour)
     ind.routes = routes

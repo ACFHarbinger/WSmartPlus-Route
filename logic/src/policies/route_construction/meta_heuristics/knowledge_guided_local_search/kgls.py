@@ -8,6 +8,12 @@ guided by edge length and width penalties.
 Reference:
     Arnold, F., & Sorensen, K. "Knowledge-guided
     local search for the vehicle routing problem", 2018
+
+Attributes:
+    KGLSSolver: Core KGLS solver logic.
+
+Example:
+    >>> solver = KGLSSolver(dist_matrix, locations, wastes, capacity, R, C, params)
 """
 
 import copy
@@ -32,6 +38,22 @@ logger = logging.getLogger(__name__)
 class KGLSSolver:
     """
     KGLS execution engine propagating geometric penalties through local search.
+
+    Attributes:
+        dist_matrix: NxN distance matrix.
+        locations: Nx2 coordinate matrix for width baseline.
+        wastes: Dictionary of node wastes (demands/profits).
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        params: Parameters for the algorithm.
+        mandatory_nodes: List of mandatory nodes.
+        random: Random instance for reproducibility.
+        rng: NumPy random generator.
+        n_nodes: Number of non-depot nodes.
+        nodes: List of node indices.
+        evaluator: Cost evaluator with penalization support.
+        ls_manager: Local search manager.
     """
 
     def __init__(
@@ -45,8 +67,7 @@ class KGLSSolver:
         params: KGLSParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize the KGLS solver.
+        """Initialize the KGLS solver.
 
         Args:
             dist_matrix: NxN distance matrix.
@@ -57,6 +78,9 @@ class KGLSSolver:
             C: Cost multiplier.
             params: Parameters for the algorithm.
             mandatory_nodes: List of mandatory nodes.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.locations = locations
@@ -89,7 +113,15 @@ class KGLSSolver:
         )
 
     def calculate_cost(self, routes: List[List[int]], penalized: bool = False) -> float:
-        """Calculate total routing cost using active evaluated distances."""
+        """Calculate total routing cost using active evaluated distances.
+
+        Args:
+            routes: List of collection routes.
+            penalized: Whether to use penalized distances.
+
+        Returns:
+            float: Total calculated cost.
+        """
         matrix = self.evaluator.get_distance_matrix() if penalized else self.evaluator.dist_matrix
         total_dist = 0.0
         for route in routes:
@@ -103,13 +135,28 @@ class KGLSSolver:
         return total_dist * self.C
 
     def calculate_profit(self, routes: List[List[int]], penalized: bool = False) -> float:
-        """Calculate network profit (revenue - cost)."""
+        """Calculate network profit (revenue - cost).
+
+        Args:
+            routes: List of collection routes.
+            penalized: Whether to use penalized distances.
+
+        Returns:
+            float: Total calculated profit.
+        """
         cost = self.calculate_cost(routes, penalized)
         revenue = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return revenue - cost
 
     def build_initial_solution(self) -> List[List[int]]:
-        """Greedy constructive heuristic. Can be replaced with generalized parallel savings."""
+        """Construct initial solution using a greedy heuristic.
+
+        Args:
+            None.
+
+        Returns:
+            List[List[int]]: Initial routes.
+        """
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,
@@ -123,14 +170,27 @@ class KGLSSolver:
     def apply_local_search(
         self, routes: List[List[int]], ls_manager: ACOLocalSearch, targeted_nodes: Optional[List[int]] = None
     ) -> List[List[int]]:
-        """
-        Apply local search operators to improve the solution.
-        If mapped to targeted nodes, search effort is computationally localized.
+        """Apply local search operators to improve the solution.
+
+        Args:
+            routes: Current collection routes.
+            ls_manager: Local search manager instance.
+            targeted_nodes: Optional subset of nodes to focus search on.
+
+        Returns:
+            List[List[int]]: Optimized routes.
         """
         return ls_manager.optimize(routes)
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
-        """Main KGLS execution loop."""
+        """Execute the main KGLS optimization loop.
+
+        Args:
+            initial_solution: Optional starting solution.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Optimized routes, profit, and cost.
+        """
 
         # 1. Initialize
         current_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()

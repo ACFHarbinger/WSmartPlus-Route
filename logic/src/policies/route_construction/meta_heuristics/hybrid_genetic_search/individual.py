@@ -6,11 +6,11 @@ algorithm. It represents a single solution in the population, storing genotype
 (giant tour) and phenotype (routes), along with cost and fitness metrics.
 
 Attributes:
-    None
+    Individual: Class representing a single solution in the population.
 
 Example:
-    >>> from logic.src.policies.hybrid_genetic_search.individual import Individual
-    >>> ind = Individual(genotype=[1, 5, 2, ...], cost=100.0)
+    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+    >>> ind = Individual(giant_tour=[1, 5, 2])
 """
 
 from typing import List, Optional, Set
@@ -37,6 +37,24 @@ class Individual:
 
     This approach (Option A: Implicit Dummy Route) treats unvisited nodes as being
     in a conceptual "dummy route" at the end of the giant tour.
+
+    Attributes:
+        giant_tour (List[int]): Ordered list of all customer nodes (genotype).
+        fitness (float): Biased fitness score (to be minimized).
+        profit_score (float): Net profit of the solution.
+        cost (float): Total routing cost.
+        revenue (float): Total revenue collected.
+        is_feasible (bool): True if solution satisfies all constraints.
+        capacity_violation (float): Total capacity excess.
+        penalized_cost (float): Cost including penalty for violations.
+        dist_to_parents (float): Average diversity distance to parents.
+        rank_profit (int): Rank based on profit.
+        rank_diversity (int): Rank based on diversity.
+        is_coached (bool): True if individual has been improved by local search.
+        expand_pool (bool): True if repair operators consider all unvisited nodes.
+
+    Example:
+        >>> ind = Individual(giant_tour=[1, 2, 3])
     """
 
     def __init__(self, giant_tour: List[int], expand_pool: bool = False):
@@ -48,6 +66,9 @@ class Individual:
                        For VRPP, this includes both visited and potentially unvisited nodes.
             expand_pool: If True (VRPP mode), repair operators consider all unvisited nodes.
                         If False (CVRP mode), repair operators only consider removed nodes.
+
+        Returns:
+            None.
         """
         self.giant_tour = giant_tour
         self._routes: List[List[int]] = []
@@ -74,12 +95,25 @@ class Individual:
 
     @property
     def routes(self) -> List[List[int]]:
-        """Actual vehicle routes after Split algorithm (phenotype)."""
+        """
+        Actual vehicle routes after Split algorithm (phenotype).
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         return self._routes
 
     @routes.setter
     def routes(self, value: List[List[int]]) -> None:
-        """Set routes and invalidate visited nodes cache."""
+        """
+        Set routes and invalidate visited nodes cache.
+
+        Args:
+            value: List of routes to set.
+
+        Returns:
+            None.
+        """
         self._routes = value
         self._visited_cache = None
 
@@ -88,6 +122,9 @@ class Individual:
         """
         Revenue minus penalized cost. Used for quality ranking in HGS.
         (Fix 10: Named property for penalised profit expression)
+
+        Returns:
+            float: The penalized profit value.
         """
         # penalized_cost = cost + penalty * violation
         # profit_score = revenue - cost
@@ -127,6 +164,12 @@ class Individual:
         2. All nodes in routes are also in giant_tour.
         3. If expected_nodes is provided, giant_tour contains exactly those nodes.
         (Fix 21: Add a genotype integrity check utility)
+
+        Args:
+            expected_nodes: Optional set of expected node IDs.
+
+        Returns:
+            None.
         """
         tour_set = set(self.giant_tour)
         assert len(tour_set) == len(self.giant_tour), (
@@ -145,5 +188,13 @@ class Individual:
             )
 
     def __lt__(self, other: "Individual") -> bool:
-        """Comparison based on biased fitness (used for sorting)."""
+        """
+        Comparison based on biased fitness (used for sorting).
+
+        Args:
+            other: Other individual to compare with.
+
+        Returns:
+            bool: True if this individual's fitness is less than other's.
+        """
         return self.fitness < other.fitness

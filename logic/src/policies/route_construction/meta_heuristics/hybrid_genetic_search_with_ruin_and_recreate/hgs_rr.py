@@ -8,6 +8,13 @@ Reference:
     Simensen, M., Hasle, G., & Stalhane, M. "Combining hybrid
     genetic search with ruin-and-recreate for solving the
     capacitated vehicle routing problem", 2022
+
+Attributes:
+    HGSRRSolver: Hybrid evolutionary solver with ruin-and-recreate mutation.
+
+Example:
+    >>> solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
 """
 
 import random
@@ -33,6 +40,21 @@ class HGSRRSolver:
 
     This algorithm extends standard HGS by replacing traditional local search
     with adaptive destroy/repair operators (ruin-and-recreate).
+
+    Attributes:
+        d: NxN distance matrix.
+        wastes: Dictionary of node wastes.
+        Q: Maximum vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        params: HGS-RR parameters.
+        mandatory_nodes: List of node indices that MUST be visited.
+        random: Random number generator.
+        n_nodes: Number of client nodes.
+        nodes: List of client node indices.
+        split_manager: Giant tour splitting evaluator.
+        rr_operator: Ruin-and-recreate mutation engine.
+        operator_manager: Adaptive weight manager for RR operators.
     """
 
     def __init__(
@@ -45,8 +67,7 @@ class HGSRRSolver:
         params: Any,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize the HGS-RR solver.
+        """Initialize the HGS-RR solver.
 
         Args:
             dist_matrix: NxN distance matrix.
@@ -56,7 +77,9 @@ class HGSRRSolver:
             C: Cost multiplier.
             params: HGS-RR parameters.
             mandatory_nodes: List of local node indices that MUST be visited.
-            seed: Random seed for reproducibility.
+
+        Returns:
+            None.
         """
         self.d = dist_matrix
         self.wastes = wastes
@@ -95,8 +118,10 @@ class HGSRRSolver:
         )
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run the HGS-RR algorithm.
+        """Run the HGS-RR algorithm.
+
+        Args:
+            None.
 
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
@@ -196,10 +221,24 @@ class HGSRRSolver:
         return best_ind.routes, best_ind.profit_score, best_ind.cost
 
     def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
-        """Select two parents using binary tournament selection."""
+        """Select two parents using binary tournament selection.
 
-        def tournament():
-            """Perform a binary tournament selection."""
+        Args:
+            population: List of individuals in the population.
+
+        Returns:
+            Tuple[Individual, Individual]: Two selected parents.
+        """
+
+        def tournament() -> Individual:
+            """Perform a binary tournament selection.
+
+            Args:
+                None.
+
+            Returns:
+                Individual: The winner of the tournament.
+            """
             i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 
@@ -213,8 +252,7 @@ class HGSRRSolver:
         p1: Individual,
         p2: Individual,
     ) -> float:
-        """
-        Compute adaptive operator score based on solution quality improvement.
+        """Compute adaptive operator score based on solution quality improvement.
 
         Args:
             child: The offspring individual.
@@ -224,7 +262,7 @@ class HGSRRSolver:
             p2: Second parent.
 
         Returns:
-            Score value (sigma_1, sigma_2, sigma_3, or 0).
+            float: Score value (sigma_1, sigma_2, sigma_3, or 0).
         """
         # New global best
         if child.profit_score > best_profit or (child.profit_score == best_profit and child.cost < best_cost):

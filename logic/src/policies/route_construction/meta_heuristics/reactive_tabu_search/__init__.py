@@ -1,9 +1,16 @@
 """
 Reactive Tabu Search (RTS) solver for VRPP.
 
-Exports:
+Attributes:
     RTSSolver: The main solver class.
     RTSParams: Configuration parameters dataclass.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.reactive_tabu_search import RTSSolver, RTSParams
+    >>> params = RTSParams()
+    >>> solver = RTSSolver(params)
+    >>> solution = solver.solve()
+    >>> print(solution)
 """
 
 from .params import RTSParams

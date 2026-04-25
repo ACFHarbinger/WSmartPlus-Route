@@ -5,15 +5,12 @@ Adapts the League Championship Algorithm (LCA) solver to the agnostic
 BaseRoutingPolicy interface.
 
 Attributes:
-    LCAConfig (Type): Configuration schema for the LCA solver.
-    BaseRoutingPolicy (Type): Abstract base for routing policies.
-    RouteConstructorRegistry (Type): Global registry for constructors.
+    LCAPolicy: Policy adapter for the LCA metaheuristic.
 
 Example:
-    >>> from logic.src.configs.policies.lca import LCAConfig
-    >>> config = LCAConfig(n_teams=10, max_iterations=500)
-    >>> policy = LCAPolicy(config)
-    >>> routes = policy.solve(problem)
+    >>> from logic.src.policies.route_construction.meta_heuristics.league_championship_algorithm import LCAPolicy
+    >>> policy = LCAPolicy()
+    >>> routes, profit, cost = policy(obs)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -36,22 +33,26 @@ class LCAPolicy(BaseRoutingPolicy):
     Visits bins using the League Championship Algorithm.
 
     Attributes:
-        solver (LCASolver): Internal solver instance.
-        params (LCAParams): Algorithm parameters.
+        config: Configuration parameters for the policy.
     """
 
     def __init__(self, config: Optional[Union[LCAConfig, Dict[str, Any]]] = None):
         """Initializes the LCA policy.
 
         Args:
-            config (Optional[Union[LCAConfig, Dict[str, Any]]]): Configuration
-                source for the League Championship Algorithm.
+            config: Configuration source for the League Championship Algorithm.
+
+        Returns:
+            None.
         """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
         """Returns the configuration class for LCA.
+
+        Args:
+            None.
 
         Returns:
             Optional[Type]: The LCAConfig class.
@@ -60,6 +61,9 @@ class LCAPolicy(BaseRoutingPolicy):
 
     def _get_config_key(self) -> str:
         """Returns the configuration key for the LCA policy.
+
+        Args:
+            None.
 
         Returns:
             str: The registry key 'lca'.
@@ -77,8 +81,7 @@ class LCAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute the League Championship Algorithm (LCA) solver logic.
+        """Execute the League Championship Algorithm (LCA) solver logic.
 
         LCA is a sports-inspired metaheuristic that mimics the competitive environment
         of a sports league. In this implementation:
@@ -92,18 +95,18 @@ class LCAPolicy(BaseRoutingPolicy):
         winners) and exploration (among losers).
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+            sub_dist_matrix: Symmetric distance matrix for the current
                 sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+            sub_wastes: Mapping of local node indices to their
                 current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
+            capacity: Maximum vehicle collection capacity.
+            revenue: Revenue obtained per kilogram of waste collected.
+            cost_unit: Monetary cost incurred per kilometer traveled.
+            values: Merged configuration dictionary containing
                 LCA parameters (n_teams, tolerance_pct, crossover_prob).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
+            mandatory_nodes: Local indices of bins that MUST be
                 collected in this period.
-            kwargs (Any): Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

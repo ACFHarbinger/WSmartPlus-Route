@@ -1,8 +1,13 @@
-"""
-Integration with the external `alns` Python package.
+r"""Integration with the external `alns` Python package.
 
 This module provides the necessary state representation and operator wrappers
 to use the `alns` package as a solver backend for the routing problem.
+
+Attributes:
+    ALNSState: State representation for the `alns` package.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_package import run_alns_package
 """
 
 import copy
@@ -18,11 +23,24 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 
 class ALNSState:
-    """
-    State representation for the `alns` Python package.
+    r"""State representation for the `alns` Python package.
 
     Encapsulates the current solution (routes and unassigned nodes) and
     provides methods for copying and objective evaluation.
+
+    Attributes:
+        routes: List of routes, where each route is a list of node indices.
+        unassigned: List of node indices not yet assigned to any route.
+        dist_matrix: NxN distance matrix.
+        wastes: Dictionary mapping node indices to their waste/weight.
+        capacity: Maximum vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        values: Additional configuration parameters.
+        _score: Current profit value.
+
+    Example:
+        >>> state = ALNSState(routes, unassigned, dist, wastes, cap, R, C, values)
     """
 
     def __init__(
@@ -125,12 +143,12 @@ class ALNSState:
 
 
 def alns_pkg_random_removal(state: ALNSState, rng: np.random.Generator, **kwargs: Any) -> ALNSState:
-    """
-    Randomly remove nodes from the current solution for the `alns` package.
+    """Randomly remove nodes from the current solution for the `alns` package.
 
     Args:
         state: The current ALNSState.
         rng: NumPy Generator for reproducibility.
+        kwargs: Additional arguments (ignored).
 
     Returns:
         ALNSState: A new state with nodes removed.
@@ -155,12 +173,12 @@ def alns_pkg_random_removal(state: ALNSState, rng: np.random.Generator, **kwargs
 
 
 def alns_pkg_worst_removal(state: ALNSState, rng: np.random.Generator, **kwargs: Any) -> ALNSState:
-    """
-    Remove nodes with the highest cost contribution for the `alns` package.
+    """Remove nodes with the highest cost contribution for the `alns` package.
 
     Args:
         state: The current ALNSState.
         rng: NumPy Generator for reproducibility.
+        kwargs: Additional arguments (ignored).
 
     Returns:
         ALNSState: A new state with nodes removed.
@@ -199,12 +217,12 @@ def alns_pkg_worst_removal(state: ALNSState, rng: np.random.Generator, **kwargs:
 
 
 def alns_pkg_greedy_insertion(state: ALNSState, rng: np.random.Generator, **kwargs: Any) -> ALNSState:
-    """
-    Greedily insert unassigned nodes into the best positions for the `alns` package.
+    """Greedily insert unassigned nodes into the best positions for the `alns` package.
 
     Args:
         state: The current ALNSState.
         rng: NumPy Generator for reproducibility.
+        kwargs: Additional arguments (ignored).
 
     Returns:
         ALNSState: A new state with nodes re-inserted.
@@ -243,8 +261,7 @@ def alns_pkg_greedy_insertion(state: ALNSState, rng: np.random.Generator, **kwar
 
 
 def run_alns_package(dist_matrix, wastes, capacity, R, C, values, recorder: Optional[PolicyStateRecorder] = None):
-    """
-    Execute the ALNS algorithm using the external `alns` package.
+    """Execute the ALNS algorithm using the external `alns` package.
 
     Args:
         dist_matrix: NxN distance matrix.
@@ -253,6 +270,7 @@ def run_alns_package(dist_matrix, wastes, capacity, R, C, values, recorder: Opti
         R: Revenue multiplier.
         C: Cost multiplier.
         values: Configuration parameters including `time_limit`.
+        recorder: Optional recorder for solver state.
 
     Returns:
         Tuple[List[List[int]], float, float]: Best routes, total profit, and total distance cost.

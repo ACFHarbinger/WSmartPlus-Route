@@ -1,53 +1,11 @@
-"""
-Particle Swarm Optimization (PSO) for VRPP.
+"""Particle Swarm Optimization (PSO) for VRPP.
 
-**TRUE PSO IMPLEMENTATION** with inertia-weighted velocity updates.
-This rigorously replaces the Sine Cosine Algorithm (SCA), which is
-mathematically equivalent to PSO without velocity momentum.
+Attributes:
+    PSOSolver: Main solver class for Particle Swarm Optimization.
 
-Mathematical Deconstruction of SCA:
-    SCA Update: X' = X + r₁·sin(r₂)·|r₃·P - X|
-    ≡ PSO Social Term: X' = X + w·(G_best - X) where w = r₁·sin(r₂)·r₃
-
-    Problems with SCA:
-    1. sin(r₂) where r₂~U(0,2π) is just a random weight in [-1,1]
-    2. No periodicity exploitation (r₂ resampled every iteration)
-    3. cos/sin switch is redundant (phase-shifted same distribution)
-    4. Expensive transcendental calls with no benefit
-
-    PSO Advantages:
-    1. Velocity maintains momentum from previous iterations
-    2. Personal best enables individual particle learning
-    3. Simpler, faster arithmetic operations
-    4. 30+ years of theoretical foundation
-
-Core PSO Algorithm (Kennedy & Eberhart 1995):
-    1. Initialize swarm with random positions and velocities
-    2. For each iteration:
-        a. For each particle i:
-            - Update velocity: v(t+1) = w*v(t) + c₁*r₁*(pbest - x) + c₂*r₂*(gbest - x)
-            - Update position: x(t+1) = x(t) + v(t+1)
-            - Evaluate fitness f(x(t+1))
-            - Update personal best if f(x(t+1)) > f(pbest_i)
-        b. Update global best from all personal bests
-        c. Decrease inertia weight w linearly
-
-Encoding:
-    - Continuous position vectors in [-1, 1]^n
-    - Sigmoid binarization: select nodes where sigmoid(x_i) > 0.5
-    - Largest Rank Value (LRV) ordering: sort by x_i descending
-
-Complexity:
-    - Time: O(T × N × n) where T = iterations, N = pop_size, n = nodes
-    - Space: O(N × n) for swarm + velocities + personal bests
-
-References:
-    Kennedy, J., & Eberhart, R. (1995). "Particle swarm optimization."
-    Proceedings of ICNN'95 - International Conference on Neural Networks.
-
-    Mirjalili, S. (2016). "SCA: A Sine Cosine Algorithm for solving
-    optimization problems." Knowledge-Based Systems.
-    [Note: SCA is PSO without velocity - this implementation supersedes it]
+Example:
+    >>> solver = PSOSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> best_routes, best_profit, best_cost = solver.solve()
 """
 
 import copy
@@ -66,10 +24,23 @@ from .params import PSOParams
 
 
 class PSOSolver:
-    """
-    Particle Swarm Optimization solver with velocity momentum for VRPP.
+    """Particle Swarm Optimization solver with velocity momentum for VRPP.
 
-    **Replaces SCA** - Proper PSO with all components intact.
+    Attributes:
+        dist_matrix: Distance matrix.
+        wastes: Node wastes.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        params: PSO configuration parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of customer node indices.
+        random: Random number generator.
+        np_rng: NumPy random generator.
+        velocities: Swarm velocities.
+        personal_bests: Particle personal best positions.
+        personal_best_fitness: Particle personal best fitness.
     """
 
     def __init__(
@@ -82,15 +53,14 @@ class PSOSolver:
         params: PSOParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """
-        Initialize the PSO solver with velocity momentum.
+        """Initialize the PSO solver.
 
         Args:
-            dist_matrix: Distance matrix [n+1 × n+1] including depot at index 0.
-            wastes: Dictionary mapping node IDs to waste quantities.
+            dist_matrix: Symmetric distance matrix.
+            wastes: Node waste quantities.
             capacity: Vehicle capacity constraint.
-            R: Revenue per unit waste collected.
-            C: Cost per unit distance traveled.
+            R: Revenue per unit waste.
+            C: Cost per unit distance.
             params: PSO configuration parameters.
             mandatory_nodes: Nodes that must be visited.
         """
@@ -116,13 +86,7 @@ class PSOSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Execute Particle Swarm Optimization with velocity momentum.
-
-        Implements standard PSO algorithm (Kennedy & Eberhart 1995):
-        1. Initialize swarm with random positions and velocities
-        2. Iteratively update velocities and positions
-        3. Track personal and global bests
+        """Execute Particle Swarm Optimization.
 
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
@@ -216,20 +180,10 @@ class PSOSolver:
     # ------------------------------------------------------------------
 
     def _decode(self, x: np.ndarray) -> List[List[int]]:
-        """
-        Decode a continuous position vector to a discrete routing solution.
-
-        Uses sigmoid binarization + Largest Rank Value (LRV) ordering.
-        Same decoding as SCA for fair comparison.
-
-        Steps:
-          1. Apply sigmoid binarization: b_j = 1 if sigmoid(x_j) > 0.5
-          2. Among selected nodes (b_j=1), order by LRV (sort by x_j descending)
-          3. Insert mandatory nodes that were not selected
-          4. Build routes via greedy_insertion
+        """Decode a position vector to a discrete routing solution.
 
         Args:
-            x: Continuous position vector of length n_nodes.
+            x: Continuous position vector.
 
         Returns:
             Routing solution as list of routes.
@@ -286,12 +240,7 @@ class PSOSolver:
             )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """
-        Evaluate routing solution fitness (net profit).
-
-        Fitness = Revenue - Cost × C
-        Revenue = Σ(waste_collected × R)
-        Cost = Total distance traveled
+        """Evaluate routing solution fitness (net profit).
 
         Args:
             routes: Routing solution.
@@ -305,8 +254,7 @@ class PSOSolver:
         return revenue - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """
-        Calculate total routing distance.
+        """Calculate total routing distance.
 
         Args:
             routes: List of routes.

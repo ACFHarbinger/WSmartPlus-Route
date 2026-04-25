@@ -6,7 +6,7 @@ It manages the iterative process of string removal (ruin) and greedy insertion
 with blinks (recreate), accepted via Simulated Annealing.
 
 Attributes:
-    None
+    SISRSolver: Slack Induction by String Removal algorithm solver.
 
 Example:
     >>> from logic.src.policies.slack_induction_by_string_removal.solver import SISRSolver
@@ -41,6 +41,16 @@ from .params import SISRParams
 class SISRSolver:
     """
     Solver implementing the SISR metaheuristic.
+
+    Attributes:
+        dist_matrix: Distance matrix.
+        wastes: Waste values for each node.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        params: Parameters for the SISR algorithm.
+        mandatory_nodes: Mandatory nodes.
+        random: Random number generator.
     """
 
     def __init__(
@@ -63,6 +73,7 @@ class SISRSolver:
             R: Revenue multiplier.
             C: Cost multiplier.
             params: Parameters for the SISR algorithm.
+            mandatory_nodes: Mandatory nodes.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -76,6 +87,12 @@ class SISRSolver:
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         """
         Run the SISR algorithm.
+
+        Args:
+            initial_solution: Optional initial solution.
+
+        Returns:
+            Tuple of (best_routes, best_cost, best_distance).
         """
         current_routes = [r[:] for r in initial_solution] if initial_solution else self._build_initial_solution()
 
@@ -170,6 +187,15 @@ class SISRSolver:
         return best_routes, best_cost, self._calculate_cost(best_routes)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
+        """
+        Calculate total cost (distance) for routes.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Total cost.
+        """
         total = 0.0
         for route in routes:
             if not route:
@@ -181,7 +207,19 @@ class SISRSolver:
         return total
 
     def _build_initial_solution(self) -> List[List[int]]:
-        """Greedy constructive heuristic."""
+        """
+        Greedy constructive heuristic.
+
+        Args:
+            dist_matrix: Distance matrix.
+            wastes: Waste values for each node.
+            capacity: Vehicle capacity.
+            R: Revenue multiplier.
+            C: Cost multiplier.
+
+        Returns:
+            Initial solution (list of routes).
+        """
         routes = build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,

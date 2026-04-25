@@ -1,14 +1,13 @@
-"""
-ACO Parameters Module.
+r"""ACO Parameters Module.
 
 This module defines the configuration parameters for the K-Sparse Ant Colony
 Optimization algorithm. It uses a dataclass to store and validate hyperparameters.
 
 Attributes:
-    None
+    KSACOParams: Parameters for K-Sparse Ant Colony Optimization (MMAS_exp variant).
 
 Example:
-    >>> from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
+    >>> from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
     >>> params = KSACOParams(n_ants=20, rho=0.1)
 """
 
@@ -51,7 +50,9 @@ class KSACOParams:
         elitist_weight: Weight for best-so-far solution in pheromone update.
         vrpp: Whether to use VRPP (Vehicle Routing Problem with Profits) mode.
         profit_aware_operators: Whether to use profit-aware feasibility checks.
+        q0: Probability of best-edge selection.
         seed: Random seed for reproducibility.
+        acceptance_criterion: Acceptance criterion for solutions.
 
     Reference:
         Hale, D. "Investigation of Ant Colony Optimization Implementation
@@ -90,6 +91,12 @@ class KSACOParams:
         """Create KSACOParams from an KSparseACOConfig dataclass or dict.
 
         Performs explicit type casting for numeric fields to ensure consistency.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            KSACOParams instance.
         """
         if config is None:
             return cls()

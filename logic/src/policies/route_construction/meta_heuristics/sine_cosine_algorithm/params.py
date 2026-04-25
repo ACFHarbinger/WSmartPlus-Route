@@ -1,5 +1,12 @@
 """
 Configuration parameters for the Sine Cosine Algorithm (SCA).
+
+Attributes:
+    SCAParams: SCA parameter dataclass.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params import SCAParams
+    >>> params = SCAParams()
 """
 
 from __future__ import annotations

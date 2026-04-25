@@ -1,5 +1,12 @@
 """
 Configuration parameters for the Soccer League Competition (SLC) solver.
+
+Attributes:
+    SLCParams: Configuration object for the SLC algorithm.
+
+Example:
+    >>> params = SLCParams()
+    >>> params = SLCParams.from_config(config)
 """
 
 from __future__ import annotations
@@ -41,7 +48,14 @@ class SLCParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "SLCParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            SLCParams: Parameters for the SLC algorithm.
+        """
         return cls(
             n_teams=getattr(config, "n_teams", 5),
             team_size=getattr(config, "team_size", 4),

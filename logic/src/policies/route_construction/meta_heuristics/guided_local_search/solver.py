@@ -45,17 +45,21 @@ from .params import GLSParams
 
 
 class GLSSolver:
-    """
-    Guided Large Neighborhood Search (G-LNS) solver for VRPP.
+    """Guided Large Neighborhood Search (G-LNS) solver for VRPP.
 
     Attributes:
-        dist_matrix (np.ndarray): Symmetric distance matrix.
-        wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
-        capacity (float): Maximum vehicle collection capacity.
-        R (float): Revenue per kg of waste.
-        C (float): Cost per kg traveled.
-        params (GLSParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        dist_matrix: Symmetric distance matrix.
+        wastes: Mapping of bin IDs to waste quantities.
+        capacity: Maximum vehicle collection capacity.
+        R: Revenue per kg of waste.
+        C: Cost per kg traveled.
+        params: Algorithm-specific parameters.
+        mandatory_nodes: Nodes that must be visited.
+        n_nodes: Number of customer nodes.
+        nodes: List of node indices.
+        random: Random number generator.
+        penalties: Edge penalty matrix.
+        base_lambda: Static lambda for penalty scaling.
     """
 
     def __init__(
@@ -79,6 +83,9 @@ class GLSSolver:
             C: Cost per unit distance.
             params: GLS parameters.
             mandatory_nodes: Optional list of nodes that must be visited.
+
+        Returns:
+            None.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -110,11 +117,10 @@ class GLSSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run G-LNS optimisation.
+        """Run G-LNS optimisation.
 
         Returns:
-            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
+            Tuple of (routes, profit, cost).
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
@@ -211,7 +217,14 @@ class GLSSolver:
     # ------------------------------------------------------------------
 
     def _get_edges(self, routes: List[List[int]]) -> Set[Tuple[int, int]]:
-        """Extract all edges from routes (including depot connections)."""
+        """Extract all edges from routes.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Set of (u, v) tuples.
+        """
         edges: Set[Tuple[int, int]] = set()
         for route in routes:
             if not route:
@@ -223,7 +236,14 @@ class GLSSolver:
         return edges
 
     def _update_penalties(self, routes: List[List[int]]) -> None:
-        """Penalise all feature(s) with the maximum utility."""
+        """Penalise all feature(s) with the maximum utility.
+
+        Args:
+            routes: Current local optimum routes.
+
+        Returns:
+            None.
+        """
         edges = self._get_edges(routes)
         if not edges:
             return
@@ -259,7 +279,14 @@ class GLSSolver:
                     self.penalties[edge[1]][edge[0]] += 1.0
 
     def _augmented_evaluate(self, routes: List[List[int]]) -> float:
-        """Evaluate with penalty-augmented objective using static lambda."""
+        """Evaluate with penalty-augmented objective.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Augmented objective value.
+        """
         real = self._evaluate(routes)
         penalty = 0.0
 
@@ -280,6 +307,15 @@ class GLSSolver:
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """Random removal + Greedy insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = random_removal(routes, n, self.random)
             return greedy_profit_insertion(
@@ -306,6 +342,15 @@ class GLSSolver:
             )
 
     def _llh1(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """Worst removal + Regret-2 insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_removal(routes, n, self.dist_matrix)
             return regret_2_profit_insertion(
@@ -332,6 +377,15 @@ class GLSSolver:
             )
 
     def _llh2(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """Cluster removal + Greedy insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = cluster_removal(routes, n, self.dist_matrix, self.nodes)
             return greedy_profit_insertion(
@@ -358,6 +412,15 @@ class GLSSolver:
             )
 
     def _llh3(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """Worst removal + Greedy insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = worst_removal(routes, n, self.dist_matrix)
             return greedy_profit_insertion(
@@ -384,6 +447,15 @@ class GLSSolver:
             )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """Random removal + Regret-2 insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         if self.params.profit_aware_operators:
             partial, removed = random_removal(routes, n, self.random)
             return regret_2_profit_insertion(
@@ -410,6 +482,15 @@ class GLSSolver:
             )
 
     def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
+        """Penalized removal + Greedy insertion.
+
+        Args:
+            routes: Current routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            Repaired routes.
+        """
         """Penalized Removal (Targeted Destruction): The G-LNS equivalent of FLS."""
         partial, removed = penalized_removal(routes, n, self.penalties, rng=self.random)  # type: ignore[arg-type]
         if self.params.profit_aware_operators:
@@ -440,6 +521,11 @@ class GLSSolver:
     # ------------------------------------------------------------------
 
     def _build_initial_solution(self) -> List[List[int]]:
+        """Construct initial solution.
+
+        Returns:
+            Initial set of routes.
+        """
         routes = build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -452,12 +538,28 @@ class GLSSolver:
         return routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:
+        """Net profit for a set of routes.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
+        """Total routing distance.
+
+        Args:
+            routes: Routing sequences.
+
+        Returns:
+            Total distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

@@ -8,6 +8,35 @@ Reference:
     Jorge, D., Antunes, A. P., Ramos, T. R. P., & Barbosa-Povoa, A. P.
     "A hybrid metaheuristic for smart waste collection problems with
     workload concerns", 2022.
+
+Attributes:
+    execute_new: Execute the improved simulated annealing engine.
+    execute_og: Execute the original LAC (look-ahead collection) engine.
+
+Example:
+    >>> from logic.src.data.bins import Bins
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params import SANSParams
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.sans_policy import SANSPolicy
+    >>> # Create dummy data
+    >>> distance_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+    >>> coords = {
+    ...     0: (0, 0),
+    ...     1: (1, 1),
+    ...     2: (2, 2),
+    ...     3: (3, 3),
+    ...     4: (4, 4),
+    ... }
+    >>> bins = Bins(np.arange(5), np.ones(5), np.zeros(5))
+    >>> params = SANSParams()
+    >>> # Note: policy.execute() would be called in a real scenario
+    >>> # For demonstration, we'll just show the function signature
+    >>> # execute_new would return: (List[int], float, float, Optional[SearchContext], Optional[MultiDayContext])
+    >>> # execute_og would return: (List[int], float, float, Optional[SearchContext], Optional[MultiDayContext])
+    >>>
+    >>> print("execute_new function signature:")
+    >>> print(f"  Returns: {Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]}")
+    >>> print("\nexecute_og function signature:")
+    >>> print(f"  Returns: {Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]}")
 """
 
 import random
@@ -44,7 +73,7 @@ def execute_new(
     Args:
         policy: The SANSPolicy instance.
         params: Type-safe SANS parameters.
-        **kwargs: Arguments passed to the policy's execute method.
+        kwargs: Arguments passed to the policy's execute method.
 
     Returns:
         Tuple[List[int], float, float, Any, Any]: Tour, distance, profit, and metadata.
@@ -132,7 +161,7 @@ def execute_og(
     Args:
         policy: The SANSPolicy instance.
         params: Type-safe SANS parameters.
-        **kwargs: Arguments passed to the policy's execute method.
+        kwargs: Arguments passed to the policy's execute method.
 
     Returns:
         Tuple[List[int], float, Any]: Tour, distance, and metadata.

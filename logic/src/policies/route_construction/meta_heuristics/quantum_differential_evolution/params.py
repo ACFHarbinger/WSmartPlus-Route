@@ -1,5 +1,14 @@
 """
 Configuration parameters for the Quantum-Inspired Differential Evolution (QDE) solver.
+
+Attributes:
+    QDEParams: Dataclass with DE and quantum-gate hyperparameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params import QDEParams
+    >>> params = QDEParams(pop_size=20, F=0.5, CR=0.9, max_iterations=200)
+    >>> print(params.delta_theta)
+    0.031415900000000004
 """
 
 from __future__ import annotations
@@ -39,7 +48,14 @@ class QDEParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "QDEParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object with QDE parameter attributes.
+
+        Returns:
+            QDEParams: Populated parameter dataclass.
+        """
         return cls(
             pop_size=getattr(config, "pop_size", 20),
             F=getattr(config, "F", 0.5),

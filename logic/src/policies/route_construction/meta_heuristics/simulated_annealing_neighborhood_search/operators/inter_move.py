@@ -3,6 +3,17 @@ Inter-route node relocation operators.
 
 Provides procedures to move single or multiple bins between different routes,
 supporting both random and consecutive relocations.
+
+Attributes:
+    move_2_routes: Move one bin from one route to another.
+    move_n_2_routes_random: Move n random bins from one route to another.
+    move_n_2_routes_consecutive: Move n consecutive bins from one route to another.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_move import move_2_routes
+    >>> routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+    >>> move_2_routes(routes, rng)
+    >>> print(routes)
 """
 
 from random import Random
@@ -16,7 +27,8 @@ def move_2_routes(routes_list: List[List[int]], rng: Random) -> None:
     Inter-route perturbation: Move one bin from one route to another.
 
     Args:
-        routes_list: Current routing solution.
+        routes_list (List[List[int]]): Current routing solution.
+        rng (Random): Random number generator.
     """
     if len(routes_list) < 2:
         return

@@ -1,19 +1,16 @@
-"""
-ABC Policy Adapter.
+r"""ABC Policy Adapter.
 
 Adapts the Artificial Bee Colony (ABC) solver to the agnostic
 BaseRoutingPolicy interface.
 
 Attributes:
-    ABCConfig (Type): Configuration schema for the ABC solver.
-    BaseRoutingPolicy (Type): Abstract base for routing policies.
-    RouteConstructorRegistry (Type): Global registry for constructors.
+    ABCPolicy: Adapter class for the ABC solver.
 
 Example:
     >>> from logic.src.configs.policies.abc import ABCConfig
+    >>> from logic.src.policies.route_construction.meta_heuristics.artificial_bee_colony import ABCPolicy
     >>> config = ABCConfig(n_sources=20)
     >>> policy = ABCPolicy(config)
-    >>> routes = policy.solve(problem)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -36,8 +33,7 @@ class ABCPolicy(BaseRoutingPolicy):
     Visits bins using the Artificial Bee Colony algorithm.
 
     Attributes:
-        solver (ABCSolver): Internal solver instance.
-        params (ABCParams): Algorithm parameters.
+        config: Configuration for the policy.
     """
 
     def __init__(self, config: Optional[Union[ABCConfig, Dict[str, Any]]] = None):
@@ -92,28 +88,17 @@ class ABCPolicy(BaseRoutingPolicy):
         intensification.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                ABC parameters (n_sources, limit, iterations).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            kwargs (Any): Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Square distance matrix.
+            sub_wastes: Node fill levels.
+            capacity: Vehicle capacity.
+            revenue: Revenue per kg.
+            cost_unit: Cost per km.
+            values: Merged config dictionary.
+            mandatory_nodes: Nodes that must be visited.
+            kwargs: Additional context.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple containing (routes, profit, cost).
         """
         params = ABCParams(
             n_sources=int(values.get("n_sources", 20)),

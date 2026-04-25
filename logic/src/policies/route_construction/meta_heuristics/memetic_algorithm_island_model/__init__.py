@@ -1,8 +1,15 @@
 """
 Memetic Island Model Genetic Algorithm for VRPP.
 
-Rigorous implementation based on SLC but with GA terminology.
-Uses an island model architecture with memetic local search.
+Uses an island model architecture with memetic local search to solve the
+Vehicle Routing Problem with Profits.
+
+Attributes:
+    MemeticAlgorithmIslandModelParams: Configuration parameters for MAIM.
+    MemeticAlgorithmIslandModelSolver: Core solver implementation for MAIM.
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model import MemeticAlgorithmIslandModelSolver
 """
 
 from .params import MemeticAlgorithmIslandModelParams
