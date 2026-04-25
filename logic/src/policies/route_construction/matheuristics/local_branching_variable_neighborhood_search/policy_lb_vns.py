@@ -4,6 +4,14 @@ Simulator adapter for the Local Branching with Variable Neighborhood Search (LB-
 This policy adapts the LB-VNS matheuristic (Hansen et al., 2006) for use within
 the WSmart+ Route simulation framework, extracting problem state and
 orchestrating the Gurobi optimization process.
+
+Attributes:
+    LocalBranchingVNSPolicy: The LB-VNS policy class.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search import LocalBranchingVNSPolicy
+    >>> policy = LocalBranchingVNSPolicy()
+    >>> policy.execute()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -45,6 +53,9 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         LB-VNS is designed for hard combinatorial problems where standard local search
         fails to reach global minima. By systematically increasing the radius of the
         'restricted' MILP search space, it avoids entrapment in sub-optimal attraction basins.
+
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -87,7 +98,22 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - LB-VNS requires specialized execute()."""
+        """Not used - LB-VNS requires specialized execute().
+
+        Args:
+            sub_dist_matrix: Sub-problem distance matrix.
+            sub_wastes: Map of node IDs to waste values.
+            capacity: Vehicle capacity.
+            revenue: Revenue multiplier.
+            cost_unit: Cost multiplier.
+            values: Additional values dictionary.
+            mandatory_nodes: List of mandatory nodes.
+            kwargs: Additional arguments.
+
+        Returns:
+            Tuple[List[List[int]], float, float]:
+                (routes, total_cost, total_revenue).
+        """
         return [], 0.0, 0.0
 
     def execute(
@@ -106,7 +132,7 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         This implementation uses Gurobi for the restricted MIP solves.
 
         Args:
-            **kwargs: Context for matheuristic execution, including:
+            kwargs: Context for matheuristic execution, including:
                 - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
                 - wastes (Dict[int, float]): Map of customer IDs to collection profits.
                 - capacity (float): Maximum weight the vehicle can carry.

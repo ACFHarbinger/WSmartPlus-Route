@@ -1,5 +1,12 @@
 """
 Configuration parameters for the Local Branching Variable Neighborhood Search (LB-VNS).
+
+Attributes:
+    LBVNSParams (LBVNSParams): Parameters for the LB-VNS policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search import LBVNSParams
+    >>> params = LBVNSParams()
 """
 
 from __future__ import annotations
@@ -48,7 +55,14 @@ class LBVNSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> LBVNSParams:
-        """Create LBVNSParams from a configuration object or dictionary."""
+        """Create LBVNSParams from a configuration object or dictionary.
+
+        Args:
+            config (Any): Configuration object.
+
+        Returns:
+            LBVNSParams: LBVNS parameters.
+        """
         if isinstance(config, dict):
             params = cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
         else:
@@ -78,5 +92,9 @@ class LBVNSParams:
         return params
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert LBVNSParams to a dictionary for backend compatibility."""
+        """Convert LBVNSParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of LBVNSParams.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

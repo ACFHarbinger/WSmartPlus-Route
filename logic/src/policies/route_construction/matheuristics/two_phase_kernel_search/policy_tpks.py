@@ -1,5 +1,13 @@
 """
 Simulator adapter for the Two-Phase Kernel Search (TPKS) matheuristic.
+
+Attributes:
+    TPKSPolicy: The Two-Phase Kernel Search policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.two_phase_kernel_search import TPKSPolicy
+    >>> tpks_policy = TPKSPolicy()
+    >>> tpks_policy.execute(distance_matrix=..., wastes={}, capacity=1e9, R=1.0, C=1.0, mandatory_nodes=[])
 """
 
 from typing import List, Optional, Tuple, Type
@@ -33,17 +41,44 @@ class TPKSPolicy(BaseRoutingPolicy):
     BaseMultiPeriodRoutingPolicy, because TPKS operates on a single-day
     VRPP subproblem. Multi-period extension is achieved by calling it from
     inside a multi-period policy's _run_multi_period_solver.
+
+    Attributes:
+        None
     """
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return configuration class.
+
+        Returns:
+            Type: Configuration class.
+        """
         return None  # or a dedicated TPKSConfig dataclass if needed
 
     def _get_config_key(self) -> str:
+        """Return configuration key.
+
+        Returns:
+            str: Configuration key.
+        """
         return "tpks"
 
     def _run_solver(self, sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, values, mandatory_nodes, **kwargs):
-        # Not used — execute() calls run_tpks_gurobi directly
+        """Not used — execute() calls run_tpks_gurobi directly.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Distance matrix.
+            sub_wastes (Dict[int, float]): Wastes.
+            capacity (float): Capacity.
+            revenue (Optional[float]): Revenue.
+            cost_unit (float): Cost unit.
+            values (Optional[np.ndarray]): Values.
+            mandatory_nodes (List[int]): Mandatory nodes.
+            kwargs (dict): Keyword arguments containing problem parameters.
+
+        Returns:
+            Tuple[List[int], float, float]: (tour, cost, profit).
+        """
         return [], 0.0, 0.0
 
     def execute(self, **kwargs) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
@@ -51,7 +86,7 @@ class TPKSPolicy(BaseRoutingPolicy):
         Executes the Two-Phase Kernel Search policy.
 
         Args:
-            **kwargs: Keyword arguments containing problem parameters.
+            kwargs: Keyword arguments containing problem parameters.
 
         Returns:
             A tuple of (tour, cost, profit, search_context, multi_day_context).

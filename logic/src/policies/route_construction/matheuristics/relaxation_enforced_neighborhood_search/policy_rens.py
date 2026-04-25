@@ -13,6 +13,14 @@ Strategy:
 Reference:
     Berthold, T. (2009). "Rens - The relaxation enforced neighborhood search".
     ZIB-Report 09-11.
+
+Attributes:
+    RENSPolicy: The RENS policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens import RENSPolicy
+    >>> rens_policy = RENSPolicy()
+    >>> rens_policy.execute(distance_matrix=..., wastes={}, capacity=1e9, R=1.0, C=1.0, mandatory_nodes=[])
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -51,6 +59,9 @@ class RENSPolicy(BaseRoutingPolicy):
            capacity) from the Hydra config into the solver's internal dictionary.
         4. Result Translation: Converts the tour sequence and objective value
            back into the simulation-standard metadata package.
+
+    Attributes:
+        None
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -64,11 +75,19 @@ class RENSPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        """Return the configuration dataclass associated with this policy."""
+        """Return the configuration dataclass associated with this policy.
+
+        Returns:
+            Description of return value.
+        """
         return RENSConfig
 
     def _get_config_key(self) -> str:
-        """Return the unique Hydra configuration key for RENS."""
+        """Return the unique Hydra configuration key for RENS.
+
+        Returns:
+            The key.
+        """
         return "rens"
 
     def _run_solver(
@@ -82,7 +101,21 @@ class RENSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - RENS requires specialized execute()."""
+        """Not used - RENS requires specialized execute().
+
+        Args:
+            sub_dist_matrix: Sub-problem distance matrix.
+            sub_wastes: Sub-problem wastes.
+            capacity: Capacity.
+            revenue: Revenue.
+            cost_unit: Cost unit.
+            values: Values.
+            mandatory_nodes: Mandatory nodes.
+            kwargs: Additional parameters.
+
+        Returns:
+            Tuple of (tour, cost, profit).
+        """
         return [], 0.0, 0.0
 
     def execute(
@@ -102,7 +135,7 @@ class RENSPolicy(BaseRoutingPolicy):
         restricted MIP phase.
 
         Args:
-            **kwargs: Context for matheuristic execution, including:
+            kwargs: Context for matheuristic execution, including:
                 - distance_matrix (np.ndarray): Cost matrix between nodes.
                 - wastes (Dict[int, float]): Current waste levels for each bin.
                 - capacity (float): Vehicle volume limit.

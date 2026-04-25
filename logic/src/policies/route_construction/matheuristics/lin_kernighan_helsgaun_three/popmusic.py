@@ -30,6 +30,16 @@ References:
     Helsgaun, K. (2017). An extension of the LKH-TSP solver for
       constrained traveling salesman and vehicle routing problems.
 
+Attributes:
+    HAS_SCIPY: Boolean flag set to ``True`` if SciPy is installed.
+    decompose_tour: Decomposes a closed tour into overlapping sub-paths.
+    optimize_subpath: Optimizes a sub-path using repeated 2-opt local search.
+    generate_optimized_tour: Generates an optimized tour by repeating
+        sub-path optimization on randomized versions of the initial tour.
+    popmusic_candidates: Generates a sparse candidate graph using the
+        POPMUSIC (Partial Optimization Metaheuristic Under Special
+        Intensification Conditions) strategy, suitable for large instances (N > 1000).
+
 Example:
     >>> from logic.src.policies.lin_kernighan_helsgaun_three._popmusic import (
     ...     popmusic_candidates
@@ -181,7 +191,15 @@ def _generate_randomized_tour(
     initial_tour: List[int],
     np_rng: np.random.Generator,
 ) -> List[int]:
-    """Generate a randomized tour by shuffling the non-depot nodes."""
+    """Generate a randomized tour by shuffling the non-depot nodes.
+
+    Args:
+        initial_tour: Description of initial_tour.
+        np_rng: Description of np_rng.
+
+    Returns:
+        Description of return value.
+    """
     open_tour = (
         initial_tour[:-1] if (len(initial_tour) > 1 and initial_tour[0] == initial_tour[-1]) else initial_tour[:]
     )
@@ -206,7 +224,18 @@ def generate_optimized_tour(
     max_trials: int,
     np_rng: np.random.Generator,
 ) -> Set[Tuple[int, int]]:
-    """Generate an optimized tour by applying 2-opt to the initial tour."""
+    """Generate an optimized tour by applying 2-opt to the initial tour.
+
+    Args:
+        initial_tour: Description of initial_tour.
+        distance_matrix: Description of distance_matrix.
+        subpath_size: Description of subpath_size.
+        max_trials: Description of max_trials.
+        np_rng: Description of np_rng.
+
+    Returns:
+        Description of return value.
+    """
     # Decompose and optimize
     shuffled_tour = _generate_randomized_tour(initial_tour, np_rng)
     subpaths = decompose_tour(shuffled_tour, subpath_size)
