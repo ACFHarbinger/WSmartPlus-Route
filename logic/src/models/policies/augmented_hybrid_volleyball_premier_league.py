@@ -5,6 +5,13 @@ Volleyball Premier League (VPL) framework with Hybrid Genetic Search (HGS)
 operators and diversity management. It utilizes parallel ACO for initial
 construction, HGS ordered crossover for learning, and ALNS for coaching/local
 search.
+
+Attributes:
+    VectorizedAHVPL: Augmented hybrid population-based solver.
+
+Example:
+    >>> policy = VectorizedAHVPL(env_name="scwcvrp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -58,19 +65,19 @@ class VectorizedAHVPL(VectorizedHVPL):
         """Initialize the AHVPL solver.
 
         Args:
-            env_name: Identifier for the problem environment.
-            n_teams: Population size (teams) per batch instance.
-            max_iterations: Number of league seasons (cycles).
-            sub_rate: Percentage of non-improving teams to replace via ACO.
-            time_limit: Wall-clock timeout for the entire search in seconds.
-            aco_iterations: Construction phase iterations.
-            alns_iterations: Coaching phase (local search) iterations.
-            crossover_rate: Frequency of genetic recombination.
-            elite_size: Protected group size for survivor selection.
-            device: Target hardware.
-            generator: Torch RNG instance.
-            rng: Standard library RNG instance.
-            **kwargs: Additional hyperparameters.
+            env_name: Name of the environment identifier.
+            n_teams: Number of parallel teams (individuals) in the league.
+            max_iterations: Number of seasons (generations) to simulate.
+            sub_rate: Probability/ratio of replacing underperforming teams.
+            time_limit: Maximum execution time in seconds.
+            aco_iterations: Number of construction iterations for new teams.
+            alns_iterations: Number of refinement iterations in the coaching phase.
+            crossover_rate: Probability of performing HGS crossover.
+            elite_size: Number of elite individuals kept per generation.
+            device: Computing device for tensor operations.
+            generator: Torch RNG generator for sampling.
+            rng: Python random instance for heuristics.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(
             env_name=env_name,
@@ -133,14 +140,14 @@ class VectorizedAHVPL(VectorizedHVPL):
         ALNS-based coaching, and HGS-style population management across all batches.
 
         Args:
-            td: State bundle including locations and node demands.
-            env: Relevant environment instance.
-            strategy: Selection strategy (ignored).
-            num_starts: Number of restarts (not applicable).
-            max_steps: Sequence length limit (ignored).
-            phase: Current execution phase ('train', 'val', or 'test').
-            return_actions: Whether to include results in the output.
-            **kwargs: Runtime overrides.
+            td: TensorDict containing instance data (locations, demands).
+            env: Optional environment for reward calculation.
+            strategy: Solver strategy (e.g., "greedy").
+            num_starts: Unused in AHVPL.
+            max_steps: Maximum step constraint.
+            phase: Current phase ("train", "val", "test").
+            return_actions: Whether to return full action sequences.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results dictionary containing:

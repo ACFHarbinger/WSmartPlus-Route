@@ -4,6 +4,13 @@ This module implements the ILS meta-heuristic, which enhances local search
 by introducing controlled perturbations. This mechanism allows the search
 to escape local optima while maintaining significant high-quality structural
 features of the solution.
+
+Attributes:
+    IteratedLocalSearchPolicy: ILS solver for combinatorial routing problems.
+
+Example:
+    >>> policy = IteratedLocalSearchPolicy(env_name="vrpp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -63,15 +70,15 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         """Initialize the ILS policy.
 
         Args:
-            env_name: Problem environment identifier.
-            ls_operator: Refinement strategy ('random' or specific name).
-            perturbation_type: Jump strategy ('random' or specific name).
-            n_restarts: Number of optimization cycles.
-            ls_iterations: Loop limit for neighborhood search.
-            perturbation_strength: Ratio of tour affected by structural changes.
-            seed: RNG constant.
-            device: Hardware target.
-            **kwargs: Additional hyperparameters.
+            env_name: Name of the environment identifier.
+            ls_operator: Identifier or probability map for local search operators.
+            perturbation_type: Identifier or probability map for jumping modes.
+            n_restarts: Number of ILS cycles (restarts).
+            ls_iterations: Maximum iterations for each local search phase.
+            perturbation_strength: Fraction of the solution to alter during jumps.
+            seed: Random seed for search reproducibility.
+            device: Computing device for operations.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.ls_operator = ls_operator
@@ -198,14 +205,14 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         """Run the complete ILS refinement procedure.
 
         Args:
-            td: Input problem state bundle.
-            env: Relevant environment instance.
-            strategy: Search strategy (ignored).
-            num_starts: Number of restarts (ignored).
-            max_steps: Limit on sequence length (ignored).
-            phase: Current execution phase ('train', 'val', or 'test').
-            return_actions: Whether to include action history.
-            **kwargs: Optional 'initial_solution' override.
+            td: TensorDict containing problem instance data.
+            env: Optional environment for reward calculation.
+            strategy: Solver strategy (e.g., "greedy").
+            num_starts: Unused in ILS.
+            max_steps: Maximum step constraint.
+            phase: Current phase ("train", "val", "test").
+            return_actions: Whether to return full action sequences.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Optimized results dictionary containing:

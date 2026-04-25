@@ -1,5 +1,16 @@
 """
 Evaluation Dispatcher.
+
+Attributes:
+    get_automatic_batch_size
+    evaluate_policy
+    evaluate_policy_batch
+    evaluate_policy_multiprocess
+    generate_eval_result_path
+
+Example:
+    >>> evaluator = get_evaluator(env)
+    >>> evaluator(policy, data_loader)
 """
 
 from typing import Any, Dict
@@ -30,6 +41,18 @@ def get_automatic_batch_size(
 ) -> int:
     """
     Automatically find the maximum batch size that fits in GPU memory.
+
+    Args:
+        policy: Policy to evaluate.
+        env: Environment to evaluate on.
+        data_loader: DataLoader containing evaluation data.
+        method: Evaluation method (e.g., 'greedy').
+        initial_batch_size: Initial batch size to test.
+        max_tries: Maximum number of attempts to find a valid batch size.
+        kwargs: Additional keyword arguments for evaluation.
+
+    Returns:
+        The largest batch size that fits in GPU memory.
     """
     # Try a small subset first to find the batch size
     dataset = data_loader.dataset
@@ -75,15 +98,12 @@ def evaluate_policy(
     Evaluate a policy using the specified method.
 
     Args:
-        policy: Policy to evaluate
-        env: Environment
-        data_loader: Dataset loader
-        method: Decoding strategy ("greedy", "sampling", "augmentation", "multistart", "multistart_augment")
-        **kwargs: Additional arguments for evaluator
-            - samples (int): for sampling
-            - num_augment (int): for augmentation
-            - num_starts (int): for multistart
-            - decoding (dict): Dictionary of decoding parameters, e.g., {"temperature": 1.0}
+        policy: Policy to evaluate.
+        env: Environment to evaluate on.
+        data_loader: DataLoader containing evaluation data.
+        method: Evaluation method (e.g., 'greedy').
+        return_results: Whether to return detailed results.
+        kwargs: Additional keyword arguments for evaluation.
 
     Returns:
         Dict with metrics

@@ -1,5 +1,17 @@
-"""
-Training engine for WSmart-Route.
+"""Training engine for WSmart-Route.
+
+Attributes:
+    run_training: Run single model training.
+    _run_training_via_zenml: Run training through the ZenML pipeline.
+    _build_experiment_name: Derive a human-readable experiment name from the Hydra config.
+    _build_callbacks: Instantiate training callbacks from Hydra config.
+    _log_training_params: Log training configuration parameters.
+    _track_val_dataset: Track the validation dataset if available.
+
+Example:
+    >>> from logic.src.pipeline.features.train.engine import run_training
+    >>> run_training(cfg)
+    200000.0
 """
 
 from __future__ import annotations
@@ -35,7 +47,14 @@ logger = get_pylogger(__name__)
 
 
 def _build_experiment_name(cfg: Config) -> str:
-    """Derive a human-readable experiment name from the Hydra config."""
+    """Derive a human-readable experiment name from the Hydra config.
+
+    Args:
+        cfg: Root configuration object.
+
+    Returns:
+        Human-readable experiment name string.
+    """
     parts = [
         getattr(cfg.env, "name", "env"),
         str(getattr(cfg.env, "num_loc", "")),
@@ -51,6 +70,12 @@ def _build_callbacks(cfg: Config) -> list:
     Handles ``ITraversable`` configs (direct ``_target_`` dicts and nested
     name-to-config dicts), links ``CleanProgressBar`` ↔ ``TerminalChartCallback``
     when both are present, and always includes a :class:`SpeedMonitor`.
+
+    Args:
+        cfg: Root configuration object.
+
+    Returns:
+        List of instantiated callback objects.
     """
     callbacks: list = [SpeedMonitor(epoch_time=True)]
     if cfg.train.callbacks:
@@ -196,7 +221,12 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
 
 
 def _log_training_params(run: wst.Run, cfg: Config) -> None:
-    """Flatten and log relevant config sections as run parameters."""
+    """Flatten and log relevant config sections as run parameters.
+
+    Args:
+        run: WSTracker run object.
+        cfg: Root configuration object.
+    """
     sections = {}
     for attr in ("train", "rl", "env", "model"):
         section = getattr(cfg, attr, None)
@@ -225,6 +255,9 @@ def _run_training_via_zenml(cfg: Config) -> float:
     Called when ``cfg.tracking.zenml_enabled`` is ``True`` and no external
     sinks were injected (i.e. the call originates from the CLI, not from
     inside a ZenML step).
+
+    Args:
+        cfg: Root configuration object.
 
     Returns:
         Best validation reward returned by the ZenML pipeline.

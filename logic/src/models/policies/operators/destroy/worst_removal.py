@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the worst removal
 heuristic, which greedily identifies and ejects nodes from the tour that
 contribute most to its total distance.
+
+Attributes:
+    vectorized_worst_removal: Ejects nodes that contribute most to total tour distance.
+
+Example:
+    >>> from logic.src.models.policies.operators.destroy.worst_removal import vectorized_worst_removal
+    >>> tours, removed_nodes = vectorized_worst_removal(tours, dist_matrix, n_remove)
 """
 
 from __future__ import annotations

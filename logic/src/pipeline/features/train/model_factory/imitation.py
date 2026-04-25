@@ -1,6 +1,15 @@
 """Imitation learning model factory.
 
 Creates imitation learning modules from configuration.
+
+Attributes:
+    _create_imitation: Create imitation learning module
+    _create_adaptive_imitation: Create adaptive imitation learning module
+    _create_critic_helper: Create critic network from actor policy
+
+Example:
+    >>> from logic.src.pipeline.features.train.model_factory.imitation import _create_imitation
+    >>> _create_imitation(cfg, policy, env, kw)
 """
 
 from typing import Any, Dict

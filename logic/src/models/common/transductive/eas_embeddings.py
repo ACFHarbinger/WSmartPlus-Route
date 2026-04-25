@@ -41,10 +41,10 @@ class EASEmb(EAS):
         """Initializes the Embedding-focused EAS model.
 
         Args:
-            model: The base neural strategy to refine.
-            optimizer_kwargs: Configuration for the Adams optimizer.
-            n_search_steps: Total refinement iterations at test-time.
-            **kwargs: Additional parameters for the EAS base class.
+            model: The base policy model to be adapted.
+            optimizer_kwargs: Optimizer settings (e.g., learning rate).
+            n_search_steps: Number of test-time optimization iterations.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(
             model=model,

@@ -9,6 +9,9 @@ Attributes:
     _vectorized_split_limited: Limited capacity split algorithm.
     _reconstruct_routes: Reconstructs tour sequences from split indices.
     _reconstruct_limited: Reconstruction utility for limited-capacity scenarios.
+
+Example:
+    None
 """
 
 from __future__ import annotations

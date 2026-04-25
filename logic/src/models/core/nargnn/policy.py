@@ -6,6 +6,10 @@ search) to extract solution sequences.
 
 Attributes:
     NARGNNPolicy: Heatmap-based construction policy.
+
+Example:
+    >>> policy = NARGNNPolicy(env_name="tsp", embed_dim=64)
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -67,23 +71,23 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         """Initializes the NARGNNPolicy.
 
         Args:
-            encoder: instance of the GNN heatmap predictor.
-            decoder: instance of the NAR sequence builder.
-            embed_dim: size of latent node/edge features.
-            env_name: task identifier.
-            init_embedding: projection module for raw nodes.
-            edge_embedding: projection module for raw edges.
-            graph_network: core GNN message-passing module.
-            heatmap_generator: final MLP that predicts edge scores.
-            num_layers_heatmap_generator: depth of the output MLP.
-            num_layers_graph_encoder: depth of the GNN stack.
-            act_fn: activation function for GNN layers.
-            agg_fn: neighbor pooling strategy ('mean', 'sum').
-            linear_bias: toggle bias in linear projections.
-            train_strategy: selection mode during learning.
-            val_strategy: selection mode during validation.
-            test_strategy: selection mode during testing.
-            **constructive_policy_kw: extra params for the base NAR policy.
+            encoder: Optional heatmap-prediction GNN encoder.
+            decoder: Optional non-autoregressive builder.
+            embed_dim: Dimensionality of latent embeddings.
+            env_name: Name of the environment identifier.
+            init_embedding: Optional node-feature projection module.
+            edge_embedding: Optional edge-feature projection module.
+            graph_network: Optional underlying GNN architecture.
+            heatmap_generator: Optional edge-scoring MLP.
+            num_layers_heatmap_generator: Layers in the edge generator.
+            num_layers_graph_encoder: Layers in the graph encoder.
+            act_fn: Activation function name.
+            agg_fn: Aggregation function name for graph message passing.
+            linear_bias: Whether to use bias in linear transformations.
+            train_strategy: Selection strategy for training.
+            val_strategy: Selection strategy for validation.
+            test_strategy: Selection strategy for testing.
+            **constructive_policy_kw: Additional keyword arguments.
         """
         if encoder is None:
             # NARGNNEncoder implements functional interface of NonAutoregressiveEncoder
@@ -126,11 +130,11 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         """Calculates heatmaps and extracts solution sequences.
 
         Args:
-            td: problem state container.
-            env: problem dynamics.
-            num_starts: parallel starts for multi-path sampling.
-            phase: Current mode ('train', 'val', 'test').
-            **kwargs: extra params for decoding and strategy selection.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            num_starts: Number of parallel construction starts.
+            phase: Current execution phase ("train", "val", "test").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Result map including:

@@ -2,6 +2,12 @@
 
 This module provides the foundation for constructive routing policies, which
 build solutions by selecting nodes sequentially.
+
+Attributes:
+    ConstructivePolicy: Base class for constructive policies.
+
+Example:
+    None
 """
 
 from __future__ import annotations
@@ -46,6 +52,8 @@ class ConstructivePolicy(nn.Module, ABC):
     ) -> None:
         """Initialize the ConstructivePolicy.
 
+
+
         Args:
             encoder: Encoder instance for state processing.
             decoder: Decoder instance for step-by-step selection.
@@ -53,7 +61,7 @@ class ConstructivePolicy(nn.Module, ABC):
             embed_dim: Feature dimensionality for latent representations.
             seed: Seed for random initialization and sampling.
             device: Computing device ('cpu', 'cuda').
-            **kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.encoder = encoder
@@ -106,12 +114,14 @@ class ConstructivePolicy(nn.Module, ABC):
     ) -> Dict[str, Any]:
         """Execute a full forward pass: encoding followed by sequential decoding.
 
+
+
         Args:
             td: TensorDict containing the problem instance metadata.
             env: Environment object for state transitions and masking.
             strategy: Decoding strategy ("sampling", "greedy", "beam_search").
             num_starts: Number of parallel solution attempts.
-            **kwargs: Additional control arguments for decoding.
+            kwargs: Additional control arguments for decoding.
 
         Returns:
             Dict[str, Any]: Results dictionary containing:
@@ -133,11 +143,13 @@ class ConstructivePolicy(nn.Module, ABC):
         Uses the `get_decoding_strategy` utility to apply logic like greedy
         selection, multinomial sampling, or beam search.
 
+
+
         Args:
             logits: Predicted action logits of shape [batch, num_nodes].
             mask: Valid action mask of shape [batch, num_nodes].
             strategy: Name of the decoding strategy to apply.
-            **kwargs: Additional parameters (e.g., temperature) for the strategy.
+            kwargs: Additional parameters (e.g., temperature) for the strategy.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:

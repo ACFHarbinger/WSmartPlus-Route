@@ -7,6 +7,10 @@ computational cost.
 
 Attributes:
     MoEPolicy: Routing model with expert-routed attention encoding.
+
+Example:
+    >>> policy = MoEPolicy(env_name="tsp", embed_dim=128, num_experts=4)
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -44,16 +48,16 @@ class MoEPolicy(AttentionModelPolicy):
         """Initializes the Mixture of Experts policy.
 
         Args:
-            env_name: Optimization task identifier.
-            embed_dim: dimensionality of latent features.
-            hidden_dim: Multi-layer perceptron expansion size.
-            n_encode_layers: Depth of the contextual encoder.
-            n_heads: Count of attention heads.
-            normalization: Type of normalization layer.
-            num_experts: Total count of expert sub-networks in each layer.
-            k: number of experts active per token.
-            noisy_gating: whether to add noise to routing to balance load.
-            **kwargs: Extra parameters for base policy and encoder.
+            env_name: Name of the environment identifier.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            n_encode_layers: Number of transformer encoder layers.
+            n_heads: Number of attention heads.
+            normalization: Type of layer normalization.
+            num_experts: Total number of experts in the MoE layer.
+            k: Number of experts to activate per token (top-k).
+            noisy_gating: Whether to use noise in the gating network.
+            kwargs: Additional keyword arguments.
         """
         # We invoke super() but we will overwrite the encoder.
         # This is slightly inefficient (creates standard encoder then throws it away)

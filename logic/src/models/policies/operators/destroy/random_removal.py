@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the random removal
 heuristic, which stochastically selects nodes to eject from tours, providing
 diversification for large neighborhood search.
+
+Attributes:
+    vectorized_random_removal: Randomly removes nodes from tours.
+
+Example:
+    >>> from logic.src.models.policies.operators.destroy.random_removal import vectorized_random_removal
+    >>> tours, removed_nodes = vectorized_random_removal(tours, n_remove)
 """
 
 from __future__ import annotations

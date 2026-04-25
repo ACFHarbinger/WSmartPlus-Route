@@ -1,4 +1,13 @@
-"""Augmentation evaluation implementation."""
+"""Augmentation evaluation implementation.
+
+Attributes:
+    AugmentationEval: Evaluates a policy using Test-Time Augmentation.
+
+Example:
+    >>> from logic.src.pipeline.features.eval.evaluators import AugmentationEval
+    >>> evaluator = AugmentationEval(config)
+    >>> evaluator.evaluate()
+"""
 
 from __future__ import annotations
 
@@ -17,6 +26,12 @@ from logic.src.utils.functions import move_to
 class AugmentationEval(EvalBase):
     """Evaluation with data augmentation (Test-Time Augmentation).
     Performs N augmentations and picks the best result for each sample.
+
+    Attributes:
+        env: The environment to evaluate on.
+        num_augment: Number of augmentations to perform.
+        augment_fn: Name of the augmentation function.
+        progress: Whether to show progress bar.
     """
 
     def __init__(

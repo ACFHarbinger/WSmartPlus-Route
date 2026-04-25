@@ -1,4 +1,13 @@
-"""Multi-start evaluation implementation."""
+"""Multi-start evaluation implementation.
+
+Attributes:
+    MultiStartEval: Evaluates a policy using multi-start search.
+
+Example:
+    >>> from logic.src.pipeline.features.eval.evaluators import MultiStartEval
+    >>> evaluator = MultiStartEval(config)
+    >>> evaluator.evaluate()
+"""
 
 from __future__ import annotations
 
@@ -14,7 +23,13 @@ from logic.src.utils.functions import move_to
 
 
 class MultiStartEval(EvalBase):
-    """Evaluation with multiple starts (POMO-style)."""
+    """Evaluation with multiple starts (POMO-style).
+
+    Attributes:
+        env: The environment to evaluate on.
+        num_starts: Number of starts for multi-start search.
+        progress: Whether to show progress bar.
+    """
 
     def __init__(self, env: Any, num_starts: Optional[int] = None, progress: bool = True, **kwargs):
         """Initialize Class.

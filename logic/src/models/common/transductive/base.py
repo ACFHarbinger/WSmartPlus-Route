@@ -3,6 +3,14 @@
 This module provides the abstract foundation for transductive methods, such as
 Active Search and EAS, which perform instance-specific weight adaptation or
 stochastic search during the inference phase to refine solution quality.
+
+Attributes:
+    TransductiveModel: Base class for transductive search methods.
+
+Example:
+    >>> policy = AttentionModelPolicy(...)
+    >>> eas = TransductiveModel(policy, n_search_steps=100)
+    >>> out = eas(td, env)
 """
 
 from __future__ import annotations
@@ -42,10 +50,10 @@ class TransductiveModel(nn.Module, ABC):
         """Initialize the TransductiveModel.
 
         Args:
-            model: The base neural policy to be adapted.
-            optimizer_kwargs: Keyword arguments for the Adam optimizer (e.g., 'lr').
-            n_search_steps: Number of search/adaptation steps to perform.
-            **kwargs: Additional parameters stored in `self.kwargs`.
+            model: The base policy model to be adapted.
+            optimizer_kwargs: Optimizer settings (e.g., learning rate).
+            n_search_steps: Number of test-time optimization iterations.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.model = model
@@ -89,10 +97,10 @@ class TransductiveModel(nn.Module, ABC):
         original state before returning the best found solution.
 
         Args:
-            td: TensorDict containing problem instance metadata.
-            env: Environment object for transitions and reward calculation.
-            strategy: Final decoding strategy to apply (after search).
-            **kwargs: Additional control arguments for the policy pass.
+            td: TensorDict containing the problem instance(s).
+            env: Environment managing problem rules and reward logic.
+            strategy: Evaluation strategy (usually "greedy" or "sampling").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Best results found during search including:

@@ -5,6 +5,9 @@ a routing cycle based on global occupancy and predicted urgency.
 
 Attributes:
     GateHead: MLP-based binary categorical decision head.
+
+Example:
+    None
 """
 
 from __future__ import annotations

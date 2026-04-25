@@ -51,11 +51,11 @@ class GLOP(nn.Module):
         """Initializes the GLOP model.
 
         Args:
-            env: heavy-duty optimization environment.
-            policy: Optional pre-configured partitioning policy.
-            policy_kwargs: parameter map for automated policy creation.
-            baseline: identifier for reward normalization.
-            **kwargs: Unused extra parameters.
+            env: Environment managing problem physics.
+            policy: Optional pre-initialized GLOP policy.
+            policy_kwargs: Hyper-parameters for the underlying policy.
+            baseline: RL baseline type (e.g., "mean").
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
 
@@ -80,10 +80,10 @@ class GLOP(nn.Module):
         """Executes the partitioning and local optimization pipeline.
 
         Args:
-            td: Environment state.
-            env: Optional environment override.
-            phase: Current execution phase ('train', 'val', 'test').
-            **kwargs: Extra parameters for the policy logic.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            phase: Current execution phase ("train", "val", "test").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: results including 'reward', 'log_likelihood', and 'actions'.

@@ -3,6 +3,12 @@
 This module provides the legacy implementation of the critic network and
 re-exports the canonical `CriticNetwork` from the policy module. It serves
 as a bridge for older problem-based pipelines.
+
+Attributes:
+    LegacyCriticNetwork: The legacy critic network implementation.
+
+Example:
+    >>> critic = LegacyCriticNetwork(problem, factory, embed_dim=128, hidden_dim=256)
 """
 
 from __future__ import annotations

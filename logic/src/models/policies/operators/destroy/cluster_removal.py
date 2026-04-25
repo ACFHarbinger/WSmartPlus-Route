@@ -3,6 +3,13 @@
 This module provides a GPU-accelerated implementation of the cluster removal
 heuristic, which identifies a spatial neighborhood around a seed node and
 removes nodes within that cluster to facilitate large-scale local search.
+
+Attributes:
+    vectorized_cluster_removal: Removes a cluster of spatially related nodes from the tours.
+
+Example:
+    >>> from logic.src.models.policies.operators.destroy.cluster_removal import vectorized_cluster_removal
+    >>> tours, removed_nodes = vectorized_cluster_removal(tours, dist_matrix, n_remove)
 """
 
 from __future__ import annotations

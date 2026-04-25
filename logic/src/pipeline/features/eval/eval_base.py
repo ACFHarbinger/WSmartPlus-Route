@@ -1,5 +1,12 @@
 """
 Base class for evaluation strategies.
+
+Attributes:
+    EvalBase: Base class for evaluation strategies.
+
+Example:
+    >>> evaluator = EvalBase(env)
+    >>> evaluator(policy, data_loader)
 """
 
 from __future__ import annotations
@@ -12,7 +19,11 @@ from torch.utils.data import DataLoader
 
 
 class EvalBase(ABC):
-    """Base class for evaluation strategies."""
+    """Base class for evaluation strategies.
+
+    Attributes:
+        None
+    """
 
     def __init__(self, env: Any, progress: bool = True, device: str | torch.device = "cpu", **kwargs):
         """Initialize Class.
@@ -33,8 +44,10 @@ class EvalBase(ABC):
         Evaluate policy on dataset.
 
         Args:
-            policy: Policy to evaluate
-            data_loader: DataLoader with test data
+            policy: Description of policy.
+            data_loader: Description of data_loader.
+            return_results: Description of return_results.
+            kwargs: Description of kwargs.
 
         Returns:
             Dict with metrics (reward, etc.)

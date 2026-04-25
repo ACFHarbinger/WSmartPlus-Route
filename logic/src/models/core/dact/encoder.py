@@ -51,11 +51,11 @@ class DACTEncoder(ImprovementEncoder):
         """Initializes the DACT encoder.
 
         Args:
-            embed_dim: Internal feature dimension.
-            num_layers: count of transformation blocks.
-            num_heads: count of attention heads per layer.
-            pos_type: Identifier for the positional embedding scheme (e.g., 'CPE').
-            **kwargs: Extra parameters.
+            embed_dim: Dimensionality of latent embeddings.
+            num_layers: Number of transformer layers.
+            num_heads: Number of attention heads.
+            pos_type: Positional encoding method (e.g., "CPE").
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim)
 
@@ -84,11 +84,8 @@ class DACTEncoder(ImprovementEncoder):
         """Encodes spatial nodes and their current tour positions.
 
         Args:
-            td: state container with:
-                - 'locs': [B, N, 2] coordinates.
-                - 'depot': [B, 1, 2] or [B, 2] origin.
-                - 'solution': [B, N+1] node indices representing the tour.
-            **kwargs: unused.
+            td: TensorDict containing 'locs', 'depot', and 'solution' keys.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Refined node embeddings [B, N+1, embed_dim].

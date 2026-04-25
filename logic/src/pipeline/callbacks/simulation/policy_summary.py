@@ -2,6 +2,15 @@
 Policy Summary Callback.
 
 Display a summary of the policies that will be run in the simulation.
+
+Attributes:
+    PolicySummaryCallback: Callback to display a summary of the policies.
+
+Example:
+    >>> from logic.src.configs import Config
+    >>> from logic.src.pipeline.callbacks.simulation.policy_summary import PolicySummaryCallback
+    >>> callback = PolicySummaryCallback()
+    >>> callback.display(cfg)
 """
 
 import sys
@@ -21,6 +30,9 @@ from logic.src.utils.configs.config_loader import load_config
 class PolicySummaryCallback:
     """
     Callback to print a detailed summary of the policies.
+
+    Attributes:
+        None
     """
 
     def display(self, cfg: Config) -> None:
@@ -74,7 +86,15 @@ class PolicySummaryCallback:
         console.print("\n")
 
     def _extract_engine(self, policy_name: str, config: Dict[str, Any]) -> str:
-        """Extract the engine name."""
+        """Extract the engine name.
+
+        Args:
+            policy_name: Name of the policy.
+            config: Configuration of the policy.
+
+        Returns:
+            The engine name.
+        """
         raw_cfg = config
         solver_key = None
         known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs", "alns", "bpc", "sans", "na"]
@@ -106,7 +126,14 @@ class PolicySummaryCallback:
         return str(solver_key).upper() if solver_key else "Unknown"
 
     def _extract_selection(self, config: Dict[str, Any]) -> str:
-        """Extract selection strategy details."""
+        """Extract selection strategy details.
+
+        Args:
+            config: Configuration of the policy.
+
+        Returns:
+            The selection strategy.
+        """
         raw_cfg = config
         flat_cfg = _flatten_config(raw_cfg)
         config_mandatory = flat_cfg.get("mandatory")
@@ -131,7 +158,14 @@ class PolicySummaryCallback:
         return ", ".join(strategies) if strategies else "None"
 
     def _parse_selection_item(self, item: Any) -> tuple[str, str]:
-        """Parse a single selection item into name and params."""
+        """Parse a single selection item into name and params.
+
+        Args:
+            item: Description of item.
+
+        Returns:
+            Description of return value.
+        """
         name: str = "Unknown"
         params: str = ""
 
@@ -158,7 +192,14 @@ class PolicySummaryCallback:
         return name, params
 
     def _parse_mandatory_config_params(self, config: MandatorySelectionConfig) -> str:
-        """Extract formatted parameters from a MandatorySelectionConfig object."""
+        """Extract formatted parameters from a MandatorySelectionConfig object.
+
+        Args:
+            config: Configuration of the policy.
+
+        Returns:
+            Formatted parameters for the selection strategy.
+        """
         strategy = config.strategy
         if strategy == "regular":
             return f"(freq={config.regular.frequency})"
@@ -188,7 +229,14 @@ class PolicySummaryCallback:
         return ""
 
     def _parse_traversable_params(self, item: ITraversable) -> str:
-        """Extract formatted parameters from an ITraversable (Config/Dict) object."""
+        """Extract formatted parameters from an ITraversable (Config/Dict) object.
+
+        Args:
+            item: Configuration of the policy.
+
+        Returns:
+            Formatted parameters for the selection strategy.
+        """
         if "threshold" in item:
             return f"(t={item['threshold']})"
         if "horizon_days" in item:
@@ -200,7 +248,14 @@ class PolicySummaryCallback:
         return ""
 
     def _extract_route_improvement(self, config: Dict[str, Any]) -> str:
-        """Extract route improvement steps."""
+        """Extract route improvement steps.
+
+        Args:
+            config: Configuration of the policy.
+
+        Returns:
+            Route improvement steps.
+        """
         raw_cfg = config
         flat_cfg = _flatten_config(raw_cfg)
         pp = flat_cfg.get("route_improvement")

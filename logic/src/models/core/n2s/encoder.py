@@ -6,6 +6,10 @@ neighbors of each node to maintain efficiency and focus on local moves.
 
 Attributes:
     N2SEncoder: Neural encoder for neighborhood-constrained attention.
+
+Example:
+    >>> encoder = N2SEncoder(embed_dim=128, k_neighbors=20)
+    >>> h = encoder(td)
 """
 
 from __future__ import annotations
@@ -46,10 +50,10 @@ class N2SEncoder(ImprovementEncoder):
         """Initializes the N2S encoder.
 
         Args:
-            embed_dim: dimensionality of latent features.
-            num_heads: count of attention heads.
-            k_neighbors: size of the local attention window.
-            **kwargs: Unused parameters.
+            embed_dim: Dimensionality of the node embeddings.
+            num_heads: Number of attention heads.
+            k_neighbors: Number of nearest neighbors to attend to.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim=embed_dim)
         self.k_neighbors = k_neighbors
@@ -98,8 +102,8 @@ class N2SEncoder(ImprovementEncoder):
         """Encodes node features using neighborhood-constrained attention.
 
         Args:
-            td: state container with instance data.
-            **kwargs: Unused.
+            td: TensorDict containing "depot" and "locs" keys.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Refined node embeddings [B, N, embed_dim].

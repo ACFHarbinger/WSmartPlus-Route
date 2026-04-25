@@ -6,6 +6,10 @@ LSTM encoder-decoder architecture of `PointerNetwork` into the standard
 
 Attributes:
     PointerNetworkPolicy: Adapter for LSTM-based constructive search.
+
+Example:
+    >>> policy = PointerNetworkPolicy(env_name="vrp", embed_dim=128)
+    >>> out = policy(td, env, strategy="greedy")
 """
 
 from __future__ import annotations
@@ -42,10 +46,10 @@ class PointerNetworkPolicy(AutoregressivePolicy):
         """Initializes the Pointer Network Policy adapter.
 
         Args:
-            env_name: Target optimization environment name.
-            embed_dim: Dimensionality of node embeddings.
-            hidden_dim: Width of recurrent hidden states.
-            **kwargs: Extra parameters passed to the inner model.
+            env_name: Name of the environment identifier.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of LSTM hidden states.
+            kwargs: Additional keyword arguments for the PointerNetwork model.
         """
         super().__init__(env_name=env_name, embed_dim=embed_dim)
         self.model = PointerNetwork(
@@ -58,7 +62,7 @@ class PointerNetworkPolicy(AutoregressivePolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
@@ -67,12 +71,12 @@ class PointerNetworkPolicy(AutoregressivePolicy):
         """Calculates construction solution using the recurrent pointer loop.
 
         Args:
-            td: problem state container (requires 'locs').
-            env: problem dynamics for reward calculation.
-            strategy: constructive decoding mode.
-            num_starts: parallel starts (NOTE: mostly ignored by legacy RNN code).
-            actions: Pre-selected actions for teacher forcing evaluation.
-            **kwargs: extra params.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "sampling").
+            num_starts: Number of parallel construction starts.
+            actions: Optional pre-selected actions for teacher forcing.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Result mapping containing:
@@ -105,6 +109,7 @@ class PointerNetworkPolicy(AutoregressivePolicy):
         log_likelihood = log_p.sum(dim=1)
 
         # 5. Env-based reward calculation
+        assert env is not None, "Environment must be provided for reward calculation."
         reward = env.get_reward(td, out_actions)
 
         return {

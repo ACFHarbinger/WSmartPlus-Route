@@ -45,12 +45,11 @@ class EAS(TransductiveModel):
         """Initializes the EAS transductive model.
 
         Args:
-            model: The base neural strategy to refine.
-            optimizer_kwargs: Setup parameters for the refinement optimizer.
-            n_search_steps: Iteration count for test-time adaptation.
-            search_param_names: Identifier tokens for parameters to adapt.
-                Defaults to ["init_embedding", "init_proj"].
-            **kwargs: Configuration properties for the underlying TransductiveModel.
+            model: The base policy model to be adapted.
+            optimizer_kwargs: Optimizer settings (e.g., learning rate).
+            n_search_steps: Number of test-time optimization iterations.
+            search_param_names: List of module name substrings to optimize.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(
             model=model,

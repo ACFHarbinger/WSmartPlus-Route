@@ -50,11 +50,11 @@ class DACT(nn.Module):
         """Initializes the DACT model.
 
         Args:
-            env: Targeted RL4CO environment.
-            policy: Optional pre-defined policy instance.
-            policy_kwargs: Config parameters for automatic policy creation.
-            baseline: RL baseline strategy.
-            **kwargs: Extra parameters.
+            env: Environment managing problem physics and rewards.
+            policy: Optional pre-instantiated DACT policy.
+            policy_kwargs: Hyper-parameters for policy setup.
+            baseline: RL baseline type (default: "rollout").
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.env = env
@@ -76,10 +76,10 @@ class DACT(nn.Module):
         """Performs iterative improvement steps.
 
         Args:
-            td: Environment state container.
-            env: Optional environment override.
-            phase: Execution phase ('train', 'val', 'test').
-            **kwargs: Additional parameters for the policy.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            phase: Current execution phase ("train", "val", "test").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: map containing 'reward', 'log_likelihood', etc.

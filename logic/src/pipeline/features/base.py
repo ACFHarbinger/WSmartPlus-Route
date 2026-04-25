@@ -1,5 +1,25 @@
 """
 Shared utilities and base classes for pipeline features.
+
+Attributes:
+    deep_sanitize: Recursively convert OmegaConf objects and other types to primitive types.
+    remap_legacy_keys: Remap config keys to legacy names for simulation compatibility.
+    flatten_config_dict: Flatten nested 'graph', 'reward', 'decoding', 'model', and 'policy' configs into the main dictionary.
+
+Example:
+    >>> from logic.src.configs import Config
+    >>> from logic.src.pipeline.features.base import deep_sanitize, remap_legacy_keys, flatten_config_dict
+    >>>
+    >>> # Example for deep_sanitize
+    >>> cfg = Config()
+    >>> sanitized = deep_sanitize(cfg)
+    >>>
+    >>> # Example for remap_legacy_keys
+    >>> common_kwargs = {}
+    >>> remap_legacy_keys(common_kwargs, cfg)
+    >>>
+    >>> # Example for flatten_config_dict
+    >>> flattened = flatten_config_dict(cfg)
 """
 
 from typing import Any, Dict
@@ -16,6 +36,12 @@ logger = get_pylogger(__name__)
 def deep_sanitize(obj: Any) -> Any:
     """
     Recursively convert OmegaConf objects and other types to primitive types.
+
+    Args:
+        obj: The object to sanitize.
+
+    Returns:
+        The sanitized object.
     """
     if isinstance(obj, (DictConfig, ListConfig)):
         obj = OmegaConf.to_container(obj, resolve=True)
@@ -32,7 +58,12 @@ def deep_sanitize(obj: Any) -> Any:
 
 
 def remap_legacy_keys(common_kwargs: Dict[str, Any], cfg: Config) -> None:
-    """Remap config keys to legacy names for simulation compatibility."""
+    """Remap config keys to legacy names for simulation compatibility.
+
+    Args:
+        common_kwargs: Dictionary to store remapped keys.
+        cfg: Configuration object containing model and environment settings.
+    """
     # The simulation's load_model expects legacy key names
     common_kwargs["problem"] = cfg.env.name
     common_kwargs["model"] = cfg.model.name
@@ -74,6 +105,12 @@ def remap_legacy_keys(common_kwargs: Dict[str, Any], cfg: Config) -> None:
 def flatten_config_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     """
     Flatten nested 'graph', 'reward', 'decoding', 'model', and 'policy' configs into the main dictionary.
+
+    Args:
+        d: The configuration dictionary to flatten.
+
+    Returns:
+        The flattened configuration dictionary.
     """
     new_dict = d.copy()
 

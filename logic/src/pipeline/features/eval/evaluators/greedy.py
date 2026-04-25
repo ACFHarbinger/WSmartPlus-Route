@@ -1,4 +1,13 @@
-"""Greedy evaluation implementation."""
+"""Greedy evaluation implementation.
+
+Attributes:
+    GreedyEval: Evaluates a policy using greedy search.
+
+Example:
+    >>> from logic.src.pipeline.features.eval.evaluators import GreedyEval
+    >>> evaluator = GreedyEval(config)
+    >>> evaluator.evaluate()
+"""
 
 from __future__ import annotations
 
@@ -14,7 +23,11 @@ from logic.src.utils.functions import move_to
 
 
 class GreedyEval(EvalBase):
-    """Greedy evaluation."""
+    """Greedy evaluation.
+
+    Attributes:
+        None
+    """
 
     def __call__(self, policy: Any, data_loader: DataLoader, return_results: bool = False, **kwargs) -> dict:
         """call  .

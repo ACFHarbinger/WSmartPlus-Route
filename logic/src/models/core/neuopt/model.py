@@ -48,12 +48,12 @@ class NeuOpt(nn.Module):
         """Initializes the NeuOpt model.
 
         Args:
-            env: Targeted optimization environment.
-            policy: Optional pre-defined policy instance.
-            embed_dim: Dimension of internal latent vectors.
-            num_heads: Parallel attention head count for policy blocks.
-            num_layers: Depth of the Transformer encoder stacks.
-            **policy_kwargs: Extra parameters passed to NeuOptPolicy.
+            env: Environment managing problem logic and step transitions.
+            policy: Optional pre-initialized NeuOptPolicy instance.
+            embed_dim: Feature width for embeddings and internal layers.
+            num_heads: Number of attention heads in the transformer layers.
+            num_layers: Count of encoder-decoder blocks.
+            **policy_kwargs: Additional arguments for NeuOptPolicy.
         """
         super().__init__()
         if policy is None:
@@ -76,10 +76,10 @@ class NeuOpt(nn.Module):
         """Executes the neural optimization pass.
 
         Args:
-            td: Environment state container.
+            td: TensorDict or dict containing problem state and initial solution.
             env: Optional environment override.
-            strategy: Policy execution strategy ('greedy' or 'sampling').
-            **kwargs: Extra parameters for the forward pass.
+            strategy: Decoding strategy ("greedy" or "sampling").
+            kwargs: Additional keyword arguments for the policy.
 
         Returns:
             Dict[str, Any]: Optimization results including refined actions and log-likelihoods.

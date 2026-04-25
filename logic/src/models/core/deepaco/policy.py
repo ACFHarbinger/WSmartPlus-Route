@@ -61,19 +61,19 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         """Initializes the DeepACOPolicy.
 
         Args:
-            encoder: Pre-instantiated GNN encoder. Defaults to DeepACOEncoder.
-            decoder: Pre-instantiated ACO decoder. Defaults to ACODecoder.
-            embed_dim: Internal feature dimensionality.
-            num_encoder_layers: depth of the GNN.
-            num_heads: Attention heads for the GNN layers.
-            n_ants: Ant population size.
-            n_iterations: ACO search cycles.
-            alpha: relative importance of pheromones.
-            beta: relative importance of learned heuristic edges.
-            rho: pheromone decay rate.
-            use_local_search: Whether to enable k-opt refinement.
-            env_name: Optional target environment name.
-            **kwargs: Extra parameters for base initialization.
+            encoder: Optional custom non-autoregressive encoder.
+            decoder: Optional custom ACO decoder.
+            embed_dim: Dimensionality of node features.
+            num_encoder_layers: Number of Transformer/GNN layers.
+            num_heads: Number of attention heads.
+            n_ants: Number of ants per problem instance.
+            n_iterations: Number of ACO pheromone update cycles.
+            alpha: Pheromone importance exponent.
+            beta: Heuristic visibility importance exponent.
+            rho: Pheromone evaporation rate.
+            use_local_search: Whether to apply refinement after construction.
+            env_name: Name of the environment identifier.
+            kwargs: Additional keyword arguments.
         """
         if encoder is None:
             encoder = DeepACOEncoder(
@@ -109,10 +109,10 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         """Executes heatmap prediction followed by ACO solution search.
 
         Args:
-            td: Environment state container.
-            env: Environment managing rewards and 2-opt dynamics.
-            num_starts: Parallel ACO ensemble size.
-            **kwargs: Additional parameters for encoder/decoder.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            num_starts: Number of parallel construction starts.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Output dictionary containing:

@@ -5,6 +5,9 @@ discounted reward from a given global problem state.
 
 Attributes:
     CriticHead: MLP-based value function estimator.
+
+Example:
+    None
 """
 
 from __future__ import annotations

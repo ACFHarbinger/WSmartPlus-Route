@@ -9,6 +9,9 @@ Attributes:
     vectorized_ejection_chain: Multi-route node redistribution for fleet minimization.
     vectorized_lambda_interchange: Generalized segment exchange search (0..λ).
     vectorized_or_opt: Segment relocation within or between routes.
+
+Example:
+    None
 """
 
 from __future__ import annotations

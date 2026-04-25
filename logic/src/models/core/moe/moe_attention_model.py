@@ -6,6 +6,10 @@ sparse-routed expert layers within the transformer architectures.
 
 Attributes:
     MoEAttentionModel: Capacity-boosted attention model with expert routing.
+
+Example:
+    >>> model = MoEAttentionModel(embed_dim=128, hidden_dim=512, problem=env.problem)
+    >>> out = model(td)
 """
 
 from __future__ import annotations
@@ -46,19 +50,19 @@ class MoEAttentionModel(AttentionModel):
         """Initializes the MoE Attention Model.
 
         Args:
-            embed_dim: Dimensionality of latent features.
-            hidden_dim: Expansion width for sub-networks.
-            problem: domain context.
-            n_encode_layers: Transformer depth.
-            n_encode_sublayers: Multi-context sub-layer count.
-            n_decode_layers: Decoder block count.
-            dropout_rate: Probability of zeroing weights.
-            normalization: Type of feature normalization.
-            n_heads: Parallel attention heads.
-            num_experts: Population size of experts per layer.
-            k: Top-k gating activation factor.
-            noisy_gating: Enable router exploration noise.
-            **kwargs: Extra parameters for the base AttentionModel.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            problem: Environment or problem logic wrapper.
+            n_encode_layers: Number of transformer encoder layers.
+            n_encode_sublayers: Optional internal encoder depth.
+            n_decode_layers: Optional decoder layers.
+            dropout_rate: Dropout probability for regularization.
+            normalization: Type of layer normalization.
+            n_heads: Number of attention heads.
+            num_experts: Total number of experts in the MoE layer.
+            k: Number of experts to activate per token (top-k).
+            noisy_gating: Whether to use noise in the gating network.
+            kwargs: Additional keyword arguments.
         """
         # Create the MoE Factory to build expert-enabled subnets
         component_factory = MoEComponentFactory(num_experts=num_experts, k=k, noisy_gating=noisy_gating)

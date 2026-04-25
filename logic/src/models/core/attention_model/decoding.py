@@ -6,6 +6,10 @@ like Beam Search and POMO.
 
 Attributes:
     DecodingMixin: Mixin class providing decoding-related utilities.
+
+Example:
+    >>> mixin = DecodingMixin()
+    >>> mixin.set_strategy("sampling", temp=0.8)
 """
 
 from __future__ import annotations
@@ -51,8 +55,8 @@ class DecodingMixin:
         model itself as the transition heuristic.
 
         Args:
-            *args: Positional arguments for the problem-specific beam search.
-            **kwargs: Keyword arguments for beam width, depth, etc.
+            args: Positional arguments for the problem-specific beam search.
+            kwargs: Keyword arguments for beam width, depth, etc.
 
         Returns:
             Any: The best tour discovered within the beam width.

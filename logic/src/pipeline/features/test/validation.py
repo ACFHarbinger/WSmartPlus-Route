@@ -1,5 +1,14 @@
 """
 Validation logic for simulation testing pipeline.
+
+Attributes:
+    validate_sim_config: Validates and sanitizes simulation configuration values in-place.
+
+Example:
+    >>> validate_sim_config(cfg)
+    Traceback (most recent call last):
+        ...  # doctest: +ELLIPSIS
+    AssertionError: Must run the simulation for 1 or more days
 """
 
 import re

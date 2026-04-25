@@ -35,9 +35,11 @@ class ImprovementEncoder(nn.Module, ABC):
     def __init__(self, embed_dim: int = 128, **kwargs: Any) -> None:
         """Initializes the ImprovementEncoder.
 
+
+
         Args:
-            embed_dim: Internal dimensionality for encoding features.
-            **kwargs: Additional parameters for the parent Module.
+            embed_dim: Dimensionality of latent embeddings.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -50,14 +52,16 @@ class ImprovementEncoder(nn.Module, ABC):
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
         """Computes embeddings for the problem instance and current solution.
 
+
+
         Args:
-            td: TensorDict containing the problem instance and current solution
-                (typically in a 'tour' or 'actions' field).
-            **kwargs: Additional control arguments for encoding.
+            td: TensorDict containing instance features and current tour/solution.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
                 Encodings representing the search state, either as a single
                 tensor or a tuple of feature-specific tensors.
+
         """
         raise NotImplementedError

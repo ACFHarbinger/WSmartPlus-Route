@@ -7,6 +7,9 @@ reward function, adapting to temporal changes and fleet performance.
 Attributes:
     HyperNetwork: Neural generator for adaptive weighting scalars.
     HyperNetworkOptimizer: Manager for hypernetwork training and inference.
+
+Example:
+    None
 """
 
 from .hypernetwork import HyperNetwork as HyperNetwork

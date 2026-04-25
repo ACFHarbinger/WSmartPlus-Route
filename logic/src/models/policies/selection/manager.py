@@ -3,6 +3,13 @@
 This module provides a neural network-based selection strategy that wraps a
 trained MandatoryManager to make collection decisions based on learned
 temporal patterns and spatial context.
+
+Attributes:
+    ManagerSelector: Neural network-based selection using MandatoryManager.
+
+Example:
+    >>> selector = ManagerSelector(threshold=0.5)
+    >>> mask = selector.select(fill_levels, locs=locs, waste_history=history)
 """
 
 from __future__ import annotations
@@ -22,6 +29,11 @@ class ManagerSelector(VectorizedSelector):
     This selector wraps a trained HRL manager to make mandatory collection
     decisions. The manager learns to predict which bins require collection
     based on waste history, spatial distribution, and critical thresholds.
+
+    Attributes:
+        threshold: Probability threshold for mandatory decisions.
+        device: Computation device.
+        manager: The underlying neural manager model.
     """
 
     def __init__(
@@ -65,11 +77,11 @@ class ManagerSelector(VectorizedSelector):
         """Select bins using the neural manager.
 
         Args:
-            fill_levels: Current fill levels [B, N] in [0, 1].
-            locs: Node locations [B, N, 2].
-            waste_history: Historical waste levels [B, N, H].
-            threshold: Optional override for probability threshold.
-            **kwargs: Extra parameters (ignored).
+            fill_levels: Current fill levels of bins [B, N].
+            locs: Spatial coordinates of nodes [B, N, 2].
+            waste_history: Temporal fill history [B, N, T].
+            threshold: Override for the default selection threshold.
+            kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.

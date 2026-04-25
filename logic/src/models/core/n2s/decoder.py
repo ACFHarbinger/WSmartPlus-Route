@@ -6,6 +6,10 @@ constraints.
 
 Attributes:
     N2SDecoder: Pairwise action decoder for iterative neighborhood search.
+
+Example:
+    >>> decoder = N2SDecoder(embed_dim=128)
+    >>> log_p, actions = decoder(td, h, env)
 """
 
 from __future__ import annotations
@@ -45,9 +49,9 @@ class N2SDecoder(ImprovementDecoder):
         """Initializes the N2S decoder.
 
         Args:
-            embed_dim: width of the latent features.
-            seed: RNG seed for reproducible sampling.
-            **kwargs: Extra parameters like 'device'.
+            embed_dim: Dimensionality of the node features.
+            seed: Random seed for action sampling.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim=embed_dim)
         self.project_q = nn.Linear(embed_dim, embed_dim)
@@ -100,10 +104,10 @@ class N2SDecoder(ImprovementDecoder):
         """Predicts an improvement move (node pair i, j).
 
         Args:
-            td: problem state container.
-            embeddings: encoded node features [B, N, D].
-            env: targeted environment logic.
-            **kwargs: Execution flags including 'strategy' ('greedy' or 'sample').
+            td: TensorDict containing problem state.
+            embeddings: Encoded node features [B, N, D].
+            env: Environment managing the problem physics.
+            kwargs: Additional keyword arguments including decoding strategy.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:

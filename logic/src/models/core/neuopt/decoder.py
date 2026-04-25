@@ -6,6 +6,10 @@ conditioned on the global problem context.
 
 Attributes:
     NeuOptDecoder: Pairwise action decoder for guided local search moves.
+
+Example:
+    >>> decoder = NeuOptDecoder(embed_dim=128)
+    >>> log_p, actions = decoder(td, embeddings, env)
 """
 
 from __future__ import annotations
@@ -45,9 +49,9 @@ class NeuOptDecoder(ImprovementDecoder):
         """Initializes the NeuOpt decoder.
 
         Args:
-            embed_dim: width of the embedded node features.
-            seed: random seed for sampling-based move selection.
-            **kwargs: Extra parameters including 'device'.
+            embed_dim: Feature dimension of the input embeddings.
+            seed: Random seed for move sampling.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim=embed_dim)
         self.project_q = nn.Linear(embed_dim, embed_dim)
@@ -100,10 +104,10 @@ class NeuOptDecoder(ImprovementDecoder):
         """Predicts a promising neighborhood move (idx1, idx2).
 
         Args:
-            td: problem state container with current solution.
-            embeddings: encoded node features [B, N, D].
-            env: active environment dynamics.
-            **kwargs: execution flags including 'strategy'.
+            td: TensorDict containing the problem and current solution state.
+            embeddings: Node embeddings from the encoder.
+            env: The environment defining the move validity and reward.
+            kwargs: Additional keyword arguments including "strategy".
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:

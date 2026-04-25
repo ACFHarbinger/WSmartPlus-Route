@@ -6,11 +6,15 @@ an initial solution (constructive phase), and a classic meta-heuristic
 
 Attributes:
     NeuralHeuristicHybrid: Unified policy for construction and refinement.
+
+Example:
+    >>> hybrid = NeuralHeuristicHybrid(neural_model, hgs_solver)
+    >>> out = hybrid(td, env)
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from tensordict import TensorDict
 
@@ -40,9 +44,9 @@ class NeuralHeuristicHybrid(AutoregressivePolicy):
         """Initializes the hybrid policy.
 
         Args:
-            neural_policy: Pre-trained constructive model.
-            heuristic_policy: Vectorized meta-heuristic instance.
-            **kwargs: Extra parameters for base policy.
+            neural_policy: Autoregressive neural model for initial construction.
+            heuristic_policy: Classical OR solver for refinement.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(env_name=neural_policy.env_name, **kwargs)
         self.neural_policy = neural_policy
@@ -51,7 +55,7 @@ class NeuralHeuristicHybrid(AutoregressivePolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         strategy: str = "greedy",
         num_starts: int = 1,
         **kwargs: Any,
@@ -59,16 +63,17 @@ class NeuralHeuristicHybrid(AutoregressivePolicy):
         """Solves problem instances using the hybrid execution flow.
 
         Args:
-            td: problem state.
-            env: dynamics and rewards.
-            strategy: constructive decoding mode.
-            num_starts: multi-start count for construction.
-            **kwargs: extra parameters passed to both components.
+            td: TensorDict containing instance data.
+            env: The problem environment.
+            strategy: Construction strategy ("greedy" or "sampling").
+            num_starts: Number of starts for the neural model.
+            kwargs: Additional keyword arguments passed to both policies.
 
         Returns:
-            Dict[str, Any]: Refinement results including 'actions' and 'reward'.
+            Dict[str, Any]: Results dictionary from the heuristic refinement phase.
         """
         # Phase 1: Contextual Neural Construction
+        assert env is not None, "Environment must be provided for hybrid solving."
         neural_out = self.neural_policy(td, env, strategy=strategy, **kwargs)
 
         # Phase 2: Heuristic Refinement

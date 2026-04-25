@@ -1,4 +1,17 @@
-"""Reptile meta-learning callback."""
+"""Reptile meta-learning callback.
+
+Implements the Reptile algorithm (Nichol et al. 2018) for cross-size and
+cross-distribution generalisation in combinatorial optimisation, following
+Manchanda et al. 2022 and Zhou et al. 2023.
+
+Attributes:
+    ReptileCallback: Callback that performs inner-loop task training and outer-loop meta-updates.
+
+Example:
+    >>> from logic.src.pipeline.callbacks.pytorch.reptile import ReptileCallback
+    >>> cb = ReptileCallback(num_tasks=4, alpha=0.3, alpha_decay=0.99,
+    ...                      min_size=20, max_size=100, data_type="size")
+"""
 
 from __future__ import annotations
 
@@ -38,6 +51,19 @@ class ReptileCallback(Callback):
         sch_bar: Fraction of total epochs after which LR decays by 0.1.
         data_type: Task type -- "size", "distribution", or "size_distribution".
         print_log: Whether to print sampled task info during training.
+
+    Attributes:
+        num_tasks: Number of tasks per meta-batch.
+        alpha: Current outer-loop learning rate.
+        alpha_decay: Multiplicative decay applied to alpha each meta-epoch.
+        sch_bar: Fraction of total epochs after which LR decays by 0.1.
+        print_log: Whether to print sampled task info during training.
+        data_type: Task type — "size", "distribution", or "size_distribution".
+        task_set: Full list of candidate tasks generated from the data_type.
+        meta_model_state_dict: State dict snapshot taken at the start of each meta-batch.
+        task_models: Collected task model state dicts within the current meta-batch.
+        selected_tasks: Tasks sampled for the current meta-batch.
+        task_params: Active task parameters used to configure the generator.
     """
 
     def __init__(
@@ -51,17 +77,17 @@ class ReptileCallback(Callback):
         data_type: str = "size",
         print_log: bool = True,
     ):
-        """Initialize Class.
+        """Initialize ReptileCallback.
 
         Args:
-            num_tasks (int): Description of num_tasks.
-            alpha (float): Description of alpha.
-            alpha_decay (float): Description of alpha_decay.
-            min_size (int): Description of min_size.
-            max_size (int): Description of max_size.
-            sch_bar (float): Description of sch_bar.
-            data_type (str): Description of data_type.
-            print_log (bool): Description of print_log.
+            num_tasks: Number of tasks per meta-batch (inner-loop iterations).
+            alpha: Initial weight for the outer-loop Reptile update.
+            alpha_decay: Multiplicative decay applied to alpha each meta-epoch.
+            min_size: Minimum problem size for task sampling.
+            max_size: Maximum problem size for task sampling.
+            sch_bar: Fraction of total epochs after which LR decays by 0.1.
+            data_type: Task type — "size", "distribution", or "size_distribution".
+            print_log: Whether to print sampled task info during training.
         """
         super().__init__()
         self.num_tasks = num_tasks
@@ -77,7 +103,12 @@ class ReptileCallback(Callback):
         self.task_params: tuple = ()
 
     def on_fit_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
-        """Sample initial task batch and configure the first task."""
+        """Sample initial task batch and configure the first task.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         self._sample_task()
 
         # Cast to RL4COLitModule to access env and generator
@@ -97,7 +128,12 @@ class ReptileCallback(Callback):
         self.task_params = self.selected_tasks[0]
 
     def on_train_epoch_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
-        """Save meta-model at start of each meta-batch, reset optimizer each epoch."""
+        """Save meta-model at start of each meta-batch, reset optimizer each epoch.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         self._alpha_scheduler()
 
         if trainer.current_epoch % self.num_tasks == 0:
@@ -127,7 +163,12 @@ class ReptileCallback(Callback):
                 print(f">> Training task: {self.task_params}")
 
     def on_train_epoch_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
-        """Save task model and perform outer-loop update at end of meta-batch."""
+        """Save task model and perform outer-loop update at end of meta-batch.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         self.task_models.append(copy.deepcopy(pl_module.state_dict()))
 
         if (trainer.current_epoch + 1) % self.num_tasks == 0:
@@ -161,7 +202,12 @@ class ReptileCallback(Callback):
         self.selected_tasks = [random.sample(self.task_set, 1)[0] for _ in range(self.num_tasks)]
 
     def _load_task(self, pl_module: L.LightningModule, task_idx: int = 0) -> None:
-        """Load a task by updating the environment generator parameters."""
+        """Load a task by updating the environment generator parameters.
+
+        Args:
+            pl_module: The PyTorch Lightning module instance.
+            task_idx: The index of the task to load.
+        """
         self.task_params = self.selected_tasks[task_idx]
         module = cast("RL4COLitModule", pl_module)
 
@@ -202,6 +248,14 @@ class ReptileCallback(Callback):
         - size: (n,) in [min_size, max_size]
         - distribution: (m, c) with Gaussian mixture modes/concentrations
         - size_distribution: (n, m, c) combining both
+
+        Args:
+            data_type: Type of task set to generate.
+            min_size: Minimum problem size.
+            max_size: Maximum problem size.
+
+        Returns:
+            List of tasks.
         """
         if data_type == "distribution":
             task_set = [(0, 0)] + [(m, c) for m in range(1, 10) for c in [1, 10, 20, 30, 40, 50]]

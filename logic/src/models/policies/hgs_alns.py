@@ -5,6 +5,15 @@ Adaptive Large Neighborhood Search (ALNS). In this hybrid architecture,
 the HGS evolutionary loop provides global search coverage, while the
 ALNS engine serves as a high-intensity 'Education' phase for offspring
 refinement.
+
+Attributes:
+    VectorizedHGSALNSEngine: Internal solver engine combining HGS and ALNS.
+    VectorizedHGSALNS: RL4CO policy wrapper for the hybrid solver.
+
+Example:
+    >>> from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
+    >>> policy = VectorizedHGSALNS(env_name="wcvrp")
+    >>> out = policy(td)
 """
 
 from __future__ import annotations
@@ -175,19 +184,19 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
         """Initialize the RL policy wrapper.
 
         Args:
-            env_name: Problem environment identifier.
-            time_limit: Global time budget in seconds.
-            population_size: HGS pool size.
-            n_generations: Max evolutionary cycles.
-            elite_size: Number of top individuals kept for the next generation.
-            crossover_rate: Probability of recombination per child.
-            max_vehicles: Fleet size limit for discretization.
-            alns_education_iterations: Refinement intensity (ALNS sub-iterations).
-            alns_start_temp: ALNS initial temperature.
-            alns_cooling_rate: SA temperature decay factor.
-            seed: Random initialization constant.
-            device: Computation device.
-            **kwargs: Additional hyperparameters.
+            env_name: Name of the environment identifier.
+            time_limit: Total wall clock time allowed for search.
+            population_size: Number of individuals in the HGS population.
+            n_generations: Number of evolutionary generations.
+            elite_size: Number of top individuals kept between generations.
+            crossover_rate: Probability of performing crossover vs cloning.
+            max_vehicles: Constraint on fleet size; 0 implies unconstrained.
+            alns_education_iterations: Refinement intensity during education phase.
+            alns_start_temp: Starting temperature for ALNS local search.
+            alns_cooling_rate: Speed of temperature reduction in ALNS.
+            seed: RNG seed for reproducible experiments.
+            device: Computing device for tensor operations.
+            kwargs: Additional arguments for VectorizedHGSPolicy.
         """
         super().__init__(
             env_name=env_name,
@@ -219,14 +228,14 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
         """Resolve instances using the vectorized HGS-ALNS engine.
 
         Args:
-            td: Input problem state TensorDict.
-            env: Relevant environment instance.
-            strategy: Construction strategy (ignored).
-            num_starts: Sampling starts (ignored).
-            max_steps: Sequence limit (ignored).
-            phase: Current execution phase ('train', 'val', or 'test').
-            return_actions: Whether to include refined routes in output.
-            **kwargs: Additional runtime parameters.
+            td: TensorDict containing instance data (locations, wastes, capacity).
+            env: Optional environment for reward calculation.
+            strategy: Solver strategy (default: "greedy").
+            num_starts: Unused in HGS.
+            max_steps: Termination criterion based on step count.
+            phase: Current execution phase ("train", "val", "test").
+            return_actions: Whether to return the full tour tensor.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Results dictionary containing:

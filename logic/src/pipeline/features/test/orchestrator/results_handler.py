@@ -1,4 +1,13 @@
-"""Post-processing and aggregation of simulation results."""
+"""Post-processing and aggregation of simulation results.
+
+Attributes:
+    _log_sim_metrics: Log simulation metrics to WSTracker.
+    aggregate_final_results: Aggregate final results from all simulation samples.
+
+Example:
+    >>> from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
+    >>> log, log_std = aggregate_final_results(log_tmp, cfg, lock)
+"""
 
 import statistics
 from collections import defaultdict
@@ -16,7 +25,12 @@ except ImportError:
 
 
 def _log_sim_metrics(log: Dict[str, Any], log_std: Optional[Dict[str, Any]] = None) -> None:
-    """Forward aggregated per-policy metrics to the active WSTracker run."""
+    """Forward aggregated per-policy metrics to the active WSTracker run.
+
+    Args:
+        log: Description of log.
+        log_std: Description of log_std.
+    """
     run = get_active_run() if get_active_run is not None else None
     if run is None:
         return
@@ -41,6 +55,11 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
         log_tmp: Manager dict of policy -> list of metric lists.
         cfg: Root configuration.
         lock: Multiprocessing lock.
+
+    Returns:
+        Tuple containing:
+            - log (Dict[str, Any]): Aggregated simulation results.
+            - log_std (Optional[Dict[str, Any]]): Standard deviation of results.
     """
     sim = cfg.sim
     policies = sim.full_policies

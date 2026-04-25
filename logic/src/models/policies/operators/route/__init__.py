@@ -10,6 +10,9 @@ Attributes:
     vectorized_two_opt_star: 2-opt* inter-route tail swap.
     vectorized_swap_star: Inter-route node exchange with optimal re-insertion.
     vectorized_lkh: Lin-Kernighan-Helsgaun sophisticated local search.
+
+Example:
+    None
 """
 
 from __future__ import annotations

@@ -7,6 +7,10 @@ pass (or via sampling), with the model refined using REINFORCE.
 
 Attributes:
     NARGNN: Training wrapper for edge-based heatmap models.
+
+Example:
+    >>> model = NARGNN(env_name="tsp", embed_dim=64)
+    >>> out = model(td, env)
 """
 
 from __future__ import annotations
@@ -47,12 +51,12 @@ class NARGNN(nn.Module):
         """Initializes the NARGNN wrapper.
 
         Args:
-            embed_dim: Internal feature dimensionality.
-            env_name: Optimization task identifier.
-            num_layers_heatmap_generator: Depth of the heatmap MLP.
-            num_layers_graph_encoder: Depth of the GNN message-passing stack.
-            baseline: RL baseline strategy ('rollout', 'exponential').
-            **kwargs: Extra parameters for NARGNNPolicy.
+            embed_dim: Dimensionality of latent embeddings.
+            env_name: Name of the environment identifier.
+            num_layers_heatmap_generator: Number of layers in the MLP heatmap generator.
+            num_layers_graph_encoder: Number of edge-based GNN encoder layers.
+            baseline: RL baseline type ("rollout", "exponential", "no").
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.policy = NARGNNPolicy(
@@ -74,9 +78,9 @@ class NARGNN(nn.Module):
         """Executes heatmap generation and computes REINFORCE loss.
 
         Args:
-            td: problem state container.
-            env: Optional environment for reward calculation.
-            **kwargs: Additional parameters for policy execution.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Result map including reward, likelihood, and 'loss'.
@@ -110,7 +114,7 @@ class NARGNN(nn.Module):
         """Configures the action selection tactic (e.g., 'greedy', 'sampling').
 
         Args:
-            strategy: Selection mode identifier.
-            **kwargs: Parameters like 'num_starts' or 'temperature'.
+            strategy: Decoding strategy identifier (e.g., "sampling").
+            kwargs: Additional keyword arguments.
         """
         self.policy.set_strategy(strategy, **kwargs)

@@ -4,6 +4,14 @@ This package contains all neural, classical, and heuristic policy
 implementations for combinatorial optimization. It provides a centralized
 registry and factory functions for looking up and instantiating policies
 via short CLI identifiers.
+
+Attributes:
+    get_policy: Function to instantiate a policy by its identifier.
+    get_policy_class: Function to retrieve a policy class by name.
+
+Example:
+    >>> from logic.src.models.policies import get_policy
+    >>> model = get_policy("am", embed_dim=128)
 """
 
 from __future__ import annotations
@@ -116,8 +124,8 @@ def get_policy(name: str, **kwargs: Any) -> nn.Module:
     """Create a policy instance by short CLI name.
 
     Args:
-        name: Short policy name (e.g. "am", "mdam", "deepaco").
-        **kwargs: Arguments passed to the policy constructor.
+        name: Short identifier for the policy (e.g., "am", "hgs").
+        kwargs: Policy-specific initialization arguments.
 
     Returns:
         nn.Module: Instantiated policy module.

@@ -37,9 +37,11 @@ class ImprovementDecoder(nn.Module, ABC):
     def __init__(self, embed_dim: int = 128, **kwargs: Any) -> None:
         """Initializes the ImprovementDecoder.
 
+
+
         Args:
-            embed_dim: Internal dimensionality for decoding features.
-            **kwargs: Additional parameters for the parent Module.
+            embed_dim: Dimensionality of latent embeddings.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -63,15 +65,18 @@ class ImprovementDecoder(nn.Module, ABC):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Predicts improvement moves for the current solution.
 
+
+
         Args:
-            td: TensorDict containing the problem state and current solution.
-            embeddings: Encoded representations of the graph and solution.
-            env: Environment object for transition logic and reward calculation.
-            **kwargs: Additional parameters for move selection.
+            td: TensorDict containing problem state and solution context.
+            embeddings: Encoded representations of nodes and tours.
+            env: Environment providing valid move masks and logic.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]:
                 - log_p: Log-likelihood of the selected moves.
                 - actions: Selected refinement operators or node indices.
+
         """
         raise NotImplementedError

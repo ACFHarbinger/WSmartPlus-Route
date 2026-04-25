@@ -14,6 +14,21 @@ in a ZenML pipeline with **per-policy fan-out** steps:
 The pipeline is invoked from
 :func:`~logic.src.pipeline.features.test.engine._run_sim_via_zenml`
 when ``cfg.tracking.zenml_enabled`` is ``True``.
+
+Attributes:
+    _ZENML_AVAILABLE: Whether ZenML is available.
+    zenml_pipeline: ZenML pipeline function.
+    step: ZenML step function.
+    prepare_sim_config: Prepares the simulation configuration.
+    run_policy_step: Runs the simulation for a single policy.
+    aggregate_sim_results: Aggregates the simulation results.
+
+Example:
+    >>> from logic.src.pipeline.features.test.zenml_sim_pipeline import simulation_pipeline
+    >>> simulation_pipeline(config)
+    Traceback (most recent call last):
+        ...  # doctest: +ELLIPSIS
+    ImportError: zenml is not installed — cannot run ZenML simulation pipeline
 """
 
 from __future__ import annotations
@@ -47,7 +62,14 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def prepare_sim_config(config_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Pass-through: makes the serialised config a ZenML artifact."""
+        """Pass-through: makes the serialised config a ZenML artifact.
+
+        Args:
+            config_dict: Serialised root config.
+
+        Returns:
+            Serialised root config.
+        """
         return config_dict
 
     @step(experiment_tracker="mlflow_tracker")  # type: ignore[misc]
@@ -96,7 +118,15 @@ if _ZENML_AVAILABLE:
 
     @step  # type: ignore[misc]
     def aggregate_sim_results(batch_id: str) -> str:
-        """Terminal step — logs completion and returns the batch ID."""
+        """Terminal step — logs completion and returns the batch ID.
+
+        Args:
+            batch_id: Pass-through identifier for DAG dependency chaining.
+
+        Returns:
+            The same *batch_id* (creates a sequential DAG edge to the next
+            policy step).
+        """
         logger.info(f"All simulation policies completed (batch {batch_id})")
         return batch_id
 
@@ -109,7 +139,16 @@ if _ZENML_AVAILABLE:
         config_dict: Dict[str, Any],
         policy_names: List[str],
     ) -> str:
-        """Per-policy fan-out simulation pipeline."""
+        """Per-policy fan-out simulation pipeline.
+
+        Args:
+            config_dict: Serialised root config.
+            policy_names: List of policy names to run.
+
+        Returns:
+            The same *batch_id* (creates a sequential DAG edge to the next
+            policy step).
+        """
         cfg_art = prepare_sim_config(config_dict)
         batch_id = str(uuid.uuid4())[:8]
 

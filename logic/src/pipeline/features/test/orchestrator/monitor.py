@@ -1,4 +1,16 @@
-"""Simulation monitoring and dashboard updates."""
+"""Simulation monitoring and dashboard updates.
+
+Attributes:
+    initialize_simulation_display: Initializes the simulation dashboard display.
+    process_display_updates: Processes real-time simulation metrics and updates the dashboard display.
+    monitor_tasks_until_complete: Monitors task progress and updates display until all tasks complete.
+    collect_all_task_results: Collects results from all tasks, logging any exceptions.
+
+Example:
+    >>> from logic.src.pipeline.features.test.orchestrator.monitor import initialize_simulation_display
+    >>> display = initialize_simulation_display(['random'], 100, 365)
+    Simulation dashboard started...
+"""
 
 import statistics
 import sys
@@ -22,6 +34,9 @@ def initialize_simulation_display(
         policies: List of expanded policy names.
         n_samples: Number of samples per policy.
         total_days: Total simulation days.
+
+    Returns:
+        Initialized SimulationDisplayCallback instance.
     """
     display = SimulationDisplayCallback(policies=policies, n_samples=n_samples, total_days=total_days)
     display.start()
@@ -39,6 +54,15 @@ def process_display_updates(
 ) -> None:
     """
     Process real-time simulation metrics and update the dashboard display.
+
+    Args:
+        display: Description of display.
+        shared_metrics: Description of shared_metrics.
+        log_tmp: Description of log_tmp.
+        last_reported_days: Description of last_reported_days.
+        policies: Description of policies.
+        loop_tic: Description of loop_tic.
+        counter: Description of counter.
     """
     policy_updates: Dict[str, Any] = {}
     new_daily_data: List[Dict[str, Any]] = []
@@ -116,6 +140,14 @@ def monitor_tasks_until_complete(
 ) -> None:
     """
     Monitor task progress and update display until all tasks complete.
+
+    Args:
+        tasks: List of simulation tasks to monitor.
+        display: Optional simulation dashboard display.
+        policies: List of policy names.
+        shared_metrics: Shared metrics dictionary.
+        counter: Task counter.
+        log_tmp: Temporary log storage.
     """
     last_reported_days: Dict[Any, int] = {}
     loop_tic = time.time()
@@ -137,6 +169,9 @@ def monitor_tasks_until_complete(
 def collect_all_task_results(tasks: list) -> None:
     """
     Collect results from all tasks, logging any exceptions.
+
+    Args:
+        tasks: List of simulation tasks to collect results from.
     """
     for task in tasks:
         try:

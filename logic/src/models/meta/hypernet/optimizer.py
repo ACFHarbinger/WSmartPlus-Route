@@ -7,6 +7,9 @@ HyperNetwork. It identifies high-performing weight configurations and trains
 
 Attributes:
     HyperNetworkOptimizer: Controller for adaptive weight meta-heuristics.
+
+Example:
+    None
 """
 
 from __future__ import annotations

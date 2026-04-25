@@ -4,6 +4,14 @@ This module implements a high-performance, GPU-accelerated Ant Colony
 System (ACS). It processes multiple problem instances and multiple ants per
 instance in parallel using tensor operations, drastically reducing the
 computational overhead of pheromone updates and local updates.
+
+Attributes:
+    VectorizedACOPolicy: High-performance parallel ACO policy.
+
+Example:
+    >>> from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
+    >>> policy = VectorizedACOPolicy(env_name="tsp")
+    >>> out = policy(td, env=env)
 """
 
 from __future__ import annotations
@@ -54,18 +62,18 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         """Initialize the ACO policy.
 
         Args:
-            env_name: Identifier for the problem environment.
-            n_ants: Number of concurrent ants per instance.
-            n_iterations: Convergence loop limit.
-            alpha: Importance of pheromone trails.
-            beta: Importance of visibility (inverse distance).
-            decay: Rate of trail evaporation.
-            elitism: Count of best ants for trail reinforcement.
-            q0: Parameter controlling exploration/exploitation tradeoff.
-            min_pheromone: Lower bound on trail intensity.
-            seed: RNG constant.
-            device: Target device.
-            **kwargs: Additional hyperparameters.
+            env_name: Name of the environment (e.g., "tsp").
+            n_ants: Number of parallel ants to use per batch instance.
+            n_iterations: Number of ACO iterations/generations.
+            alpha: Pheromone importance exponent.
+            beta: Heuristic importance exponent.
+            decay: Pheromone evaporation rate (rho).
+            elitism: Number of top ants to use for global pheromone update.
+            q0: Probability of choosing the best move (exploitation) in ACS.
+            min_pheromone: Minimum pheromone level (tau_min).
+            seed: Random seed for reproducibility.
+            device: Computing device ("cpu", "cuda").
+            kwargs: Additional arguments for AutoregressivePolicy.
         """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.n_ants = n_ants
@@ -132,14 +140,18 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         quality, and tracks the global best solution across the batch.
 
         Args:
-            td: Problem instance data.
-            env: Target environment for constraints.
-            strategy: Selection strategy (not used for meta-heuristics).
-            num_starts: Number of independent starts (ACO handles this via ants).
-            **kwargs: Runtime parameters.
+            td: TensorDict containing the problem instance data (e.g., node locations).
+            env: Optional environment for step transitions and masking.
+            strategy: Decoding strategy (e.g., "sampling", "greedy").
+            num_starts: Number of starting nodes/tours to evaluate.
+            kwargs: Additional keyword arguments.
 
         Returns:
-            Dict[str, Any]: Best actions, rewards, and associated costs.
+            Dict[str, Any]: Dictionary containing:
+                - actions: The best tour found for each instance.
+                - reward: Negative tour cost.
+                - cost: Absolute tour length.
+                - log_likelihood: Dummy probabilities (ACO is not gradient-based).
         """
         batch_size = td.batch_size[0]
         device = td.device if td.device is not None else td["locs"].device

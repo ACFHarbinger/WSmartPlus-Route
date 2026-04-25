@@ -6,6 +6,10 @@ problem instance.
 
 Attributes:
     MDAMPolicy: Autoregressive policy with multi-decoder expansion.
+
+Example:
+    >>> policy = MDAMPolicy(env_name="vrpp", num_paths=5)
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -58,18 +62,18 @@ class MDAMPolicy(AutoregressivePolicy):
         """Initializes the MDAM policy.
 
         Args:
-            encoder: existing encoder instance. Defaults to MDAMGraphAttentionEncoder.
-            decoder: existing decoder instance. Defaults to MDAMDecoder.
-            embed_dim: dimensionality of latent features.
-            env_name: target task name.
-            num_encoder_layers: depth of the shared encoder.
-            num_heads: count of attention heads.
-            num_paths: count of diverse decoding paths to maintain.
-            normalization: type of normalization ('batch', 'layer').
-            train_strategy: decode mode during learning.
-            val_strategy: decode mode during validation.
-            test_strategy: decode mode during testing.
-            **decoder_kwargs: extra parameters for MDAMDecoder instantiation.
+            encoder: Optional pre-instantiated MDAM encoder.
+            decoder: Optional pre-instantiated MDAM decoder.
+            embed_dim: Dimensionality of latent embeddings.
+            env_name: Name of the environment identifier.
+            num_encoder_layers: Number of transformer encoder layers.
+            num_heads: Number of attention heads.
+            num_paths: Number of parallel decoder paths.
+            normalization: Type of layer normalization ("batch", "instance").
+            train_strategy: Default strategy for training.
+            val_strategy: Default strategy for validation.
+            test_strategy: Default strategy for testing.
+            **decoder_kwargs: Additional keyword arguments for the decoder.
         """
         if encoder is None:
             encoder = MDAMGraphAttentionEncoder(
@@ -112,12 +116,12 @@ class MDAMPolicy(AutoregressivePolicy):
         """Calculates diverse construction paths through the multi-decoder.
 
         Args:
-            td: problem state container.
-            env: problem dynamics.
-            strategy: constructive decoding mode.
-            num_starts: parallel ensemble size.
-            phase: Current mode ('train', 'val', 'test').
-            **kwargs: extra parameters for construction.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "sampling").
+            num_starts: Number of parallel construction starts.
+            phase: Current execution phase ("train", "val", "test").
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: Result map including:

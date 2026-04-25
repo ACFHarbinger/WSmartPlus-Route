@@ -7,6 +7,10 @@ a single weight set.
 
 Attributes:
     PolyNetPolicy: Strategy-conditioned constructive policy.
+
+Example:
+    >>> policy = PolyNetPolicy(k=128, env_name="vrpp")
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -64,22 +68,22 @@ class PolyNetPolicy(AutoregressivePolicy):
         """Initializes the PolyNet policy.
 
         Args:
-            k: number of distinct behavior strategies.
-            encoder: Backbone graph processor.
-            encoder_type: identity of the architecture ('AM', 'MatNet').
-            embed_dim: total latent feature width.
-            num_encoder_layers: depth of the attention stack.
-            num_heads: attention heads count.
-            normalization: module scaling type.
-            feedforward_hidden: MLP expansion width.
-            env_name: target task identifier.
-            temperature: Softmax scaling.
-            tanh_clipping: value range for logit squashing.
-            mask_logits: toggle for valid action enforcement.
-            train_strategy: default search mode for training.
-            val_strategy: default search mode for validation.
-            test_strategy: default search mode for testing.
-            **kwargs: extra params for PolyNetDecoder.
+            k: Number of behavior branches (experts) to train.
+            encoder: Optional custom graph encoder.
+            encoder_type: Model architecture identifier (e.g., "AM", "POMO").
+            embed_dim: Dimensionality of node feature vectors.
+            num_encoder_layers: Number of GAT layers in the encoder.
+            num_heads: Number of attention heads.
+            normalization: Type of layer normalization.
+            feedforward_hidden: Hidden dimension for encoder MLPs.
+            env_name: Name of the environment identifier.
+            temperature: Softmax temperature for construction diversity.
+            tanh_clipping: Clipping value for attention logits.
+            mask_logits: Whether to apply node availability masking.
+            train_strategy: Selection strategy for training phase.
+            val_strategy: Selection strategy for validation phase.
+            test_strategy: Selection strategy for testing phase.
+            kwargs: Additional keyword arguments.
         """
         if encoder is None:
             encoder = GraphAttentionEncoder(
@@ -129,12 +133,12 @@ class PolyNetPolicy(AutoregressivePolicy):
         """Performs strategy-conditioned constructive search.
 
         Args:
-            td: current state container.
-            env: environment dynamics (uses standard if None).
-            phase: pipeline state ('train', 'val', 'test').
-            return_actions: toggle for explicit action sequence in output.
-            num_starts: number of parallel strategy constructors.
-            **kwargs: extra decoding configurations.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            phase: Current execution phase ("train", "val", "test").
+            return_actions: Whether to include tour sequences in results.
+            num_starts: Number of parallel construction starts.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: results mapping rewards, log_probs, and actions.

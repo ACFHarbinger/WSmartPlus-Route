@@ -60,13 +60,13 @@ class TemporalAMPolicy(AttentionModelPolicy):
         """Initializes the TemporalAMPolicy.
 
         Args:
-            env_name: Targeted environment identifier.
-            embed_dim: Latent vector size.
-            hidden_dim: Hidden size for predictor and combiner.
-            temporal_horizon: Number of time-steps for history input.
-            predictor_layers: Depth of the RNN predictor.
-            predictor_type: Recurrent cell variant ('gru', 'lstm').
-            **kwargs: Extra parameters for base policy and subnets.
+            env_name: Name of the environment identifier.
+            embed_dim: Dimensionality of latent embeddings.
+            hidden_dim: Dimensionality of hidden layers.
+            temporal_horizon: Window size for historical fill prediction.
+            predictor_layers: Number of layers in the recurrent predictor.
+            predictor_type: Recurrent unit type ("gru", "lstm").
+            kwargs: Additional keyword arguments for AttentionModelPolicy.
         """
         super().__init__(
             env_name=env_name,
@@ -114,12 +114,12 @@ class TemporalAMPolicy(AttentionModelPolicy):
         """Performs constructive decoding with proactive state estimation.
 
         Args:
-            td: problem state container (expects 'fill_history').
-            env: environment logic provider.
-            strategy: constructive search strategy.
-            num_starts: start count for multi-solution search.
-            actions: target tour indices for force-decoding.
-            **kwargs: additional arguments.
+            td: TensorDict containing problem instance data.
+            env: Environment managing problem physics.
+            strategy: Decoding strategy identifier (e.g., "sampling").
+            num_starts: Number of parallel construction starts.
+            actions: Optional pre-defined actions for teacher forcing.
+            kwargs: Additional keyword arguments.
 
         Returns:
             Dict[str, Any]: result dictionary with rewards and constructed actions.

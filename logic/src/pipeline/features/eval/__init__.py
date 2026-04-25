@@ -150,6 +150,9 @@ def _run_eval_via_zenml(cfg: Config) -> None:
 
     Called when ``cfg.tracking.zenml_enabled`` is ``True`` and no external
     sinks were injected.
+
+    Args:
+        cfg: Configuration object containing evaluation parameters.
     """
     tracking = getattr(cfg, "tracking", None)
     mlflow_uri = str(getattr(tracking, "mlflow_tracking_uri", "mlruns"))

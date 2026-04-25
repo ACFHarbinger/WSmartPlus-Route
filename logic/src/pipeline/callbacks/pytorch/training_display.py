@@ -1,5 +1,12 @@
 """
 Unified training display callback using Rich and Plotext.
+
+Attributes:
+    TrainingDisplayCallback: Callback to display training progress.
+
+Example:
+    >>> from logic.src.pipeline.callbacks.pytorch.training_display import TrainingDisplayCallback
+    >>> trainer = L.Trainer(callbacks=[TrainingDisplayCallback()])
 """
 
 from __future__ import annotations
@@ -37,6 +44,21 @@ class TrainingDisplayCallback(Callback):
     2. Grid of current metric values
     3. Progress bars for Epochs and Steps
     4. Status header
+
+    Attributes:
+        history: Dictionary to store metric histories.
+        steps: Dictionary to store step histories.
+        colors: List of colors for the chart lines.
+        console: Rich Console instance.
+        layout: Rich Layout instance.
+        live: Rich Live instance for real-time updates.
+        progress: Rich Progress instance.
+        epoch_task_id: Task ID for the epoch progress bar.
+        step_task_id: Task ID for the step progress bar.
+        val_task_id: Task ID for the validation progress bar.
+        current_metrics: Dictionary to store current metrics.
+        trainer: PyTorch Lightning Trainer instance.
+        start_time: Start time of the training.
     """
 
     def __init__(
@@ -93,7 +115,12 @@ class TrainingDisplayCallback(Callback):
         self.start_time = 0.0
 
     def on_train_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        """Initialize the display when training starts."""
+        """Initialize the display when training starts.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         if not trainer.is_global_zero:
             return
 
@@ -103,7 +130,12 @@ class TrainingDisplayCallback(Callback):
         self._start_live_display()
 
     def on_train_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        """Stop the display when training ends."""
+        """Stop the display when training ends.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         if self.live:
             self.live.stop()
 
@@ -151,7 +183,11 @@ class TrainingDisplayCallback(Callback):
         self.live.start()
 
     def _render_layout(self) -> Layout:
-        """Render the current state of the layout."""
+        """Render the current state of the layout.
+
+        Returns:
+            The rendered layout.
+        """
         # Header (No Panel for simple single-line header)
         elapsed = time.time() - self.start_time
         header_text = Text(
@@ -177,7 +213,11 @@ class TrainingDisplayCallback(Callback):
         return self.layout
 
     def _generate_chart(self) -> Panel:
-        """Generate the plotext chart."""
+        """Generate the plotext chart.
+
+        Returns:
+            The generated chart panel.
+        """
         plt.clf()
         plt.theme(self.theme)
 
@@ -222,7 +262,11 @@ class TrainingDisplayCallback(Callback):
         return Panel(chart_text, title="📈 Training Chart", border_style="blue", expand=True)
 
     def _generate_metrics_table(self) -> Panel:
-        """Generate a table of current metrics."""
+        """Generate a table of current metrics.
+
+        Returns:
+            The generated metrics table.
+        """
         table = Table(show_header=True, header_style="bold magenta", expand=True)
         table.add_column("Metric", style="cyan")
         table.add_column("Value", justify="right", style="green")
@@ -238,7 +282,12 @@ class TrainingDisplayCallback(Callback):
         return Panel(table, title="📊 Metrics", border_style="blue")
 
     def on_train_epoch_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        """Update epoch task."""
+        """Update epoch task.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         if self.progress and self.epoch_task_id is not None:
             self.progress.start_task(self.epoch_task_id)
             self.progress.update(
@@ -249,7 +298,12 @@ class TrainingDisplayCallback(Callback):
             )
 
     def on_train_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        """Update epoch task and live display."""
+        """Update epoch task and live display.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         if self.progress and self.epoch_task_id is not None:
             self.progress.update(
                 self.epoch_task_id,
@@ -261,7 +315,15 @@ class TrainingDisplayCallback(Callback):
     def on_train_batch_end(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule, outputs: Any, batch: Any, batch_idx: int
     ) -> None:
-        """Update step task and metrics."""
+        """Update step task and metrics.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+            outputs: The outputs from the training step.
+            batch: The batch of data.
+            batch_idx: The index of the batch.
+        """
         # Update Steps
         if self.progress and self.step_task_id is not None:
             # Determine total steps
@@ -304,7 +366,12 @@ class TrainingDisplayCallback(Callback):
             self.live.update(self._render_layout())
 
     def on_validation_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-        """Update metrics display with latest validation scores."""
+        """Update metrics display with latest validation scores.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+            pl_module: The PyTorch Lightning module instance.
+        """
         metrics = trainer.callback_metrics
 
         # Record metrics for chart

@@ -253,19 +253,51 @@ class DRALNSSolver:
         return self.random.random() < probability
 
     def _random_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Removes `n` nodes uniformly at random."""
+        """Removes `n` nodes uniformly at random.
+
+        Args:
+            routes: Current solution paths.
+            n: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: Partial routes and removed node list.
+        """
         return random_removal(routes, n, rng=self.random)
 
     def _worst_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Removes `n` nodes that contribute most to total cost."""
+        """Removes `n` nodes that contribute most to total cost.
+
+        Args:
+            routes: Current solution paths.
+            n: Number of nodes to remove.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: Partial routes and removed node list.
+        """
         return worst_removal(routes, n, self.dist_matrix)
 
     def _cluster_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
-        """Removes a cluster of spatially proximate nodes."""
+        """Removes a cluster of spatially proximate nodes.
+
+        Args:
+            routes: Current solution paths.
+            n: Number of nodes for the removal cluster.
+
+        Returns:
+            Tuple[List[List[int]], List[int]]: Partial routes and removed node list.
+        """
         return cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.random)
 
     def _greedy_insertion(self, partial_routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Inserts removed nodes into best possible positions sequentially."""
+        """Inserts removed nodes into best possible positions sequentially.
+
+        Args:
+            partial_routes: Routes with missing nodes.
+            removed: List of node identifiers to re-insert.
+
+        Returns:
+            List[List[int]]: Reconstructed solution.
+        """
         return greedy_insertion(
             partial_routes,
             removed,
@@ -276,7 +308,15 @@ class DRALNSSolver:
         )
 
     def _regret_2_insertion(self, partial_routes: List[List[int]], removed: List[int]) -> List[List[int]]:
-        """Inserts nodes based on the difference between best and second best positions."""
+        """Inserts nodes based on the difference between best and second best positions.
+
+        Args:
+            partial_routes: Routes with missing nodes.
+            removed: List of node identifiers to re-insert.
+
+        Returns:
+            List[List[int]]: Reconstructed solution.
+        """
         return regret_2_insertion(
             partial_routes,
             removed,
@@ -287,7 +327,11 @@ class DRALNSSolver:
         )
 
     def _build_initial_solution(self) -> List[List[int]]:
-        """Generates a starting solution using nearest neighbor logic."""
+        """Generates a starting solution using nearest neighbor logic.
+
+        Returns:
+            List[List[int]]: Initial routing solution.
+        """
         return build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
