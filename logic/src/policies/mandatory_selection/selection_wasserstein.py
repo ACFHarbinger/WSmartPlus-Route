@@ -9,10 +9,13 @@ Wasserstein-1 distance. Utilizing the duality result from Mohajerin Esfahani
 & Kuhn (2018), this worst-case expectation for the ReLU/Max loss is simply
 the nominal expectation plus the radius epsilon.
 
+Attributes:
+    WassersteinRobustSelection(IMandatorySelectionStrategy): Distributionally robust selection strategy based on Wasserstein ambiguity balls.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_wasserstein import WassersteinRobustSelection
     >>> strategy = WassersteinRobustSelection()
-    >>> bins = strategy.select_bins(context)
+    >>> bins, ctx = strategy.select_bins(context)
 """
 
 from typing import List, Tuple

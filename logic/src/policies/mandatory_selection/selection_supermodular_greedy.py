@@ -10,6 +10,14 @@ Objective:
     f(S) = sum_{i in S} revenue_i - alpha * 2 * sum_{i in S} dist(i, S \ {i})
 
 We use a greedy algorithm with a max-priority queue to select bins effectively.
+
+Attributes:
+    SupermodularGreedySelection(IMandatorySelectionStrategy): Selection strategy based on Supermodular Greedy maximization (Synergy).
+
+Example:
+    >>> from logic.src.policies.mandatory_selection.selection_supermodular_greedy import SupermodularGreedySelection
+    >>> strategy = SupermodularGreedySelection()
+    >>> bins, ctx = strategy.select_bins(context)
 """
 
 import heapq

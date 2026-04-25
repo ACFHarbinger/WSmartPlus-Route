@@ -6,6 +6,9 @@ Implements a selection strategy that uses a pre-trained machine learning model
 exact solver (like the MIP Knapsack). It extracts features for each bin and
 predicts the probability that the bin should be selected.
 
+Attributes:
+    LearnedSelection: The Learned Selection strategy.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_learned import LearnedSelection
     >>> strategy = LearnedSelection()

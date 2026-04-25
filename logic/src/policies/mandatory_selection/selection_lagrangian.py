@@ -6,6 +6,9 @@ of the Multiple Knapsack Problem (MKP). It uses the dual variables of the
 capacity constraints to compute reduced costs for each bin and selects those
 with a positive marginal contribution to the overall objective.
 
+Attributes:
+    LagrangianSelection: The Lagrangian Selection strategy.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_lagrangian import LagrangianSelection
     >>> strategy = LagrangianSelection()

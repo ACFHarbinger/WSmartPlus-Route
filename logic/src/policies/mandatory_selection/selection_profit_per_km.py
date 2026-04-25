@@ -7,6 +7,9 @@ this strategy normalizes the expected revenue by the spatial cost required to
 collect it. It naturally deprioritizes highly valuable but highly isolated bins,
 acting as a robust proxy for marginal insertion cost.
 
+Attributes:
+    ProfitPerKmSelection(IMandatorySelectionStrategy): Economic selection strategy based on spatial ROI (Return on Investment).
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_profit_per_km import ProfitPerKmSelection
     >>> strategy = ProfitPerKmSelection()

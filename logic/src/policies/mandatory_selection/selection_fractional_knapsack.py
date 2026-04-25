@@ -44,6 +44,10 @@ If ``context.n_vehicles <= 0`` the problem has no binding capacity
 constraint and the strategy short-circuits to every revenue-positive
 bin with non-negative net profit.
 
+Attributes:
+    FractionalKnapsackSelection: The Fractional Knapsack selection strategy.
+    _EPS: Small constant for numerical stability.
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_fractional_knapsack \\
     ...     import FractionalKnapsackSelection

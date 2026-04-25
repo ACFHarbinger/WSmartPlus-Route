@@ -6,6 +6,9 @@ A bin is selected if it satisfies a minimum fill requirement AND there exists
 at least one other sufficiently-full bin with which it shares a positive spatial
 saving (i.e., routing them together is cheaper than two separate round trips).
 
+Attributes:
+    SavingsSelection(IMandatorySelectionStrategy): Economic selection strategy based on spatial ROI (Return on Investment).
+
 Example:
     >>> from logic.src.policies.helpers.mandatory.selection_savings import SavingsSelection
     >>> strategy = SavingsSelection()

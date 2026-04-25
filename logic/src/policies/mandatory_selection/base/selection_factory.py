@@ -73,8 +73,8 @@ class MandatorySelectionFactory:
         """Create a selection strategy by name.
 
         Args:
-            name (str): Name of the strategy.
-            **kwargs: Arguments to pass to the strategy constructor.
+            name: Name of the strategy to create.
+            kwargs: Keyword arguments to pass to the strategy constructor.
 
         Returns:
             IMandatorySelectionStrategy: The instantiated selection strategy.
