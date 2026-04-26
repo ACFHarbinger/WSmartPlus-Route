@@ -159,6 +159,7 @@ class LocalSearch(ABC):
         self.top_insertions: Dict[int, Dict[int, List[Tuple[float, int]]]] = {}
         self.route_sectors: Dict[int, Optional[Tuple[float, float]]] = {}
         self.current_profit: float = 0.0
+        self._target_neighborhood: str = "all"
 
     def get_dist(self, i: int, j: int) -> float:
         """Abstraction to fetch distance from matrix or calculate on-demand.
@@ -272,32 +273,26 @@ class LocalSearch(ABC):
             for pi, node in enumerate(r):
                 self.node_map[node] = (ri, pi)
 
-        # Initialize Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
-        self._compute_top_insertions()
-
         # Store target neighborhood for _process_pair to filter operators
         self._target_neighborhood = target_neighborhood if target_neighborhood else "all"
+
+        # Initialize Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
+        self._compute_top_insertions()
 
         # Store active nodes set for localization (FILO)
         self._active_nodes = active_nodes
 
         improved = True
         it = 0
-        t_start = time.process_time()
+        pairs = [(u, v) for u in self.neighbors for v in self.neighbors[u]]  # Build the full candidate pair list
+        t_start = time.perf_counter()
         while improved and it < self.params.local_search_iterations:
-            if self.params.time_limit > 0 and time.process_time() - t_start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - t_start > self.params.time_limit:
                 break
 
             improved = False
             it += 1
-
-            # Build the full candidate pair list
-            pairs = []
-            for u in self.neighbors:
-                for v in self.neighbors[u]:
-                    pairs.append((u, v))
             self.random.shuffle(pairs)
-
             for u, v in pairs:
                 if self._active_nodes is not None and u not in self._active_nodes and v not in self._active_nodes:
                     continue
@@ -546,8 +541,6 @@ class LocalSearch(ABC):
             for pi, node in enumerate(self.routes[ri]):
                 self.node_map[node] = (ri, pi)
             self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
-            # Invalidate and update Top-3 cache for this modified route (O(1) SWAP* maintenance)
-            self.route_sectors.pop(ri, None)
             self._compute_top_insertions(route_idx=ri)
 
     def _get_load_cached(self, ri: int) -> float:
@@ -877,8 +870,15 @@ class LocalSearch(ABC):
                 best_delta_raw, best_pos = self.top_insertions[node][route_idx][0]
                 cost_delta = best_delta_raw * self.C
             else:
-                # Fallback safety if cache is missing (shouldn't happen with proper maintenance)
-                return False
+                # Cache miss: compute insertion cost directly
+                best_pos, best_delta = 0, float("inf")
+                for pos in range(len(route) + 1):
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
+                    delta = self.get_dist(prev, node) + self.get_dist(node, nxt) - self.get_dist(prev, nxt)
+                    if delta < best_delta:
+                        best_delta, best_pos = delta, pos
+                cost_delta = best_delta * self.C
 
         profit_delta = self.waste.get(node, 0) * self.R
         load_delta = self.waste.get(node, 0)

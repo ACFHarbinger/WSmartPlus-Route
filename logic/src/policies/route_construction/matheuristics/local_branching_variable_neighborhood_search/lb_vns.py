@@ -198,6 +198,7 @@ def run_lb_vns_gurobi(
     # Initialize the Gurobi model
     model = gp.Model("LB_VNS_VRPP", env=env) if env else gp.Model("LB_VRPP")
     model.setParam("OutputFlag", 0)  # Silent mode
+    model.setParam("LogToConsole", 0)
     # (blank line)
     # Initialize params if not provided
     params = params or LBVNSParams()

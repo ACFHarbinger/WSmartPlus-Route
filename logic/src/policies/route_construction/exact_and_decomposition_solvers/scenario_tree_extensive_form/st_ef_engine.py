@@ -137,6 +137,8 @@ class ScenarioTreeExtensiveFormEngine:
 
         # Gurobi vars mappings
         self.model = gp.Model("ST_Extensive_Form")
+        self.model.Params.LogToConsole = 0
+        self.model.Params.OutputFlag = 0
         self.x_vars: Dict[Tuple[int, int, int], gp.Var] = {}  # (n_idx, i, j) -> var
         self.y_vars: Dict[Tuple[int, int], gp.Var] = {}  # (n_idx, i) -> var
         # w represents the fill level *before* any collection is made at this node.

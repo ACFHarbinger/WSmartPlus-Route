@@ -34,7 +34,7 @@ hgs:
     # ---------------------------------------------------------------------
     # Runtime Control (Vidal 2022)
     # ---------------------------------------------------------------------
-    - time_limit: 60
+    - time_limit: 60.0
       # Maximum wall-clock seconds for optimization (0 = unlimited)
       # Range: 0 (unlimited), 30-600 (30s = quick, 300s = thorough)
       # Recommendation: 60s for simulation (iteration-based stopping is too slow)
@@ -169,7 +169,7 @@ hgs:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
-    - acceptance_criterion: {method: "oi"}
+    - acceptance_criterion: { method: "oi" }
       # HGS local search is comprehensive; external route improvement redundant
       # Empty = use HGS output directly
 # =============================================================================

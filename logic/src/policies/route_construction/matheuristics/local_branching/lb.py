@@ -134,6 +134,7 @@ def run_local_branching_gurobi(
     """
     model = gp.Model("LB_VRPP", env=env) if env else gp.Model("LB_VRPP")
     model.setParam("OutputFlag", 0)
+    model.setParam("LogToConsole", 0)
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
     model.setParam("NodeLimit", mip_limit_nodes)

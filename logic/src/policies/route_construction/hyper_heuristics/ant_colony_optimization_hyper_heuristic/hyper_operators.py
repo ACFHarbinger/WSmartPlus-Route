@@ -84,6 +84,7 @@ class HyperOperatorContext:
         rng: Optional[random.Random] = None,
         profit_aware_operators: bool = False,
         vrpp: bool = True,
+        use_cache: bool = False,
     ):
         """
         Initialize HyperOperatorContext.
@@ -113,6 +114,7 @@ class HyperOperatorContext:
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.neighbors: Dict[int, List[int]] = {}
         self.rng = rng or random.Random()
+        self.use_cache = use_cache
 
         # Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
         # Maps: node_id -> route_idx -> [(cost_delta, position), ...]
@@ -148,8 +150,9 @@ class HyperOperatorContext:
                         break
             self.neighbors[i] = cands
 
-        # Compute Top-3 Insertion Cache for SWAP* operator
-        self._compute_top_insertions()
+        # Compute Top-3 Insertion Cache for SWAP* operator ONLY if requested
+        if self.use_cache:
+            self._compute_top_insertions()
 
     def _calc_load_fresh(self, r: List[int]) -> float:
         """Calculate load of a route.
@@ -196,8 +199,9 @@ class HyperOperatorContext:
                 for pi, node in enumerate(self.routes[ri]):
                     self.node_map[node] = (ri, pi)
                 self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
-                # Update top insertions for affected route
-                self._compute_top_insertions(route_idx=ri)
+                # Update top insertions for affected route ONLY if cache is active
+                if self.use_cache:
+                    self._compute_top_insertions(route_idx=ri)
 
     def _compute_top_insertions(self, route_idx: Optional[int] = None):
         """

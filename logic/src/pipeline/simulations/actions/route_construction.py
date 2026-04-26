@@ -96,7 +96,8 @@ class RouteConstructionAction(SimulationAction):
             # Try to extract a registered engine from the compound name
             resolved = False
             for eng in sorted(registered, key=len, reverse=True):
-                if f"_{eng}" in lower or f"{eng}_" in lower or eng == lower:
+                # Match with word boundaries (underscore or string ends)
+                if f"_{eng}_" in lower or lower.startswith(f"{eng}_") or lower.endswith(f"_{eng}") or eng == lower:
                     solver_key = eng
                     resolved = True
                     break

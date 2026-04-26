@@ -172,6 +172,7 @@ class BBSolver:
         """
         self.model = gp.Model("BB_Persistent", env=self.env) if self.env else gp.Model("BB_Persistent")
         self.model.setParam("OutputFlag", 0)  # Silence Gurobi output for sub-solves
+        self.model.setParam("LogToConsole", 0)
         self.model.setParam("Threads", 1)  # Single-threaded sub-solves for better control
 
         # --- Decision Variables (CONTINUOUS for LP relaxation) ---

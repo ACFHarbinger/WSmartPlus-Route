@@ -95,6 +95,7 @@ class RelaxFixOptimizePolicy(BaseMultiPeriodRoutingPolicy):
         """
         model = gp.Model("RFO")
         model.setParam("OutputFlag", 0)
+        model.setParam("LogToConsole", 0)
         model.setParam("TimeLimit", self.mip_time)
         model.setParam("MIPGap", self.mip_gap)
         model.Params.LazyConstraints = 1

@@ -98,6 +98,7 @@ def _setup_bb_model(
 
     model = gp.Model("BB_Simple", env=env) if env else gp.Model("BB_Simple")
     model.setParam("OutputFlag", 0)
+    model.setParam("LogToConsole", 0)
     model.setParam("TimeLimit", time_limit)
     model.setParam("MIPGap", mip_gap)
     model.setParam("Seed", seed)

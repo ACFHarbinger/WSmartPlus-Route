@@ -54,7 +54,7 @@ bpc:
       # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
-    - time_limit: 60
+    - time_limit: 60.0
       # Maximum wall-clock seconds before termination
       # Range: 30-3600 (30s = quick test, 3600s = thorough search)
       # Note: BPC may find optimal solution early and stop before time_limit

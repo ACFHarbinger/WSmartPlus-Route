@@ -179,8 +179,11 @@ def _run_gurobi_optimizer(  # noqa: C901
     mdl.Params.GUBCoverCuts = 2
     mdl.Params.Presolve = 1
     mdl.Params.NodefileStart = NODEFILE_START_GB
+    mdl.Params.LogToConsole = 0
+    mdl.Params.OutputFlag = 0
     mdl.setParam("MIPGap", MIP_GAP)
-    mdl.Params.TimeLimit = time_limit
+    if time_limit > 0:
+        mdl.Params.TimeLimit = time_limit
 
     contentores_coletados = []
     profit = 0.0

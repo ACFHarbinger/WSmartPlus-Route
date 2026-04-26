@@ -51,6 +51,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.helpers.operators import (
+    build_grasp_routes,
     greedy_insertion,
     greedy_profit_insertion,
     random_removal,
@@ -142,65 +143,51 @@ class RLGDHHSolver:
 
         start_time = time.perf_counter()
 
-        # --- Initialisation ---
+        # Initialisation via GRASP (Randomized Complete Solution)
         current_routes = self._initialize_solution()
         current_profit = self._evaluate(current_routes)
 
         best_routes = copy.deepcopy(current_routes)
         best_profit = current_profit
 
-        # Setup modular acceptance criterion
         self.params.acceptance_criterion.setup(current_profit)
 
-        # --- Main Loop ---
-        for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
+        for _iteration in range(self.params.max_iterations):
+            time_elapsed = time.perf_counter() - start_time
+            if self.params.time_limit > 0 and time_elapsed > self.params.time_limit:
                 break
 
-            # (a) Heuristic Selection — max utility, random tie-break
             llh_idx = self._select_llh()
             llh = self._llh_pool[llh_idx]
 
-            # (b) Application — no internal deepcopy (moved to LLH methods)
             new_routes = llh(current_routes)
             new_profit = self._evaluate(new_routes)
 
-            # (c) Adaptation + (d) Acceptance
+            # Pass critical timing data to the GD criterion
             is_accepted, _ = self.params.acceptance_criterion.accept(
                 current_obj=current_profit,
                 candidate_obj=new_profit,
-                iteration=iteration,
-                max_iterations=self.params.max_iterations,
+                time_elapsed=time_elapsed,
+                time_limit=self.params.time_limit,
             )
 
             if new_profit > current_profit:
-                # Improving move: reward and always accept
                 self.utilities[llh_idx] = self._apply_reward(self.utilities[llh_idx])
             else:
-                # Worsening/Neutral move: punish
                 self.utilities[llh_idx] = self._apply_punishment(self.utilities[llh_idx])
 
             if is_accepted:
                 current_routes = new_routes
                 current_profit = new_profit
-                # Track global best
                 if current_profit > best_profit:
                     best_routes = copy.deepcopy(current_routes)
                     best_profit = current_profit
 
-            # (e) Update criterion state
+            # Step logic is preserved for potential interface needs
             self.params.acceptance_criterion.step(
                 current_obj=current_profit,
                 candidate_obj=new_profit,
                 accepted=is_accepted,
-                iteration=iteration,
-            )
-
-            getattr(self, "_viz_record", lambda **k: None)(
-                iteration=iteration,
-                best_profit=best_profit,
-                current_profit=current_profit,
-                selected_llh=llh_idx,
             )
 
         best_cost = self._cost(best_routes)
@@ -235,6 +222,7 @@ class RLGDHHSolver:
     def _apply_punishment(self, u: float) -> float:
         """
         Applies punishment according to the selected RL variant.
+        Maintains raw float utilities to prevent absorbing states.
 
         RL1 (Section 3.2): u ← max(lb, u − penalty)   [subtractive]
         RL2 (Section 3.2): u ← floor(u / 2)            [divisional]
@@ -248,11 +236,14 @@ class RLGDHHSolver:
         """
         variant = self.params.punishment_type
         lb = self.params.min_utility
+
         if variant == "RL2":
-            return max(lb, math.floor(u / 2))
+            return max(lb, u / 2.0)
         if variant == "RL3":
-            return max(lb, math.floor(math.sqrt(max(0.0, u))))
-        # Default: RL1
+            # Handle the mathematical anomaly where sqrt(u) > u if u < 1.0
+            return max(lb, math.sqrt(u) if u >= 1.0 else u / 2.0)
+
+        # Default: RL1 (subtractive)
         return max(lb, u - self.params.penalty_worsening)
 
     # ------------------------------------------------------------------
@@ -433,29 +424,20 @@ class RLGDHHSolver:
         """
         nodes = copy.copy(self.nodes)
         self.random.shuffle(nodes)
-
         try:
-            if self.params.profit_aware_operators:
-                return greedy_profit_insertion(
-                    [],
-                    nodes,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    R=self.R,
-                    C=self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                )
-            else:
-                return greedy_insertion(
-                    [],
-                    nodes,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                )
+            return build_grasp_routes(
+                dist_matrix=self.dist_matrix,
+                wastes=self.wastes,
+                capacity=self.capacity,
+                R=self.R,
+                C=self.C,
+                mandatory_nodes=self.mandatory_nodes,
+                alpha=0.5,  # Moderate randomness to ensure a chaotic but feasible start
+                rng=self.random,
+            )
         except Exception:
+            # Fallback to single-node routes if GRASP fails
+            nodes = copy.copy(self.nodes)
             return [[n] for n in nodes]
 
     def _evaluate(self, routes: List[List[int]]) -> float:

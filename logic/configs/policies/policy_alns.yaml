@@ -29,7 +29,7 @@ alns:
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
-    - time_limit: 60
+    - time_limit: 60.0
       # Maximum wall-clock seconds for optimization
       # Range: 10-600 (10s = quick test, 600s = deep search)
       # Recommendation: 60s for production, 300s for benchmarking
