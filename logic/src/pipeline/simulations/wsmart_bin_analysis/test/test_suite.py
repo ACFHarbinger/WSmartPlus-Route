@@ -182,7 +182,7 @@ class PyTestRunner:
         Execute tests by calling pytest as a subprocess.
 
         Args:
-            **kwargs: See _build_pytest_command for available options.
+            kwargs: See _build_pytest_command for available options.
 
         Returns:
             int: The return code from the pytest process.

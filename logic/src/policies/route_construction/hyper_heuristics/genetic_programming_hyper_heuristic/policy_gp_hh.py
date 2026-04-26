@@ -6,6 +6,23 @@ generator to the agnostic BaseRoutingPolicy interface.
 
 Generates synthetic training environments (random Euclidean distance matrices)
 to provide true spatial-topology diversity during GP tree evolution.
+
+References:
+    Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., & Woodward, J. R.
+    "Exploring Hyper-heuristic Methodologies with Genetic Programming", 2009
+
+Attributes:
+    GPHHPolicy: Main policy class.
+
+Example:
+    >>> policy = GPHHPolicy()
+    >>> routes, profit, cost = policy.solve(
+    ...     dist_matrix=dist_matrix,
+    ...     wastes=wastes,
+    ...     capacity=capacity,
+    ...     R=R, C=C,
+    ...     mandatory_nodes=mandatory_nodes,
+    ... )
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -88,6 +105,9 @@ class GPHHPolicy(BaseRoutingPolicy):
     solution building, generating a learned construction heuristic.
     Provides synthetic training environments with diverse spatial topologies
     to promote generalizable GP trees.
+
+    Attributes:
+        config: Configuration parameters.
     """
 
     def __init__(self, config: Optional[Union[GPHHConfig, Dict[str, Any]]] = None):
@@ -101,9 +121,19 @@ class GPHHPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Get the configuration class.
+
+        Returns:
+            Optional[Type]: Configuration class.
+        """
         return GPHHConfig
 
     def _get_config_key(self) -> str:
+        """Get the configuration key.
+
+        Returns:
+            str: Configuration key.
+        """
         return "gp_hh"
 
     def _run_solver(
@@ -140,7 +170,7 @@ class GPHHPolicy(BaseRoutingPolicy):
                 hyperparameters like `gp_pop_size`, `max_gp_generations`, etc.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

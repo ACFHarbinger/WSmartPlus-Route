@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Adaptive Memory Programming Hyper-Heuristic (AMP-HH).
+
+Attributes:
+    AMPHHParams: AMPHHParams class.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.params import AMPHHParams
+    >>> params = AMPHHParams()
+    >>> params.to_dict()
 """
 
 from __future__ import annotations
@@ -25,7 +33,14 @@ class AMPHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> AMPHHParams:
-        """Create AMPHHParams from a configuration object or dictionary."""
+        """Create AMPHHParams from a configuration object or dictionary.
+
+        Args:
+            config (Any): Configuration for the policy.
+
+        Returns:
+            AMPHHParams: Configuration parameters for AMPHH.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -36,5 +51,9 @@ class AMPHHParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert AMPParams to a dictionary for backend compatibility."""
+        """Convert AMPParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of AMPHHParams.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

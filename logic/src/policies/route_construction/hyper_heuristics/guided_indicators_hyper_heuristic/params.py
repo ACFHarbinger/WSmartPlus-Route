@@ -2,6 +2,16 @@
 Parameters for GIHH (Hyper-Heuristic with Two Guidance Indicators).
 
 This module defines the configuration parameters for the GIHH algorithm.
+
+Attributes:
+    GIHHParams: Configuration parameters for GIHH algorithm.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import GIHHConfig
+    >>> config = GIHHConfig()
+    >>> params = GIHHParams.from_config(config)
+    >>> print(params)
+    GIHHParams(time_limit=60.0, max_iterations=1000, seed=None, vrpp=True, profit_aware_operators=False, acceptance_criterion=ImprovingOnlyAcceptanceCriterion(), seg=80, alpha=0.5, beta=0.4, gamma=0.1, min_prob=0.05, nonimp_threshold=150)
 """
 
 from dataclasses import dataclass
@@ -17,6 +27,14 @@ if TYPE_CHECKING:
 class GIHHParams:
     """
     Configuration parameters for GIHH algorithm.
+
+    Attributes:
+        time_limit (float): Maximum time allowed for the search.
+        max_iterations (int): Maximum number of iterations to run.
+        seed (Optional[int]): Random seed for reproducibility.
+        vrpp (bool): Whether to use the Vehicle Routing Problem with Profits (VRPP) variant.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        acceptance_criterion (Optional[IAcceptanceCriterion]): Acceptance criterion for the search.
 
         # Episodic Learning parameters (Chen et al. 2018)
         seg (int): Segment size for episodic weight updates.
@@ -49,8 +67,12 @@ class GIHHParams:
     profit_aware_operators: bool = False
     acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
-    def __post_init__(self):
-        """Ensure acceptance criterion is initialized even if not passed in config."""
+    def __post_init__(self) -> None:
+        """Ensure acceptance criterion is initialized even if not passed in config.
+
+        Returns:
+            None
+        """
         if self.acceptance_criterion is None:
             # Standard GIHH uses Improving-Only acceptance
             from logic.src.policies.acceptance_criteria.base.factory import (
@@ -61,7 +83,14 @@ class GIHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "GIHHParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            GIHHParams: Parameters for GIHH algorithm.
+        """
         # Build parameters
         params = cls(
             time_limit=getattr(config, "time_limit", 60.0),

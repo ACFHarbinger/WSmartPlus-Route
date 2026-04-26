@@ -1,5 +1,16 @@
 """
-Module documentation.
+Implementation of the Adaptive Memory Programming Hyper-Heuristic (AMPHH).
+
+This module implements a Hyper-Heuristic VRP solver that uses adaptive memory
+to store and reuse high-quality solution components.
+
+Attributes:
+    AMPHHPolicy: AMPHHPolicy class.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic import AMPHHPolicy
+    >>> solver = AMPHHPolicy()
+    >>> solution = solver.solve(problem, multi_day_ctx)
 """
 
 import copy
@@ -52,10 +63,24 @@ class AMPHHPolicy(BaseMultiPeriodRoutingPolicy):
        the newly found solution, maintaining diversity and elite coverage.
 
     Registry key: ``"amphh"``
+
+    Attributes:
+        mem_size (int): Size of the adaptive memory.
+        iters (int): Number of iterations to run the solver.
+        seed (int): Seed for the random number generator.
+        rng (random.Random): Random number generator.
+        llhs (List[Callable]): List of Low-Level Heuristics.
+        memory (List[Tuple[float, List[List[List[int]]]]]): Adaptive memory.
+        params (AMPHHParams): Parameters for the solver.
     """
 
     def __init__(self, config: Any = None):
-        """__init__ docstring."""
+        """
+        Initialize the Adaptive Memory Programming Hyper-Heuristic (AMPHH) solver.
+
+        Args:
+            config (Any): Configuration for the policy.
+        """
         super().__init__(config)
         self.params = AMPHHParams.from_config(config)
         self.mem_size = self.params.mem_size
@@ -67,6 +92,15 @@ class AMPHHPolicy(BaseMultiPeriodRoutingPolicy):
         self.memory: List[Tuple[float, List[List[List[int]]]]] = []
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """Evaluate the total profit of a multi-period plan.
+
+        Args:
+            plan (List[List[List[int]]]): Multi-period plan.
+            problem (ProblemContext): Problem context.
+
+        Returns:
+            float: Total profit of the plan.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):
@@ -76,6 +110,15 @@ class AMPHHPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _update_memory(self, prof: float, plan: List[List[List[int]]]):
+        """Update the adaptive memory with a new solution.
+
+        Args:
+            prof (float): Profit of the solution.
+            plan (List[List[List[int]]]): Multi-period plan.
+
+        Returns:
+            None
+        """
         self.memory.append((prof, copy.deepcopy(plan)))
         self.memory.sort(key=lambda x: x[0], reverse=True)
         if len(self.memory) > self.mem_size:

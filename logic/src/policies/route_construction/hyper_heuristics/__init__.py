@@ -1,5 +1,25 @@
 """
-Module documentation.
+Package documentation for Hyper-Heuristics module.
+
+This package implements various Hyper-Heuristics for the Vehicle Routing Problem (VRP).
+
+Attributes:
+    - Adaptive Memory Programming (AMPHH): policy_amphh
+    - Ant Colony Optimization (ACO): policy_aco_hh
+    - Genetic Programming (GP): policy_gp_hh
+    - Genetic Programming Multi-Period (GP MP): policy_gp_mp_hh
+    - Guided Indicators (GIHH): policy_gihh
+    - Hidden Markov Model - Great Deluge (HMM-GD): policy_hmm_gd_hh
+    - Hyper-Heuristic Using Local Knowledge (HULK): policy_hulk
+    - Matheuristic Hyper-Heuristic (MHH): policy_mhh
+    - Population-Based (PHH): policy_phh
+    - Selection (SHH): policy_shh
+    - Sequence-Based Selection (SS-HH): policy_ss_hh
+
+Examples:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import policy_amp_hh
+    >>> solver = policy_amp_hh.AMPHHPolicy()
+    >>> solution = solver.solve(problem, multi_day_ctx)
 """
 
 from .adaptive_memory_programming_hyper_heuristic import policy_amphh as policy_amp_hh

@@ -1,5 +1,18 @@
 """
 Configuration parameters for the Population Hyper-Heuristic (PHH).
+
+Attributes:
+    PHHParams: Configuration parameters for the PHH solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import PHHParams
+    >>> params = PHHParams()
+    >>> print(params)
+    PHHParams(
+        pop_size=10,
+        gens=20,
+        seed=42,
+    )
 """
 
 from __future__ import annotations
@@ -25,7 +38,15 @@ class PHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> PHHParams:
-        """Create PHHParams from a configuration object or dictionary."""
+        """
+        Create PHHParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            PHHParams: Parameters for the PHH solver.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -36,5 +57,10 @@ class PHHParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert PHHParams to a dictionary for backend compatibility."""
+        """
+        Convert PHHParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of PHHParams.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

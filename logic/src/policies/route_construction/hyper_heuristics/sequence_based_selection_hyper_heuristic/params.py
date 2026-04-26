@@ -3,6 +3,14 @@ Configuration parameters for the Sequence-based Selection Hyper-Heuristic (SS-HH
 
 Reference:
     Kheiri, A. "Heuristic Sequence Selection for Inventory Routing Problem", 2014.
+
+Attributes:
+    SSHHParams: Configuration parameters for the SS-HH solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import SSHHParams
+    >>> params = SSHHParams()
+    >>> print(params)
 """
 
 from __future__ import annotations
@@ -45,6 +53,9 @@ class SSHHParams:
             solutions (Eq. 4, bottom branch, first addend).
         threshold_decay_rate: Time-decay coefficient for the feasible
             threshold (Eq. 4, bottom branch, second addend).
+        vrpp: Whether to use profit-aware operators.
+        profit_aware_operators: Whether to use profit-aware operators.
+        seed: Random seed.
     """
 
     max_iterations: int = 500
@@ -62,7 +73,15 @@ class SSHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "SSHHParams":
-        """Create parameters from a configuration object."""
+        """
+        Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            SSHHParams: Parameters for the SS-HH solver.
+        """
         return cls(
             max_iterations=getattr(config, "max_iterations", 500),
             n_removal=getattr(config, "n_removal", 2),

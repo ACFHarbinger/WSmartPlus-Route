@@ -11,6 +11,14 @@ Reference:
     Müller, L. F., & Bonilha, I. (2022). "Hyper-Heuristic Based on ACO
     and Local Search for Dynamic Optimization Problems."
     Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
+
+Attributes:
+    HULKSolver: Main solver class that coordinates operator selection and solution improvement.
+
+Example:
+    >>> solver = HULKSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> best_solution, best_profit, best_cost = solver.solve()
+    >>> print(best_solution, best_profit, best_cost)
 """
 
 import math
@@ -33,6 +41,22 @@ class HULKSolver:
     HULK: Hyper-heuristic Using unstringing/stringing with Local search and K-opt.
 
     Main solver class that coordinates operator selection and solution improvement.
+
+    Attributes:
+        dist_matrix: Distance matrix.
+        wastes: Waste dictionary.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: Must-visit nodes.
+        evaluator: Optional custom evaluation function.
+        rng: Random number generator.
+        n_nodes: Number of nodes.
+        ops: Operator collection for HULK hyper-heuristic.
+        unstring_selector: Selector for unstringing operators.
+        string_selector: Selector for stringing operators.
+        local_search_selector: Selector for local search operators.
+        temperature: Current temperature for simulated annealing.
     """
 
     def __init__(
@@ -249,8 +273,11 @@ class HULKSolver:
         2. Reconstruction (Stringing)
         3. Improvement (Local Search / K-opt)
 
+        Args:
+            solution: Solution to apply the move to.
+
         Returns:
-            (new_solution, unstring_op_name, string_op_name, ls_op_name)
+            Tuple[Solution, str, str, Optional[str]]: Tuple containing the new solution, unstring operator name, string operator name, and local search operator name.
         """
         # 1. Select and apply unstringing (destroy)
         unstring_op = self.unstring_selector.select_operator()
@@ -291,7 +318,14 @@ class HULKSolver:
         return repaired, unstring_op, string_op, ls_op
 
     def _calculate_removal_size(self, solution: Solution) -> int:
-        """Calculate number of nodes to remove."""
+        """Calculate number of nodes to remove.
+
+        Args:
+            solution: Solution to calculate removal size for.
+
+        Returns:
+            int: Number of nodes to remove.
+        """
         total_nodes = solution.get_total_nodes()
         if total_nodes == 0:
             return 0
@@ -308,8 +342,12 @@ class HULKSolver:
 
         Uses simulated annealing acceptance criterion.
 
+        Args:
+            current: Current solution.
+            neighbor: Neighbor solution.
+
         Returns:
-            (accepted, delta_profit)
+            Tuple[bool, float]: Tuple containing accepted boolean and delta profit.
         """
         delta = (neighbor.profit or 0.0) - (current.profit or 0.0)
 
@@ -329,7 +367,11 @@ class HULKSolver:
         return False, delta
 
     def get_operator_statistics(self) -> Dict:
-        """Get performance statistics for all operators."""
+        """Get performance statistics for all operators.
+
+        Returns:
+            Dict: Dictionary containing statistics for unstringing, stringing, and local search operators.
+        """
         return {
             "unstring": self.unstring_selector.get_statistics(),
             "string": self.string_selector.get_statistics(),

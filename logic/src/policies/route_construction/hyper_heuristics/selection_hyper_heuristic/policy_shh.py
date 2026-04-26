@@ -1,5 +1,13 @@
 """
 Selection Hyper-Heuristic (SHH) policy implementation.
+
+Attributes:
+    SelectionHHPolicy: Adapter for the SHH solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import SSHHPolicy
+    >>> params = SSHHPolicy()
+    >>> print(params)
 """
 
 import copy
@@ -40,6 +48,14 @@ class SelectionHHPolicy(BaseMultiPeriodRoutingPolicy):
     to select the next LLH to apply, then accepts or rejects using Late Acceptance.
 
     Registry key: ``"shh"``
+
+    Attributes:
+        params: SHHParams instance.
+        iters: Number of iterations.
+        history_len: Length of late acceptance history.
+        seed: Random seed.
+        rng: Random number generator.
+        llhs: Pool of low-level heuristics.
     """
 
     def __init__(self, config: Any = None):
@@ -58,6 +74,16 @@ class SelectionHHPolicy(BaseMultiPeriodRoutingPolicy):
         self.llhs = LLHPool.get_all()
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """
+        Evaluate the total profit of a plan.
+
+        Args:
+            plan: Collection plan.
+            problem: Problem context.
+
+        Returns:
+            float: Total profit.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):

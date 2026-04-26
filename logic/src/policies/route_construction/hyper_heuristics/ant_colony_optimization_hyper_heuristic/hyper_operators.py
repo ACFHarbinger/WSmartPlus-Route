@@ -8,6 +8,18 @@ Each operator attempts to improve a solution and returns the modified routes.
 Attributes:
     HYPER_OPERATORS (list): List of operator functions.
     OPERATOR_NAMES (list): List of operator names.
+    HyperOperatorContext: Context object that provides the interface expected by move operators.
+    apply_2opt_intra: Wrapper for 2-opt intra-route move.
+    apply_3opt_intra: Wrapper for 3-opt intra-route move.
+    apply_2opt_star: Wrapper for 2-opt* inter-route move.
+    apply_swap: Wrapper for swap move between two nodes.
+    apply_swap_star: Wrapper for SWAP* inter-route move.
+    apply_relocate: Wrapper for relocate move.
+    apply_kick: Wrapper for kick operator.
+    apply_perturb: Wrapper for perturbation operator.
+    apply_random_removal: Wrapper for random removal operator.
+    apply_shaw_removal: Wrapper for shaw removal operator.
+    apply_string_removal: Wrapper for string removal operator.
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators import apply_2opt
@@ -42,6 +54,22 @@ class HyperOperatorContext:
     """
     Context object that provides the interface expected by move operators.
     Wraps routes and provides helper methods for move evaluation.
+
+    Attributes:
+        routes: Current routes.
+        d: Distance matrix.
+        waste: Node wastes.
+        Q: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        mandatory_nodes: Set of mandatory node indices.
+        profit_aware_operators: Whether to use profit-aware heuristics.
+        vrpp: Whether to consider all unvisited nodes in insertion.
+        route_loads: Cached loads for each route.
+        node_map: Mapping of node to its route and position.
+        neighbors: Pre-computed neighbors for each node.
+        rng: Random number generator.
+        top_insertions: Cache for O(1) SWAP* insertion cost evaluation.
     """
 
     def __init__(
@@ -92,8 +120,12 @@ class HyperOperatorContext:
 
         self._build_structures()
 
-    def _build_structures(self):
-        """Build node map, route loads, and neighbor lists."""
+    def _build_structures(self) -> None:
+        """Build node map, route loads, and neighbor lists.
+
+        Returns:
+            None
+        """
         self.node_map.clear()
         self.route_loads = []
 
@@ -120,12 +152,33 @@ class HyperOperatorContext:
         self._compute_top_insertions()
 
     def _calc_load_fresh(self, r: List[int]) -> float:
+        """Calculate load of a route.
+
+        Args:
+            r (List[int]): Route.
+
+        Returns:
+            float: Load of the route.
+        """
         return sum(self.waste.get(x, 0) for x in r)
 
     def _get_load_cached(self, ri: int) -> float:
+        """Get cached load of a route.
+
+        Args:
+            ri (int): Route index.
+
+        Returns:
+            float: Cached load of the route.
+        """
         return self.route_loads[ri]
 
     def _update_map(self, affected_indices: set):
+        """Update node map and route loads.
+
+        Args:
+            affected_indices (set): Set of affected route indices.
+        """
         for ri in sorted(affected_indices):
             if ri < len(self.routes):
                 for pi, node in enumerate(self.routes[ri]):
@@ -180,7 +233,15 @@ class HyperOperatorContext:
 
 
 def apply_2opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
-    """Apply 2-opt intra-route move to a random route segment."""
+    """Apply 2-opt intra-route move to a random route segment.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        max_attempts (int): Maximum number of attempts. Defaults to 50.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     improved = False
     for _ in range(max_attempts):
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
@@ -206,7 +267,15 @@ def apply_2opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
 
 
 def apply_3opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
-    """Apply 3-opt intra-route move to a random route segment."""
+    """Apply 3-opt intra-route move to a random route segment.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        max_attempts (int): Maximum number of attempts. Defaults to 50.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     improved = False
     for _ in range(max_attempts):
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
@@ -232,7 +301,15 @@ def apply_3opt_intra(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
 
 
 def apply_2opt_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
-    """Apply 2-opt* inter-route move."""
+    """Apply 2-opt* inter-route move.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        max_attempts (int): Maximum number of attempts. Defaults to 50.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     improved = False
     for _ in range(max_attempts):
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
@@ -258,7 +335,15 @@ def apply_2opt_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
 
 
 def apply_swap(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
-    """Apply swap move between two nodes."""
+    """Apply swap move between two nodes.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        max_attempts (int): Maximum number of attempts. Defaults to 50.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     improved = False
     for _ in range(max_attempts):
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
@@ -284,7 +369,15 @@ def apply_swap(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
 
 
 def apply_swap_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
-    """Apply SWAP* inter-route move."""
+    """Apply SWAP* inter-route move.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        max_attempts (int): Maximum number of attempts. Defaults to 50.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     improved = False
     for _ in range(max_attempts):
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
@@ -310,7 +403,15 @@ def apply_swap_star(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
 
 
 def apply_relocate(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
-    """Apply relocate move."""
+    """Apply relocate move.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        max_attempts (int): Maximum number of attempts. Defaults to 50.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     improved = False
     for _ in range(max_attempts):
         nodes = [n for n in ctx.neighbors if n in ctx.node_map]
@@ -336,19 +437,43 @@ def apply_relocate(ctx: HyperOperatorContext, max_attempts: int = 50) -> bool:
 
 
 def apply_perturb(ctx: HyperOperatorContext, k: int = 3) -> bool:
-    """Wrapper for perturbation operator."""
+    """Wrapper for perturbation operator.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        k (int): Number of nodes to perturb. Defaults to 3.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     return perturb(ctx, k)
 
 
 def apply_kick(ctx: HyperOperatorContext, destroy_ratio: float = 0.2) -> bool:
-    """Wrapper for kick operator."""
+    """Wrapper for kick operator.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        destroy_ratio (float): Ratio of nodes to remove. Defaults to 0.2.
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     if ctx.profit_aware_operators:
         return kick_profit(ctx, destroy_ratio, bias=2.0, rng=ctx.rng)
     return kick(ctx, destroy_ratio, rng=ctx.rng)
 
 
 def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bool:
-    """Wrapper for shaw removal followed by greedy insertion."""
+    """Wrapper for shaw removal followed by greedy insertion.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        n (Optional[int]): Number of nodes to remove. Defaults to max(1, len(ctx.node_map) // 5).
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
     try:
         if ctx.profit_aware_operators:
@@ -385,7 +510,15 @@ def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bo
 
 
 def apply_string_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bool:
-    """Wrapper for string removal followed by greedy insertion."""
+    """Wrapper for string removal followed by greedy insertion.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        n (Optional[int]): Number of nodes to remove. Defaults to max(1, len(ctx.node_map) // 5).
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
     try:
         partial, removed = string_removal(ctx.routes, n_remove, ctx.d, rng=ctx.rng)
@@ -418,7 +551,15 @@ def apply_string_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> 
 
 
 def apply_random_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bool:
-    """Wrapper for random removal followed by greedy insertion."""
+    """Wrapper for random removal followed by greedy insertion.
+
+    Args:
+        ctx (HyperOperatorContext): Context containing problem data and structures.
+        n (Optional[int]): Number of nodes to remove. Defaults to max(1, len(ctx.node_map) // 5).
+
+    Returns:
+        bool: True if an improving move was made, False otherwise.
+    """
     n_remove = n if n is not None else max(1, len(ctx.node_map) // 5)
     try:
         partial, removed = random_removal(ctx.routes, n_remove, rng=ctx.rng)

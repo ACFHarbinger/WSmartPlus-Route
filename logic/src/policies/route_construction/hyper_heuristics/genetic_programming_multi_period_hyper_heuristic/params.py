@@ -1,5 +1,13 @@
 """
 Configuration parameters for the Genetic Programming Multi-Period Hyper-Heuristic (GP-MP-HH).
+
+Attributes:
+    GP_MP_HH_Params: Parameters for the GP-MP-HH policy.
+
+Example:
+    >>> params = GP_MP_HH_Params(pop_size=10, gens=20, prog_len=5, seed=42)
+    >>> params.to_dict()
+    {'pop_size': 10, 'gens': 20, 'prog_len': 5, 'seed': 42}
 """
 
 from __future__ import annotations
@@ -27,7 +35,14 @@ class GP_MP_HH_Params:
 
     @classmethod
     def from_config(cls, config: Any) -> GP_MP_HH_Params:
-        """Create GP_MP_HH_Params from a configuration object or dictionary."""
+        """Create GP_MP_HH_Params from a configuration object or dictionary.
+
+        Args:
+            config (Any): Configuration for the solver.
+
+        Returns:
+            GP_MP_HH_Params: Parameters for the GP-MP-HH policy.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -39,5 +54,9 @@ class GP_MP_HH_Params:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert GPM_PHH_Params to a dictionary for backend compatibility."""
+        """Convert GPM_PHH_Params to a dictionary for backend compatibility.
+
+        Returns:
+            dict: Dictionary representation of the parameters.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}
