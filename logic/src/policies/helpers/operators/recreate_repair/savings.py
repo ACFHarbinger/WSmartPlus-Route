@@ -28,6 +28,7 @@ import numpy as np
 from logic.src.utils.policy.routes import (
     prune_unprofitable_routes,
 )
+from logic.src.utils.policy.seed_hurdle import _dynamic_seed_hurdle
 
 
 def savings_insertion(
@@ -173,6 +174,9 @@ def savings_profit_insertion(
     # Pre-calculate loads to avoid repeated sum() calls
     loads = [sum(wastes.get(n, 0.0) for n in r) for r in routes]
 
+    # Fixed denominator for density: total optional nodes in this instance.
+    n_total_optional = (len(dist_matrix) - 1) - len(mandatory_nodes_set)
+
     while unassigned:
         best_score = float("-inf")
         best_node = -1
@@ -223,7 +227,18 @@ def savings_profit_insertion(
             # Evaluate new route (Speculative Seeding)
             new_cost = dist_matrix[depot, node] + dist_matrix[node, depot]
             new_profit = revenue - (new_cost * C)
-            seed_hurdle = -0.5 * (new_cost * C)
+
+            # Dynamic seed hurdle: scales with pool density and expected CW synergy.
+            # unassigned still contains node itself; helper excludes it via v != node.
+            seed_hurdle = _dynamic_seed_hurdle(
+                node=node,
+                unassigned=unassigned,
+                mandatory_nodes_set=mandatory_nodes_set,
+                dist_matrix=dist_matrix,
+                new_cost=new_cost,
+                C=C,
+                n_total_optional=n_total_optional,
+            )
 
             if is_mandatory or new_profit >= seed_hurdle:
                 # PACW savings: S = dedicated_dist - detour_dist

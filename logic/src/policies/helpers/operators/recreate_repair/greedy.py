@@ -19,6 +19,7 @@ import numpy as np
 from logic.src.utils.policy.routes import (
     prune_unprofitable_routes,
 )
+from logic.src.utils.policy.seed_hurdle import _dynamic_seed_hurdle
 
 
 def greedy_insertion(  # noqa: C901
@@ -219,6 +220,9 @@ def greedy_profit_insertion(  # noqa: C901
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(node, 0) for node in r) for r in routes]
 
+    # Calculate total optional nodes for dynamic density
+    n_total_optional = len(dist_matrix) - 1 - len(mandatory_nodes_set)
+
     visited = set()
     for r in routes:
         visited.update(r)
@@ -242,7 +246,15 @@ def greedy_profit_insertion(  # noqa: C901
     node_overall_best: Dict[int, Tuple[float, int, int]] = {}
 
     def get_best_for_route(node_id: int, r_idx: int) -> Tuple[float, int]:
-        """Find best insertion position (profit) for a node in an existing route."""
+        """Find best insertion position (profit) for a node in an existing route.
+
+        Args:
+            node_id (int): ID of the node to insert.
+            r_idx (int): Index of the target route.
+
+        Returns:
+            Tuple[float, int]: (Best insertion profit, best position index).
+        """
         route = routes[r_idx]
         node_waste = wastes.get(node_id, 0)
         if loads[r_idx] + node_waste > capacity:
@@ -273,14 +285,32 @@ def greedy_profit_insertion(  # noqa: C901
         return best_r_profit, best_r_pos
 
     def get_seed_profit(node_id: int) -> float:
-        """Calculate speculative seeding profit for a new route."""
+        """Calculate speculative seeding profit for a new route.
+
+        Args:
+            node_id (int): ID of the node to insert.
+
+        Returns:
+            float: Speculative seeding profit.
+        """
         node_waste = wastes.get(node_id, 0)
         revenue = node_waste * R
         new_cost = dist_matrix[0, node_id] + dist_matrix[node_id, 0]
         if noise != 0:
             new_cost = max(0.0, new_cost + noise)
         new_profit = revenue - (new_cost * C)
-        seed_hurdle = -0.5 * (new_cost * C)
+
+        # --- UPDATED DYNAMIC SEED HURDLE ---
+        seed_hurdle = _dynamic_seed_hurdle(
+            node=node_id,
+            unassigned=unassigned,
+            mandatory_nodes_set=mandatory_nodes_set,
+            dist_matrix=dist_matrix,
+            new_cost=new_cost,
+            C=C,
+            n_total_optional=n_total_optional,
+        )
+
         is_mandatory = node_id in mandatory_nodes_set
 
         if is_mandatory or new_profit >= seed_hurdle:

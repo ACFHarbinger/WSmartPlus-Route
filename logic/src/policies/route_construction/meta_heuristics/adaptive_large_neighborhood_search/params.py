@@ -28,7 +28,8 @@ class ALNSParams:
         cooling_rate: Temperature decay factor per iteration.
         reaction_factor: Learning rate for operator weight updates (r in Ropke & Pisinger 2005).
         min_removal: Minimum number of nodes to remove.
-        max_removal_pct: Maximum percentage of nodes to remove.
+        start_temp_control: 'w' parameter: accept a 5% worse solution with 0.5 probability
+        xi: 'xi' parameter: fraction of total nodes for max removal cap
         segment_size: Number of iterations before updating operator weights.
         noise_factor: Noise level for repair operators (eta in Ropke & Pisinger 2005).
         worst_removal_randomness: Randomness parameter p >= 1 for worst removal (p=1 is deterministic).
@@ -55,7 +56,8 @@ class ALNSParams:
     cooling_rate: float = 0.995
     reaction_factor: float = 0.1  # r in w_{i,j+1} = w_{i,j}(1-r) + r * (π_i / θ_i)
     min_removal: int = 4  # Paper: 4 ≤ q ≤ min(100, ξn), Section 4.3.1
-    max_removal_pct: float = 0.3
+    start_temp_control: float = 0.05  # 'w' parameter: accept a 5% worse solution with 0.5 probability
+    xi: float = 0.4  # 'xi' parameter: fraction of total nodes for max removal cap
     segment_size: int = 100  # Iterations per segment (Ropke & Pisinger 2005)
     noise_factor: float = 0.025  # eta: noise level relative to max distance
     worst_removal_randomness: float = 3.0  # p >= 1: randomness in worst removal
@@ -92,7 +94,8 @@ class ALNSParams:
                 cooling_rate=config.cooling_rate,
                 reaction_factor=config.reaction_factor,
                 min_removal=getattr(config, "min_removal", 4),
-                max_removal_pct=getattr(config, "max_removal_pct", 0.3),
+                start_temp_control=getattr(config, "start_temp_control", 0.05),
+                xi=getattr(config, "xi", 0.4),
                 segment_size=getattr(config, "segment_size", 100),
                 noise_factor=getattr(config, "noise_factor", 0.025),
                 worst_removal_randomness=getattr(config, "worst_removal_randomness", 3.0),

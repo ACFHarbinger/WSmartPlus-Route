@@ -26,6 +26,7 @@ import numpy as np
 from logic.src.utils.policy.routes import (
     prune_unprofitable_routes,
 )
+from logic.src.utils.policy.seed_hurdle import _dynamic_seed_hurdle
 
 
 def _get_nearest_node(
@@ -274,6 +275,9 @@ def nearest_profit_insertion(
     else:
         unassigned = sorted(list(removed_nodes))
 
+    # Fixed denominator for density: total optional nodes in this instance.
+    n_total_optional = (len(dist_matrix) - 1) - len(mandatory_set)
+
     while unassigned:
         node_distances = []
         for node in unassigned:
@@ -298,7 +302,17 @@ def nearest_profit_insertion(
 
             new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
             new_profit = revenue - (new_cost * C)
-            seed_hurdle = -0.5 * (new_cost * C)
+
+            # Dynamic seed hurdle: scales with pool density and expected CW synergy.
+            seed_hurdle = _dynamic_seed_hurdle(
+                node=node,
+                unassigned=unassigned,
+                mandatory_nodes_set=mandatory_set,
+                dist_matrix=dist_matrix,
+                new_cost=new_cost,
+                C=C,
+                n_total_optional=n_total_optional,
+            )
 
             # Decision logic: Comparison of Existing vs New vs Skip
             if best_route_idx != -1:

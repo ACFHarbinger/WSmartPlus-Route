@@ -590,11 +590,10 @@ class ALNSSolver:
         if current_n_nodes == 0:
             n_remove = 0
         else:
-            lower_bound = min(current_n_nodes, self.params.min_removal)
-            max_pct_remove = int(current_n_nodes * self.params.max_removal_pct)
-            # Upper bound: min(100, ξ * n) per paper §4.3.1
-            upper_bound = min(current_n_nodes, self.params.max_removal_cap, max(lower_bound, max_pct_remove))
-            upper_bound = max(upper_bound, lower_bound)
+            # Formal bounds per Ropke & Pisinger (2006) Section 4.3.1
+            lower_bound = min(current_n_nodes, 4)
+            upper_bound = min(self.params.max_removal_cap, int(self.params.xi * self.n_nodes))
+            upper_bound = max(lower_bound, upper_bound)
             n_remove = self.random.randint(lower_bound, upper_bound)
 
         # Noise value is only computed when a noisy repair slot was selected.
@@ -667,6 +666,15 @@ class ALNSSolver:
         start_time = time.perf_counter()
         current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
+
+        # Dynamic T_start calibration (Ropke & Pisinger 2006, Section 3.5)
+        if self.params.start_temp == 0.0 and best_profit > 0:
+            delta = self.params.start_temp_control * best_profit
+            t_start = delta / np.log(2.0)
+
+            # Inject dynamically calculated temperature into the acceptance criterion
+            if hasattr(self.acceptance_criterion, "set_temperature"):
+                self.acceptance_criterion.set_temperature(t_start)  # type: ignore[union-attr]
 
         self.visited_solutions.clear()
         self.visited_solutions.add(self._hash_solution(best_routes))  # type: ignore[arg-type]
