@@ -79,6 +79,7 @@ class LBBDMasterProblem:
 
         self.model = gp.Model("LBBD_Master")
         self.model.Params.OutputFlag = 0
+        self.model.Params.LogToConsole = 0
         self.model.Params.MIPGap = self.config.mip_gap
 
         self.current_horizon = min(self.config.num_days, tree.horizon + 1)

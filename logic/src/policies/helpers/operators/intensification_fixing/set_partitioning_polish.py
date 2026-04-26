@@ -189,6 +189,7 @@ def set_partitioning_polish(  # noqa: C901
     m.setParam("TimeLimit", time_limit)
     m.setParam("Seed", seed)
     m.setParam("MIPGap", 1e-4)
+    m.setParam("LogToConsole", 0)
 
     y = [m.addVar(vtype=GRB.BINARY, name=f"y_{k}") for k in range(n_routes)]
     m.update()

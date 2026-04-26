@@ -53,7 +53,8 @@ def _setup_rens_model(
     m_set = set(mandatory_nodes)
 
     model = gp.Model("RENS_VRPP", env=env) if env else gp.Model("RENS_VRPP")
-    model.setParam("OutputFlag", 0)  # Suppress internal Gurobi logging
+    model.setParam("OutputFlag", 0)
+    model.setParam("LogToConsole", 0)  # Suppress internal Gurobi logging
     model.setParam("Seed", seed)
 
     # 1. VARIABLE DECLARATION (Continuous [0, 1] for LP Relaxation)

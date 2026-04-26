@@ -165,6 +165,7 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
                 # Setup KS model over removed_bins
                 model = gp.Model("lns_repair")
                 model.setParam("OutputFlag", 0)
+                model.setParam("LogToConsole", 0)
                 model.setParam("TimeLimit", self.params.mip_time_limit)
                 model.setParam("MIPGap", self.params.mip_gap)
                 model.Params.LazyConstraints = 1

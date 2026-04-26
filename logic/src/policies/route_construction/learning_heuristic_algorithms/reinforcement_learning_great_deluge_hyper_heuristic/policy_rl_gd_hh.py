@@ -25,6 +25,7 @@ import numpy as np
 
 from logic.src.configs.policies.rl_gd_hh import RLGDHHConfig
 from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.policies.acceptance_criteria.great_deluge import GreatDelugeAcceptance
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -133,9 +134,18 @@ class RLGDHHPolicy(BaseRoutingPolicy):
                 - profit: Total calculated net profit (Total Revenue - Total Cost).
                 - cost: Total travel cost calculated by the solver.
         """
-        # 1. Parameter Extraction (Mapping simulator values to RLGDHHParams)
+        max_iter = int(values.get("max_iterations", 5000))
+
+        # 1. Instantiate the specific Maximization Great Deluge Criterion
+        # A default multiplier of 1.1 establishes a target of 10% improvement
+        # over the initial greedy construction solution.
+        target_multiplier = float(values.get("target_fitness_multiplier", 1.1))
+
+        gd_criterion = GreatDelugeAcceptance(target_fitness_multiplier=target_multiplier, max_iterations=max_iter)
+
+        # 2. Parameter Extraction (Mapping simulator values to RLGDHHParams)
         params = RLGDHHParams(
-            max_iterations=int(values.get("max_iterations", 5000)),
+            max_iterations=max_iter,
             time_limit=float(values.get("time_limit", 60.0)),
             reward_improvement=float(values.get("reward_improvement", 1.0)),
             penalty_worsening=float(values.get("penalty_worsening", 1.0)),
@@ -143,13 +153,13 @@ class RLGDHHPolicy(BaseRoutingPolicy):
             utility_upper_bound=float(values.get("utility_upper_bound", 40.0)),
             min_utility=float(values.get("min_utility", 0.0)),
             initial_utility=float(values.get("initial_utility", 30.0)),
-            quality_lb=float(values.get("quality_lb", 0.0)),
             vrpp=values.get("vrpp", True),
             profit_aware_operators=values.get("profit_aware_operators", False),
             seed=values.get("seed", 42),
+            acceptance_criterion=gd_criterion,  # Inject the properly configured GD instance
         )
 
-        # 2. Solver Initialization
+        # 3. Solver Initialization
         solver = RLGDHHSolver(
             dist_matrix=sub_dist_matrix,
             wastes=sub_wastes,
@@ -160,9 +170,9 @@ class RLGDHHPolicy(BaseRoutingPolicy):
             mandatory_nodes=mandatory_nodes,
         )
 
-        # 3. Learning-based Optimization (Ozcan et al. 2010 Algorithm)
+        # 4. Learning-based Optimization
         best_routes, best_reward, best_cost = solver.solve()
 
-        # 4. Result Formatting
+        # 5. Result Formatting
         total_cost = best_cost * cost_unit
         return best_routes, best_reward, total_cost

@@ -273,6 +273,7 @@ class SetCoverRouteImprover(IRouteImprovement):
         model = gp.Model("SetCover")
         model.setParam("TimeLimit", time_limit)
         model.setParam("OutputFlag", 0)
+        model.setParam("LogToConsole", 0)
 
         x = {}
         for idx, route in enumerate(pool):

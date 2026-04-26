@@ -77,5 +77,6 @@ def setup_env(
             if os.path.exists(gplic_path):
                 os.environ["GRB_LICENSE_FILE"] = gplic_path
         params["OutputFlag"] = udef.SOLVER_OUTPUT_FLAG
+        params["LogToConsole"] = udef.SOLVER_OUTPUT_FLAG
         return gp.Env(params=params)
     return None

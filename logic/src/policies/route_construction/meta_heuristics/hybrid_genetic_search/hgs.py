@@ -31,6 +31,17 @@ from .individual import Individual
 from .params import HGSParams
 from .split import LinearSplit
 
+# Penalty-adaptation constants
+_MIN_PENALTY = 0.05
+_MAX_PENALTY = 10.0
+
+# Target: visit roughly 40-70% of nodes (tune per instance class)
+_TARGET_COVERAGE_LOW = 0.40
+_TARGET_COVERAGE_HIGH = 0.70
+
+# Target: average route margin above this means routes are healthy
+_TARGET_MARGIN = 0.10  # 10% net margin
+
 
 class HGSSolver:
     """
@@ -119,6 +130,8 @@ class HGSSolver:
         # Rolling list of offspring feasibility outcomes (True/False), used to compute
         # the recent feasibility rate for penalty adaptation.
         self._offspring_feasibility: List[bool] = []
+        self._offspring_coverage: List[float] = []  # fraction of nodes visited per offspring
+        self._offspring_margin: List[float] = []  # avg per-route (revenue - cost) / revenue
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -259,11 +272,11 @@ class HGSSolver:
         Return the index of any individual whose solution is identical (by edge set)
         to an earlier individual in the population, or None if no clones exist.
 
-        FIX (was: frozenset of route tuples): Uses edge-set hashing, which is the
-        same undirected representation used in broken-pairs distance computation.
-        This correctly identifies clones regardless of route traversal direction:
-        route [1,2,3] and route [3,2,1] produce identical edge sets {(0,1),(1,2),
-        (2,3),(3,0)} and are thus correctly detected as clones.
+        Uses edge-set hashing, which is the same undirected representation used in
+        broken-pairs distance computation. This correctly identifies clones
+        regardless of route traversal direction: route [1,2,3] and route [3,2,1]
+        produce identical edge sets {(0,1),(1,2),(2,3),(3,0)} and are thus
+        correctly detected as clones.
 
         Args:
             pop: Subpopulation to inspect.
@@ -333,13 +346,12 @@ class HGSSolver:
         """
         Generate and educate a new offspring via crossover and local search.
 
-        FIX (was: called update_biased_fitness before every selection):
         Fitness is maintained as an invariant and is always current on entry,
         so no recomputation is needed here. The O(P²) pairwise distance
         computation now happens only when the population actually changes
         (inside _insert_into_pop and _trim_pop), not every iteration.
 
-        FIX: crossover_rate is now applied (was declared but never used).
+        crossover_rate is now applied (was declared but never used).
         When crossover is skipped, P1 is cloned so local search can still
         educate the individual — equivalent to a mutation-only step.
 
@@ -364,6 +376,35 @@ class HGSSolver:
         evaluate(child, self.split_manager, penalty_capacity)
         return child
 
+    def _record_offspring_signals(self, ind: Individual) -> None:
+        """
+        Record coverage and profitability margin signals from the latest
+        offspring to support VRPP penalty adaptation.
+
+        Args:
+            ind: Recently generated offspring (post-crossover and local search).
+
+        Returns:
+            None
+        """
+        n = len(ind.giant_tour)
+        visited = sum(len(r) for r in ind.routes)
+        self._offspring_coverage.append(visited / n if n > 0 else 0.0)
+
+        margins = []
+        for r in ind.routes:
+            if not r:
+                continue
+            rev = sum(self.wastes.get(node, 0.0) * self.R for node in r)
+            d = self.d[0, r[0]]
+            for i in range(len(r) - 1):
+                d += self.d[r[i], r[i + 1]]
+            d += self.d[r[-1], 0]
+            cost = d * self.C
+            if rev > 0:
+                margins.append((rev - cost) / rev)
+        self._offspring_margin.append(float(np.mean(margins)) if margins else 0.0)
+
     def _insert_and_repair(
         self,
         child: Individual,
@@ -375,13 +416,12 @@ class HGSSolver:
         Insert child into its respective subpopulation, then optionally repair
         if infeasible.
 
-        FIX (was: discarded infeasible repaired solutions): Vidal (2022)
-        Algorithm 1 step 8 states "repair C (local search) and insert it into
-        respective subpopulation" — the word "respective" means the subpopulation
-        is determined by the repaired individual's own feasibility, and insertion
-        is unconditional. A repaired solution that remains infeasible may still
-        be a significantly better infeasible solution than what is in the pool,
-        and discarding it wastes the repair effort.
+        Vidal (2022) Algorithm 1 step 8 states "repair C (local search) and insert
+        it into respective subpopulation" — the word "respective" means the
+        subpopulation is determined by the repaired individual's own feasibility,
+        and insertion is unconditional. A repaired solution that remains infeasible
+        may still be a significantly better infeasible solution than what is in
+        the pool, and discarding it wastes the repair effort.
 
         The child's feasibility is also recorded for penalty adaptation tracking.
 
@@ -395,15 +435,22 @@ class HGSSolver:
             None.
         """
         self._insert_into_pop(child, pop_feasible, pop_infeasible)
-        self._offspring_feasibility.append(child.is_feasible)
 
-        if not child.is_feasible and self.random.random() < self.params.repair_probability:
+        # VRPP: record coverage and margin instead of binary feasibility
+        if self.params.vrpp:
+            self._record_offspring_signals(child)
+        else:
+            self._offspring_feasibility.append(child.is_feasible)
+
+        # Repair only makes sense for CVRP infeasibility (capacity violations).
+        # In VRPP, Split always produces feasible routes, so child.is_feasible
+        # is always True and this block would never trigger anyway — but the
+        # explicit guard makes the intent clear.
+        if not self.params.vrpp and not child.is_feasible and self.random.random() < self.params.repair_probability:
             repaired = Individual(child.giant_tour[:], expand_pool=child.expand_pool)
-            # Repair = local search under 10× penalty (Vidal 2022 Section 2)
             evaluate(repaired, self.split_manager, penalty_capacity * 10.0)
             repaired = self.ls.optimize(repaired)
             evaluate(repaired, self.split_manager, penalty_capacity)
-            # FIX: insert regardless of whether repair achieved feasibility.
             self._insert_into_pop(repaired, pop_feasible, pop_infeasible)
 
     # ------------------------------------------------------------------
@@ -415,14 +462,12 @@ class HGSSolver:
         Adapt the capacity penalty coefficient to maintain the target proportion
         of feasible offspring.
 
-        FIX (was: measuring len(pop_feasible) / total_population, i.e., the
-        steady-state population composition): Vidal (2022) Section 2 specifies
-        "monitoring the number of feasible solutions *obtained*" — i.e., the
-        feasibility rate of recently produced offspring after local-search
-        education, not the accumulated population ratio. The population ratio is
-        a lagging indicator that conflates the current penalty's effect with
-        historical decisions. The offspring-feasibility rate directly reflects
-        the current penalty's pressure on the search.
+        Vidal (2022) Section 2 specifies "monitoring the number of feasible
+        solutions *obtained*" - the feasibility rate of recently produced
+        offspring after local-search education, not the accumulated population
+        ratio. The population ratio is a lagging indicator that conflates the
+        current penalty's effect with historical decisions. The offspring-feasibility
+        rate directly reflects the current penalty's pressure on the search.
 
         Uses the last 100 offspring entries from self._offspring_feasibility,
         matching the every-100-iterations adaptation frequency.
@@ -433,19 +478,52 @@ class HGSSolver:
         Returns:
             float: Updated penalty coefficient.
         """
-        if not self._offspring_feasibility:
+        if not self.params.vrpp:
+            if not self._offspring_feasibility:
+                return current_penalty
+
+            recent = self._offspring_feasibility[-100:]
+            feasible_ratio = sum(recent) / len(recent)
+
+            if feasible_ratio > self.params.target_feasible + 0.05:
+                # Too many feasible offspring: reduce penalty to allow more infeasibility
+                return current_penalty * self.params.penalty_decrease
+            elif feasible_ratio < self.params.target_feasible - 0.05:
+                # Too few feasible offspring: increase penalty to push toward feasibility
+                return current_penalty * self.params.penalty_increase
             return current_penalty
+        else:
+            # VRPP adaptation: balance coverage vs margin
+            recent_cov = self._offspring_coverage[-100:]
+            recent_mar = self._offspring_margin[-100:]
+            if not recent_cov:
+                return current_penalty
 
-        recent = self._offspring_feasibility[-100:]
-        feasible_ratio = sum(recent) / len(recent)
+            avg_coverage = sum(recent_cov) / len(recent_cov)
+            avg_margin = sum(recent_mar) / len(recent_mar)
 
-        if feasible_ratio > self.params.target_feasible + 0.05:
-            # Too many feasible offspring: reduce penalty to allow more infeasibility
-            return current_penalty * self.params.penalty_decrease
-        elif feasible_ratio < self.params.target_feasible - 0.05:
-            # Too few feasible offspring: increase penalty to push toward feasibility
-            return current_penalty * self.params.penalty_increase
-        return current_penalty
+            # Quadrant logic: coverage and margin jointly determine direction
+            coverage_low = avg_coverage < _TARGET_COVERAGE_LOW
+            coverage_high = avg_coverage > _TARGET_COVERAGE_HIGH
+            margin_low = avg_margin < _TARGET_MARGIN
+            if coverage_low and not margin_low:
+                # Visiting too few nodes but routes are healthy: relax penalty so Split
+                # considers more borderline nodes
+                new = current_penalty * self.params.penalty_decrease
+            elif coverage_high and margin_low:
+                # Visiting too many nodes but profitability is poor: tighten penalty to
+                # force Split to drop marginal nodes
+                new = current_penalty * self.params.penalty_increase
+            elif coverage_low and margin_low:
+                # Both bad: routes are unprofitable AND too sparse. This usually means
+                # the instance is hard or the tour ordering is poor. Nudge penalty up
+                # slightly to consolidate what's being visited before expanding.
+                new = current_penalty * (self.params.penalty_increase**0.5)
+            else:
+                # Healthy: coverage and margin both acceptable
+                new = current_penalty
+
+            return max(_MIN_PENALTY, min(_MAX_PENALTY, new))
 
     # ------------------------------------------------------------------
     # Solution extraction
@@ -482,26 +560,9 @@ class HGSSolver:
         Run the Hybrid Genetic Search algorithm following Vidal et al. (2022)
         Algorithm 1, with VRPP adaptations.
 
-        Summary of fixes applied in this method and the helpers it calls:
-            1. Wall-clock time (perf_counter) instead of process time, matching
-               T_max semantics in the paper.
-            2. Fitness maintained as an invariant (updated after each population
-               modification), not recomputed before every tournament.
-            3. Per-subpopulation distance caches with precise entry eviction,
-               replacing a shared cache that was cleared after every trim.
-            4. Offspring feasibility tracking for penalty adaptation, replacing
-               the population-composition ratio.
-            5. Per-subpopulation parent tournament, replacing combined-pool
-               tournament which made cross-subpopulation rank comparison invalid.
-            6. Repaired individuals inserted unconditionally into their respective
-               subpopulation (feasible or infeasible), per Algorithm 1 step 8.
-            7. crossover_rate parameter wired up (was declared but never applied).
-            8. Edge-set clone detection handling reversed routes correctly.
-
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, total cost.
         """
-        # FIX: use wall-clock time (perf_counter) to match T_max in Vidal (2022)
         # Section 5. perf_counter() measures CPU time consumed by this process,
         # which diverges from wall clock under I/O waits or system scheduling.
         start_time = time.perf_counter()
@@ -513,7 +574,8 @@ class HGSSolver:
         self._feas_cache = {}
         self._infeas_cache = {}
         self._offspring_feasibility = []
-
+        self._offspring_coverage = []
+        self._offspring_margin = []
         if self.params.acceptance_criterion is not None:
             self.params.acceptance_criterion.setup(0.0)
 

@@ -309,7 +309,7 @@ class RCSPPSolver:
         self.rf_conflicts = rf_conflicts or {}
 
         # Update timeout if provided by the caller (Branch-and-Price engine)
-        active_timeout = timeout if timeout is not None else self.timeout
+        active_timeout = timeout if timeout is not None and timeout > 0 else self.timeout
         self._current_timeout = active_timeout
 
         # Task 2: Completion Bounds
@@ -537,7 +537,7 @@ class RCSPPSolver:
                 )
                 break
 
-            if (time.monotonic() - start_time) > self._current_timeout:
+            if self._current_timeout > 0 and (time.monotonic() - start_time) > self._current_timeout:
                 logger.warning(
                     f"RCSPP timeout: terminated early after {self._current_timeout} seconds. "
                     "Instance may be too large for exact pricing at this node."
@@ -612,7 +612,13 @@ class RCSPPSolver:
                 # reduced cost from this label is provably <= 0 — i.e., even the
                 # optimal completion cannot produce a column worth adding.
                 if current.reduced_cost + self.bounds_to[u] > 0.0 and can_return:
-                    final = self._extend_to_depot(current)  # type: ignore[arg-type]
+                    final = self._extend_to_depot(
+                        current,
+                        rcc_duals,
+                        edge_clique_duals,
+                        lci_cover_items,
+                        _multistar_items,
+                    )
                     if final:
                         completed_routes.append(final)
                         global_max_rc = max(global_max_rc, final.reduced_cost)
@@ -647,12 +653,22 @@ class RCSPPSolver:
 
         return self._sorted_neighbors[node][:limit]
 
-    def _extend_to_depot(self, label: Label, duals: Dict[str, Any]) -> Optional[Label]:
+    def _extend_to_depot(
+        self,
+        label: Label,
+        rcc_duals: Dict[FrozenSet[int], float],
+        edge_clique_duals: Dict[Tuple[int, int], float],
+        lci_cover_items: List[_LCICoverItem],
+        multistar_items: List[_MultistarItem],
+    ) -> Optional[Label]:
         """Extends a label to the depot, applying ALL final dual penalties.
 
         Args:
             label: Current label at a customer node.
-            duals: Dictionary of dual values for all constraints.
+            rcc_duals: Duals for capacity cuts.
+            edge_clique_duals: Duals for edge clique cuts.
+            lci_cover_items: Items for LCI dual penalties.
+            multistar_items: Items for Multistar dual penalties (cover_set, dual).
 
         Returns:
             Completed label at the depot, or None if infeasible.
@@ -665,12 +681,12 @@ class RCSPPSolver:
         rc_delta = -cost
 
         # 1. RCC Duals (Boundary check)
-        for subset, dual in duals.get("rcc_duals", []):
+        for subset, dual in rcc_duals.items():
             if (current_node in subset) != (next_node in subset):
                 rc_delta += dual if self.is_farkas else -dual
 
         # 2. Edge Clique Cuts
-        for (u, v), dual in duals.get("edge_clique_duals", {}).items():
+        for (u, v), dual in edge_clique_duals.items():
             if (current_node == u and next_node == v) or (current_node == v and next_node == u):
                 rc_delta += dual if self.is_farkas else -dual
 
@@ -678,16 +694,20 @@ class RCSPPSolver:
         # Standard formulation ignores depot for SRI parity, so no penalty added here.
 
         # 4. Multistar Cuts
-        for cover_set, dual in duals.get("multistar_duals", []):
+        for cover_set, dual in multistar_items:
             if current_node in cover_set and next_node not in cover_set:
                 # Crossing out: cross=1, adj_demand=0.0 (since v is depot)
                 arc_a_k = 1.0
                 rc_delta += (arc_a_k * dual) if self.is_farkas else -(arc_a_k * dual)
 
         # 5. Saturated Arc LCIs
-        for (u, v), dual in duals.get("lci_arc_duals", {}).items():
-            if current_node == u and next_node == v:
-                rc_delta += dual if self.is_farkas else -dual
+        for cover_set, node_alpha, dual, lci_arc in lci_cover_items:
+            if lci_arc:
+                if (current_node, next_node) == lci_arc:
+                    rc_delta += dual if self.is_farkas else -dual
+            elif next_node in cover_set:
+                # next_node is depot (0). Most LCIs don't include depot.
+                rc_delta += node_alpha.get(next_node, 1.0) * (dual if self.is_farkas else -dual)
 
         # Calculate final reduced cost
         new_rc = label.reduced_cost + rc_delta

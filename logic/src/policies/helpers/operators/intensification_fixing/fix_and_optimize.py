@@ -141,6 +141,7 @@ def _solve_cvrp_mip(  # noqa: C901
     m.setParam("TimeLimit", time_limit)
     m.setParam("Seed", seed)
     m.setParam("MIPGap", 1e-4)
+    m.setParam("LogToConsole", 0)
 
     # Arc variables
     x: Dict[Tuple[int, int], gp.Var] = {}

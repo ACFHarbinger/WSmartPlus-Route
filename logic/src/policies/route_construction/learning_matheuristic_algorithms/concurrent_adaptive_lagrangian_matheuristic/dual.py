@@ -498,6 +498,7 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
 
         model = gp.Model("bundle_qp")
         model.setParam("OutputFlag", 0)
+        model.setParam("LogToConsole", 0)
 
         lam = model.addVars(d, lb=-gp.GRB.INFINITY, ub=gp.GRB.INFINITY, name="lambda")
         v = model.addVar(lb=-gp.GRB.INFINITY, ub=gp.GRB.INFINITY, name="v")

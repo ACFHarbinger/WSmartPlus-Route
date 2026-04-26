@@ -90,7 +90,7 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # Runtime Control
     # ---------------------------------------------------------------------
-    - time_limit: 60
+    - time_limit: 60.0
     # Maximum wall-clock seconds before termination
     # Range: 60-3600 (60s = quick, 600s = thorough, 3600s = deep search)
     # Gurobi returns best solution found if time limit reached

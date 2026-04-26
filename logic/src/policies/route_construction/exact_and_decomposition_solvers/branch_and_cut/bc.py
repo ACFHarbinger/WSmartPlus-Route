@@ -259,6 +259,7 @@ class BranchAndCutSolver:
         self.gurobi_model.Params.TimeLimit = self.params.time_limit
         self.gurobi_model.Params.MIPGap = self.params.mip_gap
         self.gurobi_model.Params.OutputFlag = 1 if self.params.verbose else 0
+        self.gurobi_model.Params.LogToConsole = 1 if self.params.verbose else 0
 
         # Decision variables
         # x[i,j]: Edge (i,j) is in the tour

@@ -228,6 +228,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         """
         self.model = gp.Model("VRPP_Master")
         self.model.Params.OutputFlag = 0
+        self.model.Params.LogToConsole = 0
         self.model.Params.Method = 1  # Dual Simplex is preferred for SPP/CG re-optimizations
         self.model.Params.InfUnbdInfo = 1
         self.model.Params.DualReductions = 0
