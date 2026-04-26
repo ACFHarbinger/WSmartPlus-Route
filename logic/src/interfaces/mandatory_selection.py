@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, List, Protocol, Tuple, runtime_checkable
 
 if TYPE_CHECKING:
     from logic.src.interfaces.context.search_context import SearchContext
-    from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+    from logic.src.interfaces.context.selection_context import SelectionContext
 
 
 @runtime_checkable

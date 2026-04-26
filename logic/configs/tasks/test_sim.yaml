@@ -13,7 +13,6 @@ defaults:
   - /policies@p.abpc_hg: policy_abpc_hg
   - /policies@p.aco_hh: policy_aco_hh
   - /policies@p.aco_ks: policy_aco_ks
-  - /policies@p.ahvpl: policy_ahvpl
   - /policies@p.aks: policy_aks
   - /policies@p.amphh: policy_amphh
   - /policies@p.alns: policy_alns
@@ -77,7 +76,6 @@ defaults:
   - /policies@p.qde: policy_qde
   - /policies@p.rens: policy_rens
   - /policies@p.rfo: policy_rfo
-  - /policies@p.rl_ahvpl: policy_rl_ahvpl
   - /policies@p.rl_alns: policy_rl_alns
   - /policies@p.rl_gd_hh: policy_rl_gd_hh
   - /policies@p.rl_hvpl: policy_rl_hvpl
@@ -134,7 +132,6 @@ sim:
     - abpc_hg: ${p.abpc_hg.abpc_hg}
     - aco_hh: ${p.aco_hh.aco_hh}
     - aco_ks: ${p.aco_ks.aco_ks}
-    - ahvpl: ${p.ahvpl.ahvpl}
     - aks: ${p.aks.aks}
     - amphh: ${p.amphh.amphh}
     - alns: ${p.alns.alns}
@@ -198,7 +195,6 @@ sim:
     - qde: ${p.qde.qde}
     - rens: ${p.rens.rens}
     - rfo: ${p.rfo.rfo}
-    - rl_ahvpl: ${p.rl_ahvpl.rl_ahvpl}
     - rl_alns: ${p.rl_alns.rl_alns}
     - rl_gd_hh: ${p.rl_gd_hh.rl_gd_hh}
     - rl_hvpl: ${p.rl_hvpl.rl_hvpl}

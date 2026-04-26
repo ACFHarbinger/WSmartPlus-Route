@@ -49,6 +49,7 @@ from dataclasses import dataclass
 from threading import Lock
 from typing import Deque, Optional, Tuple
 
+import gurobipy as gp
 import numpy as np
 
 from .params import DualBoundParams, LagrangianParams
@@ -490,8 +491,6 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
         Returns:
             Tuple[np.ndarray, float]: New lambda vector and step norm.
         """
-        import gurobipy as gp  # local import to avoid importing at module load
-
         bundle = list(self._bundle)
         d = self.dim
         u = self._proximal_weight

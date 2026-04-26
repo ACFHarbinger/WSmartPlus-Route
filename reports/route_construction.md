@@ -286,12 +286,6 @@ A population meta-heuristic modelling volleyball team competition and league str
 #### Hybrid VPL (HVPL) ✅
 Integrates a secondary local search phase within each competition round, hybridizing swarm competition with trajectory descent.
 
-#### Augmented Hybrid VPL (AHVPL) ✅
-Further extends HVPL with an augmented objective function incorporating penalty terms for overused solution features, mirroring the GLS penalty mechanism within the population framework.
-
-#### RL-HVPL / RL-AHVPL ✅
-Replace the static competition selection rule with a Reinforcement Learning policy that learns which competition schedule (match-up pairing) maximally improves the population's overall fitness over successive rounds.
-
 #### Soccer League Competition (SLC) ✅
 A swarm meta-heuristic modelling professional football league dynamics. Players (solutions) belong to teams, which compete in weekly matches. Player positions are updated based on the scoring outcomes: players on winning teams reinforce their current strategy (exploitation), while players on losing teams undergo formation changes (exploration). The league table ranking drives selection pressure, with top-ranked teams' strategies acting as attractor basins for the rest of the population.
 

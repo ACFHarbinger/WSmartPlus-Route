@@ -40,6 +40,31 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.helpers.operators import (
+    bb_insertion,
+    bb_profit_insertion,
+    deep_insertion,
+    deep_profit_insertion,
+    farthest_insertion,
+    farthest_profit_insertion,
+    geni_insertion,
+    geni_profit_insertion,
+    greedy_insertion,
+    greedy_insertion_with_blinks,
+    greedy_profit_insertion,
+    greedy_profit_insertion_with_blinks,
+    nearest_insertion,
+    nearest_profit_insertion,
+    regret_2_insertion,
+    regret_2_profit_insertion,
+    regret_3_insertion,
+    regret_3_profit_insertion,
+    regret_4_insertion,
+    regret_4_profit_insertion,
+    savings_insertion,
+    savings_profit_insertion,
+)
+
 from .hyper_operators import (
     HYPER_OPERATORS,
     HyperOperatorContext,
@@ -74,6 +99,10 @@ class HyperHeuristicACO:
         eta: Heuristic visibility matrix (per directed edge i→j).
         edge_count: Cumulative edge traversal count (num(i,j) in the paper).
         sequence_length: Length of operator sequences (= n_operators, per paper).
+        pheromone: Node-level sparse pheromone matrix (city graph, i→j edges).
+            Maintained separately from ``tau`` so that external callers (e.g.
+            HVPL) can reinforce node transitions via ``deposit_edge`` without
+            coupling into the operator-graph internals.
     """
 
     def __init__(
@@ -138,6 +167,29 @@ class HyperHeuristicACO:
 
         # Strategic Oscillation state (per paper §III.B)
         self.initial_best_cost = self._calculate_routing_cost(self.initial_solution)
+
+        # Node-level (city-graph) pheromone structure.
+        # Used by external callers (e.g. HVPL) to deposit on route edges via
+        # deposit_edge(i, j, delta), keeping city-graph reinforcement decoupled
+        # from the operator-sequence pheromone matrix self.tau.
+        # Local import to avoid a circular dependency: hyper_aco.py is loaded
+        # inside hyper_heuristics/__init__.py, which is imported before
+        # meta_heuristics/__init__.py finishes — a module-level import of
+        # SparsePheromoneTau would trigger meta_heuristics/__init__.py and
+        # create a cycle.  Deferring to instantiation time is safe because
+        # both packages are fully initialized by then.
+        from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones import (  # noqa: PLC0415
+            SparsePheromoneTau,
+        )
+
+        n_nodes = len(dist_matrix)  # includes depot (index 0)
+        self.pheromone = SparsePheromoneTau(
+            n_nodes=n_nodes,
+            tau_0=self.params.tau_0,
+            scale=5.0,
+            tau_min=self.params.tau_0 / 100.0,
+            tau_max=self.params.tau_0 * 10.0,
+        )
         self.initial_pv = self.initial_best_cost / 100.0 if self.initial_best_cost > 0 else 10.0
         self.pv = self.initial_pv
 
@@ -272,6 +324,406 @@ class HyperHeuristicACO:
 
         return best_routes, collected_rev - best_cost, final_cost
 
+    def construct(
+        self,
+        nodes: List[int],
+        mandatory_nodes: Optional[List[int]] = None,
+    ) -> List[List[int]]:
+        """Construct a solution from scratch using pure pheromone-guided exploration.
+
+        This method is analogous to ``SolutionConstructor.construct`` in the
+        k-sparse ACO: it builds a complete solution from an empty slate rather
+        than improving an existing one.  The construction proceeds in two phases:
+
+        1. **Bootstrap** — A bootstrap insertion operator is chosen **uniformly
+           at random** from the full portfolio of ``recreate_repair`` heuristics
+           (pure exploration — equivalent to flat tau_0 pheromone, matching MMAS
+           semantics).  All nodes are treated as the unvisited pool and inserted
+           into an initially-empty route list by the selected heuristic.  When
+           ``params.profit_aware_operators`` is enabled the profit-maximising
+           variant of each heuristic is used; otherwise the cost-minimising
+           variant is used.  The available bootstrap operators are:
+
+           Standard (cost-minimising): greedy, greedy-with-blinks, nearest,
+           farthest, savings, regret-2, regret-3, regret-4, deep, GENI,
+           branch-and-bound LDS.
+
+           Profit-aware (revenue - cost): greedy_profit, blinks_profit,
+           nearest_profit, farthest_profit, savings_profit, regret-2_profit,
+           regret-3_profit, regret-4_profit, deep_profit, GENI_profit,
+           bb_profit.
+
+        2. **Exploration** — A single ant is placed on a uniformly-random
+           operator vertex (mirroring the uniform placement in ``solve``) and a
+           full operator sequence of length ``sequence_length`` is selected via
+           the pure AS proportional (roulette-wheel) rule through
+           ``_select_sequence``.  The sequence is then applied to the bootstrapped
+           solution via ``build_solution``.  No local pheromone updates are
+           performed inside this method — all reinforcement is expected to happen
+           globally after evaluation, consistent with MMAS semantics.
+
+        Args:
+            nodes: List of all customer node indices (excluding depot 0) that
+                the ant should attempt to route.
+            mandatory_nodes: Nodes that must be visited regardless of
+                profitability.  Overrides ``self.mandatory_nodes`` when provided;
+                falls back to ``self.mandatory_nodes`` when ``None``.
+
+        Returns:
+            List of routes, each a list of node indices (excluding depot 0),
+            representing the constructed solution.
+        """
+        effective_mandatory = mandatory_nodes if mandatory_nodes is not None else (self.mandatory_nodes or [])
+
+        # ----------------------------------------------------------------
+        # Phase 1 – Bootstrap: choose an insertion heuristic uniformly at
+        # random from the full recreate_repair portfolio (pure exploration).
+        # All nodes play the role of "removed" nodes; starting from [] mirrors
+        # the k-sparse ant beginning with all nodes in the unvisited set.
+        #
+        # Uniform selection is semantically identical to roulette-wheel
+        # selection with a flat tau_0 matrix — maximum entropy, no bias.
+        # ----------------------------------------------------------------
+        bootstrapped: List[List[int]] = self._bootstrap(
+            nodes=nodes,
+            effective_mandatory=effective_mandatory,
+        )
+
+        # ----------------------------------------------------------------
+        # Phase 2 – Exploration: place one ant uniformly on the operator
+        # graph and select an operator sequence via pure roulette-wheel
+        # (no exploitation bias, matching MMAS / k-sparse construct semantics).
+        # Then apply the sequence to the bootstrapped solution.
+        # ----------------------------------------------------------------
+        start_op_idx: int = self.random.randrange(self.n_operators)
+        routes, _sequence, _eta_updates, _end_op_idx = self.build_solution(
+            base_solution=bootstrapped,
+            start_op_idx=start_op_idx,
+        )
+
+        return routes
+
+    # ------------------------------------------------------------------
+    # Bootstrap insertion portfolio
+    # ------------------------------------------------------------------
+
+    def _bootstrap(
+        self,
+        nodes: List[int],
+        effective_mandatory: List[int],
+    ) -> List[List[int]]:
+        """Select and apply one bootstrap insertion operator uniformly at random.
+
+        Chooses a heuristic from the full ``recreate_repair`` portfolio with
+        equal probability (pure exploration) and applies it to an empty route
+        list with ``nodes`` as the unvisited pool.
+
+        When ``params.profit_aware_operators`` is ``True``, the profit-aware
+        variant of the chosen operator is used; otherwise the cost-minimising
+        variant is used.
+
+        Args:
+            nodes: Customer node indices to bootstrap (excluding depot 0).
+            effective_mandatory: Mandatory node indices that must be served.
+
+        Returns:
+            List of routes produced by the selected bootstrap heuristic.
+        """
+        if self.params.profit_aware_operators:
+            return self._bootstrap_profit(nodes, effective_mandatory)
+        return self._bootstrap_standard(nodes, effective_mandatory)
+
+    def _bootstrap_standard(self, nodes: List[int], mandatory: List[int]) -> List[List[int]]:
+        """Apply a uniformly-random cost-minimising insertion heuristic.
+
+        Candidates: greedy, greedy-with-blinks, nearest, farthest, savings,
+        regret-2, regret-3, regret-4, deep, GENI, branch-and-bound LDS.
+
+        Args:
+            nodes: Customer nodes to insert.
+            mandatory: Mandatory node indices.
+
+        Returns:
+            List of routes.
+        """
+        choice = self.random.randrange(11)  # 11 standard operators
+
+        dm = self.dist_matrix
+        ws = self.wastes
+        cap = self.capacity
+        man = mandatory
+
+        if choice == 0:
+            return greedy_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 1:
+            return greedy_insertion_with_blinks(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                rng=self.random,
+                expand_pool=False,
+            )
+        if choice == 2:
+            return nearest_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 3:
+            return farthest_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 4:
+            return savings_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 5:
+            return regret_2_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 6:
+            return regret_3_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 7:
+            return regret_4_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 8:
+            return deep_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 9:
+            return geni_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                mandatory_nodes=man,
+                rng=self.random,
+                expand_pool=False,
+            )
+        # choice == 10
+        return bb_insertion(
+            routes=[],
+            removed_nodes=nodes,
+            dist_matrix=dm,
+            wastes=ws,
+            capacity=cap,
+            mandatory_nodes=man,
+            expand_pool=False,
+        )
+
+    def _bootstrap_profit(self, nodes: List[int], mandatory: List[int]) -> List[List[int]]:
+        """Apply a uniformly-random profit-aware insertion heuristic.
+
+        Candidates: greedy_profit, blinks_profit, nearest_profit,
+        farthest_profit, savings_profit, regret-2_profit, regret-3_profit,
+        regret-4_profit, deep_profit, GENI_profit, bb_profit.
+
+        Args:
+            nodes: Customer nodes to insert.
+            mandatory: Mandatory node indices.
+
+        Returns:
+            List of routes.
+        """
+        choice = self.random.randrange(11)  # 11 profit-aware operators
+
+        dm = self.dist_matrix
+        ws = self.wastes
+        cap = self.capacity
+        R = self.R
+        C = self.C
+        man = mandatory
+
+        if choice == 0:
+            return greedy_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 1:
+            return greedy_profit_insertion_with_blinks(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                rng=self.random,
+                expand_pool=False,
+            )
+        if choice == 2:
+            return nearest_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 3:
+            return farthest_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 4:
+            return savings_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 5:
+            return regret_2_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 6:
+            return regret_3_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 7:
+            return regret_4_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 8:
+            return deep_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                expand_pool=False,
+            )
+        if choice == 9:
+            return geni_profit_insertion(
+                routes=[],
+                removed_nodes=nodes,
+                dist_matrix=dm,
+                wastes=ws,
+                capacity=cap,
+                R=R,
+                C=C,
+                mandatory_nodes=man,
+                rng=self.random,
+                expand_pool=False,
+            )
+        # choice == 10
+        return bb_profit_insertion(
+            routes=[],
+            removed_nodes=nodes,
+            dist_matrix=dm,
+            wastes=ws,
+            capacity=cap,
+            R=R,
+            C=C,
+            mandatory_nodes=man,
+            expand_pool=False,
+        )
+
     def build_solution(
         self,
         base_solution: List[List[int]],
@@ -342,6 +794,29 @@ class HyperHeuristicACO:
             prev_op_idx = next_op_idx
 
         return ctx.routes, sequence, eta_updates, end_op_idx
+
+    # ------------------------------------------------------------------
+    # Public pheromone interface (city-graph / node-level)
+    # ------------------------------------------------------------------
+
+    def deposit_edge(self, i: int, j: int, delta: float) -> None:
+        """Deposit pheromone on city-graph edge (i, j).
+
+        Adds ``delta`` to the node-level pheromone value for the directed
+        edge ``i → j``.  This is the public analogue of
+        ``SparsePheromoneTau.deposit_edge`` and is used by external callers
+        (e.g. HVPL) to reinforce city-graph transitions without accessing
+        the internal operator-sequence matrix ``self.tau``.
+
+        Args:
+            i: Source node index (0 = depot).
+            j: Destination node index (0 = depot).
+            delta: Amount of pheromone to add.
+
+        Returns:
+            None.
+        """
+        self.pheromone.deposit_edge(i, j, delta)
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -450,3 +925,12 @@ class HyperHeuristicACO:
             None
         """
         self.tau *= 1 - self.params.rho
+
+    def evaporate_all(self) -> None:
+        """Evaporate node-level pheromones.
+
+        Returns:
+            None
+        """
+        self._evaporate_pheromones()
+        self.pheromone.evaporate_all(self.params.rho)

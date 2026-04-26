@@ -40,7 +40,6 @@ These configs are used in:
 
 Attributes:
     ACOConfig: Configuration for ACO algorithm.
-    AHVPLConfig: Configuration for AHVPL algorithm.
     ALNSConfig: Configuration for ALNS algorithm.
     HGSConfig: Configuration for HGS algorithm.
     HGSALNSConfig: Configuration for HGSALNS algorithm.
@@ -53,7 +52,6 @@ Example:
 """
 
 from .aco import ACOConfig
-from .ahvpl import AHVPLConfig
 from .alns import ALNSConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
@@ -65,7 +63,6 @@ __all__ = [
     # Main expert policies
     "HGSConfig",
     "HVPLConfig",
-    "AHVPLConfig",
     "ALNSConfig",
     "ILSConfig",
     "RLSConfig",
