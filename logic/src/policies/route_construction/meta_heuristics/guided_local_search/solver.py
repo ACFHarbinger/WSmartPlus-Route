@@ -125,7 +125,7 @@ class GLSSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         routes = self._build_initial_solution()
         profit = self._evaluate(routes)
@@ -143,14 +143,14 @@ class GLSSolver:
         penalty_just_updated = False
 
         for cycle in range(self.params.penalty_cycles):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # 2. Local Minimum Condition via Stagnation
             # The search continues using the augmented objective until it stabilizes (local minimum).
             stagnation_counter = 0
             while stagnation_counter < self.params.inner_iterations:
-                if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                     break
 
                 # Markovian Operator Coupling:

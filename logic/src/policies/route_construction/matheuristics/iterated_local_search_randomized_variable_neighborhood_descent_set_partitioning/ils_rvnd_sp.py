@@ -365,13 +365,13 @@ class ILSRVNDSPSolver:
         self._add_to_pool(best_routes, target_pool)
 
         for iteration in range(max_iterations):
-            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+            if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
                 break
 
             iter_routes = copy.deepcopy(best_routes)
 
             for ils_idx in range(max_ils_iterations):
-                if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+                if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
                     break
 
                 # Perturb current solution and apply RVND intensification
@@ -449,7 +449,7 @@ class ILSRVNDSPSolver:
         tolerance = getattr(self.params, "TDev_a", 0.05)
 
         for _ in range(iter_count):
-            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+            if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
                 break
             init_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
             iter_best_routes, iter_best_profit = self.run_ils_rvnd(
@@ -498,7 +498,7 @@ class ILSRVNDSPSolver:
         ils_count = max_ils_b if max_ils_b > 0 else max_iter_ils
 
         for _ in range(iter_count):
-            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+            if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
                 break
 
             init_routes = copy.deepcopy(initial_solution) if initial_solution else self.build_initial_solution()
@@ -514,9 +514,9 @@ class ILSRVNDSPSolver:
             combined_pool = self.route_pool.union(temp_pool)
 
             if getattr(self.params, "use_set_partitioning", True) and combined_pool:
-                sp_time = time.process_time()
+                sp_time = time.perf_counter()
                 sp_routes, sp_profit, _ = self.solve_set_partitioning(combined_pool)
-                sp_duration = time.process_time() - sp_time
+                sp_duration = time.perf_counter() - sp_time
 
                 if sp_routes and sp_profit > iter_best_profit:
                     iter_best_routes = sp_routes
@@ -615,7 +615,7 @@ class ILSRVNDSPSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, profit, and travel cost.
         """
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Create RVND with local search operators
         operators = self._create_rvnd_operators()

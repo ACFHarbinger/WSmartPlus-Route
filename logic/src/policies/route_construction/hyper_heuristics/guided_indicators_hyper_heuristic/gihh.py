@@ -143,7 +143,7 @@ class GIHHSolver:
         if len(self.dist_matrix) <= 1:
             return []
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # 1. Generate Initial Solution
         initial_routes = build_greedy_routes(
@@ -178,7 +178,7 @@ class GIHHSolver:
 
         while True:
             # Check stopping criteria
-            elapsed = time.process_time() - start_time
+            elapsed = time.perf_counter() - start_time
             if self.params.time_limit > 0 and elapsed > self.params.time_limit:
                 break
             if iteration > self.params.max_iterations:

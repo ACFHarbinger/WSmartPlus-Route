@@ -123,7 +123,7 @@ class VNSSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
         k_max = min(self.params.k_max, len(self._neighborhoods))
 
         # Initialize solution
@@ -137,12 +137,12 @@ class VNSSolver:
         self.params.acceptance_criterion.setup(profit)
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             k = 0  # 0-based index into self._neighborhoods
             while k < k_max:
-                if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                     break
 
                 # === Shaking phase ===
@@ -411,7 +411,7 @@ class VNSSolver:
         profit = self._evaluate(routes)
 
         for _ in range(self.params.local_search_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             llh_idx = self.random.randint(0, self.params.n_llh - 1)

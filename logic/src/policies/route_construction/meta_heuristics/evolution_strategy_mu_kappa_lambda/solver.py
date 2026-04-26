@@ -131,7 +131,7 @@ class MuKappaLambdaESSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Step 1: Initialize population P_0 with μ parents
         parents = self._initialize_population()
@@ -143,7 +143,7 @@ class MuKappaLambdaESSolver:
         # Evolution loop
         generation = 0
         while generation < self.params.max_iterations:
-            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+            if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
                 break
 
             # Variation: Generate λ offspring via recombination and self-adaptive mutation

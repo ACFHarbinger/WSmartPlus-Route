@@ -172,7 +172,7 @@ class SSHHSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Algorithm 1, line 12: construct initial solution
         routes = self._build_initial_solution()
@@ -190,7 +190,7 @@ class SSHHSolver:
         seq: List[_SeqEntry] = []
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # Algorithm 1, line 15
@@ -216,7 +216,7 @@ class SSHHSolver:
                 s_new_profit = self._evaluate(s_new_routes)
 
                 # Algorithm 1, line 23: move acceptance (Eq. 4)
-                elapsed = time.process_time() - start
+                elapsed = time.perf_counter() - start
                 accepted = self._accept(s_new_profit, candidate_profit, best_profit, elapsed)
 
                 if accepted:

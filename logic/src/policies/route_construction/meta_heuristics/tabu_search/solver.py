@@ -137,7 +137,7 @@ class TSSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Initialize solution
         routes = self._build_initial_solution()
@@ -157,7 +157,7 @@ class TSSolver:
         for iteration in range(self.params.max_iterations):
             self.iteration = iteration
             # Time limit check
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # Restart if stuck

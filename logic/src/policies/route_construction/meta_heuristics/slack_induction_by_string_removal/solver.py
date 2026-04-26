@@ -102,13 +102,13 @@ class SISRSolver:
         current_cost = best_cost
 
         T = self.params.start_temp
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         n_nodes = len(self.dist_matrix) - 1
         n_remove = max(1, int(n_nodes * self.params.destroy_ratio))
 
         for _it in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # SISR Iteration

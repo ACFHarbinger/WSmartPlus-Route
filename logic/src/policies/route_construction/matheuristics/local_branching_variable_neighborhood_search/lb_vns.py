@@ -247,11 +247,11 @@ def run_lb_vns_gurobi(
 
     # 3. MAIN VARIABLE NEIGHBORHOOD SEARCH LOOP
     # =========================================================================
-    start_time = time.process_time()
+    start_time = time.perf_counter()
     k = params.k_min
 
     while k <= params.k_max:
-        elapsed = time.process_time() - start_time
+        elapsed = time.perf_counter() - start_time
         if elapsed > params.time_limit:
             # Terminate if the global budget is exhausted.
             break
@@ -279,7 +279,7 @@ def run_lb_vns_gurobi(
         # Internal Local Branching loop for intensification
         lb_iter = 0
         while lb_iter < params.max_lb_iterations:
-            remaining_time = params.time_limit - (time.process_time() - start_time)
+            remaining_time = params.time_limit - (time.perf_counter() - start_time)
             if remaining_time <= 0:
                 break
 
@@ -316,7 +316,7 @@ def run_lb_vns_gurobi(
         is_accepted, _ = acceptance_criterion.accept(
             current_obj=current_best_obj,
             candidate_obj=current_ls_obj,
-            iteration=int((time.process_time() - start_time) / params.time_limit * 100),  # Progress-based iteration
+            iteration=int((time.perf_counter() - start_time) / params.time_limit * 100),  # Progress-based iteration
             max_iterations=100,
         )
 

@@ -202,7 +202,7 @@ class KGLSSolver:
         current_profit = self.calculate_profit(current_routes)
         best_profit = current_profit
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         criterium_idx = 0
         iteration = 0
         last_reset_time = start_time
@@ -210,7 +210,7 @@ class KGLSSolver:
         # 2. Outer Loop
         while True:
             iteration += 1
-            current_time = time.process_time()
+            current_time = time.perf_counter()
             if (current_time - start_time) > self.params.time_limit:
                 break
 

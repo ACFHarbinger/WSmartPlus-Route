@@ -126,7 +126,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mocker.patch("logic.src.pipeline.simulations.states.finishing.log_to_json", mock_log_to_json)
     mocker.patch("logic.src.pipeline.simulations.simulator.log_to_json", mock_log_to_json)
     mock_save_excel = mocker.patch("logic.src.pipeline.simulations.states.finishing.save_matrix_to_excel")
-    mocker.patch("time.process_time", return_value=1.0)
+    mocker.patch("time.perf_counter", return_value=1.0)
     mocker.patch("pandas.DataFrame.to_excel")
     mocker.patch("statistics.mean", return_value=1.0)
     mocker.patch("statistics.stdev", return_value=0.1)

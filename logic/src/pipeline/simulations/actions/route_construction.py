@@ -155,11 +155,11 @@ class RouteConstructionAction(SimulationAction):
             context["scenario_tree"] = scenario_tree
             context["multi_day_context"] = multi_day_context
 
-            start_time = time.process_time()
+            start_time = time.perf_counter()
             # 3. Unpack adapter results: tour represents global bin IDs
             results = adapter.execute(**context)
             tour, _, _, extra_output, updated_multi_day = results
-            elapsed_time = time.process_time() - start_time
+            elapsed_time = time.perf_counter() - start_time
 
             # --- PRELIMINARY METRICS ---
             # Calculate preliminary KM from the construction phase. Note that final

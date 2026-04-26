@@ -116,7 +116,7 @@ class GENIUSSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Step 1: Initial solution using GENI insertion
         routes = self._build_initial_solution_geni()
@@ -132,12 +132,12 @@ class GENIUSSolver:
 
         # Step 2: Iterative improvement using US (Unstringing-Stringing)
         for iteration in range(self.params.n_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # Apply US sweep: Continue until a full sweep produces no global improvement
             while True:
-                if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                     break
 
                 global_improvement_found = False
@@ -145,7 +145,7 @@ class GENIUSSolver:
 
                 # Attempt US on every node in the current working solution
                 for node_to_remove in current_nodes:
-                    if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+                    if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                         break
 
                     # Unstringing phase: Remove exactly one node

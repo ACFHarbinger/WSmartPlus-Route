@@ -186,9 +186,9 @@ class LKH3Policy(BaseRoutingPolicy):
         best_routes: Optional[List[List[int]]] = None
         best_cost = float("inf")
         rng = Random(seed)
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         for _ in range(params.runs):
-            current_time = time.process_time()
+            current_time = time.perf_counter()
             if params.time_limit > 0 and (current_time - start_time) > params.time_limit:
                 break
             routes, cost, _ = policy_function(

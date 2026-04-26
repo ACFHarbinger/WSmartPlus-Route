@@ -179,7 +179,7 @@ class DESolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Initialize population as continuous vectors in [-1.0, 1.0]^n
         population = self._initialize_population()
@@ -195,7 +195,7 @@ class DESolver:
         best_cost = self._cost(best_routes)
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # =====================================================================

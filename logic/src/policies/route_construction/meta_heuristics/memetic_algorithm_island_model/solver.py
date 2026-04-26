@@ -113,7 +113,7 @@ class MemeticAlgorithmIslandModelSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Initialize islands: list of lists of (routes, profit)
         islands: List[List[Tuple[List[List[int]], float]]] = [self._new_island() for _ in range(self.params.n_islands)]
@@ -125,7 +125,7 @@ class MemeticAlgorithmIslandModelSolver:
         best_cost = self._cost(best_routes)
 
         for iteration in range(self.params.max_generations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # --- Intra-island evolution: local perturbation ---

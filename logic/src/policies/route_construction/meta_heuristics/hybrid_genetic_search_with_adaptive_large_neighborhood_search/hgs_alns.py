@@ -101,14 +101,14 @@ class HGSALNSSolver(HGSSolver):
             self.hgs_alns_params.hgs_params.nb_granular,
         )
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         it = 0
         last_improvement_it = 0
         best_profit_so_far = max(ind.profit_score for ind in population)
         while last_improvement_it < self.hgs_alns_params.hgs_params.n_iterations_no_improvement:
             if (
                 self.hgs_alns_params.time_limit > 0
-                and time.process_time() - start_time >= self.hgs_alns_params.time_limit
+                and time.perf_counter() - start_time >= self.hgs_alns_params.time_limit
             ):
                 break
             it += 1

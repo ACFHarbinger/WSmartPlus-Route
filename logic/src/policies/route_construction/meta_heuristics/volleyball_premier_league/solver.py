@@ -133,7 +133,7 @@ class VPLSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Phase 1: Team Formation and Initialization
         active_teams = self._initialize_population(self.params.n_teams)
@@ -154,7 +154,7 @@ class VPLSolver:
 
         # Main VPL loop
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # Phase 2: Racing and Interplays (Competition)

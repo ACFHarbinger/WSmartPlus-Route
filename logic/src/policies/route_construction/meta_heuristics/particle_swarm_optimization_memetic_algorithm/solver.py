@@ -151,7 +151,7 @@ class PSOMASolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         self._init_swarm()
 
         self.acceptance_criterion.setup(self.gbest_profit)
@@ -159,7 +159,7 @@ class PSOMASolver:
         stagnation_counter = 0
 
         for _iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             old_gbest_profit = self.gbest_profit

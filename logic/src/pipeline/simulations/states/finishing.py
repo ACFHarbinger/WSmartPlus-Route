@@ -57,7 +57,7 @@ class FinishingState(SimState):
         sim = ctx.cfg.sim
         assert ctx.bins is not None
 
-        ctx.execution_time = time.process_time() - ctx.tic
+        ctx.execution_time = time.perf_counter() - ctx.tic
 
         lg = [
             np.sum(ctx.bins.inoverflow),
