@@ -1,5 +1,21 @@
 """
 Data persistence utilities for saving and loading container information and rate series.
+
+Attributes:
+    save_container_structured: Wrapper to save container information.
+    load_container_structured: Wrapper to load container information.
+    save_id_containers: Wrapper to save a list of container IDs.
+    load_id_containers: Wrapper to load a list of container IDs.
+    save_rate_series: Wrapper to save a container's rate series.
+    load_info: Wrapper to load container information.
+    load_rate_series: Wrapper to load a container's rate series.
+    load_rate_global_wrapper: Wrapper to load a container's rate series.
+    verify_names: Helper function to verify names.
+    container_names: List of container names.
+
+Example:
+    >>> from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load import *
+    >>> save_container_structured(1, container_object)
 """
 
 from typing import Union
@@ -20,18 +36,19 @@ def save_container_structured(
     Wrapper to save container information. Names are generated automatically unless
     specified in the names parameter for which those names are used
 
-    Parameters
-    ----------
-    container:Container.Container
-        container object to be saved
-    ver:str, optional
-        Aditional distinctive name to add for different
-        versions of container information is set to "" by default
-    path:str, optional
-        path wehre the files are to be saved. Is set to "" by defualt.
-    name: str, optional
-        Names to use instead of the names generator.
-        All should come already with the .csv atached in the ends
+    Args:
+        id:int
+            container id to be saved
+        container:Container.Container
+            container object to be saved
+        ver:str, optional
+            Aditional distinctive name to add for different
+            versions of container information is set to "" by default
+        path:str, optional
+            path wehre the files are to be saved. Is set to "" by defualt.
+        names: list[str], optional
+            Names to use instead of the names generator.
+            All should come already with the .csv atached in the ends
     """
     names_, path = verify_names(id, ver, path, names)
     df, recs, info = container.get_vars()
@@ -46,23 +63,21 @@ def load_container_structured(id=None, ver=None, path=None, names=None) -> Conta
     Load Container structured information froma a csv file that has been created
     by a save_container function
 
-    Parameters
-    ----------
-    id:int
-        container id to be load
-    ver:str
-        Aditional distinctive name for name generator to added.
-        Is set to "" by default
-    path:str
-        path wehre the files are to be saved. Is set to "" by defualt.
-    name: str
-        Names to use instead of the names generator.
-        All should come already with the .csv atached in the end
+    Args:
+        id:int
+            container id to be load
+        ver:str
+            Aditional distinctive name for name generator to added.
+            Is set to "" by default
+        path:str
+            path wehre the files are to be saved. Is set to "" by defualt.
+        names: list[str]
+            Names to use instead of the names generator.
+            All should come already with the .csv atached in the end
 
-    Returns
-    -------
-    res: tuple[int, container]
-        returns a tuple with int and continaer object
+    Returns:
+        container:Container
+            The loaded container object with the information from the csv files.
     """
     names_, path = verify_names(id, ver, path, names)
 
@@ -145,21 +160,22 @@ def save_rate_series(
     Wrapper to save a Container's rate Time Series. Aditional distinctive name to in automatic naming is set to
     rate_type + rate
 
-    Parameters
-    ----------
-    container:Container
-        Container object o save
-    rate_type:str,
-        Can be 'mean' or 'crude' to extract the mean monotic aproximation or the crude rate
-        (with possible neagtive values).
-    freq:str,
-        frequency string indicator. For daily values set to '1D'. For another frequencies check
-        https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases
-    path:str
-        path wehre the files are to be saved. Is set to "" by defualt.
-    name: str
-        Names to use instead of the names generator.
-        All should come already with the .csv atached in the end
+    Args:
+        id:int
+            Container id to be load
+        container:Container
+            Container object o save
+        rate_type:str,
+            Can be 'mean' or 'crude' to extract the mean monotic aproximation or the crude rate
+            (with possible neagtive values).
+        freq:str,
+            frequency string indicator. For daily values set to '1D'. For another frequencies check
+            https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases
+        path:str
+            path wehre the files are to be saved. Is set to "" by defualt.
+        names: str
+            Names to use instead of the names generator.
+            All should come already with the .csv atached in the end
     """
     names_, path = verify_names(id, "rate_" + rate_type, path, names)
     assert rate_type in ["mean", "crude"]
@@ -179,23 +195,20 @@ def load_info(id=None, ver=None, path=None, name=None) -> pd.DataFrame:  # type:
     Load just the Container info fies fro, a csv file that has been created
     by a save_container function
 
-    Parameters
-    ----------
-    id:int
-        container id to be load
-    ver:str
-        Aditional distinctive name for name generator to added.
-        Is set to "" by default
-    path:str
-        path wehre the files are to be saved. Is set to "" by defualt.
-    name: str
-        Names to use instead of the names generator.
-        All should come already with the .csv atached in the end
+    Args:
+        id:int
+            container id to be load
+        ver:str
+            Aditional distinctive name for name generator to added.
+            Is set to "" by default
+        path:str
+            path wehre the files are to be saved. Is set to "" by defualt.
+        name: str
+            Names to use instead of the names generator.
+            All should come already with the .csv atached in the end
 
-    Returns
-    -------
-    res: tuple[int, container]
-        returns a tuple with int and continaer object
+    Returns:
+        pd.DataFrame: DataFrame containing the container information.
     """
     names = [None, None, name] if name is not None else None
     names_, path = verify_names(id, ver, path, names)
@@ -208,18 +221,20 @@ def load_rate_series(id: int, rate_type: str, path=None, name=None) -> dict[str,
     Load Container structured information froma a csv file that has been created
     by a save_container function
 
-    Parameters
-    ----------
-    id:int
-        container id to be load
-    rate_type:str,
-        Can be 'mean' or 'crude' to extract the mean monotic aproximation or the crude rate
-        (with possible neagtive values).
-    path:str
-        path wehre the files are to be saved. Is set to "" by defualt.
-    name: str
-        Names to use instead of the names generator.
-        All should come already with the .csv atached in the end
+    Args:
+        id:int
+            container id to be load
+        rate_type:str,
+            Can be 'mean' or 'crude' to extract the mean monotic aproximation or the crude rate
+            (with possible neagtive values).
+        path:str
+            path wehre the files are to be saved. Is set to "" by defualt.
+        name: str
+            Names to use instead of the names generator.
+            All should come already with the .csv atached in the end
+
+    Returns:
+        dict[str, Union[int, pd.DataFrame]]: Dictionary containing the container ID and the rate DataFrame.
     """
     names = [name, None, None] if name is not None else None
     names_, path = verify_names(id, "rate_" + rate_type, path, names)
@@ -252,6 +267,19 @@ def load_rate_global_wrapper(rate_list: list[dict]) -> pd.DataFrame:
 def verify_names(id=None, ver=None, path=None, names=None) -> tuple[list[str], str]:  # type: ignore[assignment]
     """
     Helper function to check containers load/save inputs
+
+    Args:
+        id:int
+            Container id
+        ver:str
+            Aditional distinctive name to add for different
+        path:str
+            path wehre the files are to be saved. Is set to "" by defualt.
+        names: list[str]
+            Names to use instead of the names generator. All should come already with the .csv atached in the end
+
+    Returns:
+        tuple[list[str], str]: Tuple containing the list of filenames and the path.
     """
     if ver is None:
         ver = ""
@@ -278,13 +306,15 @@ def container_names(id: int, ver: str) -> list[str]:
     """
     Helper function to automaically generate containers names
 
-    Parameters
-    ----------
-    id:int
-        Container id
-    ver:str
-        Aditional distinctive name to add for different
+    Args:
+        id:int
+            Container id
+        ver:str
+            Aditional distinctive name to add for different
         versions of container information is set to "" by default
+
+    Returns:
+        list[str]: List of container filenames.
     """
     return [
         "Container_" + str(id) + "_fill" + ver + ".csv",

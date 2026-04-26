@@ -1,5 +1,17 @@
 """
 Simulation engine for bin fill levels.
+
+Attributes:
+    Simulation (GridBase): Simulation engine for bin fill levels.
+        Inherits from GridBase.
+
+Example:
+    >>> from src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation import Simulation
+    >>> sim = Simulation("sampled", [1, 2, 3], ".")
+    >>> sim.advance_timestep()
+    (0, None, None)
+    >>> sim.get_current_step()
+    (array([0, 0, 0]), None, None)
 """
 
 from typing import Optional
@@ -14,6 +26,16 @@ from .predictors import Predictor
 class Simulation(GridBase):
     """
     A simulation class that extends GridBase to provide time-stepping and collection logic.
+
+    Attributes:
+        fill (np.ndarray): The current fill levels of the bins.
+        sim_type (str): The type of simulation.
+        predictQ (bool): Whether to use a predictor.
+        start_date (pd.Timestamp): The start date of the simulation.
+        split (pd.Timestamp): The split date for training/testing.
+        end_date (pd.Timestamp): The end date of the simulation.
+        current_date (pd.Timestamp): The current date of the simulation.
+        rates (pd.DataFrame): The simulated rates.
     """
 
     def __init__(
@@ -77,7 +99,8 @@ class Simulation(GridBase):
     def pre_simulate_rates(self) -> pd.DataFrame:
         """
         Pre_simulates Rates according to set at init
-        Returns
+
+        Returns:
         -------
         rate: pd.Dataframe
             dataframe with simulated rates
@@ -98,8 +121,13 @@ class Simulation(GridBase):
         rate.index = date_range
         return rate
 
-    def reset_simulation(self):
-        "Reset the simulation witout changing the pre-simulated rates and predictions"
+    def reset_simulation(self) -> None:
+        """
+        Reset the simulation witout changing the pre-simulated rates and predictions
+
+        Returns:
+            None
+        """
         self.current_date = self.start_date
         self.fill = np.zeros(self.get_num_bins())
 
@@ -108,15 +136,14 @@ class Simulation(GridBase):
     ) -> tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
         """
         Gets rates and prediction at the given timestep
-        Returns
-        -------
-        rate: np.ndarray
-            current rate
 
-        pred: np.ndarray
-            current prediction
-        error:
-            current predicted error on the prediction
+        Returns:
+            rate: np.ndarray
+                current rate
+            pred: np.ndarray
+                current prediction
+            error: np.ndarray
+                current predicted error on the prediction
         """
         if self.predictQ and self.current_date > self.split:
             pred, p_error = self.predictor.get_pred_values(self.current_date)
@@ -126,14 +153,17 @@ class Simulation(GridBase):
 
     def make_collections(self, bins_index_list: list[int] = None) -> np.ndarray:  # type: ignore[assignment]
         """
-                Preforms collections on the bins specified by the index. The index is induced by the order of
-                the dataframe.
+        Preforms collections on the bins specified by the index. The index is induced by the order of
+        the dataframe.
 
-                Returns
-        -------
-                collected_junk: np.ndarray
-                    the collected trash in each of the collected bins using bins_index_list as an index map.
-                    It corresponds to the percentage of the bin
+        Args:
+            bins_index_list: list[int]
+                list of the bins indices to collect from
+
+        Returns:
+            collected_junk: np.ndarray
+                the collected trash in each of the collected bins using bins_index_list as an index map.
+                It corresponds to the percentage of the bin
         """
         if bins_index_list is None:
             bins_index_list = []
@@ -148,12 +178,12 @@ class Simulation(GridBase):
         Advances the timeStep of the simulation by updating the fill level according to the rates the
         update procedure defined at init.
 
-        Parameters
+        Args:
         ----------
         date: str, datetime
             date to fetch values. string format %d-%m-%Y or datetime
 
-        Returns
+        Returns:
         -------
         n_overflows: int
             the number of overflows occurred in that step

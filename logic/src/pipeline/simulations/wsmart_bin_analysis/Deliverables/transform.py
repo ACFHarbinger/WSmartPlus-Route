@@ -5,6 +5,27 @@ This module provides functions to:
 - Adjust collection events based on heuristics.
 - Fix sensor data anomalies.
 - Calculate and visualize statistics like Spearman correlations and distances.
+
+Attributes:
+    fix_collections_sensor: Orchestrates the collections adjustment measures. Deletes the region of the container considered to be inactive (which has random measures) and adjust/places collections.
+    get_overall_sensors_statistics: Simple Wrapper to get all the containers statistics in an organized way.
+    filter_containers: Given a containers dictionary returns the ids list whose tags are good.
+    pre_process_container_metrics: Simple Wrapper to compute the metrics that give base stats to the model.
+    view_metrics: Simple Wrapper to compute and plot the metrics that give base stats to the model.
+
+Example:
+    >>> import pandas as pd
+    >>> from src.pipeline.simulations.wsmart_bin_analysis.container import Container
+    >>> from src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform import fix_collections_sensor, get_overall_sensors_statistics, filter_containers, pre_process_container_metrics, view_metrics
+    >>> df = pd.read_csv("test.csv")
+    >>> containers_dict = {}
+    >>> for row in df.iterrows():
+    ...     containers_dict[row[0]] = Container(df=pd.DataFrame([row[1]]))
+    >>> fix_collections_sensor(containers_dict[0], box_window=10, mv_thresh=0.7, min_days=5, dist_thresh=2, c_trash=10, max_fill=20, var_thresh=0.1, use="spear")
+    >>> get_overall_sensors_statistics(containers_dict)
+    >>> filter_containers(containers_dict)
+    >>> pre_process_container_metrics(containers_dict)
+    >>> view_metrics(containers_dict, box_window=10, mv_thresh=0.7, min_days=5, use="spear")
 """
 
 import copy
@@ -32,41 +53,38 @@ def fix_collections_sensor(
     Orchestrates the collections adjustment measures. Deletes the region of the container considered to be inactive (which has
     random measures) and adjust/places collections.
 
-    Parameters
-    ----------
-    container:Container
-        container for collections to be fixed
-    box_window:int
-        window to compute the right moving average of spearman correlations
-    mv_thresh: int
-        threshold to for a the moving average to be considered good or bad
-    min_days: int
-        minimum number of days to consider a container to have a sufficient number of measures
-    dist_thresh:int
-        threshold for avg_dist to look at the surrounding collections
-    c_trash:int,
-        minimum collected thrash to count a collection
-    max_fill:int
-        maximum fill value to count has the first value after a collection
-    var_thresh: float
-        threshold for the variance change in the distance between the collections in days to be considered
-        bad and prevent container.place_collections() to act in containers marked with tag TAG.OK. If such
-        rollback happens, it will appear in tag. If such happens, it is an indicative that the sensor was giving
-        incoherent measures for a very short period of time.
-    use: str
-        weather to use average distance or spearman for tagging. Can be "spear" or "avg_dist"
-    spear_thresh:int, optional
-        threshold for spearman to look at the surrounding collections
+    Args:
+        container:Container
+            container for collections to be fixed
+        box_window:int
+            window to compute the right moving average of spearman correlations
+        mv_thresh: int
+            threshold to for a the moving average to be considered good or bad
+        min_days: int
+            minimum number of days to consider a container to have a sufficient number of measures
+        dist_thresh:int
+            threshold for avg_dist to look at the surrounding collections
+        c_trash:int,
+            minimum collected thrash to count a collection
+        max_fill:int
+            maximum fill value to count has the first value after a collection
+        var_thresh: float
+            threshold for the variance change in the distance between the collections in days to be considered
+            bad and prevent container.place_collections() to act in containers marked with tag TAG.OK. If such
+            rollback happens, it will appear in tag. If such happens, it is an indicative that the sensor was giving
+            incoherent measures for a very short period of time.
+        use: str
+            weather to use average distance or spearman for tagging. Can be "spear" or "avg_dist"
+        spear_thresh:int, optional
+            threshold for spearman to look at the surrounding collections
 
-    Returns
-    -------
-
-    dvar: float
-        variance of the distance between the collection in number of days,
-    tags: list[Tag]
-        list of the tags of the container obtained after each filter
-    container:
-        copy of the adjusted container adjusted if inplace is false. A pointer to the actual container otherwise.
+    Returns:
+        dvar: float
+            variance of the distance between the collection in number of days,
+        tags: list[TAG]
+            list of the tags of the container obtained after each filter
+        container:
+            copy of the adjusted container adjusted if inplace is false. A pointer to the actual container otherwise.
     """
     container = copy.deepcopy(container)
     tag = container.get_tag(window=box_window, mv_thresh=mv_thresh, min_days=min_days, use=use)
@@ -115,17 +133,15 @@ def get_overall_sensors_statistics(containers_dict: dict) -> tuple[dict, dict]:
     Simple Wrapper to get all the containers statistics in an organized way.
     Returns Nones if things are undefined
 
-    Parameters
-    ----------
-    containers_dict: dict
-        Dictionary of container objects to extract statistics from
+    Args:
+        containers_dict: dict
+            Dictionary of container objects to extract statistics from
 
-    Returns
-    -------
-    dict_dist: dict
-        dictionary with ids from the bins and avg distance information
-    dict_spear: dict
-        dictionary with ids from the bins and spearman information
+    Returns:
+        dict_dist: dict
+            dictionary with ids from the bins and avg distance information
+        dict_spear: dict
+            dictionary with ids from the bins and spearman information
     """
     dict_dist = {}
     dict_spear = {}
@@ -141,16 +157,14 @@ def filter_containers(containers_dict: dict) -> dict:
     """
     Given a containers dictionary returns the ids list whose tags are good
 
-    Parameters
-    ----------
-    containers_dict: dict
-        Dictionary of container objects to extract statistics from
+    Args:
+        containers_dict: dict
+            Dictionary of container objects to extract statistics from
 
 
-    Returns
-    -------
-    c_dict: dict
-        dictionary with the filtered bins
+    Returns:
+        c_dict: dict
+            dictionary with the filtered bins
     """
     return dict(filter(lambda c: c[1].tag == TAG.OK or c[1].tag is None, containers_dict.items()))
 
@@ -159,12 +173,11 @@ def pre_process_container_metrics(containers_dict: dict, calc_spearman: bool = T
     """
     Wrapper to calculate all pre_processing metrics for each container"
 
-    Parameters
-    ----------
-    containers_dict: dict
-        Dictionary of container objects to extract statistics from
-    calc_spearman:bool (True)
-        Optional; if spearman correlation is to be calculated
+    Args:
+        containers_dict: dict
+            Dictionary of container objects to extract statistics from
+        calc_spearman:bool (True)
+            Optional; if spearman correlation is to be calculated
     """
     container: Container
 
@@ -183,20 +196,20 @@ def pre_process_container_metrics(containers_dict: dict, calc_spearman: bool = T
 
 def view_metrics(containers_dict: dict, box_window: int, mv_thresh: int, min_days: int, use: str):
     """
-    Receives the parameters necessary for tagging. Makes 3 histograms with Spearman Average Distance distribution across bins across all bins as well as tags
+    Receives the parameters necessary for tagging. Makes 3 histograms with Spearman Average Distance
+    distribution across bins across all bins as well as tags
 
-    Parameters
-    ----------
-    container:Container
-        container for collections to be fixed
-    box_window:int
-        window to compute the right moving average of spearman correlations
-    mv_thresh: int
-        threshold to for a the moving average to be considered good or bad
-    min_days: int
-        minimum number of days to consider a container to have a sufficient number of measures
-    use: str
-        weather to use average distance or spearman for tagging. Can be "spear" or "avg_dist"
+    Args:
+        containers_dict: dict
+            Dictionary of container objects to extract statistics from
+        box_window:int
+            window to compute the right moving average of spearman correlations
+        mv_thresh: int
+            threshold to for a the moving average to be considered good or bad
+        min_days: int
+            minimum number of days to consider a container to have a sufficient number of measures
+        use: str
+            weather to use average distance or spearman for tagging. Can be "spear" or "avg_dist"
     """
     tags: list[TAG] = []
     container: Container

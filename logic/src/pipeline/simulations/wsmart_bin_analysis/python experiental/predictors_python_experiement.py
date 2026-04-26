@@ -3,10 +3,24 @@ Unsuded module. Experimental script on how to all the arima ftting and predictio
 
 To run predict using this module need to use setup Predictor() on training data and
 then run predictor.predict() and predictor.update(current_data) alternately; to allow the object to update errorson curent data
+
+Attributes:
+    fit_sarima: Function to fit a SARIMA model to the provided data.
+    grid_search_sarima: Function to perform grid search to find best SARIMA hyperparameters.
+    parallel_grid_search: Function to run grid search in parallel across dataframe columns.
+    serial_grid_search: Function to run grid search serially across dataframe columns.
+    build_predictor: Function to build a Predictor object by fitting SARIMA models to the dataframe columns.
+    Predictor: Class to handle time series predictions using pre-fitted SARIMA parameters.
+
+Example:
+    >>> pred_obj = build_predictor(runtype='serial', df=df_train)
+    >>> prediction = pred_obj.predict()
+    >>> prediction_error = pred_obj.error()
+    >>> pred_obj.update(current_data)
 """
 
 from multiprocessing import Pool
-from typing import Optional
+from typing import Optional, Callable, Any
 
 import numpy as np
 import pandas as pd
@@ -66,7 +80,7 @@ def grid_search_sarima(data, param_grid):
     return best_order, best_seasonal_order, best_model
 
 
-def parallel_grid_search(df: pd.DataFrame, process_func: callable):
+def parallel_grid_search(df: pd.DataFrame, process_func: Callable[[tuple[int, pd.Series]], dict]) -> list[dict[str, Any]]:
     """
     Run grid search in parallel across dataframe columns.
 
@@ -83,7 +97,7 @@ def parallel_grid_search(df: pd.DataFrame, process_func: callable):
     return results
 
 
-def serial_grid_search(df: pd.DataFrame, process_func: callable):
+def serial_grid_search(df: pd.DataFrame, process_func: Callable[[tuple[int, pd.Series]], dict]) -> list[dict[str, Any]]:
     """
     Run grid search serially across dataframe columns.
 
@@ -98,7 +112,7 @@ def serial_grid_search(df: pd.DataFrame, process_func: callable):
     return list(tqdm(map(process_func, df.items()), total=len(df.columns)))
 
 
-def build_predictor(runtype, df: pd.DataFrame, params: dict = None):
+def build_predictor(runtype: str, df: pd.DataFrame, params: Optional[dict] = None) -> Predictor:
     """
     Build a Predictor object by fitting SARIMA models to the dataframe columns.
 
@@ -111,7 +125,7 @@ def build_predictor(runtype, df: pd.DataFrame, params: dict = None):
         Predictor: Initialized Predictor object.
 
     Raises:
-        AssertionError: If runtype is invalid or params are malformed.
+        ValueError: If runtype is invalid or params are malformed.
     """
     KEYS = ["serial", "parallel"]
 
@@ -142,8 +156,16 @@ def build_predictor(runtype, df: pd.DataFrame, params: dict = None):
 
     param_grid = list(ParameterGrid({"p": p, "d": d, "q": q, "P": P, "D": D, "Q": Q, "m": m}))
 
-    def process_column(column_data):
-        """Internal worker function to process a single column."""
+    def process_column(column_data: tuple) -> dict[str, Any]:
+        """
+        Internal worker function to process a single column.
+
+        Args:
+            column_data (tuple): Tuple containing the column name and series data.
+
+        Returns:
+            dict[str, Any]: Dictionary containing the best order, seasonal order, and model parameters.
+        """
         data = column_data[1]  # Extract the series data
         column_name = column_data[0]
         best_order, best_seasonal_order, best_model = grid_search_sarima(data, param_grid)
@@ -154,12 +176,12 @@ def build_predictor(runtype, df: pd.DataFrame, params: dict = None):
             "params": best_model,
         }
 
-    if "serial":
+    if runtype == "serial":
         models = serial_grid_search(df, process_column)
-    elif "parallel":
+    elif runtype == "parallel":
         models = parallel_grid_search(df, process_column)
     else:
-        raise f"runtime must be one of {KEYS}"
+        raise ValueError(f"Runtime must be one of {KEYS}")
 
     return Predictor(df.to_numpy(), maxorder=max(max(P), max(Q)) * m[0], models=models)
 
@@ -167,6 +189,16 @@ def build_predictor(runtype, df: pd.DataFrame, params: dict = None):
 class Predictor:
     """
     Class to handle time series predictions using pre-fitted SARIMA parameters.
+
+    Attributes:
+        history (np.ndarray): Historical data.
+        errors (np.ndarray): Errors.
+        ar (np.ndarray): Autoregressive coefficients.
+        ma (np.ndarray): Moving average coefficients.
+        error_var (np.ndarray): Variance of the error distribution.
+        cur_prediction (np.ndarray): Current prediction.
+        n_bins (int): Number of bins.
+        maxorder (int): Maximum order of the AR/MA components.
     """
 
     def __init__(
@@ -174,7 +206,7 @@ class Predictor:
         data: np.ndarray,
         maxorder: int,
         models: list,
-        means_arr: np.ndarray = None,
+        means_arr: Optional[np.ndarray] = None,
     ):
         """
         Initialize the Predictor.
@@ -240,7 +272,7 @@ class Predictor:
         """
         Get the variance of the prediction errors.
 
-        Returns
+        Returns:
         -------
         var: np.ndarray
             Return the variance of the error distribution around the next step prediction.

@@ -1,5 +1,19 @@
 """
 Sphinx configuration file for the WSmart-Route documentation.
+
+Attributes:
+    extensions: List of sphinx extensions to be used.
+    templates_path: List of paths to the sphinx templates.
+    exclude_patterns: List of patterns to be excluded from the documentation.
+    html_theme: Theme to be used for the documentation.
+    html_static_path: List of paths to the sphinx static files.
+    release: Version of the project.
+    author: Author of the project.
+    copyright: Copyright information of the project.
+    project: Name of the project.
+
+Example:
+    None
 """
 
 # Configuration file for the Sphinx documentation builder.
