@@ -173,7 +173,7 @@
 
 ````
 
-````{py:method} _extend_to_depot(label: logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label, duals: typing.Dict[str, typing.Any]) -> typing.Optional[logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label]
+````{py:method} _extend_to_depot(label: logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label, rcc_duals: typing.Dict[typing.FrozenSet[int], float], edge_clique_duals: typing.Dict[typing.Tuple[int, int], float], lci_cover_items: typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem], multistar_items: typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem]) -> typing.Optional[logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._extend_to_depot
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._extend_to_depot

@@ -19,7 +19,6 @@ src.configs.rl.policies.aco
 src.configs.rl.policies.ils
 src.configs.rl.policies.rls
 src.configs.rl.policies.alns
-src.configs.rl.policies.ahvpl
 src.configs.rl.policies.hgs_alns
 ```
 
@@ -42,7 +41,7 @@ src.configs.rl.policies.hgs_alns
 ````{py:data} __all__
 :canonical: src.configs.rl.policies.__all__
 :value: >
-   ['HGSConfig', 'HVPLConfig', 'AHVPLConfig', 'ALNSConfig', 'ILSConfig', 'RLSConfig', 'ACOConfig', 'HGS...
+   ['HGSConfig', 'HVPLConfig', 'ALNSConfig', 'ILSConfig', 'RLSConfig', 'ACOConfig', 'HGSALNSConfig', 'R...
 
 ```{autodoc2-docstring} src.configs.rl.policies.__all__
 ```

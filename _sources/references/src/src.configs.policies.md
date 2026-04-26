@@ -72,7 +72,6 @@ src.configs.policies.abpc_hg
 src.configs.policies.es_mcl
 src.configs.policies.lca
 src.configs.policies.hna
-src.configs.policies.rl_ahvpl
 src.configs.policies.bc
 src.configs.policies.adp
 src.configs.policies.ils
@@ -99,7 +98,6 @@ src.configs.policies.hgs_rr
 src.configs.policies.ga
 src.configs.policies.src
 src.configs.policies.ils_rvnd_sp
-src.configs.policies.ahvpl
 src.configs.policies.gls
 src.configs.policies.rl_hvpl
 src.configs.policies.filo

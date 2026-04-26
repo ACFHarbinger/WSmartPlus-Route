@@ -473,12 +473,18 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.solve()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.construct"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.construct()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._bootstrap()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_standard"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._bootstrap_standard()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_profit"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._bootstrap_profit()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.build_solution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.deposit_edge"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.deposit_edge()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._make_context()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._select_sequence()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._calculate_routing_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaluate_objective()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaporate_pheromones()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.evaporate_all"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.evaporate_all()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -567,7 +573,11 @@ only when an ant has no prior position (first journey step after
 uniform placement on real vertices already seeds the real rows).
 eta: Heuristic visibility matrix (per directed edge i→j).
 edge_count: Cumulative edge traversal count (num(i,j) in the paper).
-sequence_length: Length of operator sequences (= n_operators, per paper).</p>
+sequence_length: Length of operator sequences (= n_operators, per paper).
+pheromone: Node-level sparse pheromone matrix (city graph, i→j edges).
+Maintained separately from <code class="docutils literal notranslate"><span class="pre">tau</span></code> so that external callers (e.g.
+HVPL) can reinforce node transitions via <code class="docutils literal notranslate"><span class="pre">deposit_edge</span></code> without
+coupling into the operator-graph internals.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HyperHeuristicACO.</p>
 <p>Args:
@@ -591,6 +601,94 @@ Tuple[List[List[int]], float, float]:
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.construct">
+<span class="sig-name descname"><span class="pre">construct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.construct" title="Link to this definition">#</a></dt>
+<dd><p>Construct a solution from scratch using pure pheromone-guided exploration.</p>
+<p>This method is analogous to <code class="docutils literal notranslate"><span class="pre">SolutionConstructor.construct</span></code> in the
+k-sparse ACO: it builds a complete solution from an empty slate rather
+than improving an existing one.  The construction proceeds in two phases:</p>
+<ol class="arabic">
+<li><p><strong>Bootstrap</strong> — A bootstrap insertion operator is chosen <strong>uniformly
+at random</strong> from the full portfolio of <code class="docutils literal notranslate"><span class="pre">recreate_repair</span></code> heuristics
+(pure exploration — equivalent to flat tau_0 pheromone, matching MMAS
+semantics).  All nodes are treated as the unvisited pool and inserted
+into an initially-empty route list by the selected heuristic.  When
+<code class="docutils literal notranslate"><span class="pre">params.profit_aware_operators</span></code> is enabled the profit-maximising
+variant of each heuristic is used; otherwise the cost-minimising
+variant is used.  The available bootstrap operators are:</p>
+<p>Standard (cost-minimising): greedy, greedy-with-blinks, nearest,
+farthest, savings, regret-2, regret-3, regret-4, deep, GENI,
+branch-and-bound LDS.</p>
+<p>Profit-aware (revenue - cost): greedy_profit, blinks_profit,
+nearest_profit, farthest_profit, savings_profit, regret-2_profit,
+regret-3_profit, regret-4_profit, deep_profit, GENI_profit,
+bb_profit.</p>
+</li>
+<li><p><strong>Exploration</strong> — A single ant is placed on a uniformly-random
+operator vertex (mirroring the uniform placement in <code class="docutils literal notranslate"><span class="pre">solve</span></code>) and a
+full operator sequence of length <code class="docutils literal notranslate"><span class="pre">sequence_length</span></code> is selected via
+the pure AS proportional (roulette-wheel) rule through
+<code class="docutils literal notranslate"><span class="pre">_select_sequence</span></code>.  The sequence is then applied to the bootstrapped
+solution via <code class="docutils literal notranslate"><span class="pre">build_solution</span></code>.  No local pheromone updates are
+performed inside this method — all reinforcement is expected to happen
+globally after evaluation, consistent with MMAS semantics.</p></li>
+</ol>
+<p>Args:
+nodes: List of all customer node indices (excluding depot 0) that
+the ant should attempt to route.
+mandatory_nodes: Nodes that must be visited regardless of
+profitability.  Overrides <code class="docutils literal notranslate"><span class="pre">self.mandatory_nodes</span></code> when provided;
+falls back to <code class="docutils literal notranslate"><span class="pre">self.mandatory_nodes</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>Returns:
+List of routes, each a list of node indices (excluding depot 0),
+representing the constructed solution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap">
+<span class="sig-name descname"><span class="pre">_bootstrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap" title="Link to this definition">#</a></dt>
+<dd><p>Select and apply one bootstrap insertion operator uniformly at random.</p>
+<p>Chooses a heuristic from the full <code class="docutils literal notranslate"><span class="pre">recreate_repair</span></code> portfolio with
+equal probability (pure exploration) and applies it to an empty route
+list with <code class="docutils literal notranslate"><span class="pre">nodes</span></code> as the unvisited pool.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">params.profit_aware_operators</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the profit-aware
+variant of the chosen operator is used; otherwise the cost-minimising
+variant is used.</p>
+<p>Args:
+nodes: Customer node indices to bootstrap (excluding depot 0).
+effective_mandatory: Mandatory node indices that must be served.</p>
+<p>Returns:
+List of routes produced by the selected bootstrap heuristic.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_standard">
+<span class="sig-name descname"><span class="pre">_bootstrap_standard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_standard" title="Link to this definition">#</a></dt>
+<dd><p>Apply a uniformly-random cost-minimising insertion heuristic.</p>
+<p>Candidates: greedy, greedy-with-blinks, nearest, farthest, savings,
+regret-2, regret-3, regret-4, deep, GENI, branch-and-bound LDS.</p>
+<p>Args:
+nodes: Customer nodes to insert.
+mandatory: Mandatory node indices.</p>
+<p>Returns:
+List of routes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_profit">
+<span class="sig-name descname"><span class="pre">_bootstrap_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_profit" title="Link to this definition">#</a></dt>
+<dd><p>Apply a uniformly-random profit-aware insertion heuristic.</p>
+<p>Candidates: greedy_profit, blinks_profit, nearest_profit,
+farthest_profit, savings_profit, regret-2_profit, regret-3_profit,
+regret-4_profit, deep_profit, GENI_profit, bb_profit.</p>
+<p>Args:
+nodes: Customer nodes to insert.
+mandatory: Mandatory node indices.</p>
+<p>Returns:
+List of routes.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution">
 <span class="sig-name descname"><span class="pre">build_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_op_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution" title="Link to this definition">#</a></dt>
 <dd><p>Build a solution by constructing and applying an operator sequence.</p>
@@ -608,8 +706,25 @@ Tuple of:
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.deposit_edge">
+<span class="sig-name descname"><span class="pre">deposit_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.deposit_edge" title="Link to this definition">#</a></dt>
+<dd><p>Deposit pheromone on city-graph edge (i, j).</p>
+<p>Adds <code class="docutils literal notranslate"><span class="pre">delta</span></code> to the node-level pheromone value for the directed
+edge <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">→</span> <span class="pre">j</span></code>.  This is the public analogue of
+<code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.deposit_edge</span></code> and is used by external callers
+(e.g. HVPL) to reinforce city-graph transitions without accessing
+the internal operator-sequence matrix <code class="docutils literal notranslate"><span class="pre">self.tau</span></code>.</p>
+<p>Args:
+i: Source node index (0 = depot).
+j: Destination node index (0 = depot).
+delta: Amount of pheromone to add.</p>
+<p>Returns:
+None.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context">
-<span class="sig-name descname"><span class="pre">_make_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_make_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context" title="Link to this definition">#</a></dt>
 <dd><p>Construct a HyperOperatorContext for the given solution snapshot.</p>
 <p>Args:
 routes: Current routes (will be deep-copied inside).
@@ -664,6 +779,14 @@ float: Penalised objective value.</p>
 <p>Paper: τ_ij(t) = ρ · τ_ij(t−n) + Σ_k Δτ^k_ij
 Evaporation is applied before deposit each iteration (equivalent since
 each outer iteration corresponds to exactly one complete journey).</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.evaporate_all">
+<span class="sig-name descname"><span class="pre">evaporate_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.evaporate_all" title="Link to this definition">#</a></dt>
+<dd><p>Evaporate node-level pheromones.</p>
 <p>Returns:
 None</p>
 </dd></dl>
@@ -724,12 +847,18 @@ None</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.solve()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.construct"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.construct()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._bootstrap()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_standard"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._bootstrap_standard()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._bootstrap_profit"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._bootstrap_profit()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.build_solution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.deposit_edge"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.deposit_edge()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._make_context()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._select_sequence()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._calculate_routing_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaluate_objective()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaporate_pheromones()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.evaporate_all"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.evaporate_all()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -163,7 +163,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params.HybridMemeticSearchParams.aco_params
-:type: typing.Optional[logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams]
+:type: typing.Optional[logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.HyperACOParams]
 :value: >
    'field(...)'
 

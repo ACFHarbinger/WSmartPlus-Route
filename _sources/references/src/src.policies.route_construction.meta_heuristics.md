@@ -51,7 +51,6 @@ src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood
 src.policies.route_construction.meta_heuristics.guided_local_search
 src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm
 src.policies.route_construction.meta_heuristics.genetic_algorithm
-src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league
 src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda
 src.policies.route_construction.meta_heuristics.genius
@@ -79,7 +78,7 @@ src.policies.route_construction.meta_heuristics.reactive_tabu_search
 ````{py:data} __all__
 :canonical: src.policies.route_construction.meta_heuristics.__all__
 :value: >
-   ['policy_alns', 'policy_alns_ipo', 'policy_aco_ks', 'policy_abc', 'policy_ahvpl', 'policy_de', 'poli...
+   ['policy_alns', 'policy_alns_ipo', 'policy_aco_ks', 'policy_abc', 'policy_de', 'policy_es_mcl', 'pol...
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.__all__
 ```

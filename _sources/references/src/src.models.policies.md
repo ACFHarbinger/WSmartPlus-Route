@@ -33,7 +33,6 @@ src.models.policies.adaptive_large_neighborhood_search
 src.models.policies.hybrid_volleyball_premier_league
 src.models.policies.local_search
 src.models.policies.alns
-src.models.policies.augmented_hybrid_volleyball_premier_league
 src.models.policies.ant_colony_system
 src.models.policies.hgs_alns
 ```

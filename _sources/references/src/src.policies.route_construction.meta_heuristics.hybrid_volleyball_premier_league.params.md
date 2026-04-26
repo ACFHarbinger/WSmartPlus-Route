@@ -152,7 +152,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams.aco_params
-:type: typing.Optional[logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams]
+:type: typing.Optional[logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams]
 :value: >
    'field(...)'
 

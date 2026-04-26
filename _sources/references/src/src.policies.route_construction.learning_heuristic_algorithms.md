@@ -13,7 +13,6 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league
 src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic
 src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search
 src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league
@@ -38,7 +37,7 @@ src.policies.route_construction.learning_heuristic_algorithms.reinforcement_lear
 ````{py:data} __all__
 :canonical: src.policies.route_construction.learning_heuristic_algorithms.__all__
 :value: >
-   ['policy_rl_alns', 'policy_rl_ahvpl', 'policy_rl_hvpl', 'policy_rl_gd_hh']
+   ['policy_rl_alns', 'policy_rl_hvpl', 'policy_rl_gd_hh']
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_heuristic_algorithms.__all__
 ```

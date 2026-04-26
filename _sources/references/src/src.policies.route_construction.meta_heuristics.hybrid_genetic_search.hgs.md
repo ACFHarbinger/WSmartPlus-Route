@@ -21,7 +21,85 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_MIN_PENALTY <src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MIN_PENALTY>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MIN_PENALTY
+    :summary:
+    ```
+* - {py:obj}`_MAX_PENALTY <src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MAX_PENALTY>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MAX_PENALTY
+    :summary:
+    ```
+* - {py:obj}`_TARGET_COVERAGE_LOW <src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_LOW>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_LOW
+    :summary:
+    ```
+* - {py:obj}`_TARGET_COVERAGE_HIGH <src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_HIGH>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_HIGH
+    :summary:
+    ```
+* - {py:obj}`_TARGET_MARGIN <src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_MARGIN>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_MARGIN
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} _MIN_PENALTY
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MIN_PENALTY
+:value: >
+   0.05
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MIN_PENALTY
+```
+
+````
+
+````{py:data} _MAX_PENALTY
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MAX_PENALTY
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._MAX_PENALTY
+```
+
+````
+
+````{py:data} _TARGET_COVERAGE_LOW
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_LOW
+:value: >
+   0.4
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_LOW
+```
+
+````
+
+````{py:data} _TARGET_COVERAGE_HIGH
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_HIGH
+:value: >
+   0.7
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_COVERAGE_HIGH
+```
+
+````
+
+````{py:data} _TARGET_MARGIN
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_MARGIN
+:value: >
+   0.1
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs._TARGET_MARGIN
+```
+
+````
 
 `````{py:class} HGSSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams, mandatory_nodes: typing.Optional[typing.List[int]] = None, x_coords: typing.Optional[numpy.ndarray] = None, y_coords: typing.Optional[numpy.ndarray] = None)
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver
@@ -87,6 +165,14 @@
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._generate_offspring
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._generate_offspring
+```
+
+````
+
+````{py:method} _record_offspring_signals(ind: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual) -> None
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._record_offspring_signals
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._record_offspring_signals
 ```
 
 ````
