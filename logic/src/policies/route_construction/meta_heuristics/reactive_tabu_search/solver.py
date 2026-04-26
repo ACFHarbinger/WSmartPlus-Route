@@ -115,7 +115,7 @@ class RTSSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         routes = self._build_initial_solution()
         profit = self._evaluate(routes)
@@ -134,7 +134,7 @@ class RTSSolver:
         no_repeat_count = 0
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # Try all LLHs and pick best non-tabu (or aspiration override)

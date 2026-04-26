@@ -259,14 +259,14 @@ class KSparseACOQLSolver:
 
         # Initialize with NN heuristic for strong starting solution
         best_routes, best_profit, best_cost = self._initialize_with_nn_heuristic()
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Update pheromones based on NN solution
         if best_routes:
             self._global_pheromone_update(best_routes, best_cost)
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             iteration_best_routes: List[List[int]] = []

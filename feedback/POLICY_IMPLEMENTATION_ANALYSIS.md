@@ -1723,7 +1723,7 @@ This report documents differences between published algorithm formulations and t
 5. **Wall Time Tracking**:
    - **Paper**: Typically iteration-based
    - **Implementation**: [solver.py:21, 37](logic/src/policies/great_deluge/solver.py#L21)
-   - `self.wall_start = time.process_time()`
+   - `self.wall_start = time.perf_counter()`
    - Uses CPU time for more accurate budget control
    - **Enhancement**: ⬆️ More robust for real-world usage
 
@@ -2218,7 +2218,7 @@ This report documents differences between published algorithm formulations and t
    - **Paper**: Iterate LP → Partition → MIP until convergence
    - **Implementation**: [solver.py:143-265](logic/src/policies/kernel_search/solver.py#L143-L265)
    - Main loop: `for iteration in range(self.params.max_iterations)`
-   - Time limit check: `if time.process_time() - start_time > self.params.time_limit`
+   - Time limit check: `if time.perf_counter() - start_time > self.params.time_limit`
    - Profit improvement check: `if current_profit > best_profit`
    - **Match**: ✅ Exact
 

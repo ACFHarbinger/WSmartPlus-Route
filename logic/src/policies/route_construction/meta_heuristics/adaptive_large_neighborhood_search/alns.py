@@ -664,7 +664,7 @@ class ALNSSolver:
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
         """
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
 
@@ -675,7 +675,7 @@ class ALNSSolver:
             self.acceptance_criterion.setup(current_profit)
 
         for _it in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             new_routes, d_idx, r_idx = self._select_and_apply_operators(current_routes)

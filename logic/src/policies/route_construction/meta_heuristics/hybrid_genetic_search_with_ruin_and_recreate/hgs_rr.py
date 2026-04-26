@@ -126,7 +126,7 @@ class HGSRRSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
         """
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         population: List[Individual] = []
 
         # 1. Initial Population
@@ -147,7 +147,7 @@ class HGSRRSolver:
         best_cost_so_far = min(ind.cost for ind in population if ind.profit_score == best_profit_so_far)
 
         while it_no_improvement < self.params.n_iterations_no_improvement:
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
             it += 1
             it_no_improvement += 1

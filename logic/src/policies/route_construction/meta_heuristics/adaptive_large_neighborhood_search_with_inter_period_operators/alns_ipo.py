@@ -366,7 +366,7 @@ class ALNSSolverIPO(ALNSSolver):
                 - best_cost: Total horizon routing cost.
         """
         self._scenario_tree = scenario_tree
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Initialise
         current_horizon = initial_horizon_routes or self.build_initial_horizon_solution()
@@ -383,7 +383,7 @@ class ALNSSolverIPO(ALNSSolver):
         # No longer using fixed n_inter_period = 2
 
         for _it in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             d_idx = self.select_operator(self.destroy_weights)

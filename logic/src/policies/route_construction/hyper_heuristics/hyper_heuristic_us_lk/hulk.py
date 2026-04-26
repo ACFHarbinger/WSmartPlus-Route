@@ -176,13 +176,13 @@ class HULKSolver:
             # Reset temperature
             self.temperature = self.params.start_temp
 
-            start_time = time.process_time()
+            start_time = time.perf_counter()
             it = 0
             last_improvement_it = 0
 
             while it < self.params.max_iterations:
                 # Check time limit
-                if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                     break
 
                 it += 1

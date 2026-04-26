@@ -113,7 +113,7 @@ class MuPlusLambdaESSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Initialize parent population (μ)
         parents = [self._initialize_solution() for _ in range(self.params.mu)]
@@ -124,7 +124,7 @@ class MuPlusLambdaESSolver:
         best_cost = 0.0
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             offspring_population = []

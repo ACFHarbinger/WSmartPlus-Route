@@ -124,7 +124,7 @@ class LCASolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Initialise teams (routing solutions)
         teams: List[List[List[int]]] = [self._build_random_solution() for _ in range(self.params.n_teams)]
@@ -136,7 +136,7 @@ class LCASolver:
         best_cost = self._cost(best_routes)
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # Weekly Matches: Multi-round Robin (Random pairs per iteration)

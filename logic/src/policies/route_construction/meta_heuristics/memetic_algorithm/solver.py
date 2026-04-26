@@ -76,7 +76,7 @@ class MASolver:
         self.nodes = list(range(1, self.n_nodes + 1))
         # self.random is used throughout for consistent reproducibility when a seed is provided.
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
-        self.start_time = time.process_time()
+        self.start_time = time.perf_counter()
 
     def solve(self) -> Tuple[List[List[int]], float]:
         """
@@ -109,7 +109,7 @@ class MASolver:
         # Main generational evolution loop.
         for generation in range(self.params.max_generations):
             # Check for resource exhaustion (Time Limit).
-            if time.process_time() - self.start_time > self.params.time_limit:
+            if time.perf_counter() - self.start_time > self.params.time_limit:
                 break
 
             # 1. Selection (Fig. 3.1: Identify the 'breeders')

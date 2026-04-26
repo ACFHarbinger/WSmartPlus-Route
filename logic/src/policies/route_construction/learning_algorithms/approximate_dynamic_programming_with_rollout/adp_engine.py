@@ -383,13 +383,13 @@ class ADPRolloutEngine:
                 - total_expected_profit: Σ_t profit_t.
                 - metadata: Summary statistics.
         """
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         full_plan: List[List[List[int]]] = []
         total_profit = 0.0
         rolling_wastes = dict(self.wastes)
 
         for t in range(horizon):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 # Fill remaining days with empty routes
                 full_plan.extend([[] for _ in range(horizon - t)])
                 break
@@ -414,6 +414,6 @@ class ADPRolloutEngine:
 
         metadata: Dict[str, Any] = {
             "total_profit": total_profit,
-            "wall_time": time.process_time() - start_time,
+            "wall_time": time.perf_counter() - start_time,
         }
         return full_plan, total_profit, metadata

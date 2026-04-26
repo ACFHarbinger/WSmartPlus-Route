@@ -370,7 +370,7 @@ class FILOSolver:
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
         """
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         current_routes = self._clarke_wright_initialization()
         current_routes = self._route_minimization(current_routes)
         current_cost, current_profit = self._evaluate_routes(current_routes)
@@ -384,7 +384,7 @@ class FILOSolver:
             self.sa_start_temp, self.sa_final_temp = 100.0, 1.0
         temperature = self.sa_start_temp
         for _iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+            if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
                 break
             visited = [n for r in current_routes for n in r]
             if not visited:

@@ -105,7 +105,7 @@ class GASolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Initialise population
         population = self._init_population()
@@ -116,7 +116,7 @@ class GASolver:
         best_profit = fitnesses[best_idx]
 
         for gen in range(self.params.max_generations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             new_population: List[List[List[int]]] = []
