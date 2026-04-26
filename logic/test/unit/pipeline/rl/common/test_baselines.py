@@ -88,8 +88,8 @@ class TestBaselines:
             bl,
             "_rollout",
             side_effect=[
-                torch.tensor([2.0, 2.1, 2.2]),  # candidate
-                torch.tensor([1.0, 1.1, 1.2]),  # baseline
+                torch.tensor([2.1, 2.0, 2.5]),  # candidate (mean 2.2)
+                torch.tensor([1.1, 1.0, 1.2]),  # baseline (mean 1.1)
             ],
         )
 

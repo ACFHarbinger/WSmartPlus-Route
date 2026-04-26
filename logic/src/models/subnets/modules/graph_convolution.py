@@ -137,10 +137,10 @@ class GraphConvolution(nn.Module):
             elif mask.size(0) == 1:
                 mask = mask.expand(batch_size, -1, -1)
 
-            out = torch.bmm(mask, support)
+            out = torch.bmm(mask.to(support.dtype), support)
             out = out / degrees
         else:
-            out = torch.bmm(mask.expand(batch_size, -1, -1), support)
+            out = torch.bmm(mask.expand(batch_size, -1, -1).to(support.dtype), support)
 
         if self.bias is not None:
             out += self.bias
@@ -163,10 +163,10 @@ class GraphConvolution(nn.Module):
             out = scatter(messages, target_idx, dim=0, dim_size=h.size(0), reduce="max")
         elif self.aggregation == "mean":
             degrees = adj.sum(dim=0).clamp(min=1)
-            messages = torch.matmul(adj, support)
+            messages = torch.matmul(adj.to(support.dtype), support)
             out = messages / degrees.unsqueeze(1)
         else:
-            out = torch.matmul(adj, support)
+            out = torch.matmul(adj.to(support.dtype), support)
 
         if self.bias is not None:
             out += self.bias

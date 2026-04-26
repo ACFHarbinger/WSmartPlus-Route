@@ -143,7 +143,6 @@ class HybridMemeticSearchParams:
             crossover_rate=config.crossover_rate,
             mutation_rate=config.mutation_rate,
             elitism_count=config.elitism_count,
-            max_iterations=config.max_iterations,  # type: ignore[attr-defined]
             aco_init_iterations=config.aco_init_iterations,
             time_limit=config.time_limit,
             n_removal=config.n_removal,

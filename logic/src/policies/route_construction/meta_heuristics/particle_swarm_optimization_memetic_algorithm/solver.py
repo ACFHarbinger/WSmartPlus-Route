@@ -2,17 +2,14 @@
 Particle Swarm Optimization Memetic Algorithm (PSOMA) for VRPP.
 
 Particles navigate the discrete routing space via swap-based velocity.
-A low inertia weight (ω≈0.4) forces intensive local exploitation.  A
-periodic memetic step applies worst-removal + greedy-insertion local
-search to each particle, analogous to the genetic operators described in
-the survey.
+A low inertia weight (ω≈0.4) forces intensive local exploitation.
 
 Attributes:
-    PSOMAsSolver (Type): Core solver class for PSOMA.
+    PSOMASolver (Type): Core solver class for PSOMA.
     PSOMAParams (Type): Parameter dataclass for the solver.
 
 Example:
-    >>> solver = PSOMAsSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> solver = PSOMASolver(dist_matrix, wastes, capacity, R, C, params)
     >>> routes, profit, cost = solver.solve()
 
 Reference:
@@ -20,32 +17,23 @@ Reference:
     "An Effective PSO-Based Memetic Algorithm for TSP"
 """
 
-import contextlib
 import copy
 import random
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
-from logic.src.policies.helpers.operators import (
-    greedy_insertion,
-    greedy_profit_insertion,
-    random_removal,
-    worst_profit_removal,
-    worst_removal,
-)
-from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
-from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split import LinearSplit
 
 from .params import PSOMAParams
 from .particle import PSOMAParticle
 
 
-class PSOMAsSolver:
+class PSOMASolver:
     """
-    PSOMA solver for VRPP — PSO with memetic local-search steps.
+    PSOMASolver class for Vehicle Routing Problem with Pickup and Delivery (VRPP).
+    Implements a Particle Swarm Optimization (PSO) algorithm with a Memetic Algorithm (MA).
 
     Attributes:
         dist_matrix (np.ndarray): Symmetric distance matrix.
@@ -54,7 +42,22 @@ class PSOMAsSolver:
         R (float): Revenue per kg of waste.
         C (float): Cost per km traveled.
         params (PSOMAParams): Algorithm-specific parameters.
-        mandatory_nodes (List[int]): Nodes that must be visited.
+        mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+        n_nodes (int): Number of nodes (excluding depot).
+        clients (List[int]): List of client IDs.
+        random (random.Random): Random number generator.
+        split_solver (LinearSplit): Solver for partitioning tours into routes.
+        acceptance_criterion (AcceptanceCriterion): Criterion for accepting worse solutions.
+        metropolis_steps (int): Number of metropolis steps per iteration.
+        operators (List[Callable]): List of mutation operators.
+        probabilities (np.ndarray): Probabilities for selecting mutation operators.
+        rewards (np.ndarray): Rewards for each mutation operator.
+        swarm (List[PSOMAParticle]): The swarm of particles.
+        gbest_X (np.ndarray): Global best position vector.
+        gbest_giant_tour (np.ndarray): Global best giant tour.
+        gbest_routes (List[List[int]]): Global best routes.
+        gbest_profit (float): Global best profit.
+        gbest_mapping (np.ndarray): Global best mapping.
     """
 
     def __init__(
@@ -78,6 +81,7 @@ class PSOMAsSolver:
             params (PSOMAParams): Algorithm-specific parameters.
             mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
         """
+
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -86,358 +90,441 @@ class PSOMAsSolver:
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
-        self.nodes = list(range(1, self.n_nodes + 1))
+        self.clients = list(range(1, self.n_nodes + 1))
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
-
-        # Initialize Local Search once for reuse
-        aco_params = KSACOParams(
-            local_search_iterations=self.params.local_search_iterations,
-            time_limit=self.params.time_limit,
-            vrpp=self.params.vrpp,
-            profit_aware_operators=self.params.profit_aware_operators,
-            seed=self.params.seed,
-        )
-
-        self.ls = ACOLocalSearch(
+        self.split_solver = LinearSplit(
             dist_matrix=self.dist_matrix,
-            waste=self.wastes,
+            wastes=self.wastes,
             capacity=self.capacity,
             R=self.R,
             C=self.C,
-            params=aco_params,
+            max_vehicles=0,
+            mandatory_nodes=self.mandatory_nodes,
+            vrpp=self.params.vrpp,
         )
 
-    # ------------------------------------------------------------------
-    # Public interface
-    # ------------------------------------------------------------------
+        # Modular Acceptance Criterion
+        assert params.acceptance_criterion is not None, "Acceptance criterion must be provided."
+        self.acceptance_criterion = params.acceptance_criterion
+
+        self.metropolis_steps = max(1, self.n_nodes * (self.n_nodes - 1))
+        self.operators = [self._swap, self._insert, self._inverse]
+        self.probabilities = np.array([1 / 3, 1 / 3, 1 / 3])
+        self.rewards = np.zeros(3)
+
+        self.swarm: List[PSOMAParticle] = []
+        self.gbest_X = np.zeros(self.n_nodes)
+        self.gbest_giant_tour = np.zeros(self.n_nodes, dtype=int)
+        self.gbest_routes: List[List[int]] = []
+        self.gbest_profit = -float("inf")
+        self.gbest_mapping = np.zeros(self.n_nodes, dtype=int)
+
+        # Construct the Profit-Biased Distance Matrix for O(1) Surrogate Evaluation
+        self.mu = 10.0  # Tuning parameter: higher values pull profitable nodes closer
+        self.biased_dist_matrix = np.copy(self.dist_matrix)
+
+        # Calculate profit-to-cost ratio (rho) for each node
+        rho = np.zeros(self.n_nodes + 1)
+        for i in self.clients:
+            marginal_cost = self.dist_matrix[0, i] + self.dist_matrix[i, 0]
+            if marginal_cost > 0:
+                rho[i] = (self.wastes[i] * self.R) / (marginal_cost * self.C)
+
+        # Transform the matrix
+        for i in range(1, self.n_nodes + 1):
+            for j in range(1, self.n_nodes + 1):
+                if i != j:
+                    self.biased_dist_matrix[i, j] -= self.mu * ((rho[i] + rho[j]) / 2.0)
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """
-        Run PSOMA optimisation.
+        """Executes the PSO Memetic Algorithm to find an optimal routing solution.
+
+        The algorithm iterates between a global exploration phase (PSO) and
+        a local exploitation phase (SA) for a fixed number of iterations or until a time limit is reached.
 
         Returns:
-            Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).
+            Tuple[List[List[int]], float, float]: A tuple containing:
+                - The best routing solution found (list of routes).
+                - The total profit of the best solution.
+                - The total travel cost (distance) of the best solution.
         """
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start_time = time.process_time()
+        self._init_swarm()
 
-        # Initialise swarm
-        swarm = self._init_swarm()
-        gbest_routes, gbest_profit = self._global_best(swarm)
-        gbest_cost = self._cost(gbest_routes)
+        self.acceptance_criterion.setup(self.gbest_profit)
+        self._training_phase()
+        stagnation_counter = 0
 
-        for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+        for _iteration in range(self.params.max_iterations):
+            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
-            for particle in swarm:
-                # Velocity / position update via probabilistic segment adoption
-                particle.routes = self._update_position(
-                    particle.routes,
-                    particle.pbest_routes,
-                    gbest_routes,
+            old_gbest_profit = self.gbest_profit
+
+            # PSO Exploration
+            for p in self.swarm:
+                r1, r2 = np.random.rand(self.n_nodes), np.random.rand(self.n_nodes)
+                p.V = (
+                    self.params.omega * p.V
+                    + self.params.c1 * r1 * (p.pbest_X - p.X)
+                    + self.params.c2 * r2 * (self.gbest_X - p.X)
                 )
-                particle.profit = self._evaluate(particle.routes)
+                p.V = np.clip(p.V, self.params.v_min, self.params.v_max)
+                p.X = np.clip(p.X + p.V, self.params.x_min, self.params.x_max)
 
-                # Update personal best
-                if particle.profit > particle.pbest_profit:
-                    particle.pbest_routes = copy.deepcopy(particle.routes)
-                    particle.pbest_profit = particle.profit
+                p.giant_tour, p.mapping_indices = p._rov_rule(p.X)
+                p.routes, p.profit = self.split_solver.split(p.giant_tour.tolist())
+                if p.profit > p.pbest_profit:
+                    p.pbest_X = np.copy(p.X)
+                    p.pbest_giant_tour = np.copy(p.giant_tour)
+                    p.pbest_mapping_indices = np.copy(p.mapping_indices)
+                    p.pbest_profit = p.profit
 
-            # Global best update
-            for particle in swarm:
-                if particle.profit > gbest_profit:
-                    gbest_routes = copy.deepcopy(particle.routes)
-                    gbest_profit = particle.profit
-                    gbest_cost = self._cost(gbest_routes)
+                if p.profit > self.gbest_profit:
+                    self._set_gbest(p.X, p.giant_tour, p.mapping_indices, p.routes, p.profit)
 
-            # Memetic step: periodic local search on every particle
-            if (iteration + 1) % self.params.local_search_freq == 0:
-                for particle in swarm:
-                    ls_routes = self._local_search(particle.routes)
-                    ls_profit = self._evaluate(ls_routes)
-                    if ls_profit > particle.profit:
-                        particle.routes = ls_routes
-                        particle.profit = ls_profit
-                        if ls_profit > particle.pbest_profit:
-                            particle.pbest_routes = copy.deepcopy(ls_routes)
-                            particle.pbest_profit = ls_profit
-                        if ls_profit > gbest_profit:
-                            gbest_routes = copy.deepcopy(ls_routes)
-                            gbest_profit = ls_profit
-                            gbest_cost = self._cost(gbest_routes)
-
-            getattr(self, "_viz_record", lambda **k: None)(
-                iteration=iteration,
-                best_profit=gbest_profit,
-                best_cost=gbest_cost,
-                swarm_size=len(swarm),
+            # SA Local Search
+            self._non_training_phase()
+            self.acceptance_criterion.step(
+                current_obj=self.gbest_profit, candidate_obj=self.gbest_profit, accepted=True
             )
 
-        return gbest_routes, gbest_profit, gbest_cost
+            if self.gbest_profit <= old_gbest_profit:
+                stagnation_counter += 1
+            else:
+                stagnation_counter = 0
+
+            if stagnation_counter >= self.params.L:
+                break
+
+        final_cost = self._calculate_cost(self.gbest_routes)
+        return self.gbest_routes, self.gbest_profit, final_cost
 
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _init_swarm(self) -> List[PSOMAParticle]:
-        """Initialise swarm with random feasible solutions.
+    def _init_swarm(self):
+        """Initialises the swarm with random feasible solutions.
 
         Returns:
             List[PSOMAParticle]: Initialized swarm of particles.
         """
-        swarm = []
-        for _ in range(self.params.pop_size):
-            routes = self._build_random_solution()
-            profit = self._evaluate(routes)
-            swarm.append(PSOMAParticle(routes, profit))
-        return swarm
+        self.swarm = [PSOMAParticle(self.clients, self.params, self.split_solver) for _ in range(self.params.pop_size)]
+        for p in self.swarm:
+            if p.profit > self.gbest_profit:
+                self._set_gbest(p.X, p.giant_tour, p.mapping_indices, p.routes, p.profit)
 
-    def _build_random_solution(self) -> List[List[int]]:
-        """Order-dependent sequential construction (matches ALNS style).
-
-        Returns:
-            List[List[int]]: Feasible initial routes built via nearest-neighbor heuristic.
-        """
-        optimized_routes = build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
-            wastes=self.wastes,
-            capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
-            R=self.R,
-            C=self.C,
-            rng=self.random,
-        )
-        return optimized_routes
-
-    def _global_best(self, swarm: List[PSOMAParticle]) -> Tuple[List[List[int]], float]:
-        """Return routes and profit of the best particle in the swarm.
-
-        Args:
-            swarm: List of current particles.
-
-        Returns:
-            Tuple[List[List[int]], float]: Deep copy of best routes and their profit.
-        """
-        best = max(swarm, key=lambda p: p.profit)
-        return copy.deepcopy(best.routes), best.profit
-
-    def _update_position(
+    def _set_gbest(
         self,
-        current: List[List[int]],
-        pbest: List[List[int]],
-        gbest: List[List[int]],
-    ) -> List[List[int]]:
-        """Update particle position via Swap-Based Velocity (Liu et al. 2006).
+        X: np.ndarray,
+        giant_tour: np.ndarray,
+        mapping: np.ndarray,
+        routes: List[List[int]],
+        profit: float,
+    ):
+        """Updates the global best solution.
 
         Args:
-            current: Current particle routing solution.
-            pbest: Particle's personal best routing solution.
-            gbest: Global best routing solution across all particles.
-
-        Returns:
-            List[List[int]]: Updated routing solution after velocity application and local search.
+            X (np.ndarray): Global best position.
+            giant_tour (np.ndarray): Global best tour.
+            mapping (np.ndarray): Global best mapping.
+            routes (List[List[int]]): Global best routes.
+            profit (float): Global best profit.
         """
-        routes = copy.deepcopy(current)
+        self.gbest_X = np.copy(X)
+        self.gbest_giant_tour = np.copy(giant_tour)
+        self.gbest_mapping = np.copy(mapping)
+        self.gbest_routes = copy.deepcopy(routes)
+        self.gbest_profit = profit
 
-        # 1. Inertia: with probability (1 - omega), perform a random move
-        if self.random.random() > self.params.omega:
-            routes = self._random_relocate(routes)
-
-        # 2. Cognitive: Move toward personal best using swap sequences
-        if self.random.random() < self.params.c1 and pbest:
-            routes = self._apply_velocity(routes, pbest)
-
-        # 3. Social: Move toward global best using swap sequences
-        if self.random.random() < self.params.c2 and gbest:
-            routes = self._apply_velocity(routes, gbest)
-
-        # 2-opt local search for refinement (meme)
-        return self.ls.optimize(routes)
-
-    def _apply_velocity(self, current: List[List[int]], target: List[List[int]]) -> List[List[int]]:
-        """Apply velocity by moving current solution toward target via segment adoption.
-
-        In discrete PSO for VRP, this means adopting segments or performing swaps
-        that reduce the distance to the target solution.
+    def _calculate_cost(self, routes: List[List[int]]) -> float:
+        """Calculates the total travel cost for a given set of routes.
 
         Args:
-            current: Current routing solution to be updated.
-            target: Target routing solution (personal best or global best).
+            routes (List[List[int]]): The routing solution to evaluate.
 
         Returns:
-            List[List[int]]: Updated routing solution after segment adoption.
+            float: The total travel cost.
         """
-        curr_flat = [n for r in current for n in r]
-        targ_flat = [n for r in target for n in r]
-
-        if not curr_flat or not targ_flat:
-            return current
-
-        # Simplified Velocity: adoption of target segments (standard for discrete PSO VRP)
-        if len(targ_flat) > 2:
-            a = self.random.randint(0, len(targ_flat) - 1)
-            b = self.random.randint(a, min(a + 5, len(targ_flat)))
-            segment = targ_flat[a:b]
-            segment_set = set(segment)
-
-            # Reconstruct preserving target order for that segment
-            remaining = [n for n in curr_flat if n not in segment_set]
-            insert_pos = min(a, len(remaining))
-            new_flat = remaining[:insert_pos] + segment + remaining[insert_pos:]
-
-            # Re-partition into routes based on capacity
-            return self._partition_flat(new_flat)
-
-        return current
-
-    def _partition_flat(self, flat_nodes: List[int]) -> List[List[int]]:
-        """Partition flattened nodes into capacity-feasible routes.
-
-        Args:
-            flat_nodes: Ordered sequence of customer node indices.
-
-        Returns:
-            List[List[int]]: Routes respecting vehicle capacity constraints.
-        """
-        routes: List[List[int]] = []
-        curr_route: List[int] = []
-        load = 0.0
-        for node in flat_nodes:
-            waste = self.wastes.get(node, 0.0)
-            if load + waste <= self.capacity:
-                curr_route.append(node)
-                load += waste
-            else:
-                if curr_route:
-                    routes.append(curr_route)
-                curr_route = [node]
-                load = waste
-        if curr_route:
-            routes.append(curr_route)
-
-        # Ensure mandatory nodes
-        visited = {n for r in routes for n in r}
-        for n in self.mandatory_nodes:
-            if n not in visited:
-                routes.append([n])
-        return routes
-
-    def _random_relocate(self, routes: List[List[int]]) -> List[List[int]]:
-        """
-        Randomly remove one node and reinsert it at a random position.
-
-        Args:
-            routes: Current routes.
-
-        Returns:
-            Perturbed routes.
-        """
-        if not routes:
-            return routes
-
-        new_routes, nodes = random_removal(routes, 1, self.random)
-        use_profit = self.params.profit_aware_operators
-        expand_pool = self.params.vrpp
-        with contextlib.suppress(Exception):
-            if use_profit:
-                new_routes = greedy_profit_insertion(
-                    new_routes,
-                    nodes,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-            else:
-                new_routes = greedy_insertion(
-                    new_routes,
-                    nodes,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-        return new_routes
-
-    def _local_search(self, routes: List[List[int]]) -> List[List[int]]:
-        """Apply memetic local search: worst-removal + greedy-insertion + ACO.
-
-        Args:
-            routes: Current routing solution to improve.
-
-        Returns:
-            List[List[int]]: Locally improved routing solution.
-        """
-        n = max(3, self.params.n_removal)
-        use_profit = self.params.profit_aware_operators
-        expand_pool = self.params.vrpp
-
-        try:
-            if use_profit:
-                partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R)
-                repaired = greedy_profit_insertion(
-                    partial,
-                    removed,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-            else:
-                partial, removed = worst_removal(routes, n, self.dist_matrix)
-                repaired = greedy_insertion(
-                    partial,
-                    removed,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-            return self.ls.optimize(repaired)
-        except Exception:
-            return copy.deepcopy(routes)
-
-    def _evaluate(self, routes: List[List[int]]) -> float:
-        """Compute net profit for a set of routes.
-
-        Args:
-            routes: Routing solution to evaluate.
-
-        Returns:
-            float: Net profit (revenue minus travel cost).
-        """
-        if not routes:
-            return 0.0
-        rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
-        return rev - self._cost(routes) * self.C
-
-    def _cost(self, routes: List[List[int]]) -> float:
-        """Compute total routing distance across all routes.
-
-        Args:
-            routes: Routing solution to evaluate.
-
-        Returns:
-            float: Sum of all inter-node distances including depot returns.
-        """
-        total = 0.0
-        for route in routes:
-            if not route:
+        cost = 0.0
+        for r in routes:
+            if not r:
                 continue
-            total += self.dist_matrix[0][route[0]]
-            for k in range(len(route) - 1):
-                total += self.dist_matrix[route[k]][route[k + 1]]
-            total += self.dist_matrix[route[-1]][0]
-        return total
+            cost += self.dist_matrix[0, r[0]]
+            for k in range(len(r) - 1):
+                cost += self.dist_matrix[r[k], r[k + 1]]
+            cost += self.dist_matrix[r[-1], 0]
+        return cost * self.C
+
+    def _training_phase(self) -> None:
+        """Executes the training phase of the algorithm.
+
+        In this phase, each operator is applied a fixed number of times to evaluate their performance
+        based on the improvement they bring to the current best solution. The rewards are updated
+        to reflect the effectiveness of each operator.
+
+        Returns:
+            None
+        """
+        for i, op in enumerate(self.operators):
+            best_pf, _, _, _ = self._sa_search(op)
+            self.rewards[i] = abs(self.gbest_profit - best_pf) / self.metropolis_steps
+        self._update_probabilities()
+
+    def _non_training_phase(self) -> None:
+        """Executes the non-training phase of the algorithm.
+
+        In this phase, an operator is selected based on the current reward probabilities,
+        applied to the global best solution, and the rewards are updated based on the
+        improvement achieved.
+
+        Returns:
+            None
+        """
+        op_idx = np.random.choice(3, p=self.probabilities)
+        op = self.operators[op_idx]
+        initial_profit = self.gbest_profit
+
+        best_pf, _, _, _ = self._sa_search(op)
+
+        # Calculate improvement rate
+        delta_eta = max(0.0, best_pf - initial_profit) / self.metropolis_steps
+
+        # EMA Update: gamma = 0.5 for balanced recency weighting
+        gamma = 0.5
+        self.rewards[op_idx] = (1 - gamma) * self.rewards[op_idx] + gamma * delta_eta
+
+        self._update_probabilities()
+
+    def _sa_search(self, operator: Callable) -> Tuple[float, np.ndarray, np.ndarray, List[List[int]]]:
+        """Performs simulated annealing search starting from the global best solution.
+
+        Args:
+            operator (Callable): The operator to apply to the current solution.
+
+        Returns:
+            Tuple[float, np.ndarray, np.ndarray, List[List[int]]]: A tuple containing:
+                - The best profit found during the search.
+                - The best position vector.
+                - The best tour.
+                - The best routes.
+        """
+        current_tour, current_X = np.copy(self.gbest_giant_tour), np.copy(self.gbest_X)
+        current_mapping = np.copy(self.gbest_mapping)
+        current_pf = self.gbest_profit
+
+        best_tour, best_X, best_pf = np.copy(current_tour), np.copy(current_X), current_pf
+        best_routes = copy.deepcopy(self.gbest_routes)
+        best_mapping = np.copy(current_mapping)
+
+        for _ in range(self.metropolis_steps):
+            # 1. Generate neighborhood move and O(1) Surrogate Delta simultaneously
+            new_tour, new_X, new_mapping, delta_dist = operator(current_tour, current_X, current_mapping)
+
+            # 2. SA Acceptance on Surrogate (Minimizing Distance)
+            if delta_dist > 0:
+                surrogate_accepted, _ = self.acceptance_criterion.accept(current_obj=0.0, candidate_obj=-delta_dist)
+                if not surrogate_accepted:
+                    continue  # Reject early! Bypass the O(N^2) Split!
+
+            # 3. True Evaluation (Lazy Decoding)
+            new_routes, new_pf = self.split_solver.split(new_tour.tolist())
+
+            # 4. Final SA Acceptance on true Profit (Maximization)
+            accepted, _ = self.acceptance_criterion.accept(current_obj=current_pf, candidate_obj=new_pf)
+            if accepted:
+                current_tour, current_X, current_pf = new_tour, new_X, new_pf
+                current_mapping = new_mapping
+
+                if current_pf > best_pf:
+                    best_tour, best_X, best_pf = np.copy(current_tour), np.copy(current_X), current_pf
+                    best_routes, best_mapping = copy.deepcopy(new_routes), np.copy(new_mapping)
+
+                    if best_pf > self.gbest_profit:
+                        self._set_gbest(best_X, best_tour, best_mapping, best_routes, best_pf)
+
+        return best_pf, best_X, best_tour, best_routes
+
+    def _update_probabilities(self) -> None:
+        """Updates the probabilities for operator selection based on rewards.
+
+        Returns:
+            None
+        """
+        epsilon = 0.05  # 5% minimum probability for any operator
+
+        # Apply epsilon bound to raw rewards to ensure exploration
+        bounded_rewards = np.maximum(epsilon, self.rewards)
+        total_reward = np.sum(bounded_rewards)
+
+        self.probabilities = bounded_rewards / total_reward
+
+    def _swap(
+        self,
+        tour: np.ndarray,
+        X: np.ndarray,
+        mapping: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+        """
+        Performs swap mutation on the tour and position vector.
+
+        Args:
+            tour (np.ndarray): The tour to perform swap mutation on.
+            X (np.ndarray): The position vector to perform swap mutation on.
+            mapping (np.ndarray): The mapping vector to perform swap mutation on.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray, np.ndarray, float]: A tuple containing:
+                - The tour after swap mutation.
+                - The position vector after swap mutation.
+                - The mapping vector after swap mutation.
+                - The delta of the objective function.
+        """
+        if self.n_nodes < 2:
+            return tour, X, mapping, 0.0
+
+        i, j = sorted(random.sample(range(self.n_nodes), 2))
+        N = self.n_nodes
+        D = self.biased_dist_matrix
+
+        # Calculate O(1) Delta BEFORE modifying the arrays
+        p_i, v_i, s_i = tour[(i - 1) % N], tour[i], tour[(i + 1) % N]
+        p_j, v_j, s_j = tour[(j - 1) % N], tour[j], tour[(j + 1) % N]
+
+        if j == i + 1 or (i == 0 and j == N - 1):  # Adjacent swap
+            if i == 0 and j == N - 1:
+                # If circularly adjacent, j is conceptually "before" i
+                delta = D[p_j, v_i] + D[v_j, s_i] - D[p_j, v_j] - D[v_i, s_i]
+            else:
+                delta = D[p_i, v_j] + D[v_i, s_j] - D[p_i, v_i] - D[v_j, s_j]
+        else:  # Disjoint swap
+            delta = (
+                D[p_i, v_j]
+                + D[v_j, s_i]
+                + D[p_j, v_i]
+                + D[v_i, s_j]
+                - D[p_i, v_i]
+                - D[v_i, s_i]
+                - D[p_j, v_j]
+                - D[v_j, s_j]
+            )
+
+        # Discrete manipulations
+        new_tour, new_mapping = np.copy(tour), np.copy(mapping)
+        new_tour[i], new_tour[j] = new_tour[j], new_tour[i]
+        new_mapping[i], new_mapping[j] = new_mapping[j], new_mapping[i]
+
+        new_X = np.empty_like(X)
+        new_X[new_mapping] = np.sort(X)
+
+        return new_tour, new_X, new_mapping, delta
+
+    def _insert(
+        self,
+        tour: np.ndarray,
+        X: np.ndarray,
+        mapping: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+        """
+        Performs insert mutation on the tour and position vector.
+
+        Args:
+            tour (np.ndarray): The tour to perform insert mutation on.
+            X (np.ndarray): The position vector to perform insert mutation on.
+            mapping (np.ndarray): The mapping vector to perform insert mutation on.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray, np.ndarray, float]: A tuple containing:
+                - The tour after insert mutation.
+                - The position vector after insert mutation.
+                - The mapping vector after insert mutation.
+                - The delta of the objective function.
+        """
+        if self.n_nodes < 2:
+            return tour, X, mapping, 0.0
+
+        # Choose two distinct positions; i < j implies moving a node 'backwards'
+        i, j = sorted(random.sample(range(self.n_nodes), 2))
+        N = self.n_nodes
+        D = self.biased_dist_matrix
+
+        # Identify nodes involved in the move
+        v = tour[j]  # The node being moved
+        p_j, s_j = tour[(j - 1) % N], tour[(j + 1) % N]
+        p_i, v_i = tour[(i - 1) % N], tour[i]
+
+        # --- O(1) Surrogate Delta Calculation ---
+        # Case 1: Circular Adjacency (e.g., moving last node to the front)
+        # In a circular tour, this move results in zero change to the edge set.
+        if i == 0 and j == N - 1:
+            delta = 0.0
+
+        # Case 2: Standard Adjacency (j is the immediate successor of i)
+        # This effectively swaps the positions of v_i and v.
+        elif j == i + 1:
+            delta = D[p_i, v] + D[v, v_i] + D[v_i, s_j] - D[p_i, v_i] - D[v_i, v] - D[v, s_j]
+
+        # Case 3: Disjoint Insertion
+        # We break 3 edges (around i and j) and form 3 new ones.
+        else:
+            delta = D[p_j, s_j] + D[p_i, v] + D[v, v_i] - D[p_j, v] - D[v, s_j] - D[p_i, v_i]
+
+        # --- Physical Mutation ---
+        val_tour, val_map = tour[j], mapping[j]
+        # Remove from old position and insert at new position i
+        new_tour = np.insert(np.delete(tour, j), i, val_tour)
+        new_mapping = np.insert(np.delete(mapping, j), i, val_map)
+
+        # --- ROV Repair Logic ---
+        # Guarantees the continuous space X matches the new discrete permutation[cite: 15, 46].
+        new_X = np.empty_like(X)
+        new_X[new_mapping] = np.sort(X)
+
+        return new_tour, new_X, new_mapping, delta
+
+    def _inverse(
+        self,
+        tour: np.ndarray,
+        X: np.ndarray,
+        mapping: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+        """
+        Performs inverse mutation on the tour and position vector.
+
+        Args:
+            tour (np.ndarray): The tour to perform inverse mutation on.
+            X (np.ndarray): The position vector to perform inverse mutation on.
+            mapping (np.ndarray): The mapping vector to perform inverse mutation on.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray, np.ndarray, float]: A tuple containing:
+                - The tour after inverse mutation.
+                - The position vector after inverse mutation.
+                - The mapping vector after inverse mutation.
+                - The delta of the objective function.
+        """
+        if self.n_nodes < 2:
+            return tour, X, mapping, 0.0
+
+        i, j = sorted(random.sample(range(self.n_nodes), 2))
+        N = self.n_nodes
+        D = self.biased_dist_matrix
+
+        # Calculate O(1) Delta
+        p_i = tour[(i - 1) % N]
+        s_j = tour[(j + 1) % N]
+
+        delta = D[p_i, tour[j]] + D[tour[i], s_j] - D[p_i, tour[i]] - D[tour[j], s_j]
+
+        new_tour, new_mapping = np.copy(tour), np.copy(mapping)
+        new_tour[i : j + 1] = new_tour[i : j + 1][::-1]
+        new_mapping[i : j + 1] = new_mapping[i : j + 1][::-1]
+
+        new_X = np.empty_like(X)
+        new_X[new_mapping] = np.sort(X)
+
+        return new_tour, new_X, new_mapping, delta

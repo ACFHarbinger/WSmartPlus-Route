@@ -71,7 +71,7 @@ class AcceptanceCriterionFactory:
 
         for mod in modules:
             with contextlib.suppress(ImportError):
-                importlib.import_module(f"logic.src.policies.route_construction.acceptance_criteria.{mod}")
+                importlib.import_module(f"logic.src.policies.acceptance_criteria.{mod}")
 
         cls._registered = True
 
