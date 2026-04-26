@@ -2,12 +2,10 @@
 # This policy solves the SCWCVRP exactly via backward induction.
 # NOTE: It is extremely sensitive to cursor dimensionality and max_nodes should not exceed 10.
 
-name: esdp
-
 # ==========================================
 # EXACT SDP CONFIGURATION (ExactSDPConfig)
 # ==========================================
-params:
+esdp:
   # General limits
   time_limit: 3600.0 # Max processing time (seconds)
   max_nodes: 8 # Hard limit on number of nodes to avert memory overflow

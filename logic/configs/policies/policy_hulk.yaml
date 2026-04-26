@@ -9,7 +9,7 @@
 #   Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
 
 # Override with environment-specific settings
-policies:
+hulk:
   # Search parameters
   max_iterations: 1000
   time_limit: 60.0 # 1 minute

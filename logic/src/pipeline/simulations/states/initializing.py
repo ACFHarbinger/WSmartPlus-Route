@@ -179,7 +179,7 @@ class InitializingState(SimState):
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
-        neural_cfg_path = os.path.join(ROOT_DIR, "assets", "configs", "policies", "policy_neural.yaml")
+        neural_cfg_path = os.path.join(ROOT_DIR, "logic", "configs", "policies", "policy_neural.yaml")
         pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
         is_neural = any(kw in pol_parts for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
             kw in model_name for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]

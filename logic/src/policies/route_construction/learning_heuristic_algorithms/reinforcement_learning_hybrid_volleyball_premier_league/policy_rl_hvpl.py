@@ -138,7 +138,7 @@ class RLHVPLPolicy(BaseRoutingPolicy):
             alpha=values.get("aco_alpha", 1.0),
             beta=values.get("aco_beta", 2.0),
             rho=values.get("aco_rho", 0.1),
-            q0=values.get("aco_q0", 0.9),
+            scale=values.get("aco_scale", 5.0),
             tau_0=values.get("aco_tau_0"),
             tau_min=values.get("aco_tau_min", 0.001),
             tau_max=values.get("aco_tau_max", 10.0),

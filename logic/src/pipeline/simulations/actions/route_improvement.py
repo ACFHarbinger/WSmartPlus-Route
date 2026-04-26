@@ -110,7 +110,7 @@ class RouteImprovementAction(SimulationAction):
         pp_name = ""
         pp_params = {k: v for k, v in context.items() if k != "tour"}
         if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
-            fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
+            fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item)
             try:
                 cfg = load_config(fpath)
                 if "config" in cfg and len(cfg) == 1:

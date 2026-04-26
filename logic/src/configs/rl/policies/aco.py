@@ -15,7 +15,7 @@ Example:
         tau_max=10.0,
         max_iterations=50,
         time_limit=30.0,
-        q0=0.9,
+        scale=5,
         k_sparse=15,
         sequence_length=5,
         local_search=True,
