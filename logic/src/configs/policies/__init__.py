@@ -96,6 +96,7 @@ Attributes:
     TSPConfig: TSP policy configuration.
     VNSConfig: VNS policy configuration.
     VPLConfig: VPL policy configuration.
+    ExactGuidedHeuristicConfig: Exact Guided Heuristic policy configuration.
 
 Example:
     >>> from logic.src.configs.policies import ARCOConfig
@@ -124,6 +125,7 @@ from .cgh import CGHConfig
 from .cp_sat import CPSATConfig
 from .cvrp import CVRPConfig
 from .de import DEConfig
+from .egh import ExactGuidedHeuristicConfig
 from .es_mcl import MuCommaLambdaESConfig
 from .es_mkl import MuKappaLambdaESConfig
 from .es_mpl import MuPlusLambdaESConfig
@@ -152,6 +154,7 @@ from .jgo import JointGreedyConfig
 from .jsa import JointSAConfig
 from .kgls import KGLSConfig
 from .ks import KernelSearchConfig
+from .lasm import LASMPipelineConfig
 from .lb import LocalBranchingConfig
 from .lb_vns import LocalBranchingVNSConfig
 from .lbbd import LBBDConfig
@@ -226,6 +229,7 @@ __all__ = [
     "IntegerLShapedBendersConfig",
     "HVPLConfig",
     "KGLSConfig",
+    "LASMPipelineConfig",
     "LKH3Config",
     "NeuralAgentConfig",
     "RLALNSConfig",
@@ -293,4 +297,5 @@ __all__ = [
     "NDSBRKGAConfig",
     "JointSAConfig",
     "JointGreedyConfig",
+    "ExactGuidedHeuristicConfig",
 ]

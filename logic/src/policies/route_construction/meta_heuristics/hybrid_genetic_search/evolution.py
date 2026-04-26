@@ -83,6 +83,7 @@ def update_biased_fitness(
     nb_elite: int,
     neighbor_size: int = 5,
     distance_cache: Optional[dict] = None,
+    inv: Optional[dict] = None,
 ):
     """
     Update biased fitness based on profit rank and diversity rank.
@@ -93,7 +94,11 @@ def update_biased_fitness(
         population: List of individuals to update (single subpopulation).
         nb_elite: Number of elite individuals to protect.
         neighbor_size: Number of nearest neighbors (nbClose) to consider for diversity.
-        distance_cache: Optional cache for pairwise diversity distances (Fix 9).
+        distance_cache: Optional cache for pairwise diversity distances.
+        inv: Optional inverse index mapping id(ind) -> set of cache keys involving
+             that individual. When provided alongside distance_cache, newly computed
+             distances are registered in the index so _evict_cache can purge them
+             in O(P) instead of O(P²).
 
     Returns:
         None.
@@ -101,33 +106,30 @@ def update_biased_fitness(
     if not population:
         return
     pop_size = len(population)
-    if pop_size == 0:
-        return
 
-    # Rank by penalized objective: profit minus the penalty term for capacity violations.
-    # For feasible individuals capacity_violation == 0 so this equals profit_score.
-    # For infeasible individuals this penalises solutions with greater violations,
-    # matching Vidal (2022) which ranks by solution quality including penalties.
-    # Fix 10: Use the named property penalized_profit for sorting.
     population.sort(key=lambda x: x.penalized_profit, reverse=True)
     for i, ind in enumerate(population):
         ind.rank_profit = i + 1
 
-    # Diversity: Average broken pairs distance to nbClose closest individuals
-    # Based on edge similarity (topological diversity)
-    # Fix 11: Compute pairwise distance matrix using symmetry (O(P^2) -> O(P^2/2)).
     n = len(population)
     dist_matrix_local = [[0.0] * n for _ in range(n)]
 
     for i in range(n):
         for j in range(i + 1, n):
-            d = 0.0
             if distance_cache is not None:
                 key = (id(population[i]), id(population[j]))
                 if key not in distance_cache:
                     d = _compute_broken_pairs_distance(population[i], population[j])
+                    rev_key = (id(population[j]), id(population[i]))
                     distance_cache[key] = d
-                    distance_cache[(id(population[j]), id(population[i]))] = d
+                    distance_cache[rev_key] = d
+                    # Register both directions in the inverse index so eviction
+                    # can find and remove these entries in O(P) per individual.
+                    if inv is not None:
+                        inv.setdefault(id(population[i]), set()).add(key)
+                        inv.setdefault(id(population[i]), set()).add(rev_key)
+                        inv.setdefault(id(population[j]), set()).add(key)
+                        inv.setdefault(id(population[j]), set()).add(rev_key)
                 else:
                     d = distance_cache[key]
             else:
@@ -144,21 +146,12 @@ def update_biased_fitness(
         else:
             ind.dist_to_parents = 0.0
 
-    # Rank by Diversity (rank 1 = most diverse = best diversity contribution).
-    # Since fitness is minimized in tournament selection, rank 1 gives the lowest
-    # diversity term and thus the most diverse individual is preferred. This matches
-    # Vidal (2022) Eq. (1): f(S) = rank_cost(S) + (1 - n_elite/|P|) * rank_div(S).
     population.sort(key=lambda x: x.dist_to_parents, reverse=True)
     for i, ind in enumerate(population):
         ind.rank_diversity = i + 1
 
-    # Parameterless Biased Fitness (Vidal 2022)
-    # BF(I) = Rank_C(I) + (1 - N_elite/|Pop|) * Rank_D(I)
-    # This automatically balances profit and diversity based on elite proportion
     diversity_weight = 1.0 - (nb_elite / pop_size)
-
     for ind in population:
-        # Apply biased fitness formula
         ind.fitness = ind.rank_profit + diversity_weight * ind.rank_diversity
 
 

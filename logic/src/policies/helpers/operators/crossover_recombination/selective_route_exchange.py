@@ -42,6 +42,10 @@ def _get_individual_class() -> type:
 def _select_initial_child_routes(
     p1: Individual,
     rng: random.Random,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    R: float,
+    C: float,
 ) -> Tuple[List[List[int]], Set[int]]:
     """
     Select exactly one route from Parent 1 to initialize the child.
@@ -49,11 +53,23 @@ def _select_initial_child_routes(
     Args:
         p1: First parent individual.
         rng: Random number generator.
+        dist_matrix: Distance matrix.
+        wastes: Dictionary mapping node IDs to waste amounts.
+        R: Revenue multiplier.
+        C: Cost multiplier.
 
     Returns:
         Tuple of child routes and child nodes.
     """
-    selected_route = rng.choice(p1.routes)
+    profits = [
+        sum(wastes.get(n, 0.0) * R for n in r)
+        - sum(dist_matrix[r[i - 1] if i > 0 else 0, r[i]] * C for i in range(len(r)))
+        for r in p1.routes
+    ]
+    weights = [max(0.0, p) for p in profits]
+    total = sum(weights)
+    selected_route = rng.choices(p1.routes, weights=weights if total > 0 else None)[0]
+
     child_routes = [selected_route[:]]
     child_nodes = set(selected_route)
     return child_routes, child_nodes
@@ -228,7 +244,7 @@ def selective_route_exchange_crossover(
         return _get_individual_class()(p1.giant_tour[:])
 
     # 2. Select initial P1 routes and merge P2 non-conflicting routes
-    child_routes, child_nodes = _select_initial_child_routes(p1, rng)
+    child_routes, child_nodes = _select_initial_child_routes(p1, rng, dist_matrix, wastes, R, C)
     p2_unassigned = _merge_non_conflicting_p2_routes(p2, child_routes, child_nodes)
 
     # 3. Greedy insertion of missing nodes

@@ -127,6 +127,11 @@ class HGSSolver:
         self._feas_cache: dict = {}
         self._infeas_cache: dict = {}
 
+        # Inverse index for O(P) cache eviction instead of O(P²) full scan.
+        # Maps id(ind) -> set of cache keys that involve that individual.
+        self._feas_inv: Dict[int, set] = {}
+        self._infeas_inv: Dict[int, set] = {}
+
         # Rolling list of offspring feasibility outcomes (True/False), used to compute
         # the recent feasibility rate for penalty adaptation.
         self._offspring_feasibility: List[bool] = []
@@ -137,10 +142,11 @@ class HGSSolver:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _evict_cache(self, ind: Individual, cache: dict) -> None:
+    def _evict_cache(self, ind: Individual, cache: dict, inv: Dict[int, set]) -> None:
         """
         Remove all diversity distance entries that involve a specific individual.
 
+        Uses an inverse index for O(P) eviction instead of O(P²) full cache scan.
         Called immediately before removing an individual from a subpopulation
         so that the object-ID key can never produce a stale cache hit (Python
         may reuse the id() of a garbage-collected object for a new individual).
@@ -148,14 +154,19 @@ class HGSSolver:
         Args:
             ind: Individual about to be removed.
             cache: Distance cache to purge (modified in-place).
+            inv: Inverse index mapping id(ind) -> set of cache keys (modified in-place).
 
         Returns:
             None.
         """
         ind_id = id(ind)
-        stale_keys = [k for k in cache if ind_id in k]
-        for k in stale_keys:
-            del cache[k]
+        for key in inv.pop(ind_id, ()):
+            cache.pop(key, None)
+            # Clean up the other individual's inverse entry for this key too.
+            other_id = key[0] if key[1] == ind_id else key[1]
+            other_keys = inv.get(other_id)
+            if other_keys is not None:
+                other_keys.discard(key)
 
     def _insert_into_pop(
         self,
@@ -164,11 +175,17 @@ class HGSSolver:
         pop_infeasible: List[Individual],
     ) -> None:
         """
-        Insert an individual into its respective subpopulation and immediately
-        update biased fitness for that subpopulation.
+        Insert an individual into its respective subpopulation.
 
-        This is the single point of population modification during the main loop,
-        ensuring the fitness-current invariant is maintained after every insertion.
+        Fitness is intentionally NOT updated here. The biased fitness update is
+        deferred to _trim_pop, where it is computed once over the full population
+        at peak size (μ+λ), amortising the O(P²) cost over λ insertions rather
+        than paying it on every single insertion.
+
+        Tournament selection operates on potentially stale fitness values between
+        trim cycles. This is acceptable: binary tournament is robust to slightly
+        stale ranks, and Vidal (2022) does not require fresh fitness before every
+        selection — only before survivor eviction decisions.
 
         Args:
             ind: Individual to insert.
@@ -180,10 +197,8 @@ class HGSSolver:
         """
         if ind.is_feasible:
             pop_feasible.append(ind)
-            update_biased_fitness(pop_feasible, self.params.nb_elite, self.params.nb_close, self._feas_cache)
         else:
             pop_infeasible.append(ind)
-            update_biased_fitness(pop_infeasible, self.params.nb_elite, self.params.nb_close, self._infeas_cache)
 
     # ------------------------------------------------------------------
     # Population initialization
@@ -232,7 +247,7 @@ class HGSSolver:
     # Survivor selection
     # ------------------------------------------------------------------
 
-    def _trim_pop(self, pop: List[Individual], cache: dict) -> None:
+    def _trim_pop(self, pop: List[Individual], cache: dict, inv: Dict[int, set]) -> None:
         """
         Trim a subpopulation from μ+λ down to μ, removing clones first then
         worst-fitness individuals.
@@ -241,13 +256,14 @@ class HGSSolver:
         (i.e., identical to another one) if such a solution exists, or otherwise
         the worst solution in terms of fitness according to Eq. (1)."
 
-        Cache entries for evicted individuals are removed precisely (not via a
-        full clear), so valid pairwise distances for surviving individuals are
-        reused in subsequent fitness updates.
+        Fitness is computed once at the start of trim (the only point where accurate
+        ranks are needed for eviction decisions), then re-ranked cheaply after each
+        removal using the cached pairwise distances — no O(P²) recompute per removal.
 
         Args:
             pop: Subpopulation to trim (modified in-place).
             cache: Per-subpopulation distance cache (modified in-place).
+            inv: Inverse index for O(P) cache eviction (modified in-place).
 
         Returns:
             None.
@@ -255,17 +271,22 @@ class HGSSolver:
         if len(pop) < self.params.mu + self.params.n_offspring:
             return
 
-        while len(pop) > self.params.mu:
-            update_biased_fitness(pop, self.params.nb_elite, self.params.nb_close, cache)
+        # Single full O(P²) fitness computation at peak population size.
+        # All subsequent re-ranks inside the loop hit the cache and cost O(P).
+        update_biased_fitness(pop, self.params.nb_elite, self.params.nb_close, cache, inv)
 
+        while len(pop) > self.params.mu:
             clone_idx = self._find_clone(pop)
             if clone_idx is not None:
-                self._evict_cache(pop[clone_idx], cache)
+                self._evict_cache(pop[clone_idx], cache, inv)
                 pop.pop(clone_idx)
             else:
                 worst_idx = max(range(len(pop)), key=lambda i: pop[i].fitness)
-                self._evict_cache(pop[worst_idx], cache)
+                self._evict_cache(pop[worst_idx], cache, inv)
                 pop.pop(worst_idx)
+
+            # Re-rank with cached distances — O(P log P) sort, no distance recompute.
+            update_biased_fitness(pop, self.params.nb_elite, self.params.nb_close, cache, inv)
 
     def _find_clone(self, pop: List[Individual]) -> Optional[int]:
         """
@@ -286,11 +307,11 @@ class HGSSolver:
         """
         seen: set = set()
         for i, ind in enumerate(pop):
-            # _extract_edges returns a set of frozenset({u, v}) undirected edges.
-            key = frozenset(_extract_edges(ind))
-            if key in seen:
+            if ind._edge_key is None:
+                ind._edge_key = frozenset(_extract_edges(ind))
+            if ind._edge_key in seen:
                 return i
-            seen.add(key)
+            seen.add(ind._edge_key)
         return None
 
     # ------------------------------------------------------------------
@@ -303,10 +324,12 @@ class HGSSolver:
         pop_infeasible: List[Individual],
     ) -> Tuple[Individual, Individual]:
         """
-        Binary tournament selection from both subpopulations.
+        Binary tournament selection from the combined population.
 
-        Fitness is assumed to be current (maintained by _insert_into_pop and
-        _initialize_population — no recomputation is performed here).
+        Operates directly on both subpopulation lists without allocating a merged
+        list, eliminating O(P) allocation per call. Fitness may be slightly stale
+        between trim cycles; this is intentional and acceptable for tournament
+        selection (see _insert_into_pop docstring).
 
         Args:
             pop_feasible: Feasible subpopulation.
@@ -315,23 +338,33 @@ class HGSSolver:
         Returns:
             Tuple[Individual, Individual]: Two selected parents (p1, p2).
         """
+        n_feas = len(pop_feasible)
+        n_total = n_feas + len(pop_infeasible)
 
-        combined = pop_feasible + pop_infeasible
-
-        def tournament(pop: List[Individual]) -> Individual:
+        def get(idx: int) -> Individual:
             """
-            Helper function to perform binary tournament selection.
+            Gets an individual from the combined population.
 
             Args:
-                pop: Population to select from.
+                idx: Index of the individual.
 
             Returns:
-                Individual: Selected parent.
+                Individual: Selected individual.
             """
-            i1, i2 = self.random.sample(pop, 2)
+            return pop_feasible[idx] if idx < n_feas else pop_infeasible[idx - n_feas]
+
+        def tournament() -> Individual:
+            """
+            Selects one individual using binary tournament selection.
+
+            Returns:
+                Individual: Selected individual.
+            """
+            idx1, idx2 = self.random.sample(range(n_total), 2)
+            i1, i2 = get(idx1), get(idx2)
             return i1 if i1.fitness < i2.fitness else i2
 
-        return tournament(combined), tournament(combined)
+        return tournament(), tournament()
 
     # ------------------------------------------------------------------
     # Offspring generation
@@ -378,32 +411,26 @@ class HGSSolver:
 
     def _record_offspring_signals(self, ind: Individual) -> None:
         """
-        Record coverage and profitability margin signals from the latest
-        offspring to support VRPP penalty adaptation.
+        Record coverage and profitability margin signals from the latest offspring
+        to support VRPP penalty adaptation.
+
+        Reuses cost/revenue already computed by evaluate() — no route re-traversal.
 
         Args:
             ind: Recently generated offspring (post-crossover and local search).
 
         Returns:
-            None
+            None.
         """
         n = len(ind.giant_tour)
         visited = sum(len(r) for r in ind.routes)
         self._offspring_coverage.append(visited / n if n > 0 else 0.0)
 
-        margins = []
-        for r in ind.routes:
-            if not r:
-                continue
-            rev = sum(self.wastes.get(node, 0.0) * self.R for node in r)
-            d = self.d[0, r[0]]
-            for i in range(len(r) - 1):
-                d += self.d[r[i], r[i + 1]]
-            d += self.d[r[-1], 0]
-            cost = d * self.C
-            if rev > 0:
-                margins.append((rev - cost) / rev)
-        self._offspring_margin.append(float(np.mean(margins)) if margins else 0.0)
+        # Reuse evaluate()'s already-computed ind.cost and ind.revenue.
+        # Per-route breakdown is not needed; the aggregate margin is sufficient
+        # for the quadrant penalty adaptation signal.
+        margin = (ind.revenue - ind.cost) / ind.revenue if ind.revenue > 0.0 else 0.0
+        self._offspring_margin.append(margin)
 
     def _insert_and_repair(
         self,
@@ -563,16 +590,15 @@ class HGSSolver:
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, total profit, total cost.
         """
-        # Section 5. perf_counter() measures CPU time consumed by this process,
-        # which diverges from wall clock under I/O waits or system scheduling.
         start_time = time.perf_counter()
 
         penalty_capacity = self.params.initial_penalty_capacity
 
         # Reset all per-run state before initializing the population.
-        # These are instance variables so they are also accessible from helper methods.
         self._feas_cache = {}
         self._infeas_cache = {}
+        self._feas_inv = {}
+        self._infeas_inv = {}
         self._offspring_feasibility = []
         self._offspring_coverage = []
         self._offspring_margin = []
@@ -581,7 +607,6 @@ class HGSSolver:
 
         pop_feasible, pop_infeasible = self._initialize_population(penalty_capacity)
 
-        # Track the globally best feasible individual across all restarts.
         best_feasible_ind: Optional[Individual] = (
             max(pop_feasible, key=lambda x: x.profit_score) if pop_feasible else None
         )
@@ -594,56 +619,48 @@ class HGSSolver:
             self.params.restart_timer if self.params.restart_timer > 0 else self.params.n_iterations_no_improvement
         )
 
-        # Main evolutionary loop — Algorithm 1 of Vidal (2022)
         while True:
-            # --- Primary stopping criterion (Algorithm 1 condition) ---
             elapsed = time.perf_counter() - start_time
             if use_time_limit and elapsed >= self.params.time_limit:
                 break
             if not use_time_limit and it_no_improvement >= self.params.n_iterations_no_improvement:
                 break
 
-            # --- Restart (time-limited mode, Vidal 2022 Section 4) ---
-            # "The algorithm restarts after each N_it iterations without improvement
-            #  and collects the best solution until the time limit."
             if use_time_limit and it_no_improvement >= restart_threshold:
                 penalty_capacity = self.params.initial_penalty_capacity
                 self._feas_cache = {}
                 self._infeas_cache = {}
+                self._feas_inv = {}
+                self._infeas_inv = {}
                 self._offspring_feasibility = []
                 pop_feasible, pop_infeasible = self._initialize_population(penalty_capacity)
                 it_no_improvement = 0
 
-            combined = pop_feasible + pop_infeasible
-            if len(combined) < 2:
+            # Inline size check — no list allocation.
+            if len(pop_feasible) + len(pop_infeasible) < 2:
                 break
 
             it += 1
             it_no_improvement += 1
 
-            # Steps 3–6: select parents, crossover, educate with local search
             child = self._generate_offspring(pop_feasible, pop_infeasible, penalty_capacity)
-
-            # Steps 6–8: insert child, optionally repair infeasible offspring
             self._insert_and_repair(child, pop_feasible, pop_infeasible, penalty_capacity)
 
-            # Track globally best feasible individual (across all restarts)
             if child.is_feasible and child.profit_score > best_profit_so_far:
                 best_profit_so_far = child.profit_score
                 best_feasible_ind = child
                 it_no_improvement = 0
 
-            # Steps 9–10: survivor selection — triggered when subpopulation reaches μ+λ
+            # Survivor selection: fitness is computed fresh inside _trim_pop,
+            # which is the only place where accurate ranks are required.
             if len(pop_feasible) >= self.params.mu + self.params.n_offspring:
-                self._trim_pop(pop_feasible, self._feas_cache)
+                self._trim_pop(pop_feasible, self._feas_cache, self._feas_inv)
             if len(pop_infeasible) >= self.params.mu + self.params.n_offspring:
-                self._trim_pop(pop_infeasible, self._infeas_cache)
+                self._trim_pop(pop_infeasible, self._infeas_cache, self._infeas_inv)
 
-            # Step 11: penalty adaptation every 100 iterations
             if it % 100 == 0:
                 penalty_capacity = self._adjust_penalties(penalty_capacity)
 
-            # Acceptance criterion step (extension beyond Vidal 2022)
             if self.params.acceptance_criterion is not None:
                 self.params.acceptance_criterion.step(
                     current_obj=best_profit_so_far,
@@ -661,8 +678,6 @@ class HGSSolver:
                 population_size=len(pop_feasible) + len(pop_infeasible),
             )
 
-        # Return the globally best feasible solution found, across all restarts.
-        # Fall back to _get_best_solution only if no feasible individual was ever found.
         if best_feasible_ind is not None:
             return (
                 best_feasible_ind.routes,

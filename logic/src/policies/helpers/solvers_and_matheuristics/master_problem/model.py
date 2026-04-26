@@ -382,8 +382,10 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
                     self.dual_vehicle_limit = max(0.0, constr.Pi)
 
         # Extract active cut duals
-        self.dual_capacity_cuts = {s: abs(c.Pi) for s, c in self.active_capacity_cuts.items()}
-        self.dual_sri_cuts = {s: abs(c.Pi) for s, c in self.active_sri_cuts.items()}
+        # RCC: >= constraint in MAX LP → Pi ≤ 0, penalty magnitude = -Pi
+        self.dual_capacity_cuts = {s: max(0.0, -c.Pi) for s, c in self.active_capacity_cuts.items()}
+        # SRI: <= constraint in MAX LP → Pi ≥ 0 already
+        self.dual_sri_cuts = {s: max(0.0, c.Pi) for s, c in self.active_sri_cuts.items()}
         self.dual_lci_cuts = {s: max(0.0, c.Pi) for s, c in self.active_lci_cuts.items()}
         self.dual_edge_clique_cuts = {e: max(0.0, c[0].Pi) for e, c in self.active_edge_clique_cuts.items()}
         # Multistar: ≤ 0 constraint in a MAX LP → dual Pi ≥ 0.
@@ -548,9 +550,9 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
                     self.model.chgCoeff(constr, var, 1.0)
             else:
                 # Node-based LCI: sum over node alphas
-                node_alphas_for_set = self.active_lci_node_alphas.get(node_set, {})
+                node_alphas_for_set = self.active_lci_node_alphas.get(cover_set, {})
                 alpha_k = sum(
-                    node_alphas_for_set.get(n, 1.0 if n in node_set else 0.0) for n in route.node_coverage if n != 0
+                    node_alphas_for_set.get(n, 1.0 if n in cover_set else 0.0) for n in route.node_coverage if n != 0
                 )
                 if alpha_k > 1e-6:
                     self.model.chgCoeff(constr, var, alpha_k)
@@ -642,43 +644,30 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         if self.model is None or self.model.Status not in (GRB.OPTIMAL, GRB.SUBOPTIMAL):
             return {}
 
-        duals: Dict[str, Any] = {
-            "node_duals": {},
-            "rcc_duals": [],
-            "sri_duals": [],
-            "edge_clique_duals": {},
-            "lci_duals": [],
-            "lci_arc_duals": {},
-            "multistar_duals": [],
+        # node_duals: include vehicle_limit dual under its own key
+        node_duals = dict(self.dual_node_coverage)
+        if self.dual_vehicle_limit > 1e-9:
+            node_duals["vehicle_limit"] = self.dual_vehicle_limit
+
+        # rcc_duals: list of (set, dual) tuples consumed by RCSPPSolver.solve()
+        rcc_duals = [(set(s), d) for s, d in self.dual_capacity_cuts.items() if d > 1e-8]
+
+        # sri_duals: list of (set, dual) tuples
+        sri_duals = [(set(s), d) for s, d in self.dual_sri_cuts.items() if d > 1e-8]
+
+        # lci: pass both the dual values AND the node-alpha maps AND the source arcs
+        lci_duals = {s: d for s, d in self.dual_lci_cuts.items() if d > 1e-8}
+
+        return {
+            "node_duals": node_duals,
+            "rcc_duals": rcc_duals,
+            "sri_duals": sri_duals,
+            "edge_clique_duals": dict(self.dual_edge_clique_cuts),
+            "lci_duals": lci_duals,
+            "lci_node_alphas": dict(self.active_lci_node_alphas),
+            "lci_arcs": dict(self.active_lci_arcs),
+            "multistar_duals": dict(self.dual_multistar_cuts),
         }
-
-        # 1. Base Node Visitation Duals
-        for i, constr in getattr(self, "visitation_constrs", {}).items():
-            duals["node_duals"][i] = constr.Pi
-
-        # 2. Rounded Capacity Cuts (RCC)
-        for node_set_froz, constr in getattr(self, "capacity_constrs", {}).items():
-            if abs(constr.Pi) > 1e-6:
-                duals["rcc_duals"].append((set(node_set_froz), abs(constr.Pi)))
-
-        # 3. Precedence-Constrained SEC (PC-SEC)
-        # A PC-SEC is mathematically identical to an RCC cut on the DP side
-        # (penalizing the cutset boundaries). We feed them directly to the RCSPP RCC logic.
-        for node_set_froz, constr in getattr(self, "sec_constrs", {}).items():
-            if abs(constr.Pi) > 1e-6:
-                duals["rcc_duals"].append((set(node_set_froz), abs(constr.Pi)))
-
-        # 4. Subset-Row Inequalities (3-SRI)
-        for node_set_froz, constr in getattr(self, "sri_constrs", {}).items():
-            if abs(constr.Pi) > 1e-6:
-                duals["sri_duals"].append((set(node_set_froz), abs(constr.Pi)))
-
-        # 5. Edge Clique Constraints
-        for (u, v), constr in getattr(self, "edge_clique_constrs", {}).items():
-            if abs(constr.Pi) > 1e-6:
-                duals["edge_clique_duals"][(u, v)] = abs(constr.Pi)
-
-        return duals
 
     def get_node_visitation(self) -> Dict[int, float]:
         """Aggregate fractional node-visitation values from the current LP solution.
