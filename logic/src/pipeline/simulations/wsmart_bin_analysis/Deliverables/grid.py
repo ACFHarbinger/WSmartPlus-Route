@@ -1,5 +1,13 @@
 """
 GridBase manager for container ensembles.
+
+Attributes:
+    GridBase: The class that manages the background behind a containers ensemble.
+    fix10pad: Fixes the padding of a series to 10 digits.
+
+Example:
+    >>> from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid import GridBase
+    >>> g=GridBase(ids=[1,2,3],data_dir="/path/to/data",rate_type="mean")
 """
 
 import os
@@ -16,6 +24,12 @@ class GridBase:
     Class that manages the background behind a containers ensemble.
 
     It receives a csv file, and pre-processes the necessary data in order to allow sampling.
+
+    Attributes:
+        data (pd.DataFrame): The dataframe of processed rates.
+        __info (Union[dict, pd.DataFrame]): Ids dictionary with info from each bin.
+        __freq_table (pd.DataFrame): The cumulative frequency table for each bin.
+        __data_dir (str): The root directory for data files.
     """
 
     def __init__(self, ids, data_dir, rate_type, info_ver=None, names=None, same_file=False) -> None:
@@ -60,31 +74,30 @@ class GridBase:
         same_file=False,
     ) -> tuple[pd.DataFrame, Union[dict, pd.DataFrame]]:
         """
-                Parameters
-                ----------
-                ids:list[int],
-                    list of container ids to load
-                data_dir:str,
-                    files directory
-                rate_type:str,
-                    Can be 'mean' or 'crude' depending on the the file previously saved
-                info_ver:str,
-                    ver suffix unused in info saving
-                names:list[str]
-                    Names to use instead of the names generator.
-                    All should come already with the .csv attached in the end
-                processed: bool ,True
-                    set to True  by default; set if files hae been previously loaded
-                same_file: bool, False,
-                    if the files are in the same file
+        Args:
+        ----------
+        ids:list[int],
+            list of container ids to load
+        data_dir:str,
+            files directory
+        rate_type:str,
+            Can be 'mean' or 'crude' depending on the the file previously saved
+        info_ver:str,
+            ver suffix unused in info saving
+        names:list[str]
+            Names to use instead of the names generator.
+            All should come already with the .csv attached in the end
+        processed: bool ,True
+            set to True  by default; set if files hae been previously loaded
+        same_file: bool, False,
+            if the files are in the same file
 
-                Returns
+        Returns:
         -------
-
-                rates: pd.Dataframe
-                    The dataframe of processed rates
-                info:dict: dict
-                    Ids dictionary with info from each bin
+        rates: pd.Dataframe
+            The dataframe of processed rates
+        info:dict: dict
+            Ids dictionary with info from each bin
         """
         waste_dir = os.path.join(data_dir, "bins_waste")
         coords_dir = os.path.join(data_dir, "coordinates")
@@ -125,12 +138,12 @@ class GridBase:
 
     def __data_preprocess_same_file(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Parameters
+        Args:
         -------
         data: pd.Dataframe,
             The dataframe with dates before preprocessing
 
-        Returns
+        Returns:
         -------
         data: pd.Dataframe,
             The dataframe with dates as row indexes
@@ -141,13 +154,20 @@ class GridBase:
 
     def cacl_freq_tables(self) -> pd.DataFrame:
         """
-        Returns
+        Returns:
         --------
         a dataframe whose columns are the distribution of each rate
         """
 
-        def count(series: pd.Series):
-            """Calculate the cumulative frequency table for a series."""
+        def count(series: pd.Series) -> pd.Series:
+            """Calculate the cumulative frequency table for a series.
+
+            Args:
+                series (pd.Series): The series to calculate the cumulative frequency table for.
+
+            Returns:
+                pd.Series: The cumulative frequency table for the series.
+            """
             return fix10pad(series.value_counts(normalize=True).fillna(0).cumsum())
 
         freq_table = self.data.agg(count, axis=0)
@@ -155,7 +175,7 @@ class GridBase:
 
     def get_mean_rate(self) -> np.ndarray:
         """
-        Returns
+        Returns:
         -------
         mean: np.ndarray
             the mean of each bin
@@ -164,16 +184,16 @@ class GridBase:
 
     def get_var_rate(self) -> np.ndarray:
         """
-                Returns
+        Returns:
         -------
-                var: np.ndarray
-                    the varaince of each bin
+        var: np.ndarray
+            the varaince of each bin
         """
         return self.data.var(axis=0, skipna=True, numeric_only=True).to_numpy()
 
     def get_std_rate(self) -> np.ndarray:
         """
-        Returns
+        Returns:
         -------
         std: np.ndarray
             the stardard variation of each bin
@@ -182,7 +202,7 @@ class GridBase:
 
     def get_datarange(self) -> tuple[pd.Timestamp, pd.Timestamp]:
         """
-        Returns
+        Returns:
         -------
         (start, end): pd.timestamp,
             start and end of the actual rate values
@@ -225,14 +245,14 @@ class GridBase:
 
     def get_values_by_date(self, date, sample: bool = False) -> np.ndarray:
         """
-        Parameters
+        Args:
         ----------
         date: timestamp, str
             Datetime obect (e.g when looping through a datarange) or string in %d-%m-%Y format.
         sample: bool,
             Weather The cointaners whose value is NaN should be filled with a sample form self.sample()
 
-        Returns
+        Returns:
         -------
         rate: np.ndarray
             each container rate in required date.
@@ -251,16 +271,30 @@ class GridBase:
 
     def ___values_by_date(self, date: pd.Timestamp) -> pd.Series:
         """
-        Returns
+        Args:
+        ----------
+        date: pd.Timestamp
+            The date to get the rate for
+
+        Returns:
         -------
         rate: np.darray
             The actual rate row of each bin
         """
         return self.data.loc[date, :]
 
-    def values_by_date_range(self, start: pd.Timestamp = None, end: pd.Timestamp = None) -> pd.DataFrame:
+    def values_by_date_range(
+        self, start: Optional[pd.Timestamp] = None, end: Optional[pd.Timestamp] = None
+    ) -> pd.DataFrame:
         """
-        Returns
+        Args:
+        ----------
+        start: pd.Timestamp
+            start date of the range
+        end: pd.Timestamp
+            end date of the range
+
+        Returns:
         -------
         rate: pd.Dataframe
             The actual rate row of each bin per date
@@ -272,12 +306,12 @@ class GridBase:
 
     def get_info(self, i: int) -> Union[dict, pd.DataFrame, pd.Series]:
         """
-        Parameters
+        Args:
         ----------
         i: int
             index of the container to fect information from
 
-        Returns
+        Returns:
         -------
         info: dict
             the info of the container with the given index
@@ -286,7 +320,7 @@ class GridBase:
 
     def get_num_bins(self) -> int:
         """
-        Returns
+        Returns:
         -------
         num_bins: int
             the number of bins in the grid
@@ -301,6 +335,12 @@ def fix10pad(s: pd.Series) -> pd.Series:
     a value is verifiied by checkking if is one if 0.9999999>1.
 
     1-0.9999999 < 1/365*3 ~ 0.0001 Hard Coded, change for much bigger datasets; same goes for zero
+
+    Args:
+        s (pd.Series): The series to fix.
+
+    Returns:
+        pd.Series: The fixed series.
     """
     temp = s[s >= 0.9999999]
     temp.iloc[1:] = 2.0

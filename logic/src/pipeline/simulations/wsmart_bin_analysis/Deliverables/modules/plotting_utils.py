@@ -1,5 +1,11 @@
 """
 Plotting utilities for Container fill level and metrics.
+
+Attributes:
+    VisualizationMixin (Mixin): Mixin providing plotting methods for Container fill level visualization.
+
+Example:
+    None
 """
 
 from datetime import datetime
@@ -11,14 +17,29 @@ from matplotlib.lines import Line2D
 
 
 class VisualizationMixin:
-    """Mixin providing plotting methods for Container fill level visualization."""
+    """Mixin providing plotting methods for Container fill level visualization.
+
+    Attributes:
+        df (pd.DataFrame): DataFrame containing fill level data with a DatetimeIndex.
+        recs (pd.DataFrame): DataFrame containing collection event records with a DatetimeIndex.
+        info (pd.DataFrame): DataFrame containing container information.
+    """
 
     df: pd.DataFrame
     recs: pd.DataFrame
     info: pd.DataFrame
 
     def plot_fill(self, start_date: datetime, end_date: datetime, fig_size: tuple = (9, 6)):
-        """Plot fill levels over time with collection markers."""
+        """Plot fill levels over time with collection markers.
+
+        Args:
+            start_date (datetime): Start date of the period to plot.
+            end_date (datetime): End date of the period to plot.
+            fig_size (tuple, optional): Figure size. Defaults to (9, 6).
+
+        Returns:
+            None
+        """
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
         filtered_df = self.df[cast(Any, start_date) : cast(Any, end_date)]
@@ -45,7 +66,16 @@ class VisualizationMixin:
         plt.show()
 
     def plot_max_min(self, start_date: datetime, end_date: datetime, fig_size: tuple = (9, 6)):
-        """Plot max, min, and mean fill levels over time."""
+        """Plot max, min, and mean fill levels over time.
+
+        Args:
+            start_date (datetime): Start date of the period to plot.
+            end_date (datetime): End date of the period to plot.
+            fig_size (tuple, optional): Figure size. Defaults to (9, 6).
+
+        Returns:
+            None
+        """
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
         filtered_df = self.df[cast(Any, start_date) : cast(Any, end_date)]
@@ -65,7 +95,16 @@ class VisualizationMixin:
         plt.show()
 
     def plot_collection_metrics(self, start_date: datetime, end_date: datetime, fig_size: tuple = (9, 6)):
-        """Plot Spearman and average distance metrics for collections."""
+        """Plot Spearman and average distance metrics for collections.
+
+        Args:
+            start_date (datetime): Start date of the period to plot.
+            end_date (datetime): End date of the period to plot.
+            fig_size (tuple, optional): Figure size. Defaults to (9, 6).
+
+        Returns:
+            None
+        """
         start_date = pd.to_datetime(start_date, format="%d-%m-%Y", errors="raise")
         end_date = pd.to_datetime(end_date, format="%d-%m-%Y", errors="raise")
         filtered_recs = self.recs[cast(Any, start_date) : cast(Any, end_date)]
