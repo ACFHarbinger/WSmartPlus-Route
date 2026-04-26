@@ -142,40 +142,59 @@ def worst_profit_removal(
     if rng is None:
         rng = np.random.default_rng()
 
+    # 1. O(N) Initialization
+    node_profits = {}
+    node_to_route = {}
+
+    def calc_route_profits(r_idx: int, route: List[int]):
+        """
+        Calculate the profit for each node in a route.
+
+        Args:
+            r_idx: Route index.
+            route: Route list.
+        """
+        for i, node in enumerate(route):
+            revenue = wastes.get(node, 0.0) * R
+            prev = 0 if i == 0 else route[i - 1]
+            nex = 0 if i == len(route) - 1 else route[i + 1]
+            detour_cost = float(dist_matrix[prev, node] + dist_matrix[node, nex] - dist_matrix[prev, nex])
+            node_profits[node] = revenue - (detour_cost * C)
+            node_to_route[node] = r_idx
+
+    for r_idx, route in enumerate(routes):
+        calc_route_profits(r_idx, route)
+
     removed = []
     for _ in range(n_remove):
-        # Recalculate profits for remaining nodes
-        profits = []
-        for r_idx, route in enumerate(routes):
-            if len(route) == 0:
-                continue
-
-            for i, node in enumerate(route):
-                revenue = wastes.get(node, 0.0) * R
-                prev = 0 if i == 0 else route[i - 1]
-                nex = 0 if i == len(route) - 1 else route[i + 1]
-
-                detour_cost = float(dist_matrix[prev, node] + dist_matrix[node, nex] - dist_matrix[prev, nex])
-                profit = revenue - (detour_cost * C)
-                profits.append((r_idx, i, node, profit))
-
-        if not profits:
+        if not node_profits:
             break
 
-        # Sort by profit (lowest first = worst nodes)
-        profits.sort(key=lambda x: x[3])
+        # Sort currently active nodes by profit (lowest first)
+        # Python's Timsort operates in O(N) on nearly sorted data in subsequent loops
+        sorted_profits = sorted(node_profits.items(), key=lambda x: x[1])
 
-        # Randomized selection
-        L = len(profits)
+        # Randomized selection bounds
+        L = len(sorted_profits)
         y = rng.random()
         idx = min(int(y**p * L), L - 1)
 
-        r_idx, n_idx, node, _ = profits[idx]
+        node_to_remove = sorted_profits[idx][0]
+        r_idx = node_to_route[node_to_remove]
 
-        # Remove the selected node
-        if n_idx < len(routes[r_idx]) and routes[r_idx][n_idx] == node:
-            routes[r_idx] = [n for n in routes[r_idx] if n != node]
-            removed.append(node)
+        # Remove the node
+        routes[r_idx].remove(node_to_remove)
+        removed.append(node_to_remove)
+        del node_profits[node_to_remove]
+        del node_to_route[node_to_remove]
+
+        # LOCAL UPDATE: O(L_avg) recalculation only for the affected route
+        for n in routes[r_idx]:
+            if n in node_profits:
+                del node_profits[n]
+                del node_to_route[n]
+
+        calc_route_profits(r_idx, routes[r_idx])
 
     routes = [r for r in routes if r]
     return routes, removed

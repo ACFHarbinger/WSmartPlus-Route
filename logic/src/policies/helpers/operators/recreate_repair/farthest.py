@@ -25,6 +25,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.utils.policy.seed_hurdle import _dynamic_seed_hurdle
+
 
 def _get_farthest_node(
     unassigned: List[int],
@@ -275,6 +277,9 @@ def farthest_profit_insertion(
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(node, 0.0) for node in route) for route in routes]
 
+    # Calculate total optional nodes for the dynamic seed hurdle density calculation
+    n_total_optional = len(dist_matrix) - 1 - len(mandatory_set)
+
     visited = {node for route in routes for node in route}
     if expand_pool:
         n_nodes = len(dist_matrix) - 1
@@ -308,7 +313,17 @@ def farthest_profit_insertion(
 
             new_cost = dist_matrix[0, farthest_node] + dist_matrix[farthest_node, 0]
             new_profit = revenue - (new_cost * C)
-            seed_hurdle = -0.5 * (new_cost * C)
+
+            # --- UPDATED DYNAMIC SEED HURDLE ---
+            seed_hurdle = _dynamic_seed_hurdle(
+                node=farthest_node,
+                unassigned=unassigned,
+                mandatory_nodes_set=mandatory_set,
+                dist_matrix=dist_matrix,
+                new_cost=new_cost,
+                C=C,
+                n_total_optional=n_total_optional,
+            )
 
             # Compare insertion into existing routes vs. starting a new route
             if best_route_idx != -1:

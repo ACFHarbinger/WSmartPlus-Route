@@ -31,6 +31,7 @@ import numpy as np
 from logic.src.utils.policy.routes import (
     prune_unprofitable_routes,
 )
+from logic.src.utils.policy.seed_hurdle import _dynamic_seed_hurdle
 
 
 def deep_insertion(
@@ -182,9 +183,9 @@ def deep_profit_insertion(
         best_node = -1
         best_route = -1
         best_pos = -1
-
+        node_waste = 0.0
         for node in unassigned:
-            node_waste = wastes.get(node, 0)
+            node_waste = wastes.get(node, 0.0)
             revenue = node_waste * R
             is_mandatory = node in mandatory_nodes_set
 
@@ -217,7 +218,15 @@ def deep_profit_insertion(
             # Evaluate new route (Speculative Seeding)
             new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
             new_profit = revenue - (new_cost * C)
-            seed_hurdle = -0.5 * (new_cost * C)
+            seed_hurdle = _dynamic_seed_hurdle(
+                node=node,
+                unassigned=unassigned,  # current remaining pool (WHILE loops)
+                mandatory_nodes_set=mandatory_nodes_set,
+                dist_matrix=dist_matrix,
+                new_cost=new_cost,
+                C=C,
+                n_total_optional=len(dist_matrix) - 1 - len(mandatory_nodes_set),
+            )
 
             if is_mandatory or new_profit >= seed_hurdle:
                 # Score = Profit + Alpha * (Capacity Utility)

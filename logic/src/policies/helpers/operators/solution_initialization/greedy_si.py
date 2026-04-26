@@ -20,6 +20,7 @@ import numpy as np
 from logic.src.utils.policy.routes import (
     prune_unprofitable_routes,
 )
+from logic.src.utils.policy.seed_hurdle import _dynamic_seed_hurdle
 
 
 def _greedy_profit_insertion(
@@ -52,11 +53,14 @@ def _greedy_profit_insertion(
     """
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
 
+    # Total optional nodes in this instance (fixed denominator for density).
+    n_total_optional = len(unvisited_optional)
+
     # Reinsert in random order to increase diversity
     unassigned = list(unvisited_optional)
     rng.shuffle(unassigned)
 
-    for node in unassigned:
+    for i, node in enumerate(unassigned):
         node_waste = wastes.get(node, 0)
         revenue = node_waste * R
         is_mandatory = node in mandatory_nodes_set
@@ -88,9 +92,17 @@ def _greedy_profit_insertion(
         new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
         new_profit = revenue - (new_cost * C)
 
-        # Hurdle for starting a new route (Speculative Seed)
-        # We allow up to 50% of the return-trip cost to be covered by synergy later.
-        seed_hurdle = -0.5 * (new_cost * C)
+        # Dynamic seed hurdle: permitted deficit shrinks as the optional pool empties.
+        # unassigned[i+1:] = nodes not yet decided in this pass — the true remaining pool.
+        seed_hurdle = _dynamic_seed_hurdle(
+            node=node,
+            unassigned=unassigned[i + 1 :],
+            mandatory_nodes_set=mandatory_nodes_set,
+            dist_matrix=dist_matrix,
+            new_cost=new_cost,
+            C=C,
+            n_total_optional=n_total_optional,
+        )
         if new_profit > best_profit and (is_mandatory or new_profit >= seed_hurdle):
             best_profit = new_profit
             best_r_idx = len(routes)

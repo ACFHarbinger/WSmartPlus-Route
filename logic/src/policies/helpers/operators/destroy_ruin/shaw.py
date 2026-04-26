@@ -254,12 +254,20 @@ def shaw_profit_removal(  # noqa: C901
     removed: List[int] = [seed]
     removed_set: Set[int] = {seed}
 
-    # 3. Global max distance for normalization (Ropke & Pisinger 2006, §3.1.1)
+    # 3. Global max distance and STRICTLY STATIONARY profit bounds (Ropke & Pisinger 2006)
     max_dist = float(dist_matrix.max()) if dist_matrix.size > 0 else 1.0
 
-    profit_vals = list(node_profits.values())
-    profit_range = float(max(profit_vals) - min(profit_vals)) if len(profit_vals) > 1 else 1.0
-    if profit_range == 0:
+    # Global STRICTLY STATIONARY profit bounds
+    max_revenue = max(wastes.values()) * R if wastes else 0.0
+    min_revenue = min(wastes.values()) * R if wastes else 0.0
+
+    # Max marginal profit = highest revenue with zero detour
+    # Min marginal profit = lowest revenue with maximum possible detour (2 * d_max)
+    max_theoretical_profit = max_revenue - 0.0
+    min_theoretical_profit = min_revenue - (2.0 * max_dist * C)
+
+    profit_range = max_theoretical_profit - min_theoretical_profit
+    if profit_range <= 0:
         profit_range = 1.0
 
     while len(removed) < n_remove and len(removed) < len(all_nodes):
@@ -272,6 +280,8 @@ def shaw_profit_removal(  # noqa: C901
                 continue
 
             dist_rel = float(dist_matrix[node, pivot]) / max_dist if max_dist > 0 else 0.0
+
+            # Using strictly stationary global range
             profit_rel = float(abs(node_profits[node] - node_profits[pivot])) / profit_range
 
             rel = phi * dist_rel + psi * profit_rel
