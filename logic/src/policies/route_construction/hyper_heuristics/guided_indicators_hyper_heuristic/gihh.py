@@ -11,6 +11,16 @@ References:
     - Chen, B., Qu, R., Bai, R., & Laesanklang, W. (2018). "A hyper-heuristic with
       two guidance indicators for bi-objective mixed-shift vehicle routing problem
       with time windows." European Journal of Operational Research, 269(2), 661-675.
+
+Attributes:
+    GIHHSolver: GIHH solver implementation using a Pareto Archive.
+
+Example:
+    >>> solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> solutions = solver.solve()
+    >>> best_solution = max(solutions, key=lambda s: s.profit)
+    >>> print(best_solution.profit)
+    231.0
 """
 
 import copy
@@ -50,6 +60,25 @@ class GIHHSolver:
 
     For integration with WSmart-Route, it ultimately exports the archive solution
     that maximizes the scalar `profit`.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Dictionary of waste for each node.
+        capacity (float): Capacity of the vehicle.
+        R (float): Revenue per unit distance.
+        C (float): Cost per unit distance.
+        params (GIHHParams): Parameters for the GIHH solver.
+        mandatory_nodes (Optional[List[int]]): List of mandatory nodes.
+        rng (random.Random): Random number generator.
+        score_a (ScoreAIndicator): ScoreA indicator.
+        score_b (ScoreBIndicator): ScoreB indicator.
+        operators (List[str]): List of operators.
+        weights (Dict[str, float]): Weights of the operators.
+        applied_times (Dict[str, int]): Number of times each operator has been applied.
+        global_best_profit_sol (Optional[Solution]): Best solution found so far.
+        ARCH (List[Solution]): List of non-dominated solutions.
+        segment_start_sc (Optional[Solution]): Starting solution of the current segment.
+        segment_accepted_sols (List[Solution]): Accepted solutions in the current segment.
     """
 
     def __init__(
@@ -62,7 +91,17 @@ class GIHHSolver:
         params: GIHHParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """__init__ docstring."""
+        """Initialize GIHHSolver.
+
+        Args:
+            dist_matrix (np.ndarray): Distance matrix.
+            wastes (Dict[int, float]): Dictionary of waste for each node.
+            capacity (float): Capacity of the vehicle.
+            R (float): Revenue per unit distance.
+            C (float): Cost per unit distance.
+            params (GIHHParams): Parameters for the GIHH solver.
+            mandatory_nodes (Optional[List[int]]): List of mandatory nodes.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -96,19 +135,17 @@ class GIHHSolver:
         self.segment_accepted_sols: List[Solution] = []
 
     def solve(self) -> List[Solution]:
-        """Runs the GIHH metaheuristic using Pareto evaluation."""
+        """Runs the GIHH metaheuristic using Pareto evaluation.
+
+        Returns:
+            List[Solution]: List of non-dominated solutions.
+        """
         if len(self.dist_matrix) <= 1:
             return []
 
         start_time = time.process_time()
 
         # 1. Generate Initial Solution
-        # [METHODOLOGY NOTE]
-        # In the original MS-VRPTW paper (Chen et al., 2018), an Emergency Level-Based
-        # Insertion Heuristic (EBIH) was employed due to the complexity of shift
-        # constraints. For this generalized VRPP adaptation, `build_greedy_routes`
-        # serves as the equivalent problem-specific baseline, providing a high-quality
-        # starting point for hyper-volume metrics and Pareto frontier convergence.
         initial_routes = build_greedy_routes(
             mandatory_nodes=self.mandatory_nodes,
             wastes=self.wastes,
@@ -213,7 +250,11 @@ class GIHHSolver:
         return self.ARCH
 
     def _select_operator(self) -> str:
-        """Proportional Roulette Wheel Selection with a minimum probability guarantee."""
+        """Proportional Roulette Wheel Selection with a minimum probability guarantee.
+
+        Returns:
+            str: Selected operator name.
+        """
         min_p = self.params.min_prob
         n_ops = len(self.operators)
 
@@ -230,7 +271,15 @@ class GIHHSolver:
         return self.rng.choices(self.operators, weights=probs, k=1)[0]
 
     def _apply_selected_operator(self, current: Solution, operator: str) -> Solution:
-        """Apply the specific paper LLHs using WSmart-Route operator parity."""
+        """Apply the specific paper LLHs using WSmart-Route operator parity.
+
+        Args:
+            current (Solution): Current solution.
+            operator (str): Name of the operator.
+
+        Returns:
+            Solution: Solution after applying the operator.
+        """
         candidate = current.copy()
 
         if operator in ["inter_route_2opt_star", "inter_route_cross_exchange"]:
@@ -265,6 +314,12 @@ class GIHHSolver:
         """
         Updates the Pareto Archive.
         Returns True if candidate is non-dominated by any solution in ARCH.
+
+        Args:
+            candidate (Solution): Solution to be added to the archive.
+
+        Returns:
+            bool: True if candidate is non-dominated by any solution in ARCH.
         """
         if not candidate.is_feasible():
             return False
@@ -304,6 +359,12 @@ class GIHHSolver:
         OBJECTIVE ALIGNMENT:
         A positive DEVIATION implies the search in this segment heavily
         favored Revenue improvements over Cost improvements.
+
+        Args:
+            None
+
+        Returns:
+            None
         """
         # Phase 1: Quality Reward update
         for op in self.operators:
@@ -333,15 +394,6 @@ class GIHHSolver:
             b_score = self.score_b.get_score(op)
             k = self.applied_times[op]
             b_ratio = b_score / k if k > 0 else 0.0
-
-            # Step 1: Fix the "Equation 25 Paradox" (Directional Balancing)
-            # The original Chen et al. (2018) formula (Equation 25) suggests increasing
-            # weights when they align with the current search bias (dev * b_ratio > 0).
-            # However, this exacerbates heuristic bias toward a single objective.
-            # We implement a theoretical correction for multi-objective balancing:
-            # trigger the weight update only when the operator's directional bias
-            # is OPPOSITE to the segment's dominant deviation, effectively regaining
-            # equilibrium in the Pareto frontier exploration.
             if (dev > 0 and b_ratio < 0) or (dev < 0 and b_ratio > 0):
                 self.weights[op] -= self.params.gamma * b_ratio
                 self.weights[op] = max(0.0, self.weights[op])  # Prevent negative weights
@@ -353,7 +405,14 @@ class GIHHSolver:
             self.applied_times[op] = 0
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Calculates total distance (km)."""
+        """Calculates total distance (km).
+
+        Args:
+            routes (List[List[int]]): List of routes.
+
+        Returns:
+            float: Total distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

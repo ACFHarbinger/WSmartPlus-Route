@@ -3,6 +3,14 @@ SS-HH Policy Adapter.
 
 Adapts the Sequence-based Selection Hyper-Heuristic (SS-HH) solver to the
 agnostic BaseRoutingPolicy interface.
+
+Attributes:
+    SSHHPolicy: Adapter for the SS-HH solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import SSHHPolicy
+    >>> params = SSHHPolicy()
+    >>> print(params)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -30,6 +38,9 @@ class SSHHPolicy(BaseRoutingPolicy):
     SS-HH policy class.
 
     Visits bins using the online-learning Sequence-based Selection Hyper-Heuristic.
+
+    Attributes:
+        config: Configuration parameters.
     """
 
     def __init__(self, config: Optional[Union[SSHHConfig, Dict[str, Any]]] = None):
@@ -43,9 +54,21 @@ class SSHHPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """
+        Get the configuration class.
+
+        Returns:
+            Optional[Type]: The configuration class.
+        """
         return SSHHConfig
 
     def _get_config_key(self) -> str:
+        """
+        Get the configuration key.
+
+        Returns:
+            str: The configuration key.
+        """
         return "ss_hh"
 
     def _run_solver(
@@ -83,7 +106,7 @@ class SSHHPolicy(BaseRoutingPolicy):
                 hyperparameters like `threshold_infeasible`, `threshold_decay_rate`, etc.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

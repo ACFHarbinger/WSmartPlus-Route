@@ -10,6 +10,17 @@ Reference:
     Kheiri, A., & Keedwell, E. (2015). A sequence-based selection hyper-heuristic
     utilising a hidden Markov model. In Proceedings of the 2015 Annual Conference
     on Genetic and Evolutionary Computation (pp. 417-424).
+
+Attributes:
+    GIHHSolver: Solver for the GIHH policy.
+    GIHHParams: Parameters for the GIHH policy.
+
+Example:
+    >>> solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> solutions = solver.solve()
+    >>> best_solution = max(solutions, key=lambda s: s.profit)
+    >>> print(best_solution.profit)
+    231.0
 """
 
 from .gihh import GIHHSolver

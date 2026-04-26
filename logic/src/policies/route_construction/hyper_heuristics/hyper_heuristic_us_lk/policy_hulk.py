@@ -2,6 +2,14 @@
 Policy adapter for HULK hyper-heuristic.
 
 Provides the interface between the simulator and the HULK solver.
+
+Attributes:
+    HULKPolicy: Adapter for the HULK solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import HULKPolicy
+    >>> policy = HULKPolicy()
+    >>> routes, profit, cost = policy.solve(dist_matrix, wastes, capacity, revenue, cost_unit, mandatory_nodes)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -25,17 +33,39 @@ from .params import HULKParams
 )
 @RouteConstructorRegistry.register("hulk")
 class HULKPolicy(BaseRoutingPolicy):
-    """HULK hyper-heuristic policy class."""
+    """
+    HULK hyper-heuristic policy class.
+
+    Attributes:
+        config: Configuration for the policy.
+    """
 
     def __init__(self, config: Optional[Union[HULKConfig, Dict[str, Any]]] = None):
-        """__init__ docstring."""
+        """
+        Initialize the HULK hyper-heuristic policy.
+
+        Args:
+            config (Optional[Union[HULKConfig, Dict[str, Any]]]): Configuration for the policy.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """
+        Get the configuration class for this policy.
+
+        Returns:
+            Optional[Type]: Configuration class.
+        """
         return HULKConfig
 
     def _get_config_key(self) -> str:
+        """
+        Get the configuration key for this policy.
+
+        Returns:
+            str: Configuration key.
+        """
         return "hulk"
 
     def _run_solver(
@@ -74,7 +104,7 @@ class HULKPolicy(BaseRoutingPolicy):
                 hyperparameters like `epsilon`, `weight_learning_rate`, etc.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

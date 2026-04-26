@@ -2,6 +2,13 @@
 Hyper-ACO Policy Adapter.
 
 Adapts the Hyper-Heuristic ACO solver to the common policy interface.
+
+Attributes:
+    HyperACOPolicy: Hyper-Heuristic ACO policy class.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.policy_aco_hh import HyperACOPolicy
+    >>> policy = HyperACOPolicy()
 """
 
 import random
@@ -37,6 +44,9 @@ class HyperACOPolicy(BaseRoutingPolicy):
     Hyper-Heuristic ACO policy class.
 
     Uses ACO to construct sequences of local search operators.
+
+    Attributes:
+        config: HyperHeuristicACOConfig dataclass, raw dict from YAML, or None.
     """
 
     def __init__(self, config: Optional[Union[HyperHeuristicACOConfig, Dict[str, Any]]] = None):
@@ -49,10 +59,19 @@ class HyperACOPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Get the configuration class.
+
+        Returns:
+            Optional[Type]: Configuration class.
+        """
         return HyperHeuristicACOConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for Hyper-ACO."""
+        """Get the configuration key.
+
+        Returns:
+            str: Configuration key.
+        """
         return "hyper_aco"
 
     def _run_solver(
@@ -90,7 +109,7 @@ class HyperACOPolicy(BaseRoutingPolicy):
                 hyperparameters like `n_ants`, `alpha`, `beta`, `rho`, etc.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

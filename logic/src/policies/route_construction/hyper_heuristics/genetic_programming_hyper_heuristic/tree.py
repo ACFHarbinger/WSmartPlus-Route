@@ -23,6 +23,27 @@ reach arbitrarily deep nodes rather than being confined to level 1.
 Reference:
     Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., & Woodward, J. R.
     "Exploring Hyper-heuristic Methodologies with Genetic Programming", 2009
+
+Attributes:
+    MutablePoint: Tuple of (parent, side) for genetic operators.
+    GPNode: Abstract base class for all GP tree nodes.
+    ConstantNode: Ephemeral Random Constant (ERC) node.
+    TerminalNode: Terminal node for extracting features.
+    FunctionNode: Function node for applying arithmetic operations.
+    protected_div: Protected division function.
+    compile_tree: Compile a tree to a Python function.
+    to_callable: Convert a tree to a callable function.
+    _TERMINALS: Tuple of available terminal names.
+    _FUNCTIONS: Tuple of available function names.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree import GPNode
+    >>> from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.operators import build_random_tree
+    >>> node = TerminalNode("node_profit")
+    >>> node.evaluate({"node_profit": 10.0})
+    10.0
+    >>> isinstance(node, GPNode)
+    True
 """
 
 import random
@@ -30,7 +51,15 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 
 
 def protected_div(a: float, b: float) -> float:
-    """Protected division: returns 1.0 if denominator is near-zero."""
+    """Protected division: returns 1.0 if denominator is near-zero.
+
+    Args:
+        a (float): Numerator.
+        b (float): Denominator.
+
+    Returns:
+        float: Result of the division.
+    """
     return a / b if abs(b) > 1e-9 else 1.0
 
 
@@ -39,10 +68,11 @@ class ConstantNode:
     Ephemeral Random Constant (ERC) node: stores a fixed random scalar.
 
     Attributes:
+        __slots__: Tuple[str, ...] = ("val",)
         val: Randomly generated float value.
     """
 
-    __slots__ = ("val",)
+    __slots__: Tuple[str, ...] = ("val",)
 
     def __init__(self, val: float):
         """Initialize the constant node with a random value.
@@ -53,23 +83,46 @@ class ConstantNode:
         self.val = val
 
     def evaluate(self, ctx: Dict[str, float]) -> float:
-        """Return the stored constant value."""
+        """Return the stored constant value.
+
+        Args:
+            ctx: Insertion-context dictionary.
+
+        Returns:
+            float: Constant value.
+        """
         return self.val
 
     def copy(self) -> "ConstantNode":
-        """Create a deep copy of this constant node."""
+        """Create a deep copy of this constant node.
+
+        Returns:
+            ConstantNode: Deep copy of the constant node.
+        """
         return ConstantNode(self.val)
 
     def size(self) -> int:
-        """Return the size of this constant node (always 1)."""
+        """Return the size of this constant node (always 1).
+
+        Returns:
+            int: Size of the constant node.
+        """
         return 1
 
     def depth(self) -> int:
-        """Return the maximum depth of this constant (always 1)."""
+        """Return the maximum depth of this constant (always 1).
+
+        Returns:
+            int: Maximum depth of the constant.
+        """
         return 1
 
     def compile(self) -> str:
-        """Return the string representation of the constant."""
+        """Return the string representation of the constant.
+
+        Returns:
+            str: String representation of the constant.
+        """
         return str(self.val)
 
 
@@ -78,10 +131,11 @@ class TerminalNode:
     GP terminal node: extracts a continuous feature from the insertion context.
 
     Attributes:
+        __slots__: tuple[str, ...] = ("feature",)
         feature: Name of the feature to extract from the context dictionary.
     """
 
-    __slots__ = ("feature",)
+    __slots__: Tuple[str, ...] = ("feature",)
 
     def __init__(self, feature: str):
         """Initialize the terminal node for a specific context feature.
@@ -104,19 +158,35 @@ class TerminalNode:
         return ctx.get(self.feature, 0.0)
 
     def copy(self) -> "TerminalNode":
-        """Create a deep copy of this terminal node."""
+        """Create a deep copy of this terminal node.
+
+        Returns:
+            TerminalNode: Deep copy of the terminal node.
+        """
         return TerminalNode(self.feature)
 
     def size(self) -> int:
-        """Return the size of this terminal node (always 1)."""
+        """Return the size of this terminal node (always 1).
+
+        Returns:
+            int: Size of the terminal node.
+        """
         return 1
 
     def depth(self) -> int:
-        """Return the maximum depth of this terminal (always 1)."""
+        """Return the maximum depth of this terminal (always 1).
+
+        Returns:
+            int: Maximum depth of the terminal.
+        """
         return 1
 
     def compile(self) -> str:
-        """Return the feature name as a raw Python variable string."""
+        """Return the feature name as a raw Python variable string.
+
+        Returns:
+            str: Feature name.
+        """
         return self.feature
 
 
@@ -180,7 +250,11 @@ class FunctionNode:
             return 0.0  # Fallback for unknown functions
 
     def copy(self) -> "FunctionNode":
-        """Create a deep copy of this function node and its subtrees."""
+        """Create a deep copy of this function node and its subtrees.
+
+        Returns:
+            FunctionNode: Deep copy of the function node.
+        """
         return FunctionNode(
             self.fn,
             self.left.copy(),
@@ -188,15 +262,27 @@ class FunctionNode:
         )
 
     def size(self) -> int:
-        """Recursively calculate the total number of nodes in this subtree."""
+        """Recursively calculate the total number of nodes in this subtree.
+
+        Returns:
+            int: Total number of nodes in the subtree.
+        """
         return 1 + self.left.size() + self.right.size()
 
     def depth(self) -> int:
-        """Recursively calculate the maximum depth of this subtree."""
+        """Recursively calculate the maximum depth of this subtree.
+
+        Returns:
+            int: Maximum depth of the subtree.
+        """
         return 1 + max(self.left.depth(), self.right.depth())
 
     def compile(self) -> str:
-        """Recursively build a Python-parsable mathematical expression string."""
+        """Recursively build a Python-parsable mathematical expression string.
+
+        Returns:
+            str: Python expression string.
+        """
         l = self.left.compile()
         r = self.right.compile()
 
@@ -274,12 +360,26 @@ def _collect_mutable_points(tree: GPNode) -> List[MutablePoint]:
 
 
 def _get_subtree(parent: "FunctionNode", side: str) -> GPNode:
-    """Return the child subtree at the given side."""
+    """Return the child subtree at the given side.
+
+    Args:
+        parent (FunctionNode): Parent node.
+        side (str): Side of the child (left or right).
+
+    Returns:
+        GPNode: Child subtree.
+    """
     return parent.left if side == "left" else parent.right
 
 
 def _set_subtree(parent: "FunctionNode", side: str, subtree: GPNode) -> None:
-    """Replace the child subtree at the given side in-place."""
+    """Replace the child subtree at the given side in-place.
+
+    Args:
+        parent (FunctionNode): Parent node.
+        side (str): Side of the child (left or right).
+        subtree (GPNode): Subtree to replace.
+    """
     if side == "left":
         parent.left = subtree
     else:
@@ -455,6 +555,12 @@ def compile_tree(tree: GPNode) -> str:
 
     This string can be passed to ``eval(compile(...))`` in the solver
     to create a fast lambda function for O(1) candidate evaluation.
+
+    Args:
+        tree (GPNode): Root node of the GP tree.
+
+    Returns:
+        str: Python expression string.
     """
     expr = tree.compile()
     # Terminals are local variables in the resulting lambda execution
@@ -467,6 +573,12 @@ def to_callable(tree: GPNode) -> Callable:
 
     Transforms the recursive object structure into a flat mathematical
     expression that bypasses dictionary lookups and recursion overhead.
+
+    Args:
+        tree (GPNode): Root node of the GP tree.
+
+    Returns:
+        Callable: Compiled lambda function.
     """
     code_str = compile_tree(tree)
     # Compile the lambda string into a code object for faster execution

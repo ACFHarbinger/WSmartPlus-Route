@@ -1,5 +1,18 @@
 """
-Module documentation.
+Matheuristic Hyper-Heuristic (MHH) policy implementation.
+
+Reference:
+    Hussain, A., Huda, M. S., Rownaghi, F. F., & Naji, S. (2025).
+    Meta-Heuristic Performance Evaluation on Inventory Routing Problem With
+    Profit Maximization. IEEE Access, 13, 99458-99473.
+    DOI: 10.1109/ACCESS.2025.3465866
+
+Attributes:
+    MHHPolicy: Adapter for the MHH solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import MHHPolicy
+    >>> policy = MHHPolicy()
 """
 
 import copy
@@ -49,10 +62,23 @@ class MHHPolicy(BaseMultiPeriodRoutingPolicy):
        exact exploitation based on the available computational budget.
 
     Registry key: ``"mhh"``
+
+    Attributes:
+        config: Configuration parameters.
+        llhs: Pool of Low-Level Heuristics.
+        params: Parameters for the MHH solver.
+        iters: Number of iterations.
+        seed: Random seed.
+        rng: Random number generator.
     """
 
     def __init__(self, config: Any = None):
-        """__init__ docstring."""
+        """
+        Initialize MHHPolicy.
+
+        Args:
+            config: Configuration parameters.
+        """
         super().__init__(config)
         self.params = MHHParams.from_config(config)
         self.iters = self.params.iters
@@ -61,6 +87,16 @@ class MHHPolicy(BaseMultiPeriodRoutingPolicy):
         self.llhs = LLHPool.get_all()
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """
+        Evaluate the total profit of a plan.
+
+        Args:
+            plan: Collection plan.
+            problem: Problem context.
+
+        Returns:
+            float: Total profit.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):

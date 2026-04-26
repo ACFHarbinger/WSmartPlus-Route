@@ -3,6 +3,14 @@ GIHH Policy Adapter.
 
 Adapts the Hyper-Heuristic with Two Guidance Indicators (GIHH) logic
 to the common policy interface.
+
+Attributes:
+    GIHHPolicy: Hyper-Heuristic with Two Guidance Indicators policy class.
+
+Examples:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import GIHHPolicy
+    >>> policy = GIHHPolicy()
+    >>> policy.solve()
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -31,6 +39,9 @@ class GIHHPolicy(BaseRoutingPolicy):
 
     Uses IRI (Improvement Rate Indicator) and TBI (Time-based Indicator)
     to adaptively select low-level heuristics during search.
+
+    Attributes:
+        config: GIHHConfig dataclass, raw dict from YAML, or None.
     """
 
     def __init__(self, config: Optional[Union[GIHHConfig, Dict[str, Any]]] = None):
@@ -43,10 +54,19 @@ class GIHHPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return config class for GIHH.
+
+        Returns:
+            Type: Config class for GIHH.
+        """
         return GIHHConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for GIHH."""
+        """Return config key for GIHH.
+
+        Returns:
+            str: Config key for GIHH.
+        """
         return "gihh"
 
     def _run_solver(
@@ -83,7 +103,7 @@ class GIHHPolicy(BaseRoutingPolicy):
                 hyperparameters like `alpha`, `beta`, `gamma`, etc.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

@@ -3,6 +3,15 @@ HMM-GD Policy Adapter.
 
 Adapts the HMM + Great Deluge (HMM-GD) hyper-heuristic solver to the
 agnostic BaseRoutingPolicy interface.
+
+Attributes:
+    HMMGDHHPolicy: Solver class that solves VRPP using HMM-GD hyper-heuristic.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic import HMMGDHHPolicy
+    >>> solver = HMMGDHHPolicy(config)
+    >>> best_solution, best_profit, best_cost = solver.solve()
+    >>> print(best_solution, best_profit, best_cost)
 """
 
 import random
@@ -39,6 +48,9 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
     The HMM learns which Low-Level Heuristic to apply based on observed search
     states (improving / stagnating / escaping).  The Great Deluge criterion
     provides acceptance control without temperature parameters.
+
+    Attributes:
+        config: Configuration parameters.
     """
 
     def __init__(self, config: Optional[Union[HMMGDHHConfig, Dict[str, Any]]] = None):
@@ -52,9 +64,21 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """
+        Get the configuration class.
+
+        Returns:
+            Optional[Type]: Configuration class.
+        """
         return HMMGDHHConfig
 
     def _get_config_key(self) -> str:
+        """
+        Get the configuration key.
+
+        Returns:
+            str: Configuration key.
+        """
         return "hmm_gd_hh"
 
     def _run_solver(
@@ -92,7 +116,7 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
                 hyperparameters like `rain_speed`, `learning_rate`, etc.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

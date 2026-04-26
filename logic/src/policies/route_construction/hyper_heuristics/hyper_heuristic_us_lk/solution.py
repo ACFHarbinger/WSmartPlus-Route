@@ -2,6 +2,15 @@
 Solution representation for HULK hyper-heuristic.
 
 Provides efficient solution evaluation and manipulation for VRP problems.
+
+Attributes:
+    Solution: Class for solution representation.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk import Solution
+    >>> solution = Solution([[1, 2], [3, 4]], np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]]), {1: 10, 2: 20, 3: 30, 4: 40}, 100, 2, 3)
+    >>> print(solution)
+    Solution(routes=2, nodes=4, profit=60.00, cost=60.00, revenue=200.00)
 """
 
 from typing import Dict, List, Optional
@@ -14,6 +23,18 @@ class Solution:
     Solution wrapper for HULK hyper-heuristic.
 
     Maintains routes and efficiently computes cost/profit metrics.
+
+    Attributes:
+        routes: List of routes (each route is a list of node indices).
+        dist_matrix: Distance matrix.
+        wastes: Node waste dictionary.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+
+        _cost: Cached cost.
+        _revenue: Cached revenue.
+        _profit: Cached profit.
     """
 
     def __init__(
@@ -50,13 +71,20 @@ class Solution:
         self._compute_metrics()
 
     def _compute_metrics(self):
-        """Compute cost, revenue, and profit."""
+        """
+        Compute cost, revenue, and profit.
+        """
         self._cost = self.calculate_cost()
         self._revenue = self.calculate_revenue()
         self._profit = self._revenue - self._cost
 
     def calculate_cost(self) -> float:
-        """Calculate total routing cost."""
+        """
+        Calculate total routing cost.
+
+        Returns:
+            float: Total routing cost.
+        """
         total_dist = 0.0
         for route in self.routes:
             if not route:
@@ -72,7 +100,12 @@ class Solution:
         return total_dist * self.C
 
     def calculate_revenue(self) -> float:
-        """Calculate total revenue from collected waste."""
+        """
+        Calculate total revenue from collected waste.
+
+        Returns:
+            float: Total revenue.
+        """
         total_waste = 0.0
         for route in self.routes:
             for node in route:
@@ -81,21 +114,41 @@ class Solution:
 
     @property
     def cost(self) -> Optional[float]:
-        """Get solution cost."""
+        """
+        Get solution cost.
+
+        Returns:
+            float: Solution cost.
+        """
         return self._cost
 
     @property
     def revenue(self) -> Optional[float]:
-        """Get solution revenue."""
+        """
+        Get solution revenue.
+
+        Returns:
+            float: Solution revenue.
+        """
         return self._revenue
 
     @property
     def profit(self) -> Optional[float]:
-        """Get solution profit."""
+        """
+        Get solution profit.
+
+        Returns:
+            float: Solution profit.
+        """
         return self._profit
 
     def is_feasible(self) -> bool:
-        """Check if solution respects capacity constraints."""
+        """
+        Check if solution respects capacity constraints.
+
+        Returns:
+            bool: True if solution is feasible, False otherwise.
+        """
         for route in self.routes:
             route_waste = sum(self.wastes.get(node, 0.0) for node in route)
             if route_waste > self.capacity:
@@ -103,17 +156,35 @@ class Solution:
         return True
 
     def get_route_load(self, route_idx: int) -> float:
-        """Get load for specific route."""
+        """
+        Get load for specific route.
+
+        Args:
+            route_idx: Route index.
+
+        Returns:
+            float: Route load.
+        """
         if route_idx >= len(self.routes):
             return 0.0
         return sum(self.wastes.get(node, 0.0) for node in self.routes[route_idx])
 
     def get_total_nodes(self) -> int:
-        """Get total number of nodes in solution."""
+        """
+        Get total number of nodes in solution.
+
+        Returns:
+            int: Total number of nodes.
+        """
         return sum(len(route) for route in self.routes)
 
     def copy(self) -> "Solution":
-        """Create a deep copy of the solution."""
+        """
+        Create a deep copy of the solution.
+
+        Returns:
+            Solution: Deep copy of the solution.
+        """
         routes_copy = [list(route) for route in self.routes]
         return Solution(
             routes_copy,
@@ -135,7 +206,12 @@ class Solution:
         self._compute_metrics()
 
     def __repr__(self) -> str:
-        """String representation."""
+        """
+        String representation.
+
+        Returns:
+            str: String representation.
+        """
         return (
             f"Solution(routes={len(self.routes)}, "
             f"nodes={self.get_total_nodes()}, "

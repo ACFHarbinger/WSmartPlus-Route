@@ -25,6 +25,15 @@ threshold of the best solution.
 Reference:
     Kheiri, A. "Heuristic Sequence Selection for Inventory Routing Problem", 2014.
     Bibliography: bibliography/Sequence-based_Selection_Hyper-Heuristic.pdf
+
+Attributes:
+    _SeqEntry: Represents an entry in the heuristic sequence.
+    SSHHSolver: Implements the Sequence-based Selection Hyper-Heuristic.
+
+Example:
+    >>> solver = SSHHSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+    >>> routes, profit, cost
 """
 
 import contextlib
@@ -84,6 +93,20 @@ class SSHHSolver:
     - **Move acceptance**: threshold-based criterion (Eq. 4).
     - **Score updates**: Δ_norm-weighted increments when the sequence improves
       the global best.
+
+    Attributes:
+        dist_matrix: Distance matrix.
+        wastes: Mapping from node index to waste volume.
+        capacity: Vehicle capacity.
+        R: Revenue parameter.
+        C: Cost parameter.
+        params: SSHH parameters.
+        mandatory_nodes: Optional list of mandatory nodes.
+        n_llh: Number of low-level heuristics.
+        n_nodes: Number of nodes.
+        random: Random number generator.
+        TMatrix: Transition scores between LLHs.
+        ASMatrix: Acceptance strategy scores.
     """
 
     def __init__(
@@ -255,6 +278,15 @@ class SSHHSolver:
 
         In this VRPP context all solutions are feasible (profit-collecting),
         so we always use the feasible formula.
+
+        Args:
+            new_profit (float): Profit of the new solution.
+            candidate_profit (float): Profit of the candidate solution.
+            best_profit (float): Profit of the best solution.
+            elapsed (float): Elapsed time.
+
+        Returns:
+            bool: Whether the new solution is accepted.
         """
         # Direct improvement
         if new_profit >= candidate_profit:
@@ -273,9 +305,16 @@ class SSHHSolver:
     # ------------------------------------------------------------------
 
     def _roulette_wheel_row(self, scores: np.ndarray) -> int:
-        """Roulette-wheel selection over a row of raw scores.
+        """
+        Roulette-wheel selection over a row of raw scores.
 
         P(j) = scores[j] / Σ_k scores[k]   (Eq. 2 for TMatrix, Eq. 3 for ASMatrix)
+
+        Args:
+            scores (np.ndarray): Array of raw scores.
+
+        Returns:
+            int: Selected index.
         """
         total = scores.sum()
         if total <= 0:
@@ -293,7 +332,16 @@ class SSHHSolver:
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L0: random_removal + greedy_insertion."""
+        """
+        L0: random_removal + greedy_insertion.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+            n (int): Number of nodes.
+
+        Returns:
+            List[List[int]]: List of routes after applying the heuristic.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -313,7 +361,16 @@ class SSHHSolver:
         )
 
     def _llh1(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L1: worst_removal + regret_2_insertion."""
+        """
+        L1: worst_removal + regret_2_insertion.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+            n (int): Number of nodes.
+
+        Returns:
+            List[List[int]]: List of routes after applying the heuristic.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -334,7 +391,16 @@ class SSHHSolver:
         )
 
     def _llh2(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L2: cluster_removal + greedy_insertion."""
+        """
+        L2: cluster_removal + greedy_insertion.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+            n (int): Number of nodes.
+
+        Returns:
+            List[List[int]]: List of routes after applying the heuristic.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -354,7 +420,16 @@ class SSHHSolver:
         )
 
     def _llh3(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L3: worst_removal + greedy_insertion."""
+        """
+        L3: worst_removal + greedy_insertion.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+            n (int): Number of nodes.
+
+        Returns:
+            List[List[int]]: List of routes after applying the heuristic.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -375,7 +450,16 @@ class SSHHSolver:
         )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L4: random_removal + regret_2_insertion."""
+        """
+        L4: random_removal + regret_2_insertion.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+            n (int): Number of nodes.
+
+        Returns:
+            List[List[int]]: List of routes after applying the heuristic.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
         p, r = random_removal(routes, n, self.random)
@@ -394,7 +478,16 @@ class SSHHSolver:
         )
 
     def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L5: shaw_removal + greedy_insertion."""
+        """
+        L5: shaw_removal + greedy_insertion.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+            n (int): Number of nodes.
+
+        Returns:
+            List[List[int]]: List of routes after applying the heuristic.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -416,7 +509,16 @@ class SSHHSolver:
             )
 
     def _llh6(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L6: string_removal + regret_2_insertion."""
+        """
+        L6: string_removal + regret_2_insertion.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+            n (int): Number of nodes.
+
+        Returns:
+            List[List[int]]: List of routes after applying the heuristic.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -440,7 +542,12 @@ class SSHHSolver:
     # ------------------------------------------------------------------
 
     def _build_initial_solution(self) -> List[List[int]]:
-        """Algorithm 1, line 12: construct initial solution."""
+        """
+        Algorithm 1, line 12: construct initial solution.
+
+        Returns:
+            List[List[int]]: Initial solution.
+        """
         return build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -452,14 +559,30 @@ class SSHHSolver:
         )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """
+        Calculate net profit for a set of routes.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+
+        Returns:
+            float: Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """
+        Calculate total routing distance.
+
+        Args:
+            routes (List[List[int]]): List of routes.
+
+        Returns:
+            float: Total routing distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

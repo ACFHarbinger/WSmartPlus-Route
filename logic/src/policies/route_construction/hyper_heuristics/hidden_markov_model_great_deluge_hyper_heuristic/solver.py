@@ -21,6 +21,21 @@ Reference:
     A Hyper-Heuristic as a Hidden Markov Model", 2014
     McMullan, P. "An Extended Implementation of the Great
     Deluge Algorithm for Course Timetabling", 2007
+
+Attributes:
+    _OBS_IMPROVE (int): Observation for improved solution.
+    _OBS_WORSE (int): Observation for worse solution with same cost.
+    _OBS_WORSE_COST (int): Observation for worse solution with higher cost.
+    _OBS_SAME (int): Observation for same solution.
+    _OBS_SAME_COST (int): Observation for same solution with same cost.
+    _N_OBS (int): Number of observations.
+    HMMGDHHSolver: Solves VRPP using Hidden Markov Model + Great Deluge.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic import HMMGDHHSolver, HMMGDHHParams, run_hmmgd_hh
+    >>> solver = HMMGDHHSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> best_solution, best_profit, best_cost = solver.solve()
+    >>> print(best_solution, best_profit, best_cost)
 """
 
 import copy
@@ -80,6 +95,31 @@ class HMMGDHHSolver:
     The IOHMM learns and updates its belief based on *every* proposed move (exploration),
     mapping the immediate neighborhood dynamics. The Great Deluge (GD) criterion
     independently controls the *acceptance trajectory*.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Mapping from node index to waste volume.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue parameter.
+        C (float): Cost parameter.
+        params (HMMGDHHParams): HMM-GD-HH parameters.
+        mandatory_nodes (Optional[List[int]]): Optional list of mandatory nodes.
+        n_nodes (int): Number of nodes.
+        n_llh (int): Number of Low-Level Heuristics.
+        n_states (int): Number of hidden states.
+        nodes: List of nodes.
+        random: Random state.
+        _llh_pool (List[Callable]): Pool of Low-Level Heuristics.
+        alpha (float): Weight for entropy in action selection.
+        gamma (float): Decay factor for online EM counts.
+        t (int): Observation counter.
+        _counts_A (np.ndarray): Count matrix for transition matrix.
+        _counts_B (np.ndarray): Count matrix for emission matrix.
+        _A (np.ndarray): Transition matrix.
+        _B (np.ndarray): Emission matrix.
+        _belief (np.ndarray): Belief matrix.
+        _expected_profit (np.ndarray): Expected profit matrix.
+        _profit_counts (np.ndarray): Profit counts matrix.
     """
 
     def __init__(
@@ -179,6 +219,12 @@ class HMMGDHHSolver:
         given the old data" (Onsem et al. 2014, Section 6), the IOHMM learns the
         local neighborhood topology from every proposed move. The Great Deluge
         threshold then filters these proposals to manage the global search trajectory.
+
+        Args:
+            initial_routes: Initial routes for the VRPP.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Tuple of (best_routes, best_profit, best_cost).
         """
         routes = copy.deepcopy(initial_routes)
         profit = self._evaluate(routes)
@@ -271,7 +317,15 @@ class HMMGDHHSolver:
     # ------------------------------------------------------------------
 
     def _map_observation(self, delta_profit: float, delta_cost: float) -> int:
-        """Map profit/cost changes to discrete alphabet (Fix #R-Final-1)."""
+        """Map profit/cost changes to discrete alphabet (Fix #R-Final-1).
+
+        Args:
+            delta_profit: Change in profit.
+            delta_cost: Change in cost.
+
+        Returns:
+            int: Index of the observation.
+        """
         if delta_profit > 1e-9:
             return _OBS_IMPROVE
         if delta_profit < -1e-9:
@@ -279,18 +333,25 @@ class HMMGDHHSolver:
         # delta_profit is roughly 0
         return _OBS_SAME_COST if delta_cost > 1e-9 else _OBS_SAME
 
-    def _check_state_scaling(self):
-        """Scale number of states with O(sqrt(log t)) (Fix #3)."""
+    def _check_state_scaling(self) -> None:
+        """Scale number of states with O(sqrt(log t)) (Fix #3).
+
+        Returns:
+            None: Modifies the state of the solver.
+        """
         target_n = int(np.ceil(np.sqrt(np.log(self.t + 1)))) + 1
         if target_n > self.n_states:
             self._split_state()
 
-    def _split_state(self):
+    def _split_state(self) -> None:
         """
         Split the "least determined" state (Fix #1: Combined Entropy Split).
 
         Following Onsem et al. (2014) Section 6, the state with the highest combined
         uncertainty in both output character and next state is chosen for splitting.
+
+        Returns:
+            None: Modifies the state of the solver.
         """
         uncertainties = []
         for s in range(self.n_states):
@@ -374,6 +435,10 @@ class HMMGDHHSolver:
         approximation. It estimates the joint transition probabilities using
         strictly the Forward variables, applying a decay factor γ=0.9 to
         construct an exponential moving average of the state-transition counts.
+
+        Args:
+            u_idx: Index of the Low-Level Heuristic (LLH).
+            o_idx: Index of the observation.
         """
         # Forward Step: alpha_t(j) = P(o_t | s_j, u_t) * sum_i alpha_{t-1}(i) * P(s_j | s_i, u_t)
         new_belief = np.zeros(self.n_states)
@@ -417,6 +482,13 @@ class HMMGDHHSolver:
         Entropy-Maximizing Action Selection with Dynamic Annealing (Fix #5, #R1, #R-Final-1 & #Final-3).
 
         score(u) = NormalizedProfit(u) + current_alpha * Entropy(P(s_{t+1}|u))
+
+        Args:
+            iteration: Current iteration.
+            max_iterations: Maximum number of iterations.
+
+        Returns:
+            int: Index of the selected action.
         """
         # 1. Calculate raw expected profits and future entropies
         raw_profits = np.zeros(self.n_llh)
@@ -458,7 +530,15 @@ class HMMGDHHSolver:
     # ------------------------------------------------------------------
 
     def _llh0(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L0: random_removal + greedy_insertion."""
+        """L0: random_removal + greedy_insertion.
+
+        Args:
+            routes: List of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -478,7 +558,15 @@ class HMMGDHHSolver:
         )
 
     def _llh1(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L1: worst_removal + regret_2_insertion."""
+        """L1: worst_removal + regret_2_insertion.
+
+        Args:
+            routes: List of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -499,7 +587,15 @@ class HMMGDHHSolver:
         )
 
     def _llh2(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L2: cluster_removal + greedy_insertion."""
+        """L2: cluster_removal + greedy_insertion.
+
+        Args:
+            routes: List of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -519,7 +615,15 @@ class HMMGDHHSolver:
         )
 
     def _llh3(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L3: worst_removal + greedy_insertion."""
+        """L3: worst_removal + greedy_insertion.
+
+        Args:
+            routes: List of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -540,7 +644,15 @@ class HMMGDHHSolver:
         )
 
     def _llh4(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L4: random_removal + regret_2_insertion."""
+        """L4: random_removal + regret_2_insertion.
+
+        Args:
+            routes: List of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -560,7 +672,15 @@ class HMMGDHHSolver:
         )
 
     def _llh5(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L5: shaw_removal + greedy_insertion."""
+        """L5: shaw_removal + greedy_insertion.
+
+        Args:
+            routes: List of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -581,7 +701,15 @@ class HMMGDHHSolver:
         )
 
     def _llh6(self, routes: List[List[int]], n: int) -> List[List[int]]:
-        """L6: string_removal + regret_2_insertion."""
+        """L6: string_removal + regret_2_insertion.
+
+        Args:
+            routes: List of routes.
+            n: Number of nodes to remove.
+
+        Returns:
+            List[List[int]]: List of routes.
+        """
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
 
@@ -610,6 +738,9 @@ class HMMGDHHSolver:
         Random node ordering causes different capacity cutoffs, creating
         genuinely diverse initial solutions. Uses self.C for the profitability
         check so that economics are consistent with the solver's _evaluate().
+
+        Returns:
+            List[List[int]]: List of routes.
         """
         optimized_routes = build_nn_routes(
             nodes=self.nodes,
@@ -623,14 +754,28 @@ class HMMGDHHSolver:
         return optimized_routes
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Net profit for a set of routes."""
+        """Net profit for a set of routes.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Total routing distance."""
+        """Total routing distance.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Total routing distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

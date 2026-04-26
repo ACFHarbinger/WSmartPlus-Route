@@ -5,6 +5,44 @@ Reference:
     Müller, L. F., & Bonilha, I. (2022). "Hyper-Heuristic Based on ACO
     and Local Search for Dynamic Optimization Problems."
     Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
+
+Attributes:
+    HULKParams: Class for HULK hyper-heuristic parameters.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import HULKParams
+    >>> params = HULKParams()
+    >>> print(params)
+    HULKParams(
+        max_iterations=1000,
+        time_limit=300.0,
+        restarts=3,
+        restart_threshold=100,
+        vrpp=False,
+        profit_aware_operators=False,
+        seed=None,
+        epsilon=0.3,
+        epsilon_decay=0.995,
+        min_epsilon=0.05,
+        memory_size=50,
+        accept_worse_prob=0.1,
+        acceptance_decay=0.99,
+        start_temp=100.0,
+        cooling_rate=0.99,
+        min_temp=0.01,
+        min_destroy_size=2,
+        max_destroy_pct=0.3,
+        local_search_iterations=10,
+        local_search_operators=["2-opt", "3-opt", "swap", "relocate"],
+        unstring_operators=["type_i", "type_ii", "type_iii", "type_iv"],
+        string_operators=["type_i", "type_ii", "type_iii", "type_iv"],
+        score_alpha=10.0,
+        score_beta=5.0,
+        score_gamma=-1.0,
+        score_delta=20.0,
+        weight_learning_rate=0.1,
+        weight_decay=0.95,
+    )
 """
 
 from dataclasses import dataclass, field
@@ -13,7 +51,39 @@ from typing import Any, List, Optional
 
 @dataclass
 class HULKParams:
-    """Parameters for HULK hyper-heuristic."""
+    """Parameters for HULK hyper-heuristic.
+
+    Attributes:
+        max_iterations: Maximum number of iterations.
+        time_limit: Time limit in seconds.
+        restarts: Number of restarts.
+        restart_threshold: Threshold for restarts.
+        vrpp: Whether to use VRPP.
+        profit_aware_operators: Whether to use profit-aware operators.
+        seed: Random seed.
+        epsilon: Epsilon for epsilon-greedy strategy.
+        epsilon_decay: Epsilon decay rate.
+        min_epsilon: Minimum epsilon.
+        memory_size: Memory size for performance tracking.
+        accept_worse_prob: Probability of accepting worse solutions.
+        acceptance_decay: Acceptance decay rate.
+        start_temp: Starting temperature for simulated annealing.
+        cooling_rate: Cooling rate for simulated annealing.
+        min_temp: Minimum temperature for simulated annealing.
+        min_destroy_size: Minimum size of destroyed set.
+        max_destroy_pct: Maximum percentage of destroyed nodes.
+        local_search_iterations: Number of local search iterations.
+        local_search_operators: List of local search operators.
+        unstring_operators: List of unstringing operators.
+        string_operators: List of stringing operators.
+        weight_learning_rate: Weight learning rate.
+        weight_decay: Weight decay rate.
+        operator_weights: Dictionary of operator weights.
+        score_best: Score for best solutions.
+        score_improvement: Score for improving solutions.
+        score_accept: Score for accepting solutions.
+        score_reject: Score for rejecting solutions.
+    """
 
     # Search parameters
     max_iterations: int = 1000
@@ -95,7 +165,15 @@ class HULKParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "HULKParams":
-        """Create parameters from a configuration object."""
+        """
+        Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            HULKParams: Instance of HULKParams.
+        """
         return cls(
             max_iterations=getattr(config, "max_iterations", 1000),
             time_limit=getattr(config, "time_limit", 300.0),
@@ -127,7 +205,13 @@ class HULKParams:
         )
 
     def __post_init__(self):
-        """Initialize operator weights if not provided."""
+        """
+        Initialize operator weights if not provided.
+
+        This method is called after __init__ and initializes the operator_weights
+        dictionary if it is empty. The weights are initialized to 1.0 for all
+        operators defined in unstring_operators, string_operators, and local_search_operators.
+        """
         if not self.operator_weights:
             all_ops = self.unstring_operators + self.string_operators + self.local_search_operators
             self.operator_weights = {op: 1.0 for op in all_ops}
