@@ -22,6 +22,16 @@ Bandit Algorithms:
 Reference:
     Implementation follows the deep analysis report recommendations.
     Li et al., "A Contextual-Bandit Approach", WWW 2010.
+
+Attributes:
+    RLAHVPLSolver (RLAHVPLSolver): RL-AHVPL solver class.
+
+Example:
+    >>> solver = RLAHVPLSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+    >>> print(routes)
+    >>> print(profit)
+    >>> print(cost)
 """
 
 import copy
@@ -50,6 +60,28 @@ class RLAHVPLSolver:
     - Enhanced operators throughout the pipeline
     - Adaptive diversity management
     - Systematic local search
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Node wastes.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        params (RLAHVPLParams): RLAHVPLParams parameters.
+        mandatory_nodes (Optional[List[int]]): Mandatory nodes to visit.
+        n_nodes (int): Number of nodes.
+        nodes (List[int]): List of nodes.
+        random (random.Random): Random number generator.
+        aco_solver (KSparseACOQLSolver): ACO solver.
+        pheromone (np.ndarray): Pheromone matrix.
+        constructor (KSparseACOQLConstructor): ACO constructor.
+        alns_solver (ALNSSARSASolver): ALNS solver.
+        split_manager (LinearSplit): Split manager.
+        cmab_evolution (CMABEvolution): CMAB evolution.
+        edge_penalties (np.ndarray): Edge penalties.
+        solution_history (Dict[int, int]): Solution history.
+        tabu_list (Deque[int]): Tabu list.
+        best_profit_history (List[float]): Best profit history.
     """
 
     def __init__(
@@ -171,7 +203,12 @@ class RLAHVPLSolver:
     # ===== Initialization =====
 
     def _initialize_population(self) -> List[Individual]:
-        """Generate initial population using enhanced ACO."""
+        """
+        Generate initial population using enhanced ACO.
+
+        Returns:
+            List[Individual]: Initial population.
+        """
         population: List[Individual] = []
         # Target size is n_teams
         for _ in range(self.params.n_teams):
@@ -190,7 +227,15 @@ class RLAHVPLSolver:
         return population
 
     def _construct_individual(self) -> Optional[Individual]:
-        """Build Individual from ACO-Q solution."""
+        """
+        Build Individual from ACO-Q solution.
+
+        Args:
+            None
+
+        Returns:
+            Optional[Individual]: Individual.
+        """
         routes, profit, cost = self.aco_solver.solve()
         if not routes:
             return None
@@ -392,7 +437,16 @@ class RLAHVPLSolver:
     # ===== Coaching Methods =====
 
     def _gls_coaching(self, ind: Individual, iterations: int = 100) -> Individual:
-        """Guided Local Search coaching using augmented objective."""
+        """
+        Guided Local Search coaching using augmented objective.
+
+        Args:
+            ind (Individual): Individual to coach.
+            iterations (int): Number of iterations.
+
+        Returns:
+            Individual: Coached individual.
+        """
         routes = [r[:] for r in ind.routes]
         best_routes = [r[:] for r in routes]
 
@@ -449,7 +503,16 @@ class RLAHVPLSolver:
         return ind
 
     def _alns_coaching(self, ind: Individual, iterations: int = 100) -> Individual:
-        """Enhanced ALNS-SARSA coaching."""
+        """
+        Enhanced ALNS-SARSA coaching.
+
+        Args:
+            ind (Individual): Individual to coach.
+            iterations (int): Number of iterations.
+
+        Returns:
+            Individual: Coached individual.
+        """
         old_iters = self.alns_solver.params.max_iterations
         self.alns_solver.params.max_iterations = iterations
 
@@ -474,21 +537,45 @@ class RLAHVPLSolver:
     # ===== Helper Methods =====
 
     def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
-        """Binary tournament selection."""
+        """
+        Binary tournament selection.
+
+        Args:
+            population (List[Individual]): Population.
+
+        Returns:
+            Tuple[Individual, Individual]: Parents.
+        """
         if len(population) < 2:
             # This should not happen with current safeguards, but handle for safety
             p = population[0] if population else Individual([])
             return p, p
 
         def tournament() -> Individual:
-            """tournament docstring."""
+            """
+            Tournament selection.
+
+            Args:
+                population (List[Individual]): Population.
+
+            Returns:
+                Individual: Individual selected from tournament.
+            """
             i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 
         return tournament(), tournament()
 
     def _mutate(self, ind: Individual) -> None:
-        """SWAP mutation."""
+        """
+        SWAP mutation.
+
+        Args:
+            ind (Individual): Individual to mutate.
+
+        Returns:
+            None
+        """
         size = len(ind.giant_tour)
         if size < 2:
             return
@@ -497,11 +584,24 @@ class RLAHVPLSolver:
         ind.is_coached = False
 
     def _hash_solution(self, ind: Individual) -> int:
-        """Hash for cycle detection."""
+        """
+        Hash for cycle detection.
+
+        Args:
+            ind (Individual): Individual to hash.
+
+        Returns:
+            int: Hash of the individual.
+        """
         return hash(tuple(tuple(r) for r in ind.routes))
 
     def _penalize_local_optimum_edges(self, routes: List[List[int]]) -> None:
-        """GLS penalty update."""
+        """
+        GLS penalty update.
+
+        Args:
+            routes (List[List[int]]): Routes to penalize.
+        """
         edges = set()
         for route in routes:
             if not route:
@@ -527,7 +627,15 @@ class RLAHVPLSolver:
             self.edge_penalties[best_edge[0]][best_edge[1]] += 1.0
 
     def _augmented_evaluate(self, routes: List[List[int]]) -> float:
-        """Evaluate with penalty-augmented objective."""
+        """
+        Evaluate with penalty-augmented objective.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+
+        Returns:
+            float: Augmented objective value.
+        """
         real = self._evaluate_routes(routes)
         penalty = 0.0
         dynamic_lambda = self.params.gls_penalty_lambda * (abs(real) / max(1, self.n_nodes))
@@ -541,7 +649,17 @@ class RLAHVPLSolver:
         return real - self.params.gls_penalty_lambda * dynamic_lambda * penalty
 
     def _update_pheromones_profit(self, routes: List[List[int]], profit: float, cost: float) -> None:
-        """Profit-based pheromone update."""
+        """
+        Profit-based pheromone update.
+
+        Args:
+            routes (List[List[int]]): Routes to update.
+            profit (float): Profit to update.
+            cost (float): Cost to update.
+
+        Returns:
+            None
+        """
         if not routes or profit <= 0:
             return
 
@@ -558,7 +676,15 @@ class RLAHVPLSolver:
 
     @staticmethod
     def _routes_to_giant_tour(routes: List[List[int]]) -> List[int]:
-        """Flatten routes, ensuring depot (0) is filtered and duplicates removed."""
+        """
+        Flatten routes, ensuring depot (0) is filtered and duplicates removed.
+
+        Args:
+            routes (List[List[int]]): Routes to flatten.
+
+        Returns:
+            List[int]: Giant tour.
+        """
         gt: List[int] = []
         seen = {0}
         for route in routes:
@@ -569,7 +695,15 @@ class RLAHVPLSolver:
         return gt
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate routing cost."""
+        """
+        Calculate routing cost.
+
+        Args:
+            routes (List[List[int]]): Routes to calculate cost for.
+
+        Returns:
+            float: Routing cost.
+        """
         total = 0.0
         for route in routes:
             if not route:
@@ -581,7 +715,15 @@ class RLAHVPLSolver:
         return total * self.C
 
     def _evaluate_routes(self, routes: List[List[int]]) -> float:
-        """Calculate profit."""
+        """
+        Evaluate routes by calculating profit.
+
+        Args:
+            routes (List[List[int]]): Routes to evaluate.
+
+        Returns:
+            float: Profit.
+        """
         cost = self._calculate_cost(routes)
         revenue = sum(self.wastes.get(n, 0) * self.R for r in routes for n in r)
         return revenue - cost

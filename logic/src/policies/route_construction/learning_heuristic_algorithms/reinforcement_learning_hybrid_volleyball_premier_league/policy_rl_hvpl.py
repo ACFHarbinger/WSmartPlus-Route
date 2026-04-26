@@ -3,6 +3,19 @@ RL-HVPL Policy Adapter.
 
 Adapts the Reinforcement Learning Hybrid Volleyball Premier League logic
 to the agnostic policy interface.
+
+Attributes:
+    RLHVPLPolicy: RLHVPL policy class.
+
+Examples:
+    >>> rl_hvpl_policy = RLHVPLPolicy()
+    >>> routes, profit, cost = rl_hvpl_policy.run(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, values)
+    >>> print(routes)
+    [[1, 2, 3], [4, 5, 6]]
+    >>> print(profit)
+    1000.0
+    >>> print(cost)
+    100.0
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -37,6 +50,9 @@ class RLHVPLPolicy(BaseRoutingPolicy):
     RL-HVPL policy class.
 
     Visits pre-selected 'mandatory' bins using the population-based RL-HVPL metaheuristic.
+
+    Attributes:
+        config: RLHVPLConfig dataclass, raw dict from YAML, or None.
     """
 
     def __init__(self, config: Optional[Union[RLHVPLConfig, Dict[str, Any]]] = None):
@@ -49,10 +65,19 @@ class RLHVPLPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return config class for RL-HVPL.
+
+        Returns:
+            Optional[Type]: Config class for RL-HVPL.
+        """
         return RLHVPLConfig
 
     def _get_config_key(self) -> str:
-        """Return config key for RL-HVPL."""
+        """Return config key for RL-HVPL.
+
+        Returns:
+            str: Config key for RL-HVPL.
+        """
         return "rl_hvpl"
 
     def _run_solver(
@@ -90,7 +115,7 @@ class RLHVPLPolicy(BaseRoutingPolicy):
                 HVPL parameters, nested ACO parameters, and ALNS settings.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

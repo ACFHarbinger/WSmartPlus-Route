@@ -5,6 +5,14 @@ The master problem coordinates the multi-day bin assignment decisions z_{id}
 and provides an optimistic upper bound on the expected horizon profit via
 surrogate variables θ_d that are progressively tightened by Benders optimality
 cuts delivered from the routing subproblems.
+
+Attributes:
+    GurobiMasterProblem: A class that solves the master MIP of the Temporal Benders Decomposition.
+
+Example:
+    >>> from gurobi_master import GurobiMasterProblem
+    >>> master = GurobiMasterProblem()
+    >>> master.solve()
 """
 
 import contextlib
@@ -53,7 +61,7 @@ class GurobiMasterProblem:
     UB is within ``convergence_tol`` of the best primal lower bound (LB)
     computed from the subproblem objectives.
 
-    Attributes
+    Attributes:
     ----------
     n_bins    : Total number of bins (1-indexed).
     horizon   : Number of planning days T.
@@ -87,6 +95,9 @@ class GurobiMasterProblem:
             time_limit: Maximum Gurobi solve time in seconds per master call.
             output_flag: Set to True to enable Gurobi console output (useful
                 for debugging; suppressed by default).
+
+        Returns:
+            None
         """
         self.n_bins = n_bins
         self.horizon = horizon
@@ -112,7 +123,18 @@ class GurobiMasterProblem:
         time_limit: float,
         output_flag: bool,
     ) -> None:
-        """Construct the Gurobi model from scratch."""
+        """Construct the Gurobi model from scratch.
+
+        Args:
+            max_visits: Maximum times bin i may be assigned across all days.
+            theta_ub: Initial upper bound on each theta[d] variable.
+            mip_gap: Relative MIP optimality gap tolerance for Gurobi.
+            time_limit: Maximum Gurobi solve time in seconds per master call.
+            output_flag: Set to True to enable Gurobi console output.
+
+        Returns:
+            None
+        """
         env = gp.Env(empty=True)
         env.setParam("OutputFlag", int(output_flag))
         env.setParam("LogToConsole", int(output_flag))
@@ -173,6 +195,9 @@ class GurobiMasterProblem:
                 ``"day"``          – day index d ∈ [0, T−1].
                 ``"constant"``     – scalar RHS constant.
                 ``"coefficients"`` – {bin_id: linear coefficient of z[bin_id, d]}.
+
+        Returns:
+            None
         """
         d = cut["day"]
         constant = float(cut["constant"])
@@ -204,6 +229,9 @@ class GurobiMasterProblem:
 
         Args:
             cuts: List of cut dictionaries (same format as ``add_benders_cut``).
+
+        Returns:
+            None
         """
         for cut in cuts:
             d = cut["day"]
@@ -276,6 +304,9 @@ class GurobiMasterProblem:
         valid cuts).
 
         Returns ``+inf`` if the model has not been solved successfully.
+
+        Returns:
+            Objective value as a float (``float("inf")`` if not solved successfully).
         """
         try:
             return float(self.model.ObjVal)
@@ -283,7 +314,11 @@ class GurobiMasterProblem:
             return float("inf")
 
     def get_mip_gap(self) -> float:
-        """Return the relative MIP gap of the last solve (0.0 = optimal)."""
+        """Return the relative MIP gap of the last solve (0.0 = optimal).
+
+        Returns:
+            MIP gap as a float (0.0 = optimal).
+        """
         try:
             return float(self.model.MIPGap)
         except (AttributeError, gp.GurobiError):
@@ -294,6 +329,13 @@ class GurobiMasterProblem:
     # ------------------------------------------------------------------ #
 
     def dispose(self) -> None:
-        """Free Gurobi model and associated environment resources."""
+        """Free Gurobi model and associated environment resources.
+
+        This releases the memory and other resources held by the Gurobi model.
+        It is good practice to call this method when the master problem is no longer needed.
+
+        Returns:
+            None
+        """
         with contextlib.suppress(Exception):
             self.model.dispose()

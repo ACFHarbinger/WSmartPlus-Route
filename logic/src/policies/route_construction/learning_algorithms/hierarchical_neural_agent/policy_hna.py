@@ -6,6 +6,16 @@ Provides a simulator-callable policy shim that wraps the trained
 to a threshold-based Manager + greedy Worker.
 
 Registry key: ``"hna"``
+
+Attributes:
+    HierarchicalNeuralAgentPolicy: Hierarchical Neural Agent Policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms import HierarchicalNeuralAgentPolicy
+    >>> policy = HierarchicalNeuralAgentPolicy()
+    >>> routes, metrics = policy.run_day(env)
+    >>> print(f"Best routes: {routes}")
+    >>> print(f"Metrics: {metrics}")
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -53,13 +63,23 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
     propagate multi-day plans and scenario transitions through the simulator.
 
     Registry key: ``"hna"``
+
+    Attributes:
+        config: Configuration for the HNA policy.
+        params: Parameters for the HNA policy.
+        _module: HRLIRPModule instance.
+        _module_loaded: Flag indicating whether the HRLIRPModule has been loaded.
     """
 
     def __init__(
         self,
         config: Optional[Union[HNAPolicyConfig, Dict[str, Any]]] = None,
     ) -> None:
-        """Initialise the HRL-IRP simulator policy."""
+        """Initialise the HRL-IRP simulator policy.
+
+        Args:
+            config: Configuration for the HNA policy.
+        """
         super().__init__(config)
         self.params = HNAParams.from_config(config)
         self._module: Optional[Any] = None  # loaded lazily from checkpoint
@@ -67,13 +87,32 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Type[HNAPolicyConfig]:
+        """Return the configuration class for this policy.
+
+        Returns:
+            Type[HNAPolicyConfig]: The configuration class for this policy.
+        """
         return HNAPolicyConfig
 
     def _get_config_key(self) -> str:
+        """Return the configuration key for this policy.
+
+        Returns:
+            str: The configuration key for this policy.
+        """
         return "hna"
 
     def _load_module(self) -> None:
-        """Lazily load the HRLIRPModule from checkpoint."""
+        """Load the HRLIRPModule from checkpoint.
+
+        The module is loaded lazily, only when needed.
+
+        Returns:
+            None
+
+        Raises:
+            Exception: If the module cannot be loaded.
+        """
         if self._module_loaded:
             return
 
@@ -107,7 +146,15 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
         wastes: Dict[int, float],
         locs: Optional[np.ndarray] = None,
     ) -> List[int]:
-        """Select mandatory nodes for the current day."""
+        """Select mandatory nodes for the current day.
+
+        Args:
+            wastes: Dictionary of wastes.
+            locs: Locations of the wastes.
+
+        Returns:
+            List[int]: List of mandatory nodes.
+        """
         params = self.params
         self._load_module()
         if self._module is not None and locs is not None:

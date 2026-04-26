@@ -1,5 +1,13 @@
 """
-Fix-and-Optimize Corridor Method.
+Fix-and-Optimize Corridor Method
+
+Attributes:
+    FixAndOptimizeRefiner: A class that solves the Benders decomposition sub-problem for a single day.
+
+Example:
+    >>> from fix_and_optimize import FixAndOptimizeRefiner
+    >>> refiner = FixAndOptimizeRefiner()
+    >>> refiner.solve()
 """
 
 from typing import Any, List, Set
@@ -53,7 +61,7 @@ class FixAndOptimizeRefiner:
     routes are passed as warm-start columns to the BPC RMP, reducing the
     initial column-generation overhead for the corridor sub-problem.
 
-    Attributes
+    Attributes:
     ----------
     tabu_list : List[Set[int]]
         Recently used cluster sets, bounded to the last ``tabu_length`` entries.
@@ -118,9 +126,7 @@ class FixAndOptimizeRefiner:
         if len(self.tabu_list) > self.tabu_length:
             self.tabu_list.pop(0)
 
-    def select_cluster_overflow_urgency(
-        self, unrouted: List[int], days_to_overflow: np.ndarray
-    ) -> Set[int]:
+    def select_cluster_overflow_urgency(self, unrouted: List[int], days_to_overflow: np.ndarray) -> Set[int]:
         """
         Select the ``max_unfix`` most overflow-urgent bins.
 
@@ -235,9 +241,7 @@ class FixAndOptimizeRefiner:
         if strategy == "overflow_urgency":
             cluster = self.select_cluster_overflow_urgency(all_nodes, days_to_overflow)
         else:
-            cluster = self.select_cluster_scenario_divergence(
-                all_nodes, scenario_tree, current_day
-            )
+            cluster = self.select_cluster_scenario_divergence(all_nodes, scenario_tree, current_day)
 
         if self._is_tabu(cluster):
             return current_incumbent
@@ -245,11 +249,7 @@ class FixAndOptimizeRefiner:
         self._add_to_tabu(cluster)
 
         # Warm-start: filter routes that exclusively service the unfixed corridor
-        filtered_routes = [
-            route
-            for route in global_column_pool
-            if all(n in cluster or n == 0 for n in route.nodes)
-        ]
+        filtered_routes = [route for route in global_column_pool if all(n in cluster or n == 0 for n in route.nodes)]
 
         if hasattr(bpc_engine, "solve_corridor"):
             return bpc_engine.solve_corridor(cluster, filtered_routes)
