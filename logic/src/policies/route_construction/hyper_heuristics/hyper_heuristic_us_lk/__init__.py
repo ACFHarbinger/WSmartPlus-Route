@@ -12,6 +12,17 @@ Reference:
     Müller, L. F., & Bonilha, I. (2022). "Hyper-Heuristic Based on ACO
     and Local Search for Dynamic Optimization Problems."
     Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
+
+Attributes:
+    HULKSolver: Main solver class that coordinates operator selection and solution improvement.
+    HULKParams: Parameters for HULK hyper-heuristic.
+    run_hulk: Runs HULK hyper-heuristic on the given problem context.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk import HULKSolver, HULKParams, run_hulk
+    >>> solver = HULKSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> best_solution, best_profit, best_cost = solver.solve()
+    >>> print(best_solution, best_profit, best_cost)
 """
 
 from typing import Any, List, Optional, Tuple

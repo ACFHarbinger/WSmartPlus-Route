@@ -1,5 +1,18 @@
 """
 Configuration parameters for the Selection Hyper-Heuristic (SHH).
+
+Attributes:
+    SHHParams: Configuration parameters for the SHH solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics import SSHHParams
+    >>> params = SSHHParams()
+    >>> print(params)
+    SHHParams(
+        iters=200,
+        history_len=10,
+        seed=42,
+    )
 """
 
 from __future__ import annotations
@@ -25,7 +38,15 @@ class SHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> SHHParams:
-        """Create SHHParams from a configuration object or dictionary."""
+        """
+        Create SHHParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            SHHParams: Parameters for the SHH solver.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -36,5 +57,10 @@ class SHHParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert SHHParams to a dictionary for backend compatibility."""
+        """
+        Convert SHHParams to a dictionary for backend compatibility.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of SHHParams.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

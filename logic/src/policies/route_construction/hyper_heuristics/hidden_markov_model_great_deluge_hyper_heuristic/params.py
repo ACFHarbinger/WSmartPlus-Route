@@ -1,5 +1,13 @@
 """
 Configuration parameters for the HMM + Great Deluge (HMM-GD) solver.
+
+Attributes:
+    HMMGDHHParams: Parameters for the Hidden Markov Model + Great Deluge Hyper-Heuristic solver.
+
+Example:
+    >>> config = {"max_iterations": 100, "flood_margin": 0.05, "rain_speed": 0.001, "learning_rate": 0.1, "n_removal": 2,
+        "n_llh": 5, "local_search_iterations": 100, "time_limit": 60.0, "seed": 42, "vrpp": True, "profit_aware_operators": False}
+    >>> params = HMMGDHHParams.from_config(config)
 """
 
 from __future__ import annotations
@@ -56,7 +64,15 @@ class HMMGDHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "HMMGDHHParams":
-        """Create parameters from a configuration object."""
+        """
+        Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            HMMGDHHParams: Instance of HMMGDHHParams.
+        """
         return cls(
             max_iterations=getattr(config, "max_iterations", 500),
             flood_margin=getattr(config, "flood_margin", 0.05),

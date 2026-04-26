@@ -2,6 +2,14 @@
 Solution representation for GIHH.
 
 This module defines the Solution class used by the GIHH algorithm.
+
+Attributes:
+    Solution: Solution for the Vehicle Routing Problem with Profits.
+
+Example:
+    >>> from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution import Solution
+    >>> solution = Solution(routes=[[1, 2], [3, 4]], dist_matrix=np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]]), wastes={1: 10, 2: 20, 3: 30, 4: 40}, capacity=100, revenue=1, cost_unit=1)
+    >>> print(solution.profit)
 """
 
 from typing import Dict, List
@@ -59,7 +67,11 @@ class Solution:
         self.evaluate()
 
     def evaluate(self) -> None:
-        """Evaluate the solution and update profit, cost, and revenue."""
+        """Evaluate the solution and update profit, cost, and revenue.
+
+        Returns:
+            None
+        """
         total_distance = 0.0
         total_waste = 0.0
 
@@ -84,7 +96,11 @@ class Solution:
         self.profit = self.revenue_total - self.cost
 
     def copy(self) -> "Solution":
-        """Create a deep copy of the solution."""
+        """Create a deep copy of the solution.
+
+        Returns:
+            Solution: Deep copy of the solution.
+        """
         return Solution(
             routes=[route[:] for route in self.routes],
             dist_matrix=self.dist_matrix,
@@ -95,7 +111,11 @@ class Solution:
         )
 
     def is_feasible(self) -> bool:
-        """Check if solution respects capacity constraints."""
+        """Check if solution respects capacity constraints.
+
+        Returns:
+            bool: True if solution is feasible, False otherwise.
+        """
         for route in self.routes:
             route_load = sum(self.wastes.get(node, 0.0) for node in route)
             if route_load > self.capacity:
@@ -106,6 +126,12 @@ class Solution:
         """
         Check if this solution is structurally identical to another.
         Two solutions are identical if they have the exact same routes.
+
+        Args:
+            other: Other solution to compare with.
+
+        Returns:
+            bool: True if solutions are identical, False otherwise.
         """
         return self.routes == other.routes
 
@@ -113,6 +139,12 @@ class Solution:
         """
         Check if this solution Pareto-dominates the other solution.
         Objectives: Maximize revenue_total, Minimize cost.
+
+        Args:
+            other: Other solution to compare with.
+
+        Returns:
+            bool: True if this solution dominates the other, False otherwise.
         """
         revenue_better_or_equal = self.revenue_total >= other.revenue_total
         cost_better_or_equal = self.cost <= other.cost

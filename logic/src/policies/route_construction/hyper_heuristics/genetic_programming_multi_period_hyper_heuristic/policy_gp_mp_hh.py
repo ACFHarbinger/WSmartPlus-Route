@@ -1,5 +1,24 @@
 """
-Module documentation.
+GP-MP-HH (Genetic Programming Multi-Period Hyper-Heuristic) policy module.
+
+Reference:
+    Bhandari, R., & Keedwell, E. (2021). "A genetic programming multi-period
+    selection hyper-heuristic for the vehicle routing problem with time windows."
+    In Proceedings of the 2021 Annual Conference on Genetic and Evolutionary
+    Computation (pp. 355-363).
+
+This module implements the GP-MP-HH policy, which is a multi-period selection
+selection hyper-heuristic that uses genetic programming to evolve a sequence
+of low-level heuristics that are applied sequentially to an initial solution.
+
+Attributes:
+    GPMPHHPolicy: Implements the GP-MP-HH policy.
+
+Example:
+    >>> solver = GPMPHHPolicy(config)
+    >>> solution = solver.solve()
+    >>> print(solution)
+    SolutionContext(...)
 """
 
 import copy
@@ -51,10 +70,23 @@ class GPMPHHPolicy(BaseMultiPeriodRoutingPolicy):
        multi-period collection plan.
 
     Registry key: ``"gp_mp_hh"``
+
+    Attributes:
+        params (GP_MP_HH_Params): Parameters for the GP-MP-HH policy.
+        pop_size (int): Population size.
+        gens (int): Number of generations.
+        prog_len (int): Program length.
+        seed (int): Random seed.
+        rng (random.Random): Random number generator.
+        llhs (List[LLHWrapper]): List of low-level heuristics.
     """
 
     def __init__(self, config: Any = None):
-        """__init__ docstring."""
+        """Initialize GPMPHHPolicy.
+
+        Args:
+            config (Any): Configuration for the solver.
+        """
         super().__init__(config)
         self.params = GP_MP_HH_Params.from_config(config)
         self.pop_size = self.params.pop_size
@@ -65,6 +97,15 @@ class GPMPHHPolicy(BaseMultiPeriodRoutingPolicy):
         self.llhs = LLHPool.get_all()
 
     def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        """Evaluate the fitness of a given plan.
+
+        Args:
+            plan (List[List[List[int]]]): The plan to evaluate.
+            problem (ProblemContext): The problem context.
+
+        Returns:
+            float: The fitness of the given plan.
+        """
         tot = 0.0
         cur_prob = problem
         for d in range(problem.horizon):

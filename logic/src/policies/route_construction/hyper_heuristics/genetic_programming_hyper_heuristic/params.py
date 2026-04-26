@@ -1,5 +1,23 @@
 """
 Configuration parameters for the Genetic Programming Hyper-Heuristic (GP-HH).
+
+Attributes:
+    GPHHParams: Configuration parameters.
+
+Example:
+    >>> params = GPHHParams(
+    ...     gp_pop_size=20,
+    ...     max_gp_generations=30,
+    ...     tree_depth=3,
+    ...     tournament_size=3,
+    ...     time_limit=60.0,
+    ...     parsimony_coefficient=0.001,
+    ...     candidate_list_size=10,
+    ...     n_training_instances=3,
+    ...     training_sample_ratio=0.5,
+    ...     seed=42,
+    ...     vrpp=True,
+    ... )
 """
 
 from __future__ import annotations
@@ -58,7 +76,14 @@ class GPHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "GPHHParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config: Configuration object.
+
+        Returns:
+            GPHHParams: Configuration parameters.
+        """
         return cls(
             gp_pop_size=getattr(config, "gp_pop_size", 20),
             max_gp_generations=getattr(config, "max_gp_generations", 30),

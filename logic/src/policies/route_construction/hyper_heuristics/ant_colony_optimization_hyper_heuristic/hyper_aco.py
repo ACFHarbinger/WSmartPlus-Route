@@ -12,7 +12,7 @@ Key Features:
 - Solution evaluation: Apply operator sequence to a base solution
 
 Attributes:
-    None
+    HyperHeuristicACO: HyperHeuristicACO class.
 
 Example:
     >>> from logic.src.policies.ant_colony_optimization_hyper_heuristic import HyperHeuristicACO
@@ -40,6 +40,25 @@ class HyperHeuristicACO:
 
     Ants construct sequences of local search operators.
     The best sequences are reinforced via pheromone updates.
+
+    Attributes:
+        dist_matrix: Distance matrix.
+        wastes: Node wastes.
+        capacity: Vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        params: Hyper-heuristics parameters.
+        initial_solution: Initial routes.
+        mandatory_nodes: Mandatory nodes.
+        random: Random number generator.
+        np_rng: NumPy random number generator.
+        operator_names: List of operator names.
+        n_operators: Number of operators.
+        op_to_idx: Mapping from operator names to indices.
+        tau: Pheromone matrix.
+        eta: Heuristic information matrix.
+        edge_count: Edge count matrix.
+        sequence_length: Length of operator sequences.
     """
 
     def __init__(
@@ -83,7 +102,7 @@ class HyperHeuristicACO:
         self.n_operators = len(self.operator_names)
         self.op_to_idx = {name: i for i, name in enumerate(self.operator_names)}
 
-        # Task 3: Dynamic journey length matches number of heuristics
+        # Dynamic journey length matches number of heuristics
         self.sequence_length = self.n_operators
 
         # Pheromone matrix: n_operators x n_operators
@@ -102,8 +121,8 @@ class HyperHeuristicACO:
         """
         Solve VRP using Hyper-ACO with proper ant state synchronization.
 
-        Task 1: Accumulate eta updates from all ants and apply evaporation once per iteration.
-        Task 2: Maintain individual ant solutions, only synchronize to global best when improved.
+        Accumulate eta updates from all ants and apply evaporation once per iteration.
+        Maintain individual ant solutions, only synchronize to global best when improved.
 
         Returns:
             Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
@@ -261,7 +280,10 @@ class HyperHeuristicACO:
         """
         Construct an operator sequence using ACO rules with ACS q0 exploitation.
 
-        Task 3: Use self.sequence_length (dynamically set to n_operators).
+        Use self.sequence_length (dynamically set to n_operators).
+
+        Returns:
+            List[str]: Sequence of operator names.
         """
         sequence = []
         current_op_idx = self.n_operators  # Start state (index n_operators in tau)
@@ -286,7 +308,14 @@ class HyperHeuristicACO:
         return sequence
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost."""
+        """Calculate total routing cost.
+
+        Args:
+            routes (List[List[int]]): Routes.
+
+        Returns:
+            float: Total routing cost.
+        """
         total = 0.0
         for route in routes:
             if not route:
@@ -297,6 +326,10 @@ class HyperHeuristicACO:
             total += self.dist_matrix[route[-1], 0]
         return total * self.C
 
-    def _evaporate_pheromones(self):
-        """Apply pheromone evaporation (no clipping here per Phase 4)."""
+    def _evaporate_pheromones(self) -> None:
+        """Apply pheromone evaporation (no clipping here per Phase 4).
+
+        Returns:
+            None
+        """
         self.tau *= 1 - self.params.rho

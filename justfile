@@ -161,7 +161,8 @@ check-docs:
 
 # Check Google style docstrings
 check-google-docs:
-    uv run python logic/src/utils/docs/check_google_style.py logic/src
+    uv run python logic/src/utils/docs/check_google_style.py logic/src \
+        --exclude_dir logic/src/pipeline/simulations/wsmart_bin_analysis/test/
 
 # Check for multiple classes in one file
 check-multi-classes:

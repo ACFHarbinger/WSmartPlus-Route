@@ -33,6 +33,29 @@ used on the test instance.
 Reference:
     Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., & Woodward, J. R.
     "Exploring Hyper-heuristic Methodologies with Genetic Programming", 2009
+
+Attributes:
+    TrainingEnv:
+        dist_matrix: Distance matrix.
+        wastes: Dictionary of wastes for each node.
+        mandatory_nodes: List of mandatory nodes.
+
+    GPHHSolver: Main solver class.
+
+Example:
+    >>> # Load pre-trained solver (or create a new one)
+    >>> solver = GPHHSolver.from_existing(
+    ...     dist_matrix=original_distances,
+    ...     wastes=wastes,
+    ...     capacity=capacity,
+    ...     R=R, C=C,
+    ...     params=params,
+    ...     mandatory_nodes=mandatory_nodes,
+    ...     existing_tree=loaded_tree_or_None,  # Optional fallback
+    ... )
+
+    >>> # Get routes
+    >>> routes, profit, cost = solver.solve()
 """
 
 import random
@@ -59,6 +82,21 @@ class GPHHSolver:
     Evolves a GP tree that scores candidate insertions during constructive
     solution building.  The best tree is applied to the full problem instance
     to produce the final routing solution.
+
+    Attributes:
+        R: Revenue parameter.
+        C: Cost parameter.
+        params: GPHHParams object.
+        mandatory_nodes: List of mandatory nodes.
+        training_environments: List of training environments.
+        dist_matrix: Distance matrix.
+        wastes: Mapping from node index to waste volume.
+        capacity: Vehicle capacity.
+        nodes: List of nodes.
+        rng: Random number generator.
+        training_environments: List of training environments.
+        _knn: K-Nearest Neighbours map.
+        n_nodes: Number of nodes.
     """
 
     def __init__(
@@ -462,7 +500,16 @@ class GPHHSolver:
 
     @staticmethod
     def _min_distance_to_route(node: int, route: List[int], dm: np.ndarray) -> float:
-        """Min distance from a candidate node to any node already in the route."""
+        """Min distance from a candidate node to any node already in the route.
+
+        Args:
+            node: Candidate node.
+            route: Current route.
+            dm: Distance matrix.
+
+        Returns:
+            float: Minimum distance.
+        """
         if not route:
             return float(dm[0][node])
         return float(min(dm[node][n] for n in route))
@@ -550,7 +597,15 @@ class GPHHSolver:
     # ------------------------------------------------------------------
 
     def _tournament(self, pop: List[GPNode], fitness: List[float]) -> GPNode:
-        """Tournament selection from the GP population."""
+        """Tournament selection from the GP population.
+
+        Args:
+            pop: Population of GP trees.
+            fitness: Fitness values for each tree.
+
+        Returns:
+            GPNode: Selected tree.
+        """
         k = min(self.params.tournament_size, len(pop))
         candidates = self.rng.sample(range(len(pop)), k)
         best = max(candidates, key=lambda i: fitness[i])
@@ -561,14 +616,31 @@ class GPHHSolver:
     # ------------------------------------------------------------------
 
     def _evaluate_routes(self, routes: List[List[int]], wastes: Dict[int, float], dm: np.ndarray) -> float:
-        """Net profit: Σ(wastes[n] × R) − distance × C."""
+        """Net profit: Σ(wastes[n] × R) − distance × C.
+
+        Args:
+            routes: List of routes.
+            wastes: Dictionary of wastes for each node.
+            dm: Distance matrix.
+
+        Returns:
+            float: Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes, dm) * self.C
 
     def _cost(self, routes: List[List[int]], dm: np.ndarray) -> float:
-        """Total routing distance across all routes."""
+        """Total routing distance across all routes.
+
+        Args:
+            routes: List of routes.
+            dm: Distance matrix.
+
+        Returns:
+            float: Total routing distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

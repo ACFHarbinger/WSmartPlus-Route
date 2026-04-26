@@ -2,6 +2,13 @@
 Operator implementations for HULK hyper-heuristic.
 
 Wraps unstringing/stringing operators and local search moves.
+
+Attributes:
+    HULKOperators: Operator collection for HULK hyper-heuristic.
+
+Example:
+    >>> operators = HULKOperators(dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+    >>> operators.apply_unstring_type_i(solution, 10)
 """
 
 import random
@@ -29,7 +36,23 @@ from .solution import Solution
 
 
 class HULKOperators:
-    """Operator collection for HULK hyper-heuristic."""
+    """Operator collection for HULK hyper-heuristic.
+
+    Implements unstringing operators (Type I, II, III, IV, Shaw, String)
+    for removing nodes, and stringing operators for reinserting nodes.
+    Includes local search moves: 2-opt, 3-opt, swap, relocate.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Waste dictionary.
+        capacity (float): Vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        mandatory_nodes (List[int]): Must-visit nodes.
+        expand_pool (bool): Includes globally unassigned pool for VRPP support.
+        profit_aware_operators (bool): Use profit-aware versions of operators.
+        rng (random.Random): Random number generator.
+    """
 
     def __init__(
         self,
@@ -149,6 +172,17 @@ class HULKOperators:
     def _apply_unstring_wrapper(
         self, solution: Solution, n_remove: int, unstring_type: int
     ) -> Tuple[Solution, List[int]]:
+        """
+        Wrapper for unstringing operators.
+
+        Args:
+            solution: Solution to apply the move to.
+            n_remove: Number of nodes to remove.
+            unstring_type: Type of unstringing to apply.
+
+        Returns:
+            Tuple[Solution, List[int]]: Tuple containing the new solution and the list of removed nodes.
+        """
         routes = [list(r) for r in solution.routes]
         if getattr(self, "profit_aware_operators", False):
             new_routes, removed = unstringing_profit_removal(
@@ -206,6 +240,16 @@ class HULKOperators:
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
     def _greedy_repair(self, solution: Solution, removed: List[int]) -> Solution:
+        """
+        Repair the solution using greedy insertion.
+
+        Args:
+            solution: Solution to repair.
+            removed: List of removed nodes.
+
+        Returns:
+            Solution: Repaired solution.
+        """
         if getattr(self, "profit_aware_operators", False):
             routes = greedy_profit_insertion(
                 [list(r) for r in solution.routes],
@@ -231,6 +275,16 @@ class HULKOperators:
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
     def _regret_2_repair(self, solution: Solution, removed: List[int]) -> Solution:
+        """
+        Repair the solution using regret-2 insertion.
+
+        Args:
+            solution: Solution to repair.
+            removed: List of removed nodes.
+
+        Returns:
+            Solution: Repaired solution.
+        """
         if getattr(self, "profit_aware_operators", False):
             routes = regret_2_profit_insertion(
                 [list(r) for r in solution.routes],
@@ -256,7 +310,15 @@ class HULKOperators:
         return Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
     def _simple_2_opt(self, route: List[int]) -> Tuple[List[int], bool]:
-        """Simple 2-opt implementation."""
+        """
+        Simple 2-opt implementation.
+
+        Args:
+            route: Route to apply the move to.
+
+        Returns:
+            Tuple[List[int], bool]: Tuple containing the new route and a boolean indicating whether the route was improved.
+        """
         n = len(route)
         if n <= 3:
             return route, False
@@ -279,7 +341,15 @@ class HULKOperators:
         return best_route, improved
 
     def _calc_route_distance(self, route: List[int]) -> float:
-        """Calculate distance for a single route."""
+        """
+        Calculate distance for a single route.
+
+        Args:
+            route: Route to calculate the distance for.
+
+        Returns:
+            float: Distance of the route.
+        """
         if not route:
             return 0.0
         dist = self.dist_matrix[0][route[0]]
@@ -289,7 +359,14 @@ class HULKOperators:
         return dist
 
     def apply_2_opt(self, solution: Solution) -> Solution:
-        """Apply 2-opt local search."""
+        """Apply 2-opt local search.
+
+        Args:
+            solution: Solution to apply the move to.
+
+        Returns:
+            Solution: New solution with the move applied.
+        """
         routes = [list(r) for r in solution.routes]
         improved = False
 
@@ -307,6 +384,12 @@ class HULKOperators:
         """
         Apply 3-opt (K-opt) local search.
         Follows the 3-opt reconnection logic for VRP tours.
+
+        Args:
+            solution: Solution to apply the move to.
+
+        Returns:
+            Solution: New solution with the move applied.
         """
         routes = [list(r) for r in solution.routes]
         improved = False
@@ -351,7 +434,15 @@ class HULKOperators:
         return solution
 
     def apply_swap(self, solution: Solution) -> Solution:
-        """Apply swap move between routes."""
+        """
+        Apply swap move between routes.
+
+        Args:
+            solution: Solution to apply the move to.
+
+        Returns:
+            Solution: New solution with the move applied.
+        """
         routes = [list(r) for r in solution.routes]
         if len(routes) < 2:
             return solution
@@ -385,7 +476,14 @@ class HULKOperators:
         return best_solution
 
     def apply_relocate(self, solution: Solution) -> Solution:
-        """Apply relocate move."""
+        """Apply relocate move.
+
+        Args:
+            solution: Solution to apply the move to.
+
+        Returns:
+            Solution: New solution with the move applied.
+        """
         routes = [list(r) for r in solution.routes]
         best_solution = solution
         best_cost = solution._cost

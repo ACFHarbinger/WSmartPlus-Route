@@ -370,6 +370,8 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("path", nargs="?", default=".", help="Directory or file to scan (default: .)")
+    # ADDED: new parameter to exclude specific directories
+    parser.add_argument("--exclude_dir", nargs="*", default=[], help="Directories to exclude from the scan")
     args = parser.parse_args()
 
     console.rule("[bold cyan]Google Style Docstring Validator[/bold cyan]")
@@ -388,7 +390,23 @@ def main() -> None:
     if os.path.isfile(args.path):
         targets.append((os.path.dirname(args.path), [], [os.path.basename(args.path)]))
     else:
+        exclude_paths = [os.path.abspath(d) for d in args.exclude_dir]
         for root, dirs, files in os.walk(args.path):
+            abs_root = os.path.abspath(root)
+            is_excluded = False
+            for ep in exclude_paths:
+                try:
+                    # If relative path doesn't start with '..', abs_root is inside ep
+                    if not os.path.relpath(abs_root, ep).startswith(".."):
+                        is_excluded = True
+                        break
+                except ValueError:
+                    pass  # Handle edge cases across different drives on Windows
+
+            if is_excluded:
+                dirs[:] = []  # Clear dirs to prevent os.walk from descending further
+                continue
+
             dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
             targets.append((root, dirs, files))
 
