@@ -32,6 +32,7 @@ class KSparseACOConfig:
         tau_min: Minimum pheromone bound.
         tau_max: Maximum pheromone bound.
         max_iterations: Maximum number of ACO iterations.
+        scale: Scaling factor for heuristic information.
         time_limit: Maximum time in seconds for the solver.
         k_sparse: Number of nearest neighbors to consider.
         local_search: Whether to apply local search after construction.
@@ -50,6 +51,7 @@ class KSparseACOConfig:
     tau_min: float = 0.01
     tau_max: float = 10.0
     max_iterations: int = 50
+    scale: float = 5.0
     time_limit: float = 30.0
     seed: Optional[int] = None
     k_sparse: int = 15

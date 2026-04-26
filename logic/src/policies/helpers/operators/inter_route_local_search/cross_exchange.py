@@ -97,15 +97,19 @@ def cross_exchange(
     a_prev = route_a[seg_a_start - 1] if seg_a_start > 0 else 0
     a_next = route_a[seg_a_start + seg_a_len] if seg_a_start + seg_a_len < len(route_a) else 0
 
-    removal_a = ls.d[a_prev, seg_a[0]] + ls.d[seg_a[-1], a_next] if seg_a else ls.d[a_prev, a_next]
-    insertion_a = ls.d[a_prev, seg_b[0]] + ls.d[seg_b[-1], a_next] if seg_b else ls.d[a_prev, a_next]
+    removal_a = ls.get_dist(a_prev, seg_a[0]) + ls.get_dist(seg_a[-1], a_next) if seg_a else ls.get_dist(a_prev, a_next)
+    insertion_a = (
+        ls.get_dist(a_prev, seg_b[0]) + ls.get_dist(seg_b[-1], a_next) if seg_b else ls.get_dist(a_prev, a_next)
+    )
 
     # Route B: remove seg_b, insert seg_a
     b_prev = route_b[seg_b_start - 1] if seg_b_start > 0 else 0
     b_next = route_b[seg_b_start + seg_b_len] if seg_b_start + seg_b_len < len(route_b) else 0
 
-    removal_b = ls.d[b_prev, seg_b[0]] + ls.d[seg_b[-1], b_next] if seg_b else ls.d[b_prev, b_next]
-    insertion_b = ls.d[b_prev, seg_a[0]] + ls.d[seg_a[-1], b_next] if seg_a else ls.d[b_prev, b_next]
+    removal_b = ls.get_dist(b_prev, seg_b[0]) + ls.get_dist(seg_b[-1], b_next) if seg_b else ls.get_dist(b_prev, b_next)
+    insertion_b = (
+        ls.get_dist(b_prev, seg_a[0]) + ls.get_dist(seg_a[-1], b_next) if seg_a else ls.get_dist(b_prev, b_next)
+    )
 
     delta = (insertion_a - removal_a) + (insertion_b - removal_b)
 
@@ -169,11 +173,11 @@ def lambda_interchange(
     return improved
 
 
-def _seg_boundary_cost(d, prev_node: int, seg: List[int], next_node: int) -> float:
+def _seg_boundary_cost(ls: Any, prev_node: int, seg: List[int], next_node: int) -> float:
     """Cost of edges connecting prev_node → seg → next_node.
 
     Args:
-        d: Distance matrix (2-D array-like indexed by node id).
+        ls: LocalSearch instance.
         prev_node: Node immediately before the segment.
         seg: Ordered list of nodes in the segment (may be empty).
         next_node: Node immediately after the segment.
@@ -182,8 +186,8 @@ def _seg_boundary_cost(d, prev_node: int, seg: List[int], next_node: int) -> flo
         float: Total edge cost of prev_node → seg[0] → … → seg[-1] → next_node.
     """
     if not seg:
-        return d[prev_node, next_node]
-    return d[prev_node, seg[0]] + d[seg[-1], next_node]
+        return ls.get_dist(prev_node, next_node)
+    return ls.get_dist(prev_node, seg[0]) + ls.get_dist(seg[-1], next_node)
 
 
 def improved_cross_exchange(
@@ -249,8 +253,8 @@ def improved_cross_exchange(
     b_next = route_b[seg_b_start + seg_b_len] if seg_b_start + seg_b_len < len(route_b) else 0
 
     # Removal costs (constant across configurations)
-    removal_a = _seg_boundary_cost(ls.d, a_prev, seg_a, a_next)
-    removal_b = _seg_boundary_cost(ls.d, b_prev, seg_b, b_next)
+    removal_a = _seg_boundary_cost(ls, a_prev, seg_a, a_next)
+    removal_b = _seg_boundary_cost(ls, b_prev, seg_b, b_next)
     base_removal = removal_a + removal_b
 
     # Evaluate all 4 configurations: (reverse_a, reverse_b)
@@ -262,8 +266,8 @@ def improved_cross_exchange(
         ins_b_into_a = seg_b[::-1] if rev_b else seg_b
         ins_a_into_b = seg_a[::-1] if rev_a else seg_a
 
-        insert_a = _seg_boundary_cost(ls.d, a_prev, ins_b_into_a, a_next)
-        insert_b = _seg_boundary_cost(ls.d, b_prev, ins_a_into_b, b_next)
+        insert_a = _seg_boundary_cost(ls, a_prev, ins_b_into_a, a_next)
+        insert_b = _seg_boundary_cost(ls, b_prev, ins_a_into_b, b_next)
         delta = (insert_a + insert_b) - base_removal
 
         if best_delta is None or delta < best_delta:

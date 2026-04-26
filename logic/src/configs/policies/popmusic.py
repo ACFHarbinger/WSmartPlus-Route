@@ -80,7 +80,7 @@ class POPMUSICConfig:
     base_solver_config: Optional[POPMUSICSubSolverConfig] = field(default_factory=POPMUSICSubSolverConfig)
     cluster_solver: str = "fast_tsp"
     cluster_solver_config: Optional[POPMUSICSubSolverConfig] = field(default_factory=POPMUSICSubSolverConfig)
-    initial_solver: str = "nearest_neighbor"
+    initial_solver: str = "pmedian"
     seed: Optional[int] = None
 
     # Infrastructure

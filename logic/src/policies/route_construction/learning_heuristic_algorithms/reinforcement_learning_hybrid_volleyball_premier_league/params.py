@@ -94,7 +94,7 @@ class RLHVPLParams:
             alpha=1.0,
             beta=2.0,
             rho=0.1,
-            q0=0.9,
+            scale=5.0,
             tau_0=None,
             tau_min=0.001,
             tau_max=10.0,

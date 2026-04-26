@@ -173,6 +173,18 @@ class HyperOperatorContext:
         """
         return self.route_loads[ri]
 
+    def get_dist(self, i: int, j: int) -> float:
+        """Abstraction to fetch distance from matrix or calculate on-demand.
+
+        Args:
+            i (int): First node index.
+            j (int): Second node index.
+
+        Returns:
+            float: Distance between node i and node j.
+        """
+        return float(self.d[i, j])
+
     def _update_map(self, affected_indices: set):
         """Update node map and route loads.
 
@@ -219,7 +231,7 @@ class HyperOperatorContext:
                 for pos in range(len(route) + 1):
                     prev = route[pos - 1] if pos > 0 else 0
                     nxt = route[pos] if pos < len(route) else 0
-                    delta = self.d[prev, node] + self.d[node, nxt] - self.d[prev, nxt]
+                    delta = self.get_dist(prev, node) + self.get_dist(node, nxt) - self.get_dist(prev, nxt)
                     insertion_costs.append((delta, pos))
 
                 # Keep top 3 (lowest cost) insertions

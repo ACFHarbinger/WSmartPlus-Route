@@ -61,9 +61,10 @@ aco_ks:
       # Pheromone evaporation rate
       # Range: 0.01-0.3 (0.05 = slow decay, 0.2 = fast decay)
 
-    - eta_decay: 0.5
-      # Short-term visibility decay (p in the paper)
-      # Range: 0.1-0.9 (lower = stronger short-term memory, higher = weaker)
+    - scale: 3
+      # Precision scaling for pheromone pruning
+      # Edges within 10^-scale of default_value are pruned
+      # Range: 1-10 (higher = more aggressive pruning, lower = more storage)
 
     # ---------------------------------------------------------------------
     # Pheromone Bounds (MAX-MIN Ant System)

@@ -134,7 +134,7 @@ popmusic:
           lambda_max: 2
           use_ejection_chains: false
 
-    - initial_solver: "nearest_neighbor"
+    - initial_solver: "pmedian"
     # Heuristic used to construct the initial set of routes for decomposition.
 
     # ---------------------------------------------------------------------

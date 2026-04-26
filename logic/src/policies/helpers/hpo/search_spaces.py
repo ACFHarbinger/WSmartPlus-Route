@@ -47,7 +47,7 @@ POLICY_SEARCH_SPACES: Dict[str, Dict[str, Dict[str, Any]]] = {
         "alpha": {"type": "float", "low": 0.1, "high": 5.0},
         "beta": {"type": "float", "low": 0.1, "high": 10.0},
         "rho": {"type": "float", "low": 0.01, "high": 0.5},
-        "q0": {"type": "float", "low": 0.0, "high": 1.0},
+        "scale": {"type": "float", "low": 1.0, "high": 10.0},
     },
     "sisr": {
         "max_iterations": {"type": "int", "low": 100, "high": 5000, "step": 100},

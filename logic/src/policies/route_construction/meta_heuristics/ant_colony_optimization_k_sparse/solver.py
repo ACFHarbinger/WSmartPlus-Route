@@ -118,6 +118,7 @@ class KSparseACOSolver:
             R,
             C,
             params,
+            neighbors=self.candidate_lists,
         )
 
         self.constructor = SolutionConstructor(

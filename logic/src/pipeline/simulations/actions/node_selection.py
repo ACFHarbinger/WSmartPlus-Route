@@ -275,7 +275,7 @@ class MandatorySelectionAction(SimulationAction):
         if isinstance(item, MandatorySelectionConfig):
             strategies.append({"config": item})
         elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
-            fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)
+            fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item)
             cfg = load_config(fpath)
             if "config" in cfg and len(cfg) == 1:
                 cfg = cfg["config"]

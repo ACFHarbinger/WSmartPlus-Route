@@ -72,7 +72,7 @@ def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Optional[Random] = None) -> 
             for pos in range(len(route) + 1):
                 prev = route[pos - 1] if pos > 0 else 0
                 nxt = route[pos] if pos < len(route) else 0
-                cost = ctx.d[prev, node] + ctx.d[node, nxt] - ctx.d[prev, nxt]
+                cost = ctx.get_dist(prev, node) + ctx.get_dist(node, nxt) - ctx.get_dist(prev, nxt)
                 if cost < best_cost:
                     best_cost = cost
                     best_ri = ri
@@ -80,9 +80,11 @@ def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Optional[Random] = None) -> 
 
         if best_ri >= 0:
             ctx.routes[best_ri].insert(best_pos, node)
+            ctx._update_map({best_ri})
         else:
             # Create new route
             ctx.routes.append([node])
+            ctx._build_structures()
 
     # Rebuild structures after reinsertion
     ctx._build_structures()
@@ -125,7 +127,7 @@ def kick_profit(
         prev = route[pi - 1] if pi > 0 else 0
         nxt = route[pi + 1] if pi < len(route) - 1 else 0
 
-        detour = ctx.d[prev, node] + ctx.d[node, nxt] - ctx.d[prev, nxt]
+        detour = ctx.get_dist(prev, node) + ctx.get_dist(node, nxt) - ctx.get_dist(prev, nxt)
         revenue = ctx.waste.get(node, 0) * ctx.R
         profit = revenue - (detour * ctx.C)
         node_profits.append((node, profit))
@@ -192,7 +194,7 @@ def _profit_reinsertion(ctx: Any, nodes: List[int]) -> None:
             for pos in range(len(route) + 1):
                 prev = route[pos - 1] if pos > 0 else 0
                 nxt = route[pos] if pos < len(route) else 0
-                cost_inc = ctx.d[prev, node] + ctx.d[node, nxt] - ctx.d[prev, nxt]
+                cost_inc = ctx.get_dist(prev, node) + ctx.get_dist(node, nxt) - ctx.get_dist(prev, nxt)
                 profit = revenue - (cost_inc * ctx.C)
 
                 if profit > best_profit:
