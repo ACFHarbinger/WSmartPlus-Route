@@ -91,7 +91,7 @@ class HGSParams:
     acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     @classmethod
-    def from_config(cls, config: HGSConfig) -> "HGSParams":
+    def from_config(cls, config: "HGSConfig") -> "HGSParams":
         """Create HGSParams from a HGSConfig dataclass.
 
         Args:

@@ -206,7 +206,7 @@ class TestTGCEncoder:
         batch = 2
         graph_size = 5
         x = torch.randn(batch, graph_size, embed_dim)
-        edges = torch.randn(batch, graph_size, graph_size)
+        edges = torch.randint(0, 2, (batch, graph_size, graph_size), dtype=torch.bool)
 
         output = model(x, edges)
         assert output.shape == (batch, graph_size, embed_dim)

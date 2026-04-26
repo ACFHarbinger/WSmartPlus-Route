@@ -22,7 +22,7 @@ Example:
     SolutionContext(...)
 """
 
-from .policy_gp_mp_hh import GPMPHHPolicy
 from .params import GP_MP_HH_Params
+from .policy_gp_mp_hh import GPMPHHPolicy
 
 __all__ = ["GPMPHHPolicy", "GP_MP_HH_Params"]

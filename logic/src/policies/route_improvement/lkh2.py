@@ -2,11 +2,11 @@
 LKH-2 (Lin-Kernighan-Helsgaun 2009) Route Improver.
 
 Attributes:
-    LKH2RouteImprover: Main class for LKH-2 based improvement.
+    LinKernighanHelsgaunTwoRouteImprover: Main class for LKH-2 based improvement.
 
 Example:
-    >>> from logic.src.policies.route_improvement.lkh2 import LKH2RouteImprover
-    >>> improver = LKH2RouteImprover(config=cfg)
+    >>> from logic.src.policies.route_improvement.lkh2 import LinKernighanHelsgaunTwoRouteImprover
+    >>> improver = LinKernighanHelsgaunTwoRouteImprover(config=cfg)
     >>> refined_tour, metrics = improver.process(tour, max_iterations=200)
 """
 
@@ -30,7 +30,7 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.HEURISTIC,
 )
 @RouteImproverRegistry.register("lkh2")
-class LKH2RouteImprover(IRouteImprovement):
+class LinKernighanHelsgaunTwoRouteImprover(IRouteImprovement):
     """LKH-2 route improver.
 
     Handles VRPP subset routes by extracting a dense sub-matrix containing only
@@ -41,7 +41,7 @@ class LKH2RouteImprover(IRouteImprovement):
         config (Dict[str, Any]): Internal configuration state.
 
     Example:
-        >>> improver = LKH2RouteImprover(config=cfg)
+        >>> improver = LinKernighanHelsgaunTwoRouteImprover(config=cfg)
         >>> refined_tour, metrics = improver.process(tour, max_iterations=200)
     """
 

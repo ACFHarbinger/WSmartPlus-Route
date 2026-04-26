@@ -7229,7 +7229,7 @@ classDiagram
   }
   class PSOMAPolicy {
   }
-  class PSOMAsSolver {
+  class PSOMASolver {
     C : float
     R : float
     capacity : float
@@ -11396,7 +11396,7 @@ classDiagram
   ACOLocalSearch --* MemeticAlgorithmIslandModelSolver : ls
   ACOLocalSearch --* MemeticAlgorithmToleranceBasedSelectionSolver : ls
   ACOLocalSearch --* DistancePSOSolver : ls
-  ACOLocalSearch --* PSOMAsSolver : ls
+  ACOLocalSearch --* PSOMASolver : ls
   ACOLocalSearch --* QDESolver : ls
   ACOLocalSearch --* SCASolver : ls
   ACOLocalSearch --* SLCSolver : ls
@@ -11588,7 +11588,7 @@ classDiagram
   MemeticAlgorithmToleranceBasedSelectionParams --o MemeticAlgorithmToleranceBasedSelectionSolver : params
   PSOParams --o PSOSolver : params
   DistancePSOParams --o DistancePSOSolver : params
-  PSOMAParams --o PSOMAsSolver : params
+  PSOMAParams --o PSOMASolver : params
   QDEParams --o QDESolver : params
   RTSParams --o RTSSolver : params
   SCAParams --o SCASolver : params

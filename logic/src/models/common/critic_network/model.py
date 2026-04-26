@@ -121,28 +121,33 @@ class LegacyCriticNetwork(nn.Module):
             nn.Linear(hidden_dim, 1),
         )
 
-    def _init_embed(self, nodes: torch.Tensor) -> torch.Tensor:
+    def _init_embed(self, inputs: Dict[str, Any] | torch.Tensor) -> torch.Tensor:
         """Initialize node embeddings from raw node features.
 
         Args:
-            nodes: Raw node feature tensor.
+            inputs: Raw node feature tensor or input dictionary.
 
         Returns:
             torch.Tensor: Initial latent representations.
         """
-        return self.context_embedder.init_node_embeddings(nodes)
+        if isinstance(inputs, torch.Tensor):
+            # Wrap tensor in a dict for the context embedder
+            return self.context_embedder.init_node_embeddings({"nodes": inputs})
+        return self.context_embedder.init_node_embeddings(inputs)
 
     def forward(self, inputs: Dict[str, Any]) -> torch.Tensor:
         """Estimate the state value for the given input instance.
 
         Args:
-            inputs: Dictionary containing 'nodes' and optional 'edges'.
+            inputs: Dictionary containing 'nodes' (or 'loc', 'depot', etc.) and optional 'edges'.
 
         Returns:
             torch.Tensor: Scalar value prediction of shape [batch, 1].
         """
         edges = inputs.get("edges")
-        embeddings = self.encoder(self._init_embed(inputs["nodes"]), edges)
+        # Try to use 'nodes' key if present, otherwise pass the whole dict
+        input_data = inputs.get("nodes", inputs)
+        embeddings = self.encoder(self._init_embed(input_data), edges)
         if self.aggregation_graph == "avg":
             graph_embeddings = embeddings.mean(1)
         elif self.aggregation_graph == "sum":

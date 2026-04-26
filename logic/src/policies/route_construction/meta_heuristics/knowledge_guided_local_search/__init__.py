@@ -13,8 +13,8 @@ Example:
     >>> from logic.src.policies.route_construction.meta_heuristics.knowledge_guided_local_search import KGLSSolver
 """
 
+from .kgls import KGLSSolver
 from .params import KGLSParams
 from .policy_kgls import KGLSPolicy
-from .solver import KGLSSolver
 
 __all__ = ["KGLSParams", "KGLSSolver", "KGLSPolicy"]

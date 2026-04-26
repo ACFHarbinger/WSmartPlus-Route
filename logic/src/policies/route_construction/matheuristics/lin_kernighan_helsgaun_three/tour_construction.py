@@ -263,7 +263,7 @@ def _build_tour_from_successor(
             # Nearest-neighbor fallback: the linear-sum assignment produced
             # subtours rather than a Hamiltonian cycle.  This is expected
             # since LSA solves matching, not TSP.
-            logger.warning(
+            logger.info(
                 "merge_tours_ip: successor chain broken at node %d — "
                 "patching with nearest-neighbor fallback (subtour detected)",
                 current,
