@@ -64,10 +64,15 @@ alns:
       # Minimum number of nodes to remove in destroy phase
       # Prevents degenerate moves; typically set to 1
 
-    - max_removal_pct: 0.3
-      # Maximum fraction of nodes to remove in destroy phase
-      # Range: 0.1-0.5 (0.1 = small perturbations, 0.5 = radical changes)
-      # Example: 0.3 on 100-node instance → remove up to 30 nodes
+    - start_temp_control: 0.05
+      # 'w' parameter: accept a 5% worse solution with 0.5 probability
+      # Range: 0.01-0.2 (0.01 = conservative, 0.2 = aggressive)
+      # Controls initial exploration vs exploitation trade-off
+
+    - xi: 0.4
+      # 'xi' parameter: fraction of total nodes for max removal cap
+      # Range: 0.2-0.6 (0.2 = small perturbations, 0.6 = radical changes)
+      # Example: 0.4 on 100-node instance → remove up to 40 nodes
 
     - extended_operators: false
       # If True, add string, cluster, and neighbor removal operators
@@ -99,7 +104,8 @@ alns:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
-    - acceptance_criterion: {method: "bmc", params: {initial_temp: 100, alpha: 0.995}}
+    - acceptance_criterion:
+        { method: "bmc", params: { initial_temp: 100, alpha: 0.995 } }
       # Route refinement heuristics applied after ALNS (e.g., 2-opt, relocate)
       # Empty list = use raw ALNS output
       # Options: ["2opt_intra", "relocate", "swap"]

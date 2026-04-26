@@ -21,6 +21,7 @@ import numpy as np
 from logic.src.utils.policy.routes import (
     prune_unprofitable_routes,
 )
+from logic.src.utils.policy.seed_hurdle import _dynamic_seed_hurdle
 
 
 def regret_2_insertion(
@@ -177,7 +178,6 @@ def regret_k_insertion(  # noqa: C901
         unprofitable_nodes = []
 
         for node in unassigned:
-            # Filter and sort options from cache
             options = sorted([c for c in node_route_cache[node] if c[0] != float("inf")], key=lambda x: x[0])
 
             if not options:
@@ -186,30 +186,24 @@ def regret_k_insertion(  # noqa: C901
                     unprofitable_nodes.append(node)
                 continue
 
-            # Regret: paper §3.2.2 sum formula (sum of differences from best)
-            # regret(i) = sum_{j=1}^k (cost(i, x_j) - cost(i, x_1))
+            # Formal Lexicographical Metrics
+            missing_routes = max(0, k - len(options))
+
             if len(options) > 1:
-                # Limit to k best options per paper
-                # If k is larger than available routes, use all available
                 target_k = min(k, len(options))
                 regret = sum(options[j][0] - options[0][0] for j in range(1, target_k))
-                if len(options) < k:
-                    # Ropke & Pisinger: if node can't be inserted into k routes,
-                    # treat remaining 'missing' routes as having inf cost.
-                    # This makes nodes with few insertion options highly prioritized.
-                    regret += (k - len(options)) * (max(o[0] for o in options) + 1000.0)
             else:
-                regret = 1e9  # Max priority if only 1 (or 0) route possible
+                regret = 0.0  # Missing routes metric entirely dominates this state
 
-            # Find best existing route index for this node
             best_opt = options[0]
             r_idx = -1
             for i, (c, _) in enumerate(node_route_cache[node]):
-                if c == best_opt[0]:  # handle ties or just find first match
+                if c == best_opt[0]:
                     r_idx = i
                     break
 
-            all_candidates.append((regret, node, (best_opt[0], r_idx, best_opt[1])))
+            # Store tuple: (missing_routes, regret, node, (best_cost, r_idx, pos))
+            all_candidates.append((missing_routes, regret, node, (best_opt[0], r_idx, best_opt[1])))
 
         for node in unprofitable_nodes:
             unassigned.remove(node)
@@ -232,12 +226,12 @@ def regret_k_insertion(  # noqa: C901
             else:
                 break
 
-        # Pick node with max regret.
-        # Tie-breaking (Pisinger & Ropke 2007, §3.2.2): if two nodes have equal
-        # regret, choose the one with the MINIMUM best insertion cost c_i^1.
-        # Sort key: primary = regret descending, secondary = best_cost ascending.
-        all_candidates.sort(key=lambda x: (-x[0], x[2][0]))
-        _, best_node, (best_cost, r_idx, pos) = all_candidates[0]
+        # RIGOROUS TIE-BREAKING:
+        # 1. Maximize missing routes (hardest to place)
+        # 2. Maximize regret (cost difference)
+        # 3. Minimize best insertion cost (equivalent to maximizing -best_cost)
+        all_candidates.sort(key=lambda x: (x[0], x[1], -x[3][0]), reverse=True)
+        _, _, best_node, (best_cost, r_idx, pos) = all_candidates[0]
 
         # Apply insertion
         routes[r_idx].insert(pos, best_node)
@@ -265,6 +259,9 @@ def _get_insertion_options_with_profit(
     is_mandatory: bool,
     noise: float,
     max_dist: float,
+    unassigned: Optional[List[int]] = None,
+    n_total_optional: int = 0,
+    mandatory_nodes_set: Optional[set] = None,
 ) -> List[Tuple[float, int, int]]:
     """Helper to calculate insertion options for a node with profit logic.
 
@@ -280,6 +277,9 @@ def _get_insertion_options_with_profit(
         is_mandatory: Mandatory status.
         noise: Random noise level.
         max_dist: Max distance (unused).
+        unassigned: List of unassigned nodes.
+        n_total_optional: Total number of optional nodes.
+        mandatory_nodes_set: Set of mandatory nodes.
 
     Returns:
         List[Tuple[float, int, int]]: List of (profit, route_idx, position).
@@ -312,8 +312,20 @@ def _get_insertion_options_with_profit(
     new_cost = dist_matrix[0, node] + dist_matrix[node, 0]
     if noise != 0:
         new_cost = max(0.0, new_cost + noise)
+
     new_profit = revenue - (new_cost * C)
-    seed_hurdle = -0.5 * (new_cost * C)  # Speculative hurdle: 50% of detour cost
+    if unassigned is not None and n_total_optional > 0:
+        seed_hurdle = _dynamic_seed_hurdle(
+            node,
+            unassigned,
+            mandatory_nodes_set or set(),
+            dist_matrix,
+            new_cost,
+            C,
+            n_total_optional,
+        )
+    else:
+        seed_hurdle = -0.5 * (new_cost * C)  # legacy fallback
 
     if is_mandatory or new_profit >= seed_hurdle:
         # A new route has its best (and only) insertion at pos 0 in a new index
@@ -408,6 +420,9 @@ def regret_k_profit_insertion(  # noqa: C901
     mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(node, 0) for node in r) for r in routes]
 
+    # Calculate total optional nodes
+    n_total_optional = len(dist_matrix) - 1 - len(mandatory_nodes_set)
+
     visited = set()
     for r in routes:
         visited.update(r)
@@ -469,7 +484,7 @@ def regret_k_profit_insertion(  # noqa: C901
         """Calculates the profit of starting a new route with the given node.
 
         Args:
-            node_id (int): ID of the node to seed.
+            node_id (int): ID of the node to insert.
 
         Returns:
             float: Profit of the new route.
@@ -478,7 +493,18 @@ def regret_k_profit_insertion(  # noqa: C901
         revenue = node_waste * R
         new_cost = dist_matrix[0, node_id] + dist_matrix[node_id, 0]
         new_profit = revenue - (new_cost * C)
-        seed_hurdle = -0.5 * (new_cost * C)
+
+        # --- UPDATED DYNAMIC SEED HURDLE ---
+        seed_hurdle = _dynamic_seed_hurdle(
+            node=node_id,
+            unassigned=unassigned,
+            mandatory_nodes_set=mandatory_nodes_set,
+            dist_matrix=dist_matrix,
+            new_cost=new_cost,
+            C=C,
+            n_total_optional=n_total_optional,
+        )
+
         is_mandatory = node_id in mandatory_nodes_set
         if is_mandatory or new_profit >= seed_hurdle:
             return new_profit
@@ -498,7 +524,6 @@ def regret_k_profit_insertion(  # noqa: C901
 
         for node in unassigned:
             is_mandatory = node in mandatory_nodes_set
-            # Options: existing routes + seed
             seed_p = get_seed_profit_regret(node)
             options = [(p, i, pos) for i, (p, pos) in enumerate(node_route_cache[node]) if p != -float("inf")]
             if seed_p != -float("inf"):
@@ -511,20 +536,17 @@ def regret_k_profit_insertion(  # noqa: C901
 
             options.sort(key=lambda x: x[0], reverse=True)
 
-            # Regret: paper §3.2.2 sum formula (sum of differences from best)
-            # Note for profit (maximization): regret is (best_profit - jth_profit)
+            # Formal Lexicographical Metrics
+            missing_routes = max(0, k - len(options))
+
             if len(options) > 1:
                 target_k = min(k, len(options))
                 regret = sum(options[0][0] - options[j][0] for j in range(1, target_k))
-                if len(options) < k:
-                    # Priority for nodes with few options
-                    regret += (k - len(options)) * 1000.0
             else:
-                regret = 1e9
+                regret = 0.0
 
             best_option = options[0]
-            # all_candidates record: (regret, node, (profit, r_idx, pos))
-            all_candidates.append((regret, node, best_option))
+            all_candidates.append((missing_routes, regret, node, best_option))
 
         for out_node in skipped_nodes:
             unassigned.remove(out_node)
@@ -547,11 +569,12 @@ def regret_k_profit_insertion(  # noqa: C901
             else:
                 break
 
-        # Maximize regret
-        # For profit maximisation: ties broken by highest best profit (equivalent to
-        # lowest cost in the minimisation formulation)
-        all_candidates.sort(key=lambda x: (x[0], x[2][0]), reverse=True)
-        _, best_node, (profit, r_idx, pos) = all_candidates[0]
+        # RIGOROUS TIE-BREAKING:
+        # 1. Maximize missing routes (hardest to place)
+        # 2. Maximize regret (cost difference)
+        # 3. Minimize best insertion cost (equivalent to maximizing -best_cost)
+        all_candidates.sort(key=lambda x: (x[0], x[1], -x[3][0]), reverse=True)
+        _, _, best_node, (best_cost, r_idx, pos) = all_candidates[0]
 
         if r_idx == len(routes):
             # Seed new route
