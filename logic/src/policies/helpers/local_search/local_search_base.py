@@ -187,14 +187,14 @@ class LocalSearch(ABC):
             route_idx (Optional[int]): The index of the route to compute the top insertions for.
                                      If None, computes for all routes.
         """
+        routed = set(self.node_map.keys())  # O(1) set lookup below
         routes_to_update = [route_idx] if route_idx is not None else range(len(self.routes))
         for r_idx in routes_to_update:
             route = self.routes[r_idx]
             if not route:
                 continue
-
             for node in self.neighbors:
-                if node in route:
+                if node in routed:  # O(1) instead of O(route_length)
                     continue
                 if node not in self.top_insertions:
                     self.top_insertions[node] = {}
@@ -277,7 +277,8 @@ class LocalSearch(ABC):
         self._target_neighborhood = target_neighborhood if target_neighborhood else "all"
 
         # Initialize Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
-        self._compute_top_insertions()
+        if any(n not in self.node_map for n in self.neighbors):
+            self._compute_top_insertions()
 
         # Store active nodes set for localization (FILO)
         self._active_nodes = active_nodes
@@ -537,11 +538,20 @@ class LocalSearch(ABC):
         Args:
             affected_indices: Set of route indices that were modified.
         """
+        # Rebuild node_map for affected routes first, so the routed set is current
+        # before _compute_top_insertions uses it for O(1) skip checks.
         for ri in sorted(affected_indices):
             for pi, node in enumerate(self.routes[ri]):
                 self.node_map[node] = (ri, pi)
             self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
-            self._compute_top_insertions(route_idx=ri)
+            self.route_sectors.pop(ri, None)  # invalidate stale sector cache
+
+        # Only recompute insertion cache if unvisited nodes actually exist.
+        # After a move that only relocates routed nodes (relocate, swap, 2-opt),
+        # every neighbor is in node_map and the cache update is pure waste.
+        if any(n not in self.node_map for n in self.neighbors):
+            for ri in sorted(affected_indices):
+                self._compute_top_insertions(route_idx=ri)
 
     def _get_load_cached(self, ri: int) -> float:
         """Get cached total load of a route.
