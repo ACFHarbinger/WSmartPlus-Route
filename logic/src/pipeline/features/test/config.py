@@ -28,7 +28,7 @@ from logic.src.interfaces import ITraversable
 from logic.src.utils.configs.config_loader import load_config
 
 
-def expand_policy_configs(cfg: Config) -> None:
+def expand_policy_configs(cfg: Config) -> None:  # noqa: C901
     """
     Expands policy names into full configuration paths and variants.
 
@@ -81,9 +81,39 @@ def expand_policy_configs(cfg: Config) -> None:
                     # Special handling for single-key policy configs
                     pol_key = list(final_cfg.keys())[0] if len(final_cfg) == 1 else None
                     if pol_key and pol_key == pol_name:
+                        # Ensure both are flattened if they are lists (OmegaConf list-of-dicts style)
+                        target = final_cfg[pol_key]
+                        if isinstance(target, (list, tuple)) or (
+                            hasattr(target, "__iter__") and not hasattr(target, "update")
+                        ):
+                            merged_target = {}
+                            for item in target:
+                                if hasattr(item, "items"):
+                                    merged_target.update(item)
+                            final_cfg[pol_key] = merged_target
+
+                        if isinstance(custom_overrides, (list, tuple)) or (
+                            hasattr(custom_overrides, "__iter__") and not hasattr(custom_overrides, "update")
+                        ):
+                            merged_overrides = {}
+                            for item in custom_overrides:
+                                if hasattr(item, "items"):
+                                    merged_overrides.update(item)
+                            custom_overrides = merged_overrides
+
                         final_cfg[pol_key].update(custom_overrides)
                     else:
-                        final_cfg.update(custom_overrides)
+                        if hasattr(final_cfg, "update"):
+                            # Handle case where custom_overrides might be a list here too
+                            if isinstance(custom_overrides, (list, tuple)) or (
+                                hasattr(custom_overrides, "__iter__") and not hasattr(custom_overrides, "update")
+                            ):
+                                merged_overrides = {}
+                                for item in custom_overrides:
+                                    if hasattr(item, "items"):
+                                        merged_overrides.update(item)
+                                custom_overrides = merged_overrides
+                            final_cfg.update(custom_overrides)
 
             policies.append(full_name)
             config_path[full_name] = final_cfg
@@ -101,7 +131,7 @@ def _resolve_policy_cfg_path(pol_name: str) -> str:
     Returns:
         Configuration file path.
     """
-    base_dir = os.path.join(udef.ROOT_DIR, "assets", "configs", "policies")
+    base_dir = os.path.join(udef.ROOT_DIR, "logic", "configs", "policies")
 
     # Try direct mapping first
     paths_to_check = [

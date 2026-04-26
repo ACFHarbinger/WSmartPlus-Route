@@ -40,7 +40,13 @@ def perturb(
     if rng is None:
         rng = Random()
 
-    n_nodes = len(ctx.d) - 1
+    if ctx.d is not None:
+        n_nodes = len(ctx.d) - 1
+    elif ctx.node_coords is not None:
+        n_nodes = len(ctx.node_coords) - 1
+    else:
+        n_nodes = max(ctx.waste.keys()) if ctx.waste else 0
+
     visited = set(ctx.node_map.keys())
     unvisited = sorted(list(set(range(1, n_nodes + 1)) - visited))
 
@@ -128,7 +134,13 @@ def perturb_profit(
     if rng is None:
         rng = Random()
 
-    n_nodes = len(ctx.d) - 1
+    if ctx.d is not None:
+        n_nodes = len(ctx.d) - 1
+    elif ctx.node_coords is not None:
+        n_nodes = len(ctx.node_coords) - 1
+    else:
+        n_nodes = max(ctx.waste.keys()) if ctx.waste else 0
+
     visited = set(ctx.node_map.keys())
     unvisited = sorted(list(set(range(1, n_nodes + 1)) - visited))
 
@@ -157,7 +169,9 @@ def perturb_profit(
                 prev = route[p_u - 1] if p_u > 0 else 0
                 nxt = route[p_u + 1] if p_u < len(route) - 1 else 0
 
-                delta_dist = ctx.d[prev, v] + ctx.d[v, nxt] - (ctx.d[prev, u] + ctx.d[u, nxt])
+                delta_dist = (
+                    ctx.get_dist(prev, v) + ctx.get_dist(v, nxt) - (ctx.get_dist(prev, u) + ctx.get_dist(u, nxt))
+                )
                 delta_rev = (dem_v - dem_u) * ctx.R
                 profit_gain = delta_rev - (delta_dist * ctx.C)
 

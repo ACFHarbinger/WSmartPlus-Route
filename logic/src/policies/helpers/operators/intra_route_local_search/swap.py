@@ -59,7 +59,9 @@ def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> boo
 
         # Old cost: d[prev_u, u] + d[u, v] + d[v, next_v]
         # New cost: d[prev_u, v] + d[v, u] + d[u, next_v]
-        delta = (ls.d[prev_u, v] + ls.d[v, u] + ls.d[u, next_v]) - (ls.d[prev_u, u] + ls.d[u, v] + ls.d[v, next_v])
+        delta = (ls.get_dist(prev_u, v) + ls.get_dist(v, u) + ls.get_dist(u, next_v)) - (
+            ls.get_dist(prev_u, u) + ls.get_dist(u, v) + ls.get_dist(v, next_v)
+        )
     else:
         # Standard swap case (inter-route or non-adjacent intra-route)
         prev_u = route_u[p_u - 1] if p_u > 0 else 0
@@ -67,8 +69,8 @@ def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> boo
         prev_v = route_v[p_v - 1] if p_v > 0 else 0
         next_v = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
 
-        delta = -ls.d[prev_u, u] - ls.d[u, next_u] - ls.d[prev_v, v] - ls.d[v, next_v]
-        delta += ls.d[prev_u, v] + ls.d[v, next_u] + ls.d[prev_v, u] + ls.d[u, next_v]
+        delta = -ls.get_dist(prev_u, u) - ls.get_dist(u, next_u) - ls.get_dist(prev_v, v) - ls.get_dist(v, next_v)
+        delta += ls.get_dist(prev_u, v) + ls.get_dist(v, next_u) + ls.get_dist(prev_v, u) + ls.get_dist(u, next_v)
 
     if delta * ls.C < -1e-4:
         ls.routes[r_u][p_u], ls.routes[r_v][p_v] = ls.routes[r_v][p_v], ls.routes[r_u][p_u]

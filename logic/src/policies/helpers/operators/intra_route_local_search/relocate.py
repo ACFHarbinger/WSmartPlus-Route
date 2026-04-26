@@ -140,9 +140,9 @@ def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, ex
     next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
     v_next = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
 
-    delta = -ls.d[prev_u, u] - ls.d[u, next_u] + ls.d[prev_u, next_u]
-    delta -= ls.d[v, v_next]
-    delta += ls.d[v, u] + ls.d[u, v_next]
+    delta = -ls.get_dist(prev_u, u) - ls.get_dist(u, next_u) + ls.get_dist(prev_u, next_u)
+    delta -= ls.get_dist(v, v_next)
+    delta += ls.get_dist(v, u) + ls.get_dist(u, v_next)
 
     if delta * ls.C < -1e-4:
         ls.routes[r_u].pop(p_u)
@@ -210,8 +210,8 @@ def relocate_chain(
     prev_c = route_src[pos_src - 1] if pos_src > 0 else 0
     next_c = route_src[pos_src + chain_len] if pos_src + chain_len < len(route_src) else 0
 
-    removal = _chain_edge_cost(ls.d, prev_c, chain, next_c)
-    repair = ls.d[prev_c, next_c]
+    removal = _chain_edge_cost(ls, prev_c, chain, next_c)
+    repair = ls.get_dist(prev_c, next_c)
 
     # Insertion cost — compute on destination route
     # Adjust pos_dst for intra-route removal shift
@@ -234,8 +234,8 @@ def relocate_chain(
     v = temp_dst[adj_pos_dst] if adj_pos_dst >= 0 else 0
     v_next = temp_dst[adj_pos_dst + 1] if adj_pos_dst + 1 < len(temp_dst) else 0
 
-    old_edge = ls.d[v, v_next]
-    insertion = _chain_edge_cost(ls.d, v, chain, v_next)
+    old_edge = ls.get_dist(v, v_next)
+    insertion = _chain_edge_cost(ls, v, chain, v_next)
 
     delta = (repair - removal) + (insertion - old_edge)
 
@@ -293,11 +293,11 @@ def move_or_opt(ls: Any, r_idx: int, pos: int, chain_len: int, exclude_depot: bo
     return False
 
 
-def _chain_edge_cost(d, prev_node: int, chain: List[int], next_node: int) -> float:
+def _chain_edge_cost(ls: Any, prev_node: int, chain: List[int], next_node: int) -> float:
     """Cost of edges: prev -> chain[0] -> ... -> chain[-1] -> next.
 
     Args:
-        d: Distance matrix indexed by node IDs.
+        ls: LocalSearch instance.
         prev_node: Node immediately before the chain.
         chain: Ordered list of chain node IDs.
         next_node: Node immediately after the chain.
@@ -306,9 +306,9 @@ def _chain_edge_cost(d, prev_node: int, chain: List[int], next_node: int) -> flo
         Total edge cost traversing prev_node -> chain -> next_node.
     """
     if not chain:
-        return d[prev_node, next_node]
-    cost = d[prev_node, chain[0]]
+        return ls.get_dist(prev_node, next_node)
+    cost = ls.get_dist(prev_node, chain[0])
     for i in range(len(chain) - 1):
-        cost += d[chain[i], chain[i + 1]]
-    cost += d[chain[-1], next_node]
+        cost += ls.get_dist(chain[i], chain[i + 1])
+    cost += ls.get_dist(chain[-1], next_node)
     return cost

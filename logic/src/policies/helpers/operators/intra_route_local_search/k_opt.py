@@ -25,7 +25,7 @@ Example:
 
 import itertools
 from random import Random
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 
@@ -287,7 +287,7 @@ def _apply_2opt(ls, u: int, v: int, r_u: int, p_u: int, p_v: int, exclude_depot:
         return False
     v_next = route[p_v + 1] if p_v < len(route) - 1 else 0
 
-    delta = -ls.d[u, u_next] - ls.d[v, v_next] + ls.d[u, v] + ls.d[u_next, v_next]
+    delta = -ls.get_dist(u, u_next) - ls.get_dist(v, v_next) + ls.get_dist(u, v) + ls.get_dist(u_next, v_next)
 
     if delta * ls.C < -1e-4:
         segment = route[p_u + 1 : p_v + 1]
@@ -342,12 +342,12 @@ def _apply_3opt(
         C, D = route[j], route[j + 1] if j < len(route) - 1 else 0
         E, F = route[k], route[k + 1] if k < len(route) - 1 else 0
 
-        d_base = ls.d[A, B] + ls.d[C, D] + ls.d[E, F]
+        d_base = ls.get_dist(A, B) + ls.get_dist(C, D) + ls.get_dist(E, F)
 
-        g4 = d_base - (ls.d[A, C] + ls.d[B, E] + ls.d[D, F])
-        g5 = d_base - (ls.d[A, D] + ls.d[E, B] + ls.d[C, F])
-        g6 = d_base - (ls.d[A, D] + ls.d[E, C] + ls.d[B, F])
-        g7 = d_base - (ls.d[A, E] + ls.d[D, B] + ls.d[C, F])
+        g4 = d_base - (ls.get_dist(A, C) + ls.get_dist(B, E) + ls.get_dist(D, F))
+        g5 = d_base - (ls.get_dist(A, D) + ls.get_dist(E, B) + ls.get_dist(C, F))
+        g6 = d_base - (ls.get_dist(A, D) + ls.get_dist(E, C) + ls.get_dist(B, F))
+        g7 = d_base - (ls.get_dist(A, E) + ls.get_dist(D, B) + ls.get_dist(C, F))
 
         gains = [g4, g5, g6, g7]
         best_g = max(gains)
@@ -418,7 +418,7 @@ def _apply_kopt(
         if exclude_depot and not tail:
             continue
 
-        original_cost = _connection_cost(ls.d, head, middle, tail, exclude_depot)
+        original_cost = _connection_cost(ls, head, middle, tail, exclude_depot)
         best_gain, best_config = _find_best_config(ls, head, middle, tail, original_cost, exclude_depot)
 
         # Apply the best configuration if improving
@@ -512,7 +512,7 @@ def _find_best_config(
                 seg = middle[seg_idx]
                 reordered.append(seg[::-1] if reversals[idx] else seg)
 
-            new_cost = _connection_cost(ls.d, head, reordered, tail, exclude_depot)
+            new_cost = _connection_cost(ls, head, reordered, tail, exclude_depot)
             gain = original_cost - new_cost
 
             if gain > best_gain:
@@ -551,7 +551,7 @@ def _apply_config(
 
 
 def _connection_cost(
-    d, head: List[int], middle: List[List[int]], tail: List[int], exclude_depot: bool = False
+    ls: Any, head: List[int], middle: List[List[int]], tail: List[int], exclude_depot: bool = False
 ) -> float:
     """
     Compute the total cost of edges connecting consecutive segments.
@@ -560,7 +560,7 @@ def _connection_cost(
     not internal segment costs (which stay constant).
 
     Args:
-        d: Distance matrix (2-D array-like).
+        ls: LocalSearch instance.
         head: Head segment (fixed).
         middle: List of middle segments in their current order.
         tail: Tail segment (fixed).
@@ -582,6 +582,6 @@ def _connection_cost(
 
         node_a = seg_a[-1] if seg_a else 0
         node_b = seg_b[0] if seg_b else 0
-        cost += d[node_a, node_b]
+        cost += ls.get_dist(node_a, node_b)
 
     return cost

@@ -37,8 +37,8 @@ defaults:
   - /policies@p.genius: policy_genius
   - /policies@p.gihh: policy_gihh
   - /policies@p.gls: policy_gls
-  - /policies@p.gphh: policy_gp_hh
-  - /policies@p.gpmphh: policy_gp_mp_hh
+  - /policies@p.gp_hh: policy_gp_hh
+  - /policies@p.gp_mp_hh: policy_gp_mp_hh
   - /policies@p.hgs: policy_hgs
   - /policies@p.hgs_alns: policy_hgs_alns
   - /policies@p.hgs_rr: policy_hgs_rr
@@ -158,8 +158,8 @@ sim:
     - genius: ${p.genius.genius}
     - gihh: ${p.gihh.gihh}
     - gls: ${p.gls.gls}
-    - gphh: ${p.gphh.gphh}
-    - gpmphh: ${p.gpmphh.gpmphh}
+    - gp_hh: ${p.gp_hh.gp_hh}
+    - gp_mp_hh: ${p.gp_mp_hh.gp_mp_hh}
     - hgs: ${p.hgs.hgs}
     - hgs_alns: ${p.hgs_alns.hgs_alns}
     - hgs_rr: ${p.hgs_rr.hgs_rr}

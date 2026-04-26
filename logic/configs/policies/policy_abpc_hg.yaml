@@ -1,7 +1,30 @@
-# @package _global_
-policy:
+abpc_hg:
   _target_: logic.src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy
-  name: "abpc_hg"
-  config:
-    gamma: 0.95
-    seed: 1234
+  gamma: 0.95
+  seed: 1234
+  overflow_penalty: 2.0
+  ph_base_rho: 1.0
+  ph_max_iterations: 100
+  ph_convergence_tol: 1e-4
+  alns_iterations: 50
+  alns_max_routes: 5
+  alns_rc_tolerance: 1e-4
+  alns_remove_fraction: 0.25
+  dive_penalty_M: 10000.0
+  fo_tabu_length: 10
+  fo_max_unfix: 5
+  fo_strategy: "overflow_urgency"
+  fo_max_iterations: 20
+  ml_reliability_c: 1.0
+  ml_pseudocost_ema_alpha: 0.5
+  sc_consensus_threshold: 0.95
+  benders_max_iterations: 50
+  benders_convergence_tol: 1e-3
+  benders_cut_pool_max: 500
+  max_visits_per_bin: 1
+  theta_upper_bound: 1000000.0
+  gurobi_master_time_limit: 60.0
+  gurobi_sub_time_limit: 30.0
+  gurobi_mip_gap: 1e-4
+  gurobi_output_flag: false
+  subproblem_relax: true
