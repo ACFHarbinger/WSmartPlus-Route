@@ -94,7 +94,7 @@ def _seed_selection(
         Sorted list of 1-based bin IDs selected by the strategy.
     """
     try:
-        from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+        from logic.src.interfaces.context.selection_context import SelectionContext
         from logic.src.policies.mandatory_selection.base.selection_factory import MandatorySelectionFactory
 
         ctx = SelectionContext(

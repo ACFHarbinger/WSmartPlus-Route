@@ -54,11 +54,11 @@ from logic.src.policies.helpers.operators import (
     worst_removal,
 )
 from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
+from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic import (
+    HyperHeuristicACO,
+)
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
     ALNSSolver,
-)
-from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver import (
-    KSparseACOSolver,
 )
 from logic.src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params import (
     HybridMemeticSearchParams,
@@ -123,7 +123,7 @@ class HybridMemeticSearchSolver:
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         # Initialize ACO solver for population initialization
-        self.aco_solver = KSparseACOSolver(
+        self.aco_solver = HyperHeuristicACO(
             dist_matrix=dist_matrix,
             wastes=wastes,
             capacity=capacity,
@@ -266,7 +266,7 @@ class HybridMemeticSearchSolver:
 
         # Run truncated ACO iterations
         for _ in range(self.params.aco_init_iterations):
-            routes = self.aco_solver.constructor.construct()
+            routes = self.aco_solver.construct([0] + self.nodes, self.mandatory_nodes)
             if routes:
                 population.append(routes)
 
@@ -594,7 +594,7 @@ class HybridMemeticSearchSolver:
             return
 
         # Evaporate
-        self.aco_solver.pheromone.evaporate_all(self.params.aco_params.rho)  # type: ignore[union-attr]
+        self.aco_solver.evaporate_all()
 
         # Deposit on best solution edges
         delta = 1.0 / cost

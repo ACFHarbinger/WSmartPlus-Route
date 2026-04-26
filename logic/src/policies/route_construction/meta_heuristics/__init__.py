@@ -8,7 +8,6 @@ Attributes:
     adaptive_large_neighborhood_search: ALNS implementations.
     ant_colony_optimization_k_sparse: ACO implementations.
     artificial_bee_colony: ABC implementations.
-    augmented_hybrid_volleyball_premier_league: AHVPL implementations.
     differential_evolution: DE implementations.
     evolution_strategy_mu_comma_lambda: ES (mu, lambda) implementations.
     evolution_strategy_mu_kappa_lambda: ES (mu, kappa, lambda) implementations.
@@ -28,7 +27,6 @@ from .adaptive_large_neighborhood_search_with_inter_period_operators import (
 )
 from .ant_colony_optimization_k_sparse import policy_aco_ks as policy_aco_ks
 from .artificial_bee_colony import policy_abc as policy_abc
-from .augmented_hybrid_volleyball_premier_league import policy_ahvpl as policy_ahvpl
 from .differential_evolution import policy_de as policy_de
 from .evolution_strategy_mu_comma_lambda import policy_es_mcl as policy_es_mcl
 from .evolution_strategy_mu_kappa_lambda import policy_es_mkl as policy_es_mkl
@@ -75,7 +73,6 @@ __all__ = [
     "policy_alns_ipo",
     "policy_aco_ks",
     "policy_abc",
-    "policy_ahvpl",
     "policy_de",
     "policy_es_mcl",
     "policy_es_mkl",

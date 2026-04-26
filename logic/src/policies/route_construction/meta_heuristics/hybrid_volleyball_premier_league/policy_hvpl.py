@@ -23,8 +23,11 @@ import numpy as np
 from logic.src.configs.policies.hvpl import HVPLConfig
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params import (
+    OPERATOR_NAMES,
+    HyperACOParams,
+)
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
-from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params import HVPLParams
 from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.solver import HVPLSolver
 
@@ -126,42 +129,42 @@ class HVPLPolicy(BaseRoutingPolicy):
         # Get ACO config (nested or flattened)
         aco_config = values.get("aco", {})
         if isinstance(aco_config, dict):
-            aco_params = KSACOParams(
-                n_ants=aco_config.get("n_ants", 20),
-                k_sparse=aco_config.get("k_sparse", 10),
+            aco_params = HyperACOParams(
+                n_ants=aco_config.get("n_ants", 10),
                 alpha=aco_config.get("alpha", 1.0),
                 beta=aco_config.get("beta", 2.0),
-                rho=aco_config.get("rho", 0.1),
-                scale=aco_config.get("scale", 5.0),
+                rho=aco_config.get("rho", 0.5),
+                eta_decay=aco_config.get("eta_decay", 0.5),
                 tau_0=aco_config.get("tau_0", 1.0),
-                tau_min=aco_config.get("tau_min", 0.001),
-                tau_max=aco_config.get("tau_max", 10.0),
-                max_iterations=aco_config.get("max_iterations", 1),
-                time_limit=aco_config.get("time_limit", 60.0),
-                local_search=aco_config.get("local_search", False),
-                local_search_iterations=aco_config.get("local_search_iterations", 0),
-                elitist_weight=aco_config.get("elitist_weight", 1.0),
+                Q=aco_config.get("Q", 1.0),
+                lambda_val=aco_config.get("lambda_val", 1.0001),
+                use_dynamic_lambda=aco_config.get("use_dynamic_lambda", True),
+                max_iterations=aco_config.get("max_iterations", 50),
+                elitism_ratio=aco_config.get("elitism_ratio", 1.0),
+                time_limit=aco_config.get("time_limit", 30.0),
+                stagnation_limit=aco_config.get("stagnation_limit", 10),
+                operators=aco_config.get("operators", OPERATOR_NAMES.copy()),
                 seed=seed,
                 vrpp=vrpp,
                 profit_aware_operators=profit_aware_operators,
             )
         else:
             # Fallback to flattened parameters for backward compatibility
-            aco_params = KSACOParams(
-                n_ants=values.get("aco_n_ants", 20),
-                k_sparse=values.get("aco_k_sparse", 10),
-                alpha=values.get("aco_alpha", 1.0),
-                beta=values.get("aco_beta", 2.0),
-                rho=values.get("aco_rho", 0.1),
-                scale=values.get("aco_scale", 5.0),
-                tau_0=values.get("aco_tau_0", 1.0),
-                tau_min=values.get("aco_tau_min", 0.001),
-                tau_max=values.get("aco_tau_max", 10.0),
-                max_iterations=values.get("aco_iterations", 1),
-                time_limit=values.get("aco_time_limit", 60.0),
-                local_search=values.get("aco_local_search", False),
-                local_search_iterations=values.get("aco_local_search_iterations", 0),
-                elitist_weight=values.get("aco_elitist_weight", 1.0),
+            aco_params = HyperACOParams(
+                n_ants=values.get("n_ants", 10),
+                alpha=values.get("alpha", 1.0),
+                beta=values.get("beta", 2.0),
+                rho=values.get("rho", 0.5),
+                eta_decay=values.get("eta_decay", 0.5),
+                tau_0=values.get("tau_0", 1.0),
+                Q=values.get("Q", 1.0),
+                lambda_val=values.get("lambda_val", 1.0001),
+                use_dynamic_lambda=values.get("use_dynamic_lambda", True),
+                max_iterations=values.get("max_iterations", 50),
+                elitism_ratio=values.get("elitism_ratio", 1.0),
+                time_limit=values.get("time_limit", 30.0),
+                stagnation_limit=values.get("stagnation_limit", 10),
+                operators=values.get("operators", OPERATOR_NAMES.copy()),
                 seed=seed,
                 vrpp=vrpp,
                 profit_aware_operators=profit_aware_operators,

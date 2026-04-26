@@ -81,7 +81,7 @@ class HGSLocalSearch(LocalSearch):
 
         # Flatten active routes into a single continuous sequence
         route_positions = {node: i for i, node in enumerate(solution.giant_tour)}
-        self.routes.sort(key=lambda r: route_positions.get(r[0], float("inf")))
+        self.routes.sort(key=lambda r: route_positions.get(r[0], float("inf")) if r else float("inf"))
         active_seq = [node for r in self.routes for node in r]
         visited_set = set(active_seq)
 
