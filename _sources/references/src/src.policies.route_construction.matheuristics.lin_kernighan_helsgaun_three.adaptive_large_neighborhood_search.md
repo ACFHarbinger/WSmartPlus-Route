@@ -57,7 +57,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS.__init__
 ```
 
-````{py:method} solve(max_iterations: int = 100, lkh_trials: int = 500, n_vehicles: int = 3, plateau_limit: int = 10, deep_plateau_limit: int = 30, popmusic_subpath_size: int = 50, popmusic_trials: int = 50, popmusic_max_candidates: int = 5, max_k_opt: int = 5, use_ip_merging: bool = True, subgradient_iterations: int = 50, dynamic_topology_discovery: bool = False, native_prize_collecting: bool = False) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} solve(max_iterations: int = 100, lkh_trials: int = 500, n_vehicles: int = 3, plateau_limit: int = 10, deep_plateau_limit: int = 30, popmusic_subpath_size: int = 50, popmusic_trials: int = 50, popmusic_max_candidates: int = 5, max_k_opt: int = 5, use_ip_merging: bool = True, subgradient_iterations: int = 50, dynamic_topology_discovery: bool = False, native_prize_collecting: bool = False, sa_max_trials: int = 0) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS.solve
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS.solve
@@ -73,7 +73,7 @@
 
 ````
 
-````{py:method} _route_nodes(nodes: typing.List[int], lkh_trials: int, n_vehicles: int, popmusic_subpath_size: int, popmusic_trials: int, popmusic_max_candidates: int, max_k_opt: int, use_ip_merging: bool, subgradient_iterations: int = 0, initial_routes: typing.Optional[typing.List[typing.List[int]]] = None, dynamic_topology_discovery: bool = False) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} _route_nodes(nodes: typing.List[int], lkh_trials: int, n_vehicles: int, popmusic_subpath_size: int, popmusic_trials: int, popmusic_max_candidates: int, max_k_opt: int, use_ip_merging: bool, subgradient_iterations: int = 0, initial_routes: typing.Optional[typing.List[typing.List[int]]] = None, dynamic_topology_discovery: bool = False, sa_max_trials: int = 0) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._route_nodes
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._route_nodes
@@ -81,7 +81,7 @@
 
 ````
 
-````{py:method} _optimize_routes(routes: typing.List[typing.List[int]], lkh_trials: int, n_vehicles: int, popmusic_subpath_size: int, popmusic_trials: int, popmusic_max_candidates: int, max_k_opt: int, use_ip_merging: bool, subgradient_iterations: int, dynamic_topology_discovery: bool = False) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} _optimize_routes(routes: typing.List[typing.List[int]], lkh_trials: int, n_vehicles: int, popmusic_subpath_size: int, popmusic_trials: int, popmusic_max_candidates: int, max_k_opt: int, use_ip_merging: bool, subgradient_iterations: int, dynamic_topology_discovery: bool = False, sa_max_trials: int = 0) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._optimize_routes
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._optimize_routes

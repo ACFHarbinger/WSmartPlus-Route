@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SolutionConstructor(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, pheromone: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau, eta: numpy.ndarray, candidate_lists: typing.Dict[int, typing.List[int]], nodes: typing.List[int], params: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams, tau_0: float, R: float = 0.0, C: float = 1.0, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} SolutionConstructor(node_coords: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, pheromone: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau, candidate_lists: typing.Dict[int, typing.List[int]], nodes: typing.List[int], params: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams, tau_0: float, R: float = 0.0, C: float = 1.0, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor
@@ -43,6 +43,22 @@
 
 ````
 
+````{py:method} _cleanup_unvisited(unvisited: typing.Set[int], mandatory_unvisited: typing.Set[int]) -> None
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._cleanup_unvisited
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._cleanup_unvisited
+```
+
+````
+
+````{py:method} _dist(i: int, j: int) -> numpy.floating[typing.Any]
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._dist
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._dist
+```
+
+````
+
 ````{py:method} _any_profitable_nodes(unvisited: typing.Set[int]) -> bool
 :canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._any_profitable_nodes
 
@@ -55,14 +71,6 @@
 :canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._get_feasible_nodes
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._get_feasible_nodes
-```
-
-````
-
-````{py:method} _cleanup_unvisited(unvisited: typing.Set[int], mandatory_unvisited: typing.Set[int]) -> None
-:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._cleanup_unvisited
-
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._cleanup_unvisited
 ```
 
 ````

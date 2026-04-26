@@ -535,7 +535,9 @@ params: HGS parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_hgs.HGSLocalSearch.optimize">
 <span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_hgs.HGSLocalSearch.optimize" title="Link to this definition">#</a></dt>
-<dd><p>Iteratively improve an individual using local search operators.</p>
+<dd><p>Iteratively improve an individual using local search operators.
+Reconstructs the genotype by proportionally interleaving unvisited nodes
+to prevent evolutionary degradation.</p>
 <p>Args:
 solution: The individual to optimize.</p>
 <p>Returns:

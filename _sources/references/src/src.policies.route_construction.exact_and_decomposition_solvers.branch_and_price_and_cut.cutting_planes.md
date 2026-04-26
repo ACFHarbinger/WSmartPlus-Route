@@ -51,6 +51,10 @@
   - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine
     :summary:
     ```
+* - {py:obj}`RoundedMultistarCutEngine <src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine>`
+  - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine
+    :summary:
+    ```
 ````
 
 ### Functions
@@ -387,6 +391,46 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name
+```
+
+````
+
+`````
+
+`````{py:class} RoundedMultistarCutEngine(v_model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, sep_engine: logic.src.policies.helpers.solvers_and_matheuristics.SeparationEngine, epsilon: float = 0.01)
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine
+
+Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.__init__
+```
+
+````{py:method} _add_inequalities(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, edge_vars: typing.Dict[typing.Tuple[int, int], float], node_visits: typing.Dict[int, float], candidate_ineqs: typing.List[typing.Any], max_cuts: int) -> int
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine._add_inequalities
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine._add_inequalities
+```
+
+````
+
+````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.separate_and_add_cuts
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.separate_and_add_cuts
+```
+
+````
+
+````{py:method} get_name() -> str
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.get_name
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.get_name
 ```
 
 ````

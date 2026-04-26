@@ -88,7 +88,7 @@
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cutting_planes
 :type: str
 :value: >
-   'rcc'
+   'saturated_arc_lci'
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cutting_planes
 ```
@@ -333,6 +333,17 @@
    1000000
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels
+```
+
+````
+
+````{py:attribute} prefer_shorter_path_dfs
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.prefer_shorter_path_dfs
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.prefer_shorter_path_dfs
 ```
 
 ````

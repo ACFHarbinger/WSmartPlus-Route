@@ -81,7 +81,7 @@
 
 ````
 
-````{py:method} apply_local_search(routes: typing.List[typing.List[int]], ls_manager: logic.src.policies.helpers.local_search.local_search_aco.ACOLocalSearch, targeted_nodes: typing.Optional[typing.List[int]] = None) -> typing.List[typing.List[int]]
+````{py:method} apply_local_search(routes: typing.List[typing.List[int]], ls_manager: logic.src.policies.helpers.local_search.local_search_general.GeneralLocalSearch, targeted_nodes: typing.Optional[typing.List[int]] = None) -> typing.List[typing.List[int]]
 :canonical: src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.apply_local_search
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.apply_local_search

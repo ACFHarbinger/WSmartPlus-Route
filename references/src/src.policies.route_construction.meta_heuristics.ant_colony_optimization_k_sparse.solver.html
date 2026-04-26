@@ -472,8 +472,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._nearest_neighbor_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._build_candidate_lists()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._nearest_neighbor_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver.solve"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._global_pheromone_update"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._global_pheromone_update()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._calculate_cost"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._calculate_cost()</span></code></a></li>
@@ -528,7 +528,7 @@ global-only pheromone updates.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.</span></span><span class="sig-name descname"><span class="pre">KSparseACOSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.html#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams" title="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.</span></span><span class="sig-name descname"><span class="pre">KSparseACOSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.html#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams" title="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver" title="Link to this definition">#</a></dt>
 <dd><p>K-Sparse MAX-MIN Ant System (MMAS_exp) solver for CVRP/VRPP.</p>
 <p>Implements MMAS with scale-based sparse pheromone storage for memory
 efficiency and fast computation on large problem instances. Follows
@@ -539,7 +539,7 @@ the experimental MMAS variant (MMAS_exp) from Hale (2021), featuring:</p>
 <li><p>Dynamic default_value with precision-based pruning</p></li>
 </ul>
 <p>Attributes:
-dist_matrix: NxN distance matrix.
+node_coords: Node coordinates.
 wastes: Mapping of bin IDs to waste quantities.
 capacity: Maximum vehicle collection capacity.
 R: Revenue multiplier for waste collected.
@@ -548,7 +548,6 @@ params: Algorithm-specific hyperparameters.
 mandatory_nodes: Nodes that must be visited.
 n_nodes: Total number of nodes.
 nodes: List of customer nodes.
-eta: Heuristic visibility matrix.
 tau_0: Initial pheromone level.
 pheromone: Sparse pheromone matrix.
 ls: Local search optimizer.
@@ -557,7 +556,7 @@ constructor: Solution constructor for ants.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the K-Sparse Ant Colony Optimization solver.</p>
 <p>Args:
-dist_matrix (np.ndarray): NxN distance matrix.
+node_coords (np.ndarray): Node coordinates.
 wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
 capacity (float): Maximum vehicle collection capacity.
 R (float): Revenue multiplier for waste collected.
@@ -565,19 +564,21 @@ C (float): Cost multiplier for distance traveled.
 params (KSACOParams): Algorithm-specific hyperparameters.
 mandatory_nodes (Optional[List[int]]): Nodes that must be visited.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost">
-<span class="sig-name descname"><span class="pre">_nearest_neighbor_cost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost" title="Link to this definition">#</a></dt>
-<dd><p>Compute cost of nearest neighbor tour for tau_0 initialization.</p>
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists">
+<span class="sig-name descname"><span class="pre">_build_candidate_lists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists" title="Link to this definition">#</a></dt>
+<dd><p>Build k-nearest neighbor candidate lists in O(N log N) time.</p>
 <p>Returns:
-Approximate cost of a complete tour.</p>
+Dict[int, List[int]]: Dictionary mapping node index to list of nearest neighbors.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists">
-<span class="sig-name descname"><span class="pre">_build_candidate_lists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists" title="Link to this definition">#</a></dt>
-<dd><p>Build k-nearest neighbor candidate lists for each node.</p>
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost">
+<span class="sig-name descname"><span class="pre">_nearest_neighbor_cost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost" title="Link to this definition">#</a></dt>
+<dd><p>Compute baseline cost using a VRP-aware greedy heuristic.
+Respects vehicle capacity and returns to the depot, providing a mathematically
+sound baseline for tau_0 in a multi-route environment.</p>
 <p>Returns:
-Dictionary mapping node index to list of nearest neighbors.</p>
+float: Cost of the nearest neighbor tour.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -617,7 +618,7 @@ Hale (2021), Section 4.2.2: MMAS global update with evaporate-then-reinforce.</p
 <p>Args:
 routes: List of routes to evaluate.</p>
 <p>Returns:
-Total distance-based cost.</p>
+Total cost of the routes.</p>
 </dd></dl>
 
 </dd></dl>
@@ -675,8 +676,8 @@ Total distance-based cost.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._nearest_neighbor_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._build_candidate_lists()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._nearest_neighbor_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver.solve"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._global_pheromone_update"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._global_pheromone_update()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._calculate_cost"><code class="docutils literal notranslate"><span class="pre">KSparseACOSolver._calculate_cost()</span></code></a></li>

@@ -500,6 +500,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCParams.cg_at_root_only</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_timeout"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_timeout</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_max_labels</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.prefer_shorter_path_dfs"><code class="docutils literal notranslate"><span class="pre">BPCParams.prefer_shorter_path_dfs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_pre_pruning"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_pre_pruning</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_lambda_init"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_lambda_init</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_max_subgradient_iters"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_max_subgradient_iters</span></code></a></li>
@@ -623,7 +624,7 @@ lr_warm_start_cg (bool): Seed CG with LR result.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cutting_planes">
 <span class="sig-name descname"><span class="pre">cutting_planes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cutting_planes" title="Link to this definition">#</a></dt>
-<dd><p>‘rcc’</p>
+<dd><p>‘saturated_arc_lci’</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -756,6 +757,12 @@ lr_warm_start_cg (bool): Seed CG with LR result.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels">
 <span class="sig-name descname"><span class="pre">rcspp_max_labels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels" title="Link to this definition">#</a></dt>
 <dd><p>1000000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.prefer_shorter_path_dfs">
+<span class="sig-name descname"><span class="pre">prefer_shorter_path_dfs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.prefer_shorter_path_dfs" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -915,6 +922,7 @@ Dict[str, Any]: Mapping of parameter names to values.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCParams.cg_at_root_only</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_timeout"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_timeout</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels"><code class="docutils literal notranslate"><span class="pre">BPCParams.rcspp_max_labels</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.prefer_shorter_path_dfs"><code class="docutils literal notranslate"><span class="pre">BPCParams.prefer_shorter_path_dfs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_pre_pruning"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_pre_pruning</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_lambda_init"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_lambda_init</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.lr_max_subgradient_iters"><code class="docutils literal notranslate"><span class="pre">BPCParams.lr_max_subgradient_iters</span></code></a></li>

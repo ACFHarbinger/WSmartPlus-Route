@@ -478,7 +478,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.cooling_rate"><code class="docutils literal notranslate"><span class="pre">ALNSParams.cooling_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.reaction_factor"><code class="docutils literal notranslate"><span class="pre">ALNSParams.reaction_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.min_removal"><code class="docutils literal notranslate"><span class="pre">ALNSParams.min_removal</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_pct"><code class="docutils literal notranslate"><span class="pre">ALNSParams.max_removal_pct</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.start_temp_control"><code class="docutils literal notranslate"><span class="pre">ALNSParams.start_temp_control</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.xi"><code class="docutils literal notranslate"><span class="pre">ALNSParams.xi</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.segment_size"><code class="docutils literal notranslate"><span class="pre">ALNSParams.segment_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.noise_factor"><code class="docutils literal notranslate"><span class="pre">ALNSParams.noise_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.worst_removal_randomness"><code class="docutils literal notranslate"><span class="pre">ALNSParams.worst_removal_randomness</span></code></a></li>
@@ -545,7 +546,8 @@ start_temp: Initial temperature for simulated annealing (if &gt; 0, dynamic calc
 cooling_rate: Temperature decay factor per iteration.
 reaction_factor: Learning rate for operator weight updates (r in Ropke &amp; Pisinger 2005).
 min_removal: Minimum number of nodes to remove.
-max_removal_pct: Maximum percentage of nodes to remove.
+start_temp_control: ‘w’ parameter: accept a 5% worse solution with 0.5 probability
+xi: ‘xi’ parameter: fraction of total nodes for max removal cap
 segment_size: Number of iterations before updating operator weights.
 noise_factor: Noise level for repair operators (eta in Ropke &amp; Pisinger 2005).
 worst_removal_randomness: Randomness parameter p &gt;= 1 for worst removal (p=1 is deterministic).
@@ -601,9 +603,15 @@ engine: Engine to use for the solver.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_pct">
-<span class="sig-name descname"><span class="pre">max_removal_pct</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_pct" title="Link to this definition">#</a></dt>
-<dd><p>0.3</p>
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.start_temp_control">
+<span class="sig-name descname"><span class="pre">start_temp_control</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.start_temp_control" title="Link to this definition">#</a></dt>
+<dd><p>0.05</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.xi">
+<span class="sig-name descname"><span class="pre">xi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.xi" title="Link to this definition">#</a></dt>
+<dd><p>0.4</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -767,7 +775,8 @@ ALNSParams instance with values from config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.cooling_rate"><code class="docutils literal notranslate"><span class="pre">ALNSParams.cooling_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.reaction_factor"><code class="docutils literal notranslate"><span class="pre">ALNSParams.reaction_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.min_removal"><code class="docutils literal notranslate"><span class="pre">ALNSParams.min_removal</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_pct"><code class="docutils literal notranslate"><span class="pre">ALNSParams.max_removal_pct</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.start_temp_control"><code class="docutils literal notranslate"><span class="pre">ALNSParams.start_temp_control</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.xi"><code class="docutils literal notranslate"><span class="pre">ALNSParams.xi</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.segment_size"><code class="docutils literal notranslate"><span class="pre">ALNSParams.segment_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.noise_factor"><code class="docutils literal notranslate"><span class="pre">ALNSParams.noise_factor</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.worst_removal_randomness"><code class="docutils literal notranslate"><span class="pre">ALNSParams.worst_removal_randomness</span></code></a></li>

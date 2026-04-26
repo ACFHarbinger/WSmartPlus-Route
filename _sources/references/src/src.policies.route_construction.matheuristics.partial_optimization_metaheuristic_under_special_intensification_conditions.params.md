@@ -99,7 +99,7 @@
 :canonical: src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.initial_solver
 :type: str
 :value: >
-   'nearest_neighbor'
+   'pmedian'
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.initial_solver
 ```

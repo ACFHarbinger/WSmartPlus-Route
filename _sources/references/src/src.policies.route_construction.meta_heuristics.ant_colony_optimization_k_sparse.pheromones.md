@@ -43,14 +43,6 @@
 
 ````
 
-````{py:method} set(i: int, j: int, value: float) -> None
-:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.set
-
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.set
-```
-
-````
-
 ````{py:method} deposit_edge(i: int, j: int, delta: float) -> None
 :canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge
 

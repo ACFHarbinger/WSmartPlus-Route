@@ -474,8 +474,10 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.build_solution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._make_context()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._select_sequence()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._calculate_cost()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._calculate_routing_cost()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaluate_objective()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaporate_pheromones()</span></code></a></li>
 </ul>
 </li>
@@ -504,8 +506,20 @@ The pheromone matrix encodes transition probabilities between operators.</p>
 <ul class="simple">
 <li><p>Operator graph: Nodes represent local search operators (2-opt, swap, etc.)</p></li>
 <li><p>Pheromone trail: tau[i][j] = favorability of applying operator j after operator i</p></li>
-<li><p>Heuristic information: Dynamic based on operator success rate</p></li>
+<li><p>Heuristic information: Dynamic based on operator success rate / execution time</p></li>
 <li><p>Solution evaluation: Apply operator sequence to a base solution</p></li>
+</ul>
+<p>Paper reference: Chen, Kendall &amp; Vanden Berghe (2007),
+“An Ant Based Hyper-heuristic for the Travelling Tournament Problem”.</p>
+<p>Adaptations from TTP to VRPP:</p>
+<ul class="simple">
+<li><p>Objective = total routing cost (× C) − collected revenue (× R), subject to
+capacity constraints; infeasible solutions are penalised via Strategic Oscillation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_dynamic_lambda=True</span></code> (default): replaces the paper’s λ=1.0001 base with a
+scale-invariant exp(I/Z) using an EMA of recent |improvement|, improving
+robustness across different problem scales.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">elitism_ratio</span> <span class="pre">&lt;</span> <span class="pre">1.0</span></code> (optional): hedged elitism for diversity preservation;
+paper default is 1.0 (all ants sync to global best on improvement).</p></li>
 </ul>
 <p>Attributes:
 HyperHeuristicACO: HyperHeuristicACO class.</p>
@@ -520,7 +534,7 @@ HyperHeuristicACO: HyperHeuristicACO class.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HyperHeuristicACO</span></code></a></p></td>
-<td><p>Hyper-Heuristic ACO solver.</p></td>
+<td><p>Pure Ant System (AS) Hyper-Heuristic ACO solver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -531,7 +545,7 @@ HyperHeuristicACO: HyperHeuristicACO class.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.</span></span><span class="sig-name descname"><span class="pre">HyperHeuristicACO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.html#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO" title="Link to this definition">#</a></dt>
-<dd><p>Hyper-Heuristic ACO solver.</p>
+<dd><p>Pure Ant System (AS) Hyper-Heuristic ACO solver.</p>
 <p>Ants construct sequences of local search operators.
 The best sequences are reinforced via pheromone updates.</p>
 <p>Attributes:
@@ -548,10 +562,12 @@ np_rng: NumPy random number generator.
 operator_names: List of operator names.
 n_operators: Number of operators.
 op_to_idx: Mapping from operator names to indices.
-tau: Pheromone matrix.
-eta: Heuristic information matrix.
-edge_count: Edge count matrix.
-sequence_length: Length of operator sequences.</p>
+tau: Pheromone matrix. Row n_operators is the virtual start row used
+only when an ant has no prior position (first journey step after
+uniform placement on real vertices already seeds the real rows).
+eta: Heuristic visibility matrix (per directed edge i→j).
+edge_count: Cumulative edge traversal count (num(i,j) in the paper).
+sequence_length: Length of operator sequences (= n_operators, per paper).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HyperHeuristicACO.</p>
 <p>Args:
@@ -566,48 +582,88 @@ mandatory_nodes: List of mandatory node indices.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve" title="Link to this definition">#</a></dt>
-<dd><p>Solve VRP using Hyper-ACO with proper ant state synchronization.</p>
-<p>Accumulate eta updates from all ants and apply evaporation once per iteration.
-Maintain individual ant solutions, only synchronize to global best when improved.</p>
+<dd><p>Solve the problem using the Ant Colony Optimization algorithm.</p>
 <p>Returns:
-Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
+Tuple[List[List[int]], float, float]:
+- Best routes
+- Collected revenue - cost
+- Final cost</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution">
-<span class="sig-name descname"><span class="pre">build_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution" title="Link to this definition">#</a></dt>
-<dd><p>Build a solution by applying a sequence of operators.</p>
-<p>Task 1: Track execution time, cost improvement, and return eta updates.
-The visibility matrix evaporation is applied once per iteration, not per ant.</p>
+<span class="sig-name descname"><span class="pre">build_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_op_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution" title="Link to this definition">#</a></dt>
+<dd><p>Build a solution by constructing and applying an operator sequence.</p>
 <p>Args:
-base_solution: The starting solution for this ant.</p>
+base_solution: Base solution to improve.
+start_op_idx: The operator vertex this ant currently occupies.
+Sequences are constructed beginning from this vertex, not from
+the virtual start node (Bug #2 fix).</p>
 <p>Returns:
-Tuple[List[List[int]], List[str], np.ndarray]: Modified routes, operator sequence, and eta updates.</p>
+Tuple of:
+- Improved routes.
+- Sequence of operator names applied.
+- Per-edge eta update matrix accumulated during this sequence.
+- Ending operator index (the ant’s new position for next iteration).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context">
+<span class="sig-name descname"><span class="pre">_make_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effective_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.html#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context" title="Link to this definition">#</a></dt>
+<dd><p>Construct a HyperOperatorContext for the given solution snapshot.</p>
+<p>Args:
+routes: Current routes (will be deep-copied inside).
+effective_capacity: Capacity to enforce (may be inf during oscillation).</p>
+<p>Returns:
+HyperOperatorContext ready for operator application.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence">
-<span class="sig-name descname"><span class="pre">_select_sequence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence" title="Link to this definition">#</a></dt>
-<dd><p>Construct an operator sequence using ACO rules with ACS q0 exploitation.</p>
-<p>Use self.sequence_length (dynamically set to n_operators).</p>
+<span class="sig-name descname"><span class="pre">_select_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_op_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence" title="Link to this definition">#</a></dt>
+<dd><p>Pure Ant System proportional selection, starting from a real operator vertex.</p>
+<p>Bug #2 fix: the sequence now departs from the ant’s actual current position
+(a real operator index in [0, n_operators-1]) rather than the virtual start
+node (index n_operators). This means pheromone trails on real operator-to-
+operator edges are reinforced from the very first journey.</p>
+<p>Args:
+start_op_idx: Operator index this ant currently occupies.</p>
 <p>Returns:
-List[str]: Sequence of operator names.</p>
+Tuple of:
+- Ordered list of operator names selected for this journey.
+- Ending operator index (ant’s new position).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost">
-<span class="sig-name descname"><span class="pre">_calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost">
+<span class="sig-name descname"><span class="pre">_calculate_routing_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost.</p>
 <p>Args:
-routes (List[List[int]]): Routes.</p>
+routes: Routes.</p>
 <p>Returns:
 float: Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective">
+<span class="sig-name descname"><span class="pre">_evaluate_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective" title="Link to this definition">#</a></dt>
+<dd><p>Adaptive objective incorporating Strategic Oscillation penalty.</p>
+<p>Infeasible solutions (capacity violations) are penalised by pv per
+violation. pv is dynamically adjusted during the search (halved on
+stagnation, reset to initial_pv on improvement) per Chen et al. (2007).</p>
+<p>Args:
+routes: Routes.</p>
+<p>Returns:
+float: Penalised objective value.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones">
 <span class="sig-name descname"><span class="pre">_evaporate_pheromones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones" title="Link to this definition">#</a></dt>
-<dd><p>Apply pheromone evaporation (no clipping here per Phase 4).</p>
+<dd><p>Pure Ant System pheromone evaporation.</p>
+<p>Paper: τ_ij(t) = ρ · τ_ij(t−n) + Σ_k Δτ^k_ij
+Evaporation is applied before deposit each iteration (equivalent since
+each outer iteration corresponds to exactly one complete journey).</p>
 <p>Returns:
 None</p>
 </dd></dl>
@@ -669,8 +725,10 @@ None</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO.build_solution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._make_context()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._select_sequence()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._calculate_cost()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._calculate_routing_cost()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaluate_objective()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACO._evaporate_pheromones()</span></code></a></li>
 </ul>
 </li>

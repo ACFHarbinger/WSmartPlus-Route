@@ -365,6 +365,17 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
+````{py:attribute} active_multistar_cuts
+:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.active_multistar_cuts
+:type: typing.Dict[typing.FrozenSet[int], gurobipy.Constr]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.active_multistar_cuts
+```
+
+````
+
 ````{py:attribute} dual_src_cuts
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.dual_src_cuts
 :type: typing.Dict[typing.FrozenSet[int], float]
@@ -449,6 +460,17 @@ Bases: {py:obj}`typing.Protocol`
    None
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.dual_edge_clique_cuts
+```
+
+````
+
+````{py:attribute} dual_multistar_cuts
+:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.dual_multistar_cuts
+:type: typing.Dict[typing.FrozenSet[int], float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.dual_multistar_cuts
 ```
 
 ````
@@ -740,6 +762,14 @@ Bases: {py:obj}`typing.Protocol`
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_lci_cut
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_lci_cut
+```
+
+````
+
+````{py:method} add_multistar_cut(node_list: typing.List[int], coefficients: typing.Dict[int, float]) -> bool
+:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_multistar_cut
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_multistar_cut
 ```
 
 ````

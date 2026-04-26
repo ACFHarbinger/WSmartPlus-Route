@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} build_solution(base_solution: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], typing.List[str], numpy.ndarray]
+````{py:method} build_solution(base_solution: typing.List[typing.List[int]], start_op_idx: int) -> typing.Tuple[typing.List[typing.List[int]], typing.List[str], numpy.ndarray, int]
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.build_solution
@@ -51,7 +51,15 @@
 
 ````
 
-````{py:method} _select_sequence() -> typing.List[str]
+````{py:method} _make_context(routes: typing.List[typing.List[int]], effective_capacity: float) -> src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._make_context
+```
+
+````
+
+````{py:method} _select_sequence(start_op_idx: int) -> typing.Tuple[typing.List[str], int]
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence
@@ -59,10 +67,18 @@
 
 ````
 
-````{py:method} _calculate_cost(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost
+````{py:method} _calculate_routing_cost(routes: typing.List[typing.List[int]]) -> float
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost
 
-```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost
+```
+
+````
+
+````{py:method} _evaluate_objective(routes: typing.List[typing.List[int]]) -> float
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaluate_objective
 ```
 
 ````

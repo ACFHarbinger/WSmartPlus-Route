@@ -166,7 +166,7 @@
 :canonical: src.configs.policies.popmusic.POPMUSICConfig.initial_solver
 :type: str
 :value: >
-   'nearest_neighbor'
+   'pmedian'
 
 ```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICConfig.initial_solver
 ```

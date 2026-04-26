@@ -480,9 +480,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.tau_min"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.tau_min</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.tau_max"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.tau_max</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.scale"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.scale</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.seed"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.seed</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.q0"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.q0</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.k_sparse"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.k_sparse</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.local_search"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.local_search</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.local_search_iterations</span></code></a></li>
@@ -546,8 +546,8 @@ tau_0: Initial pheromone level.
 tau_min: Minimum pheromone bound.
 tau_max: Maximum pheromone bound.
 max_iterations: Maximum number of ACO iterations.
+scale: Scaling factor for heuristic information.
 time_limit: Maximum time in seconds for the solver.
-q0: Probability of exploitation vs exploration (ACS-style).
 k_sparse: Number of nearest neighbors to consider.
 local_search: Whether to apply local search after construction.
 local_search_iterations: Number of local search iterations.
@@ -604,6 +604,12 @@ acceptance_criterion: Acceptance criterion config for local search.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.aco_ks.KSparseACOConfig.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_ks.KSparseACOConfig.scale" title="Link to this definition">#</a></dt>
+<dd><p>5.0</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.aco_ks.KSparseACOConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_ks.KSparseACOConfig.time_limit" title="Link to this definition">#</a></dt>
 <dd><p>30.0</p>
@@ -613,12 +619,6 @@ acceptance_criterion: Acceptance criterion config for local search.</p>
 <dt class="sig sig-object py" id="src.configs.policies.aco_ks.KSparseACOConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.aco_ks.KSparseACOConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.aco_ks.KSparseACOConfig.q0">
-<span class="sig-name descname"><span class="pre">q0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_ks.KSparseACOConfig.q0" title="Link to this definition">#</a></dt>
-<dd><p>0.9</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -732,9 +732,9 @@ acceptance_criterion: Acceptance criterion config for local search.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.tau_min"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.tau_min</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.tau_max"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.tau_max</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.scale"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.scale</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.seed"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.seed</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.q0"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.q0</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.k_sparse"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.k_sparse</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.local_search"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.local_search</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.local_search_iterations</span></code></a></li>

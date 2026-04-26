@@ -54,7 +54,7 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````
 
-````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], x_coords: typing.Optional[numpy.ndarray] = None, y_coords: typing.Optional[numpy.ndarray] = None, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.policy_aco_ks.ACOPolicy._run_solver
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.policy_aco_ks.ACOPolicy._run_solver

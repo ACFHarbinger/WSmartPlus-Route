@@ -485,6 +485,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.alns_iterations"><code class="docutils literal notranslate"><span class="pre">LKH3Config.alns_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Config.plateau_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.deep_plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Config.deep_plateau_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.sa_max_trials"><code class="docutils literal notranslate"><span class="pre">LKH3Config.sa_max_trials</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.perturb_operator_weights"><code class="docutils literal notranslate"><span class="pre">LKH3Config.perturb_operator_weights</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.time_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Config.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.vrpp"><code class="docutils literal notranslate"><span class="pre">LKH3Config.vrpp</span></code></a></li>
@@ -555,6 +556,8 @@ time_limit: Wall-clock time limit in seconds.
 seed: Random seed for reproducibility.
 vrpp: If True, solver operates in full VRPP mode.
 dynamic_topology_discovery: If True, solver performs dynamic topology discovery.
+sa_max_trials: Maximum number of trials for Simulated Annealing.
+deep_plateau_limit: Number of iterations without improvement before triggering deep search.
 native_prize_collecting: If True, solver uses native prize collecting.
 mandatory_selection: Mandatory selection strategy config list.
 route_improvement: Route improvement operation config list.</p>
@@ -634,6 +637,12 @@ route_improvement: Route improvement operation config list.</p>
 <dt class="sig sig-object py" id="src.configs.policies.lkh3.LKH3Config.deep_plateau_limit">
 <span class="sig-name descname"><span class="pre">deep_plateau_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.lkh3.LKH3Config.deep_plateau_limit" title="Link to this definition">#</a></dt>
 <dd><p>30</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.lkh3.LKH3Config.sa_max_trials">
+<span class="sig-name descname"><span class="pre">sa_max_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.lkh3.LKH3Config.sa_max_trials" title="Link to this definition">#</a></dt>
+<dd><p>10000</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -752,6 +761,7 @@ route_improvement: Route improvement operation config list.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.alns_iterations"><code class="docutils literal notranslate"><span class="pre">LKH3Config.alns_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Config.plateau_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.deep_plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Config.deep_plateau_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.sa_max_trials"><code class="docutils literal notranslate"><span class="pre">LKH3Config.sa_max_trials</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.perturb_operator_weights"><code class="docutils literal notranslate"><span class="pre">LKH3Config.perturb_operator_weights</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.time_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Config.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.lkh3.LKH3Config.vrpp"><code class="docutils literal notranslate"><span class="pre">LKH3Config.vrpp</span></code></a></li>

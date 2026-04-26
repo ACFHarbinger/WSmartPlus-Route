@@ -447,4 +447,15 @@
 
 ````
 
+````{py:attribute} prefer_shorter_path_dfs
+:canonical: src.configs.policies.bpc.BPCConfig.prefer_shorter_path_dfs
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.prefer_shorter_path_dfs
+```
+
+````
+
 `````

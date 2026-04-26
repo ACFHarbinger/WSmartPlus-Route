@@ -488,7 +488,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.elitist_weight"><code class="docutils literal notranslate"><span class="pre">KSACOParams.elitist_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.vrpp"><code class="docutils literal notranslate"><span class="pre">KSACOParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">KSACOParams.profit_aware_operators</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.q0"><code class="docutils literal notranslate"><span class="pre">KSACOParams.q0</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.seed"><code class="docutils literal notranslate"><span class="pre">KSACOParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">KSACOParams.acceptance_criterion</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">KSACOParams.__post_init__()</span></code></a></li>
@@ -560,7 +559,6 @@ local_search_iterations: Number of iterations for local search.
 elitist_weight: Weight for best-so-far solution in pheromone update.
 vrpp: Whether to use VRPP (Vehicle Routing Problem with Profits) mode.
 profit_aware_operators: Whether to use profit-aware feasibility checks.
-q0: Probability of best-edge selection.
 seed: Random seed for reproducibility.
 acceptance_criterion: Acceptance criterion for solutions.</p>
 <p>Reference:
@@ -635,7 +633,7 @@ Strategies For Low-Memory Operating Environments”, 2021.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.local_search">
 <span class="sig-name descname"><span class="pre">local_search</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.local_search" title="Link to this definition">#</a></dt>
-<dd><p>True</p>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -660,12 +658,6 @@ Strategies For Low-Memory Operating Environments”, 2021.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators">
 <span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators" title="Link to this definition">#</a></dt>
 <dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.q0">
-<span class="sig-name descname"><span class="pre">q0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.q0" title="Link to this definition">#</a></dt>
-<dd><p>0.9</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -768,7 +760,6 @@ KSACOParams instance.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.elitist_weight"><code class="docutils literal notranslate"><span class="pre">KSACOParams.elitist_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.vrpp"><code class="docutils literal notranslate"><span class="pre">KSACOParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">KSACOParams.profit_aware_operators</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.q0"><code class="docutils literal notranslate"><span class="pre">KSACOParams.q0</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.seed"><code class="docutils literal notranslate"><span class="pre">KSACOParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">KSACOParams.acceptance_criterion</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">KSACOParams.__post_init__()</span></code></a></li>

@@ -35,6 +35,22 @@
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver.__init__
 ```
 
+````{py:method} _evict_cache(ind: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, cache: dict) -> None
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._evict_cache
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._evict_cache
+```
+
+````
+
+````{py:method} _insert_into_pop(ind: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, pop_feasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]) -> None
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._insert_into_pop
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._insert_into_pop
+```
+
+````
+
 ````{py:method} _initialize_population(penalty_capacity: float) -> typing.Tuple[typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]]
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._initialize_population
 
@@ -43,10 +59,10 @@
 
 ````
 
-````{py:method} _trim_one(pop: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], distance_cache: typing.Optional[dict] = None) -> None
-:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_one
+````{py:method} _trim_pop(pop: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], cache: dict) -> None
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_pop
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_one
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_pop
 ```
 
 ````
@@ -59,23 +75,15 @@
 
 ````
 
-````{py:method} _get_diversity_distance(ind_a: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, ind_b: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, cache: dict) -> float
-:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._get_diversity_distance
+````{py:method} _select_parents(pop_feasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]) -> typing.Tuple[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._select_parents
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._get_diversity_distance
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._select_parents
 ```
 
 ````
 
-````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver.solve
-
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver.solve
-```
-
-````
-
-````{py:method} _generate_offspring(pop_feasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], penalty_capacity: float, diversity_cache: typing.Optional[dict] = None) -> src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual
+````{py:method} _generate_offspring(pop_feasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], penalty_capacity: float) -> src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._generate_offspring
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._generate_offspring
@@ -91,6 +99,14 @@
 
 ````
 
+````{py:method} _adjust_penalties(current_penalty: float) -> float
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._adjust_penalties
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._adjust_penalties
+```
+
+````
+
 ````{py:method} _get_best_solution(pop_feasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._get_best_solution
 
@@ -99,18 +115,10 @@
 
 ````
 
-````{py:method} _adjust_penalties(pop_feasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], current_penalty: float) -> float
-:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._adjust_penalties
+````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver.solve
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._adjust_penalties
-```
-
-````
-
-````{py:method} _select_parents(population: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]) -> typing.Tuple[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
-:canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._select_parents
-
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._select_parents
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver.solve
 ```
 
 ````

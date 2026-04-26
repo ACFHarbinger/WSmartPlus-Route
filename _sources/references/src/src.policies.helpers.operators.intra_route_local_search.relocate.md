@@ -67,7 +67,7 @@
 ```
 ````
 
-````{py:function} _chain_edge_cost(d, prev_node: int, chain: typing.List[int], next_node: int) -> float
+````{py:function} _chain_edge_cost(ls: typing.Any, prev_node: int, chain: typing.List[int], next_node: int) -> float
 :canonical: src.policies.helpers.operators.intra_route_local_search.relocate._chain_edge_cost
 
 ```{autodoc2-docstring} src.policies.helpers.operators.intra_route_local_search.relocate._chain_edge_cost

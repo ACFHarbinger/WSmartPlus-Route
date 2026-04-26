@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.helpers.local_search.local_search_hgs" href="src.policies.helpers.local_search.local_search_hgs.html" />
-    <link rel="prev" title="src.policies.helpers.local_search.local_search_manager" href="src.policies.helpers.local_search.local_search_manager.html" />
+    <link rel="prev" title="src.policies.helpers.local_search.local_search_general" href="src.policies.helpers.local_search.local_search_general.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -472,11 +472,12 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch"><code class="docutils literal notranslate"><span class="pre">LocalSearch</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.get_dist"><code class="docutils literal notranslate"><span class="pre">LocalSearch.get_dist()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions"><code class="docutils literal notranslate"><span class="pre">LocalSearch._compute_top_insertions()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._cost"><code class="docutils literal notranslate"><span class="pre">LocalSearch._cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.optimize"><code class="docutils literal notranslate"><span class="pre">LocalSearch.optimize()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._optimize_internal"><code class="docutils literal notranslate"><span class="pre">LocalSearch._optimize_internal()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._calc_load_fresh"><code class="docutils literal notranslate"><span class="pre">LocalSearch._calc_load_fresh()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions"><code class="docutils literal notranslate"><span class="pre">LocalSearch._compute_top_insertions()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._cost"><code class="docutils literal notranslate"><span class="pre">LocalSearch._cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._should_try_operator"><code class="docutils literal notranslate"><span class="pre">LocalSearch._should_try_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._polar_sector"><code class="docutils literal notranslate"><span class="pre">LocalSearch._polar_sector()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.accept_move"><code class="docutils literal notranslate"><span class="pre">LocalSearch.accept_move()</span></code></a></li>
@@ -552,7 +553,7 @@ LocalSearch: Abstract base class for local search algorithms.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.local_search.local_search_base.</span></span><span class="sig-name descname"><span class="pre">LocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptance_criterion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.IAcceptanceCriterion</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.local_search.local_search_base.</span></span><span class="sig-name descname"><span class="pre">LocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptance_criterion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.IAcceptanceCriterion</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for Local Search algorithms.</p>
 <p>Provides common infrastructure for neighbor lists, move operators, and
@@ -589,7 +590,40 @@ C (float): Cost factor for travel distance.
 params (Any): Hyperparameters and configuration.
 neighbors (Optional[Dict[int, List[int]]]): Precomputed granular neighbors. Defaults to None.
 penalty_capacity (float): Initial capacity violation penalty weight. Defaults to 1.0.
-acceptance_criterion (Optional[IAcceptanceCriterion]): Custom acceptance strategy. Defaults to None.</p>
+acceptance_criterion (Optional[IAcceptanceCriterion]): Custom acceptance strategy. Defaults to None.
+node_coords (np.ndarray): (N, 2) array of node coordinates.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch.get_dist">
+<span class="sig-name descname"><span class="pre">get_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.get_dist" title="Link to this definition">#</a></dt>
+<dd><p>Abstraction to fetch distance from matrix or calculate on-demand.</p>
+<p>This follows the MMAS_exp strategy of recomputing
+values to avoid intractable matrix sizes.</p>
+<p>Args:
+i (int): The index of the first node.
+j (int): The index of the second node.</p>
+<p>Returns:
+float: The distance between the two nodes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions">
+<span class="sig-name descname"><span class="pre">_compute_top_insertions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions" title="Link to this definition">#</a></dt>
+<dd><p>Modified to use get_dist abstraction.</p>
+<p>Args:
+route_idx (Optional[int]): The index of the route to compute the top insertions for.
+If None, computes for all routes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._cost">
+<span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._cost" title="Link to this definition">#</a></dt>
+<dd><p>Calculate total cost of all routes.</p>
+<p>Args:
+routes (List[List[int]]): List of routes, where each route is a list of node IDs.</p>
+<p>Returns:
+float: Total distance traveled across all routes, including returns to depot.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch.optimize">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.optimize" title="Link to this definition">#</a></dt>
@@ -620,26 +654,6 @@ initial_profit: Optional absolute profit of the starting solution.</p>
 r (List[int]): The sequence of node IDs in the route.</p>
 <p>Returns:
 float: Sum of waste for all nodes in the route.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions">
-<span class="sig-name descname"><span class="pre">_compute_top_insertions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions" title="Link to this definition">#</a></dt>
-<dd><p>Compute or update the Top-3 Insertion Cache for O(1) SWAP* evaluation.</p>
-<p>Following Vidal et al. (2022), this cache stores the 3 best insertion positions
-for each node into each route, enabling constant-time insertion cost evaluation.</p>
-<p>Args:
-route_idx: If provided, update cache only for this route. If None, initialize for all routes.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._cost">
-<span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._cost" title="Link to this definition">#</a></dt>
-<dd><p>Calculate total distance of all routes.</p>
-<p>Args:
-routes (List[List[int]]): List of routes, where each route is a list of node IDs.</p>
-<p>Returns:
-float: Total distance traveled across all routes, including returns to depot.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1049,12 +1063,12 @@ bool: True if insertion improves penalized profit.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.helpers.local_search.local_search_manager.html"
+       href="src.policies.helpers.local_search.local_search_general.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.local_search.local_search_manager</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.local_search.local_search_general</span></code></p>
       </div>
     </a>
     <a class="right-next"
@@ -1086,11 +1100,12 @@ bool: True if insertion improves penalized profit.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch"><code class="docutils literal notranslate"><span class="pre">LocalSearch</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.get_dist"><code class="docutils literal notranslate"><span class="pre">LocalSearch.get_dist()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions"><code class="docutils literal notranslate"><span class="pre">LocalSearch._compute_top_insertions()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._cost"><code class="docutils literal notranslate"><span class="pre">LocalSearch._cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.optimize"><code class="docutils literal notranslate"><span class="pre">LocalSearch.optimize()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._optimize_internal"><code class="docutils literal notranslate"><span class="pre">LocalSearch._optimize_internal()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._calc_load_fresh"><code class="docutils literal notranslate"><span class="pre">LocalSearch._calc_load_fresh()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions"><code class="docutils literal notranslate"><span class="pre">LocalSearch._compute_top_insertions()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._cost"><code class="docutils literal notranslate"><span class="pre">LocalSearch._cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._should_try_operator"><code class="docutils literal notranslate"><span class="pre">LocalSearch._should_try_operator()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._polar_sector"><code class="docutils literal notranslate"><span class="pre">LocalSearch._polar_sector()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.accept_move"><code class="docutils literal notranslate"><span class="pre">LocalSearch.accept_move()</span></code></a></li>

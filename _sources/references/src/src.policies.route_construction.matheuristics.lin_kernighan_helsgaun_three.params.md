@@ -183,6 +183,17 @@
 
 ````
 
+````{py:attribute} sa_max_trials
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.sa_max_trials
+:type: int
+:value: >
+   10000
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.sa_max_trials
+```
+
+````
+
 ````{py:attribute} perturb_operator_weights
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.perturb_operator_weights
 :type: typing.List[float]

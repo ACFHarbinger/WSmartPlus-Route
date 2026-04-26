@@ -540,8 +540,23 @@ genotype and phenotype. To maintain genetic consistency for crossover:</p>
 5. Crossover operates on giant_tour, preserving genetic material for all nodes
 </pre></div>
 </div>
-<p>This approach (Option A: Implicit Dummy Route) treats unvisited nodes as being
-in a conceptual “dummy route” at the end of the giant tour.</p>
+<p>In adapting the classical Hybrid Genetic Search (HGS) framework to the Vehicle Routing Problem with
+Profits (VRPP), we must manage nodes that are economically unviable to visit. To do so, we employ a
+continuous giant-tour genotype that encompasses the entire set of available customer nodes, regardless
+of their inclusion in the final routing phenotype. Nodes excluded from the active routes by the Split
+algorithm are retained in their sequence positions, effectively constituting an “implicit dummy route.”</p>
+<p>Consequently, we formally define the evolutionary dynamics of the unvisited nodes as follows: the relative
+ordering of unvisited nodes within the giant tour evolves exclusively under the selection pressure exerted
+by the crossover operator. Because the local search strictly optimizes the phenotype (the active routes),
+it does not exert direct optimization pressure on the unvisited sequence. Instead, the eventual inclusion
+of an unvisited node into the active phenotype is governed dynamically by the linear-time Split DP decoder.</p>
+<p>As the genetic algorithm progresses, the dynamic adaptation of capacity penalties and the ongoing
+refinement of the visited-route structure continuously alter the economic landscape of the DP state
+space. It is this evolving state space that periodically renders unvisited nodes profitable, allowing
+the Split algorithm to harvest them from the implicit dummy route into the active phenotype. This design
+choice maintains strict internal consistency and pure evolutionary recombination. We acknowledge, however,
+that this represents a deliberate theoretical trade-off: because the unvisited gene pool is shielded from
+localized exploitation, its sequence convergence is inherently slower than that of the actively routed nodes.</p>
 <p>Attributes:
 giant_tour (List[int]): Ordered list of all customer nodes (genotype).
 fitness (float): Biased fitness score (to be minimized).

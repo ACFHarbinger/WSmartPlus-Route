@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.html" />
+    <link rel="next" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.html" />
     <link rel="prev" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -530,18 +530,35 @@ POPMUSICParams (dataclass): Configuration parameters for POPMUSIC.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.</span></span><span class="sig-name descname"><span class="pre">POPMUSICParams</span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for POPMUSIC.</p>
 <p>Attributes:
-subproblem_size: Total number of routes per subproblem.
-max_iterations: Maximum number of iterations (None = until U empty).
-base_solver: Solver for subproblems (“fast_tsp”, “hgs”, “alns”).
-base_solver_config: Configuration for base_solver.
-cluster_solver: Solver for initial clustering.
-cluster_solver_config: Configuration for cluster solver.
-initial_solver: Initial solution generation method (“greedy”, “nearest_neighbor”).
-seed: Random seed.
-vrpp: Whether to use expansion pool for VRPP.
-profit_aware_operators: Whether to use profit-aware operators.
-k_prox: Proximity network size (KDTree).
-seed_strategy: Seed selection strategy (“lifo”, “fifo”, “random”).</p>
+subproblem_size: Total number of parts per subproblem (the unique
+POPMUSIC parameter r). Controls the trade-off between subproblem
+quality and solve time.
+max_iterations: Maximum number of main-loop iterations
+(None = run until U is empty, i.e. full convergence).
+base_solver: Solver for subproblem optimisation
+(“fast_tsp”, “hgs”, “alns”).
+base_solver_config: Configuration object/dict for base_solver.
+cluster_solver: Solver used for warm-starting initial clusters
+(only active when WARMSTART_INITIAL=True in solver.py).
+cluster_solver_config: Configuration for cluster_solver.
+initial_solver: Initial solution construction method.
+“pmedian”  — canonical O(n^{3/2}) two-metric p-median heuristic
+(Alvim &amp; Taillard 2013). Recommended for publication.
+“greedy”   — greedy insertion (legacy, O(n^2), no proximity network).
+“nearest_neighbor” — nearest-neighbour (legacy, O(n^2), no G).
+seed: Random seed for reproducibility.
+vrpp: If True, nodes may be left unvisited (VRPP mode). Unvisited
+nodes are represented as singleton parts in the proximity network.
+profit_aware_operators: If True, uses profit-biased assignment metric
+d_assign(i,c) = d(i,c)/d_max / (rev(i)/rev_max + ε) during
+p-median initialisation (Issue 1 refactor).
+k_prox: Retained for API backwards-compatibility. No longer used
+internally — the proximity network degree is derived from
+subproblem_size during initialisation.
+seed_strategy: Seed-part selection strategy for U.
+“lifo”   — stack (recommended by Alvim &amp; Taillard 2013).
+“fifo”   — queue.
+“random” — random shuffle of initial U.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.subproblem_size">
 <span class="sig-name descname"><span class="pre">subproblem_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.subproblem_size" title="Link to this definition">#</a></dt>
@@ -581,7 +598,7 @@ seed_strategy: Seed selection strategy (“lifo”, “fifo”, “random”).</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.initial_solver">
 <span class="sig-name descname"><span class="pre">initial_solver</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.initial_solver" title="Link to this definition">#</a></dt>
-<dd><p>‘nearest_neighbor’</p>
+<dd><p>‘pmedian’</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -659,11 +676,11 @@ Dict[str, Any]: Dictionary containing POPMUSICParams.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.html"
+       href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

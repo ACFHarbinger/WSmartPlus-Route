@@ -66,9 +66,20 @@
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.rho
 :type: float
 :value: >
-   0.1
+   0.5
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.rho
+```
+
+````
+
+````{py:attribute} eta_decay
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.eta_decay
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.eta_decay
 ```
 
 ````
@@ -84,24 +95,35 @@
 
 ````
 
-````{py:attribute} tau_min
-:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.tau_min
+````{py:attribute} Q
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q
 :type: float
 :value: >
-   0.01
+   1.0
 
-```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.tau_min
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.Q
 ```
 
 ````
 
-````{py:attribute} tau_max
-:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.tau_max
+````{py:attribute} lambda_val
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.lambda_val
 :type: float
 :value: >
-   10.0
+   1.0001
 
-```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.tau_max
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.lambda_val
+```
+
+````
+
+````{py:attribute} use_dynamic_lambda
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.use_dynamic_lambda
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.use_dynamic_lambda
 ```
 
 ````
@@ -117,6 +139,17 @@
 
 ````
 
+````{py:attribute} elitism_ratio
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.elitism_ratio
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.elitism_ratio
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.time_limit
 :type: float
@@ -128,24 +161,13 @@
 
 ````
 
-````{py:attribute} q0
-:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.q0
-:type: float
+````{py:attribute} stagnation_limit
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.stagnation_limit
+:type: int
 :value: >
-   0.9
+   10
 
-```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.q0
-```
-
-````
-
-````{py:attribute} lambda_factor
-:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.lambda_factor
-:type: float
-:value: >
-   1.0001
-
-```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.lambda_factor
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.stagnation_limit
 ```
 
 ````

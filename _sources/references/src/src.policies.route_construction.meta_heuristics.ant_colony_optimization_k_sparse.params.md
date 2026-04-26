@@ -154,7 +154,7 @@
 :canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.local_search
 :type: bool
 :value: >
-   True
+   False
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.local_search
 ```
@@ -201,17 +201,6 @@
    False
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators
-```
-
-````
-
-````{py:attribute} q0
-:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.q0
-:type: float
-:value: >
-   0.9
-
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.q0
 ```
 
 ````

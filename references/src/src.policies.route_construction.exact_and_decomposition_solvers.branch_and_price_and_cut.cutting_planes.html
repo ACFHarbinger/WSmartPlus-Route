@@ -522,6 +522,12 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name"><code class="docutils literal notranslate"><span class="pre">SaturatedArcLCIEngine.get_name()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine._add_inequalities"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine._add_inequalities()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine.get_name()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine"><code class="docutils literal notranslate"><span class="pre">create_cutting_plane_engine()</span></code></a></li>
 </ul>
 </li>
@@ -615,6 +621,9 @@ CompositeCuttingPlaneEngine (class): Orchestrator for multiple engines.</p>
 <td><p>Saturated-Arc Lifted Cover Inequality engine — the primary LCI mechanism
 described in Barnhart, Hane, and Vance (2000) §6.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine</span></code></a></p></td>
+<td><p>Fractional/Rounded Multistar Inequality separation engine for VRPP.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -694,7 +703,7 @@ standard family of valid inequalities for the Capacitated Vehicle Routing
 Problem (CVRP), adapted here for the VRPP Set Partitioning context.
 They enforce that the total flow crossing the boundary of a subset of nodes
 S must be sufficient to cover the total demand of S.</p>
-<p class="rubric" id="id9">Mathematical Formulation:</p>
+<p class="rubric" id="id10">Mathematical Formulation:</p>
 <p>For a cluster of nodes S ⊆ N \ {0}, the RCC is defined as:
 ∑_{e ∈ δ(S)} x_e ≥ 2 * k(S)</p>
 <p>where:</p>
@@ -705,23 +714,23 @@ S must be sufficient to cover the total demand of S.</p>
 service all customers in S given the capacity limit Q.</p></li>
 <li><p>x_e = ∑_{k: e ∈ route_k} λ_k is the aggregated flow of edge e in the RMP solution.</p></li>
 </ul>
-<p class="rubric" id="id10">Theoretical Context:</p>
+<p class="rubric" id="id11">Theoretical Context:</p>
 <p>RCCs are polyhedrally stronger than simple connectivity constraints because
 they incorporate the physical resource constraint (Q). Since VRPP involves
 selecting nodes to visit, the Master Problem uses Set Partitioning, making
 RCCs essential for pruning fractional solutions where multiple routes
 “fractionally” visit nodes in a cluster without collectively satisfying
 the capacity logic.</p>
-<p class="rubric" id="id11">Separation Methodology:</p>
+<p class="rubric" id="id12">Separation Methodology:</p>
 <p>This engine utilizes the separation framework of Lysgaard et al. (2004),
 supporting both heuristic (Tabu Search) and exact (Max-Flow Min-Cut)
 separation procedures. The separation operates on the support graph
 defined by edges with fractional flow x_e &gt; 0.</p>
-<p class="rubric" id="id12">Integration with Pricing:</p>
+<p class="rubric" id="id13">Integration with Pricing:</p>
 <p>Dual variables associated with RCCs (dual_S) contribute to the reduced
 cost of labels in the RCSPP pricing subproblem. For every edge e in the
 boundary δ(S), the dual value π_S is subtracted from the edge cost.</p>
-<p class="rubric" id="id13">References:</p>
+<p class="rubric" id="id14">References:</p>
 <p>Lysgaard et al. (2004), Section 3.2: “Capacity cuts”</p>
 <p>Attributes:
 v_model (VRPPModel): Model for edge indexing and demand tracking.
@@ -770,7 +779,7 @@ str: The engine name ‘rcc’.</p>
 inequalities derived from the Set Partitioning Problem (SPP) formulation.</p>
 <p>They are essential for tightening the LP relaxation when solving VRPs
 with column generation.</p>
-<p class="rubric" id="id14">Mathematical Formulation (3-SRI):</p>
+<p class="rubric" id="id15">Mathematical Formulation (3-SRI):</p>
 <p>For a subset S of exactly |S| = 3 customer nodes, the 3-SRI (with p=2)
 is defined as:
 ∑_{k} ⌊ 1/2 * |S ∩ route_k| ⌋ * λ_k ≤ 1</p>
@@ -778,16 +787,16 @@ is defined as:
 If three routes each visit exactly two nodes of the triplet S, the sum
 of their fractional variables λ_k cannot exceed 1.0. If it does (e.g.,
 three routes with λ_k = 0.5), the solution is fractional and violated.</p>
-<p class="rubric" id="id15">Theoretical Context:</p>
+<p class="rubric" id="id16">Theoretical Context:</p>
 <p>SRIs handle the “entanglement” of fractional routes. By penalizing
 routes that share too many nodes in a specified triplet, they force
 the branch-and-bound tree toward integer solutions. This implementation
 follows the separation logic established by Jepsen et al. (2008).</p>
-<p class="rubric" id="id16">Separation Methodology:</p>
+<p class="rubric" id="id17">Separation Methodology:</p>
 <p>Heuristic search identifies candidate triplets where the sum of visitation
 variables y_i = ∑_{k: i ∈ route_k} λ_k is high. We specifically target
 triplets forming triangles in the fractional support graph.</p>
-<p class="rubric" id="id17">Integration with Pricing:</p>
+<p class="rubric" id="id18">Integration with Pricing:</p>
 <p>Specifically for 3-SRIs, the dual variables π_SRI modify the RCSPP label
 transition. A labeling state must track how many nodes of S it has
 visited. When the count transitions from 1 to 2, the dual value π_SRI
@@ -853,23 +862,23 @@ str: The engine name ‘sri’.</p>
 on the route-selection variables. Specifically, it identifies cliques
 in the conflict graph of routes that compete for a shared resource
 (in this case, single-use of a directed arc or a total vehicle count).</p>
-<p class="rubric" id="id18">Mathematical Formulation:</p>
+<p class="rubric" id="id19">Mathematical Formulation:</p>
 <p>For a physical edge e = (i, j), let C(e) be the set of all routes in
 the RMP that traverse edge e. The Edge-Clique inequality is:
 ∑_{k ∈ C(e)} λ_k ≤ 1</p>
-<p class="rubric" id="id19">Theoretical Context:</p>
+<p class="rubric" id="id20">Theoretical Context:</p>
 <p>Standard Set Partitioning restricts each node to one visit, but
 Edge-Clique inequalities extend this to the “edges” of the graph.
 They are derived by lifting minimal covers on the arc capacity knapsack,
 forming facets of the resulting knapsack polytope. This implementation
 adapts the Lifting and Cover Inequality (LCI) logic of Balas (1975)
 and Barnhart et al. (2000).</p>
-<p class="rubric" id="id20">Heuristic Separation:</p>
+<p class="rubric" id="id21">Heuristic Separation:</p>
 <p>The engine computes the aggregated flow x_{ij} for every edge in the
 current solution. Edges where x_{ij} &gt; 1.0 + ε are candidates for a
 clique cut. For anonymous fleets where route weights are uniform (=1),
 the lifting coefficient for all routes in the clique simplifies to 1.0.</p>
-<p class="rubric" id="id21">Operational Logic:</p>
+<p class="rubric" id="id22">Operational Logic:</p>
 <ol class="arabic simple">
 <li><p>Scan the Restricted Master Problem columns (λ_k).</p></li>
 <li><p>Build an edge-indexed map of crossing routes.</p></li>
@@ -918,16 +927,16 @@ constraint (Σ λ_k ≤ K) or any other resource knapsacks. While simpler
 than a general knapsack with varied weights, cover cuts help strengthen
 the integrality of the master problem by excluding fractional solutions
 that exceed the logical resource boundary.</p>
-<p class="rubric" id="id22">Mathematical Formulation:</p>
+<p class="rubric" id="id23">Mathematical Formulation:</p>
 <p>Given a knapsack constraint ∑ w_j x_j ≤ b, a set of routes C is a ‘cover’
 if ∑_{j ∈ C} w_j &gt; b. The resulting cover inequality is:
 ∑_{j ∈ C} λ_j ≤ |C| - 1</p>
-<p class="rubric" id="id23">Theoretical Rationale:</p>
+<p class="rubric" id="id24">Theoretical Rationale:</p>
 <p>A cover inequality excludes the point where all routes in C are selected
 with fractional values that sum to more than the capacity b. For the
 fleet constraint (w_j = 1), a minimal cover is any subset C of size K+1.
 This implementation adapts the logic of Barnhart et al. (2000).</p>
-<p class="rubric" id="id24">Interaction with Master Problem:</p>
+<p class="rubric" id="id25">Interaction with Master Problem:</p>
 <p>If a vehicle_limit (K) is explicitly set in the RMP, the fleet constraint
 already prevents the LP from selecting more than K total routes.
 However, cover cuts provide additional polyhedral strength by
@@ -1053,19 +1062,19 @@ str: The engine name ‘fleet_cover’.</p>
 where q_i is the demand of customer i and Q is the vehicle capacity.
 These cuts target the visitation variables (y_i) rather than the route
 selection variables (λ_k).</p>
-<p class="rubric" id="id25">Mathematical Formulation:</p>
+<p class="rubric" id="id26">Mathematical Formulation:</p>
 <ol class="arabic simple">
 <li><p>Identify a minimal cover S such that ∑_{i ∈ S} q_i &gt; Q.</p></li>
 <li><p>The basic cover inequality is ∑_{i ∈ S} y_i ≤ |S| - 1.</p></li>
 <li><p>Strengthen the inequality via sequence-independent lifting:
 ∑_{i ∈ S} α_i y_i + ∑_{j ∉ S} α_j y_j ≤ α_0</p></li>
 </ol>
-<p class="rubric" id="id26">Lifting Procedure (Balas 1975):</p>
+<p class="rubric" id="id27">Lifting Procedure (Balas 1975):</p>
 <p>Calculates exact lifting coefficients (α_i) for nodes based on their
 fractional demands q_i. These node-level coefficients are then aggregated
 into the route variables λ_k for the RMP:
 ∑_{k} (∑_{i ∈ node_coverage_k} α_i) λ_k ≤ α_0</p>
-<p class="rubric" id="id27">Operational Logic:</p>
+<p class="rubric" id="id28">Operational Logic:</p>
 <ul class="simple">
 <li><p>Sort nodes by visitation probability y_i to find heuristic covers.</p></li>
 <li><p>Compute lifting coefficients using prefix sums of sorted demands.</p></li>
@@ -1107,7 +1116,7 @@ str: The engine name ‘physical_lci’.</p>
 <dd><p>Bases: <a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
 <p>Saturated-Arc Lifted Cover Inequality engine — the primary LCI mechanism
 described in Barnhart, Hane, and Vance (2000) §6.</p>
-<p class="rubric" id="id28">Algorithm (paper §6, Gu et al. 1995a):</p>
+<p class="rubric" id="id29">Algorithm (paper §6, Gu et al. 1995a):</p>
 <p>Finding the most violated Lifted Cover Inequality is theoretically NP-hard.
 Consequently, this module employs a heuristic mechanism to identify minimal
 covers derived from saturated arcs in the fractional support graph.</p>
@@ -1129,7 +1138,7 @@ In the VRPP RCSPP, when the DP traverses arc (i,j), the reduced cost is
 decreased by α_{ij}^k · γ_{ij}, exactly as in the paper.  Since arcs are
 unit-capacity in VRPP, α_{ij}^k = 1 for all routes in C, and the lifting
 coefficients for routes outside C are computed via the Gu heuristic.</p>
-<p class="rubric" id="id29">Arc Capacity in VRPP:</p>
+<p class="rubric" id="id30">Arc Capacity in VRPP:</p>
 <p>In Set Partitioning, each arc can appear in at most 1 selected route in any
 integer solution.  A fractional LP may assign more than 1.0 total flow to an
 arc across multiple fractional routes; this constitutes arc saturation.
@@ -1161,6 +1170,81 @@ int: Number of cuts added.</p>
 <dd><p>Returns the identifier for this engine.</p>
 <p>Returns:
 str: The engine name ‘saturated_arc_lci’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">RoundedMultistarCutEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.SeparationEngine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
+<p>Fractional/Rounded Multistar Inequality separation engine for VRPP.</p>
+<p>Targets the Generalized Multistar Inequalities (Letchford, Eglese, Lysgaard 2002),
+adapted for the VRPP Set Partitioning formulation.</p>
+<p class="rubric" id="id31">Mathematical Formulation:</p>
+<p>For S ⊆ V \ {0}:
+∑_{e ∈ δ(S)} x_e ≥ (2/Q) ∑_{i ∈ S} d_i y_i
++ (2/Q) ∑_{j ∉ S∪{0}} d_j · (∑_{i ∈ S} x_{ij})</p>
+<p>Re-written in route variables as ∑_k a_k λ_k ≥ 0, where per route k:
+a_k = crossings(k,S) − (2/Q)·visit_demand(k,S) − (2/Q)·adj_demand(k,S)</p>
+<p>Stored in Gurobi as ∑_k (−a_k) λ_k ≤ 0 with dual γ_S ≥ 0.</p>
+<p class="rubric" id="id32">Pricing Dual Integration:</p>
+<p>When extending label from node u to v, the per-arc contribution to a_k is:</p>
+<p>Case (u∈S, v∉S) — crossing out:
+arc_a_k = 1 − (2/Q)·d_v     (d_v = adj demand; 0 if v is depot)
+Case (v∈S, u∉S) — crossing in:
+arc_a_k = 1 − (2/Q)·d_u − (2/Q)·d_v
+(d_u = adj demand of u if u ≠ depot; d_v = visit demand of v)
+Case (u∈S, v∈S) — interior:
+arc_a_k = −(2/Q)·d_v
+Case (u∉S, v∉S) — exterior:
+arc_a_k = 0</p>
+<p>Reduced cost delta = +arc_a_k · γ_S  (positive because coefficient in LP
+is −a_k; dual γ_S ≥ 0 for ≤ constraint in maximisation).</p>
+<p>This is implemented in RCSPPSolver._extend_label via the
+<code class="docutils literal notranslate"><span class="pre">multistar_items</span></code> argument — see solver.py.</p>
+<p>Attributes:
+v_model (VRPPModel): Model for problem data.
+sep_engine (SeparationEngine): Shared separation utilities.
+epsilon (float): Violation threshold.</p>
+<p class="rubric">Initialization</p>
+<p>Initializes the Multistar separation engine.</p>
+<p>Args:
+v_model: VRPP model for problem data.
+sep_engine: Separation engine for candidate cluster generation.
+epsilon: Minimum violation threshold to add a cut.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine._add_inequalities">
+<span class="sig-name descname"><span class="pre">_add_inequalities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_visits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_ineqs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine._add_inequalities" title="Link to this definition">#</a></dt>
+<dd><p>Adds the multistar inequalities to the master problem.</p>
+<p>Args:
+master: Master problem instance with current fractional LP solution.
+edge_vars: Edge usage variables.
+node_visits: Node visitation variables.
+candidate_ineqs: List of candidate inequalities to add.
+max_cuts: Maximum number of cuts to add.</p>
+<p>Returns:
+int: Number of cuts successfully added.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.separate_and_add_cuts">
+<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<dd><p>Separate Fractional Multistar Inequalities and add violated ones.</p>
+<p>Args:
+master: Master problem instance with current fractional LP solution.
+max_cuts: Maximum number of cuts to add.
+kwargs: Forwarded kwargs (e.g., node_depth, cut_orthogonality_threshold).</p>
+<p>Returns:
+int: Number of cuts successfully added.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.get_name" title="Link to this definition">#</a></dt>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘multistar’.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1285,6 +1369,12 @@ ValueError: If engine_name is not recognized or required args missing.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine"><code class="docutils literal notranslate"><span class="pre">SaturatedArcLCIEngine</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">SaturatedArcLCIEngine.separate_and_add_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name"><code class="docutils literal notranslate"><span class="pre">SaturatedArcLCIEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine._add_inequalities"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine._add_inequalities()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedMultistarCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">RoundedMultistarCutEngine.get_name()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine"><code class="docutils literal notranslate"><span class="pre">create_cutting_plane_engine()</span></code></a></li>

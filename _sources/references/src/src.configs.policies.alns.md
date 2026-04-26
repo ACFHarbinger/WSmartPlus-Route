@@ -106,13 +106,24 @@
 
 ````
 
-````{py:attribute} max_removal_pct
-:canonical: src.configs.policies.alns.ALNSConfig.max_removal_pct
+````{py:attribute} start_temp_control
+:canonical: src.configs.policies.alns.ALNSConfig.start_temp_control
 :type: float
 :value: >
-   0.3
+   0.05
 
-```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.max_removal_pct
+```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.start_temp_control
+```
+
+````
+
+````{py:attribute} xi
+:canonical: src.configs.policies.alns.ALNSConfig.xi
+:type: float
+:value: >
+   0.4
+
+```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.xi
 ```
 
 ````

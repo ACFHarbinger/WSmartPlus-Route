@@ -84,24 +84,35 @@
 
 ````
 
-````{py:attribute} tau_min
-:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_min
+````{py:attribute} Q
+:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.Q
 :type: float
 :value: >
-   0.01
+   1.0
 
-```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_min
+```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.Q
 ```
 
 ````
 
-````{py:attribute} tau_max
-:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_max
+````{py:attribute} lambda_val
+:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.lambda_val
 :type: float
 :value: >
-   10.0
+   1.0001
 
-```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_max
+```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.lambda_val
+```
+
+````
+
+````{py:attribute} use_dynamic_lambda
+:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.use_dynamic_lambda
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.use_dynamic_lambda
 ```
 
 ````
@@ -113,6 +124,17 @@
    50
 
 ```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.max_iterations
+```
+
+````
+
+````{py:attribute} elitism_ratio
+:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitism_ratio
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitism_ratio
 ```
 
 ````
@@ -139,13 +161,13 @@
 
 ````
 
-````{py:attribute} q0
-:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.q0
-:type: float
+````{py:attribute} stagnation_limit
+:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.stagnation_limit
+:type: int
 :value: >
-   0.9
+   10
 
-```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.q0
+```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.stagnation_limit
 ```
 
 ````

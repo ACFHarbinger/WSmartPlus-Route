@@ -95,13 +95,24 @@
 
 ````
 
-````{py:attribute} max_removal_pct
-:canonical: src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_pct
+````{py:attribute} start_temp_control
+:canonical: src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.start_temp_control
 :type: float
 :value: >
-   0.3
+   0.05
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.max_removal_pct
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.start_temp_control
+```
+
+````
+
+````{py:attribute} xi
+:canonical: src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.xi
+:type: float
+:value: >
+   0.4
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams.xi
 ```
 
 ````

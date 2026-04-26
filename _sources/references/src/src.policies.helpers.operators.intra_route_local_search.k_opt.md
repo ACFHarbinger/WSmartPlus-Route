@@ -155,7 +155,7 @@
 ```
 ````
 
-````{py:function} _connection_cost(d, head: typing.List[int], middle: typing.List[typing.List[int]], tail: typing.List[int], exclude_depot: bool = False) -> float
+````{py:function} _connection_cost(ls: typing.Any, head: typing.List[int], middle: typing.List[typing.List[int]], tail: typing.List[int], exclude_depot: bool = False) -> float
 :canonical: src.policies.helpers.operators.intra_route_local_search.k_opt._connection_cost
 
 ```{autodoc2-docstring} src.policies.helpers.operators.intra_route_local_search.k_opt._connection_cost

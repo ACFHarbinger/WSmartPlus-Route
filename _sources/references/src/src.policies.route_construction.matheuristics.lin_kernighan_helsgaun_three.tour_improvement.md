@@ -47,32 +47,36 @@
   - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._verify_and_construct
     :summary:
     ```
+* - {py:obj}`check_acceptance <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.check_acceptance>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.check_acceptance
+    :summary:
+    ```
 ````
 
 ### API
 
-````{py:function} _try_2opt_move(curr_tour: typing.List[int], i: int, t1: int, t2: int, candidates: typing.Dict[int, typing.List[int]], distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool, int]
+````{py:function} _try_2opt_move(curr_tour: typing.List[int], i: int, t1: int, t2: int, candidates: typing.Dict[int, typing.List[int]], distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None, acceptance_criterion: typing.Optional[logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool, int]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_2opt_move
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_2opt_move
 ```
 ````
 
-````{py:function} _try_3opt_move(curr_tour: typing.List[int], i: int, j: int, t1: int, t2: int, t3: int, t4: int, distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool]
+````{py:function} _try_3opt_move(curr_tour: typing.List[int], i: int, j: int, t1: int, t2: int, t3: int, t4: int, distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None, acceptance_criterion: typing.Optional[logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_3opt_move
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_3opt_move
 ```
 ````
 
-````{py:function} _try_4opt_move(curr_tour: typing.List[int], i: int, j: int, k: int, t1: int, t2: int, t3: int, t4: int, t5: int, t6: int, distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool]
+````{py:function} _try_4opt_move(curr_tour: typing.List[int], i: int, j: int, k: int, t1: int, t2: int, t3: int, t4: int, t5: int, t6: int, distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None, acceptance_criterion: typing.Optional[logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_4opt_move
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_4opt_move
 ```
 ````
 
-````{py:function} _try_5opt_move(curr_tour: typing.List[int], i: int, j: int, k: int, l: int, t1: int, t2: int, t3: int, t4: int, t5: int, t6: int, t7: int, t8: int, distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool]
+````{py:function} _try_5opt_move(curr_tour: typing.List[int], i: int, j: int, k: int, l: int, t1: int, t2: int, t3: int, t4: int, t5: int, t6: int, t7: int, t8: int, distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], rng: random.Random, n_original: typing.Optional[int] = None, load_state: typing.Optional[logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState] = None, pos: typing.Optional[numpy.ndarray] = None, acceptance_criterion: typing.Optional[logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion] = None) -> typing.Tuple[typing.Optional[typing.List[int]], float, float, bool]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_5opt_move
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_5opt_move
@@ -104,5 +108,12 @@
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._verify_and_construct
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._verify_and_construct
+```
+````
+
+````{py:function} check_acceptance(delta_p: float, delta_c: float, curr_cost: float, acceptance_criterion: typing.Optional[logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion] = None) -> bool
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.check_acceptance
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.check_acceptance
 ```
 ````

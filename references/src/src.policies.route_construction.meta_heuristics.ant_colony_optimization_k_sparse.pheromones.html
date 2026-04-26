@@ -473,7 +473,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.get"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.get()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.set"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.set()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.deposit_edge()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.evaporate_all"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.evaporate_all()</span></code></a></li>
 </ul>
@@ -562,20 +561,6 @@ Pheromone value (explicit if stored, otherwise default_value).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.set" title="Link to this definition">#</a></dt>
-<dd><p>Set pheromone value with MMAS bounds.</p>
-<p>This method does NOT enforce capacity limits. Instead, precision-based
-pruning during evaporation controls memory usage.</p>
-<p>Args:
-i: Source node index.
-j: Destination node index.
-value: New pheromone value (will be clamped to [tau_min, tau_max]).</p>
-<p>Returns:
-None.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge">
 <span class="sig-name descname"><span class="pre">deposit_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge" title="Link to this definition">#</a></dt>
 <dd><p>Deposit pheromone on edge (i, j).</p>
@@ -661,7 +646,6 @@ None.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.get"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.get()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.set"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.set()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.deposit_edge"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.deposit_edge()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau.evaporate_all"><code class="docutils literal notranslate"><span class="pre">SparsePheromoneTau.evaporate_all()</span></code></a></li>
 </ul>

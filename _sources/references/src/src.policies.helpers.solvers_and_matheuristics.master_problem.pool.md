@@ -99,6 +99,14 @@
 
 ````
 
+````{py:method} _inject_multistar_cut(master: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport) -> bool
+:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool._inject_multistar_cut
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool._inject_multistar_cut
+```
+
+````
+
 ````{py:method} apply_to_master(master: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport) -> int
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.apply_to_master
 

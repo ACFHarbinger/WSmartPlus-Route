@@ -69,7 +69,7 @@
 ```
 ````
 
-````{py:function} _get_insertion_options_with_profit(node: int, routes: typing.List[typing.List[int]], loads: typing.List[float], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, is_mandatory: bool, noise: float, max_dist: float) -> typing.List[typing.Tuple[float, int, int]]
+````{py:function} _get_insertion_options_with_profit(node: int, routes: typing.List[typing.List[int]], loads: typing.List[float], dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, is_mandatory: bool, noise: float, max_dist: float, unassigned: typing.Optional[typing.List[int]] = None, n_total_optional: int = 0, mandatory_nodes_set: typing.Optional[set] = None) -> typing.List[typing.Tuple[float, int, int]]
 :canonical: src.policies.helpers.operators.recreate_repair.regret._get_insertion_options_with_profit
 
 ```{autodoc2-docstring} src.policies.helpers.operators.recreate_repair.regret._get_insertion_options_with_profit

@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic.html" />
-    <link rel="prev" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.html" />
+    <link rel="prev" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -471,13 +471,19 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_assign"><code class="docutils literal notranslate"><span class="pre">_compute_d_assign()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_prox"><code class="docutils literal notranslate"><span class="pre">_compute_d_prox()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._pmedian_alternating"><code class="docutils literal notranslate"><span class="pre">_pmedian_alternating()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._build_proximity_network"><code class="docutils literal notranslate"><span class="pre">_build_proximity_network()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._initialize_pmedian"><code class="docutils literal notranslate"><span class="pre">_initialize_pmedian()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid"><code class="docutils literal notranslate"><span class="pre">_route_centroid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem"><code class="docutils literal notranslate"><span class="pre">_assemble_subproblem()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic"><code class="docutils literal notranslate"><span class="pre">run_popmusic()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._evaluate_slots"><code class="docutils literal notranslate"><span class="pre">_evaluate_slots()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem"><code class="docutils literal notranslate"><span class="pre">_optimize_subproblem()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_fast_tsp"><code class="docutils literal notranslate"><span class="pre">_optimize_with_fast_tsp()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_hgs"><code class="docutils literal notranslate"><span class="pre">_optimize_with_hgs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_alns"><code class="docutils literal notranslate"><span class="pre">_optimize_with_alns()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors"><code class="docutils literal notranslate"><span class="pre">find_route_neighbors()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.split_tour"><code class="docutils literal notranslate"><span class="pre">split_tour()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -495,44 +501,112 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver">
 <span id="src-policies-route-construction-matheuristics-partial-optimization-metaheuristic-under-special-intensification-conditions-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver" title="Link to this heading">#</a></h1>
-<p>Core implementation of POPMUSIC (Partial Optimization Metaheuristic Under Special Intensification Conditions).</p>
+<p>Core implementation of POPMUSIC (Partial Optimization Metaheuristic Under Special
+Intensification Conditions).</p>
 <p>POPMUSIC is a matheuristic framework that decomposes a large combinatorial
-optimization problem into subproblems (sets of routes) and iteratively
-optimizes them.</p>
+optimization problem into subproblems (sets of routes) and iteratively optimizes
+them until a local optimum is reached across all parts.</p>
 <p>Reference:
-Taillard, É., &amp; Voss, S. (2002). “POPMUSIC: a metaheuristic for routing
-problems”. Metaheuristics: theory, research and applications, 185-200.</p>
+Taillard, É., &amp; Voss, S. (2002). POPMUSIC — partial optimization metaheuristic
+under special intensification conditions. In Essays and Surveys in Metaheuristics
+(pp. 613–629). Kluwer, Boston.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Alvim, A. C. F., &amp; Taillard, É. D. (2013). POPMUSIC for the world location
+routing problem. EURO Journal on Transportation and Logistics, 2, 231–254.
+</pre></div>
+</div>
+<p>Architectural notes (four-issue refactor):
+Issue 1 — Asymptotic initialization:
+Initial solution is built via a two-level p-median alternating heuristic
+(p = floor(sqrt(n))) running in O(n^{3/2}). Cluster membership uses a
+profit-biased assignment metric d_assign(i,c) = d(i,c)/d_max / (rev(i)/rev_max + ε)
+(ratio form, dimensionless, parameter-free). Cluster centers are recomputed as
+the geographic median of assigned nodes (stable centroid semantics). The proximity
+network G is built on pure geometric distance d_prox between cluster centers
+(two-metric architecture), preserving spatial locality for subproblem assembly.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Issue 2 — KDTree inefficiency:
+    The proximity network G is built once during initialization as a static
+    adjacency list dict[int, list[int]] sorted by inter-center distance. Subproblem
+    assembly walks G in O(r). Centroids are updated in O(r) after each improvement.
+    G topology is never rebuilt — consistent with the paper&#39;s proximate optimality
+    assumption.
+
+Issue 3 — VRPP subproblem purity:
+    Every unvisited node u ∈ U is represented as a singleton part s_u = {u} with
+    centroid = coord(u), inserted into G and the seed stack U at initialization and
+    whenever a node becomes unvisited. The r-part invariant is preserved exactly:
+    a subproblem of size r may contain a mix of proper routes and singleton parts.
+    p = |active_routes| + |singleton_unvisited| is dynamic.
+
+Issue 4 — Ghost routes / data structure:
+    A pre-allocated stable centroid buffer coords[MAX_PARTS, 2] is maintained.
+    Deleted slots are pushed onto a free_slots stack in O(1). New parts pop a slot
+    in O(1). G uses raw slot indices — slots are never compacted, so all G entries
+    remain permanently valid. Compaction is never performed.
+</pre></div>
+</div>
 <p>Attributes:
-run_popmusic: Function to solve VRPP using POPMUSIC matheuristic.</p>
+run_popmusic: Entry point for the POPMUSIC solver.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver import run_popmusic
-&gt;&gt;&gt; routes, total_cost, total_profit, info_dict = run_popmusic(**env_state)</p>
+&gt;&gt;&gt; solver = POPSolver(
+&gt;&gt;&gt;     X=np.array([[0,0], [1,1], [2,2]]),
+&gt;&gt;&gt;     wastes={1: 1.0, 2: 2.0},
+&gt;&gt;&gt;     capacity=10.0,
+&gt;&gt;&gt;     R=3.0, C=1.0,
+&gt;&gt;&gt;     K=1,
+&gt;&gt;&gt;     seed=42,
+&gt;&gt;&gt;     vrpp=True
+&gt;&gt;&gt; )
+&gt;&gt;&gt; routes, profit = solver.run_popmusic()
+&gt;&gt;&gt; routes
+[[0, 1, 2, 0]]
+&gt;&gt;&gt; profit
+5.393398113205676</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_popmusic</span></code></a></p></td>
-<td><p>Solve VRPP using POPMUSIC matheuristic.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_assign" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_assign"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_d_assign</span></code></a></p></td>
+<td><p>Compute the profit-biased assignment dissimilarity matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_prox" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_prox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_d_prox</span></code></a></p></td>
+<td><p>Compute the pure geometric pairwise distance matrix between cluster centers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._pmedian_alternating" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._pmedian_alternating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pmedian_alternating</span></code></a></p></td>
+<td><p>Approximate p-median via the alternating (Voronoi) heuristic.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._build_proximity_network" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._build_proximity_network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_proximity_network</span></code></a></p></td>
+<td><p>Build the static adjacency list proximity network G using the canonical
+second-closest-center criterion (Taillard &amp; Voss, 2002, p.692; Alvim &amp;
+Taillard, 2013).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._initialize_pmedian" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._initialize_pmedian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_initialize_pmedian</span></code></a></p></td>
+<td><p>Build initial solution via p-median heuristic in O(n^{3/2}).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_route_centroid</span></code></a></p></td>
+<td><p>Compute the geographic centroid (mean coordinate) of non-depot nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_assemble_subproblem</span></code></a></p></td>
+<td><p>Assemble a subproblem of at most r parts by walking the adjacency list G.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_popmusic</span></code></a></p></td>
+<td><p>Solve VRPP using the POPMUSIC matheuristic (Taillard &amp; Voss, 2002).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._evaluate_slots" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._evaluate_slots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_evaluate_slots</span></code></a></p></td>
+<td><p>Compute net profit for a set of slots (routes + singletons).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_optimize_subproblem</span></code></a></p></td>
-<td><p>Optimize subproblem using the selected base_solver.</p></td>
+<td><p>Dispatch to the appropriate base solver for subproblem optimization.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_fast_tsp" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_fast_tsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_optimize_with_fast_tsp</span></code></a></p></td>
-<td><p>Optimize subproblem using FastTSP and greedy split.</p></td>
+<td><p>Optimize subproblem using FastTSP + LinearSplit.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_hgs" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_hgs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_optimize_with_hgs</span></code></a></p></td>
 <td><p>Optimize subproblem using Hybrid Genetic Search (HGS).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_alns" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_alns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_optimize_with_alns</span></code></a></p></td>
 <td><p>Optimize subproblem using Adaptive Large Neighborhood Search (ALNS).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_route_neighbors</span></code></a></p></td>
-<td><p>Find k nearest route indices to the seed route based on centroids.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.split_tour" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.split_tour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_tour</span></code></a></p></td>
-<td><p>Simple greedy split of a giant tour into k routes.</p></td>
 </tr>
 </tbody>
 </table>
@@ -541,142 +615,268 @@ run_popmusic: Function to solve VRPP using POPMUSIC matheuristic.</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">run_popmusic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fast_tsp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_solver_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fast_tsp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_solver_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'nearest_neighbor'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_prox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lifo'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic" title="Link to this definition">#</a></dt>
-<dd><p>Solve VRPP using POPMUSIC matheuristic.</p>
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_assign">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_compute_d_assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenues</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rev_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_assign" title="Link to this definition">#</a></dt>
+<dd><p>Compute the profit-biased assignment dissimilarity matrix.</p>
+<p>Uses the dimensionless ratio form (Issue 1, Tension 3):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>d_assign(i, c) = (d(i,c) / d_max) / (rev(i) / rev_max + ε)
+</pre></div>
+</div>
+<p>where d_max and rev_max are instance-level normalization constants
+computed once in O(n), making the metric parameter-free.</p>
+<p>High-revenue nodes are gravitationally attracted to cluster centers
+(small d_assign) while the metric remains strictly non-negative.</p>
+<p>Time complexity: O(n * p) via vectorized broadcasting.
+Space complexity: O(n * p).</p>
 <p>Args:
-coords: Coordinates of nodes.
-mandatory: List of mandatory nodes.
-distance_matrix: Distance matrix.
-n_vehicles: Number of vehicles.
-subproblem_size: Number of nodes in each subproblem.
-max_iterations: Maximum number of iterations.
-base_solver: Name of the base solver to use for solving subproblems.
-base_solver_config: Configuration for the base solver.
-cluster_solver: Name of the cluster solver to use for clustering.
-cluster_solver_config: Configuration for the cluster solver.
-initial_solver: Name of the initial solver to use for building initial routes.
-seed: Random seed for reproducibility.
-wastes: Waste levels for each node.
-capacity: Description of capacity.
+node_coords: Shape (n, 2) — customer coordinates.
+center_coords: Shape (p, 2) — current cluster center coordinates.
+revenues: Shape (n,) — per-node revenue (rev(i) = waste(i) * R).
+d_max: Maximum pairwise distance in the instance (normalization).
+rev_max: Maximum node revenue (normalization).
+eps: Small positive constant preventing division by zero.</p>
+<p>Returns:
+d_assign_matrix: Shape (n, p) — profit-biased dissimilarity.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_prox">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_compute_d_prox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_prox" title="Link to this definition">#</a></dt>
+<dd><p>Compute the pure geometric pairwise distance matrix between cluster centers.</p>
+<p>Used exclusively for building the proximity network G (Issue 1, two-metric
+architecture). Spatial coherence of subproblems requires G to reflect
+geographic nearness, not profit-biased nearness.</p>
+<p>Time complexity: O(p^2).
+Space complexity: O(p^2).</p>
+<p>Args:
+center_coords: Shape (p, 2) — cluster center coordinates.</p>
+<p>Returns:
+d_prox_matrix: Shape (p, p) — symmetric Euclidean distance matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._pmedian_alternating">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_pmedian_alternating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenues</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._pmedian_alternating" title="Link to this definition">#</a></dt>
+<dd><p>Approximate p-median via the alternating (Voronoi) heuristic.</p>
+<p>Runs in O(n * p * max_iter) = O(n^{3/2}) since p = floor(sqrt(n)) and
+max_iter is a small constant (empirically 10–20 suffice for convergence).</p>
+<p>Assignment step uses d_assign (profit-biased) when profit_aware=True,
+else pure Euclidean. Center recomputation always uses the geographic
+median of assigned nodes — mixing profit-bias into center recomputation
+would drift centers toward revenue hotspots and destabilize convergence
+(Issue 1, Point 3 decision).</p>
+<p>Args:
+node_coords: Shape (n, 2) — customer coordinates (excluding depot).
+revenues: Shape (n,) — per-node revenue for profit-bias.
+p: Number of cluster centers = floor(sqrt(n)).
+rng: Seeded random instance for reproducibility.
+max_iter: Maximum alternating iterations (constant, does not affect O).
+profit_aware: Whether to use profit-biased d_assign for Voronoi step.</p>
+<p>Returns:
+assignments: Shape (n,) int — cluster index for each node.
+center_coords: Shape (p, 2) — final cluster center coordinates.
+d_final: Shape (n, p) — distance matrix from the final assignment
+step, returned for reuse in _build_proximity_network (avoids
+redundant O(n*p) recomputation of the same matrix).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._build_proximity_network">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_build_proximity_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_assign_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._build_proximity_network" title="Link to this definition">#</a></dt>
+<dd><p>Build the static adjacency list proximity network G using the canonical
+second-closest-center criterion (Taillard &amp; Voss, 2002, p.692; Alvim &amp;
+Taillard, 2013).</p>
+<p>Definition (paper p.692):
+Clusters a and b are neighbors if an entity of one of these clusters
+has the center of the other one as the second closest center.</p>
+<p>Formally: edge (a, b) ∈ G iff ∃ i ∈ cluster_a s.t. b = argmin_{c ≠ a} d(i, c),
+or ∃ j ∈ cluster_b s.t. a = argmin_{c ≠ b} d(j, c).  The relation is
+symmetrised so both G[a] contains b and G[b] contains a.</p>
+<p>This is strictly more faithful than k-NN on center coordinates because it
+encodes which clusters share “contested” entities — exactly the nodes most
+likely to benefit from joint re-optimisation.  k-NN on centers ignores
+entity distribution entirely; the second-closest criterion is informed by
+the Voronoi structure of the current solution.</p>
+<p>After adding edges by the second-closest criterion, each adjacency list is
+sorted in ascending order of inter-center d_prox so that BFS in
+_assemble_subproblem visits spatially nearest parts first.</p>
+<p>Time complexity: O(n * p) — one argsort of length p per entity, dominated
+by the d_assign_matrix already computed in _pmedian_alternating.
+Space complexity: O(n + p * avg_degree).  avg_degree is empirically O(1)
+for spatially distributed instances.</p>
+<p>Args:
+center_coords: Shape (p, 2) — final cluster center coordinates.
+assignments: Shape (n,) int — cluster index for each entity (0..p-1).
+d_assign_matrix: Shape (n, p) — distance matrix used in the final
+Voronoi assignment step of _pmedian_alternating.  Reused here to
+avoid recomputation; colum j gives d(entity_i, center_j).</p>
+<p>Returns:
+G: dict[int, list[int]] — cluster index → adjacency list sorted by
+ascending inter-center Euclidean distance.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._initialize_pmedian">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_initialize_pmedian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._initialize_pmedian" title="Link to this definition">#</a></dt>
+<dd><p>Build initial solution via p-median heuristic in O(n^{3/2}).</p>
+<p>Sets p = floor(sqrt(n_customers)), runs the alternating heuristic, and
+constructs the initial routes by assigning each cluster’s nodes to a
+vehicle route (greedy capacity-aware assignment within each cluster).
+Returns the proximity network G for use in the main loop (Issue 2).</p>
+<p>Args:
+coords_df: DataFrame with columns [Lat, Lng], indexed by node index.
+wastes_dict: Mapping node → waste level.
+capacity: Vehicle capacity.
 R: Revenue per unit waste.
 C: Cost per unit distance.
-vrpp: Whether to solve the VRPP.
-profit_aware_operators: Whether to use profit-aware operators.
-k_prox: Number of nearest neighbors to consider for clustering.
-seed_strategy: Strategy for seeding clusters.</p>
+n_vehicles: Hint for maximum number of vehicles.
+subproblem_size: r parameter — used as k_neighbors for G construction.
+seed: Random seed.
+profit_aware: Whether to use profit-biased assignment metric.
+distance_matrix: Full distance matrix (n+1, n+1) including depot at 0.
+mandatory: Mandatory node indices.</p>
 <p>Returns:
-Tuple of (routes, total_cost, total_profit, info_dict).</p>
+routes: Initial list of routes (each a list of global node indices).
+center_coords: Shape (p, 2) — cluster center coordinates (for state init).
+G_cluster: Proximity network on cluster indices (remapped to route slots
+in run_popmusic after POPMUSICState construction).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_route_centroid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid" title="Link to this definition">#</a></dt>
+<dd><p>Compute the geographic centroid (mean coordinate) of non-depot nodes.</p>
+<p>Args:
+nodes: Route node list including depot sentinels (0).
+coord_array: Shape (n+1, 2) — all node coordinates.</p>
+<p>Returns:
+centroid: Shape (2,) float64.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_assemble_subproblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed_slot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.html#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.POPMUSICState" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.POPMUSICState"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.POPMUSICState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem" title="Link to this definition">#</a></dt>
+<dd><p>Assemble a subproblem of at most r parts by walking the adjacency list G.</p>
+<p>Time complexity: O(r) — independent of n (Issue 2 guarantee).</p>
+<p>The walk is a BFS/greedy expansion from seed_slot: at each step, the
+unvisited neighbor with the smallest d_prox (pre-sorted in G) is added
+until r parts are collected or G is exhausted.</p>
+<p>Args:
+seed_slot: Slot index of the seed part.
+state: Current POPMUSICState.
+r: Subproblem size (number of parts).</p>
+<p>Returns:
+List of slot indices forming the subproblem (length ≤ r).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">run_popmusic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fast_tsp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_solver_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fast_tsp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_solver_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pmedian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_prox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lifo'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic" title="Link to this definition">#</a></dt>
+<dd><p>Solve VRPP using the POPMUSIC matheuristic (Taillard &amp; Voss, 2002).</p>
+<p>Architectural guarantees (post-refactor):
+- Initialization: O(n^{3/2}) via p-median alternating heuristic.
+- Proximity network G: built once, O(r) subproblem assembly.
+- VRPP purity: unvisited nodes are singleton parts; r-part invariant
+is preserved exactly.
+- Data structure: stable-slot free-stack; no compaction; O(1)
+insert/delete; G never invalidated.</p>
+<p>Args:
+coords: DataFrame with columns [Lat, Lng], indexed by global node ID.
+mandatory: Global indices of nodes that must be visited.
+distance_matrix: Symmetric distance matrix, shape (n+1, n+1), depot at 0.
+n_vehicles: Maximum number of vehicles (upper-bounds p).
+subproblem_size: r — number of parts per subproblem. The unique
+POPMUSIC parameter (Taillard &amp; Voss, 2002, §Conclusion).
+max_iterations: Optional hard iteration cap (None = run to convergence).
+base_solver: Subproblem solver (“fast_tsp”, “hgs”, “alns”).
+base_solver_config: Configuration passed to the base solver.
+cluster_solver: Solver for warm-starting initial clusters (unused
+unless WARMSTART_INITIAL=True).
+cluster_solver_config: Configuration for cluster_solver.
+initial_solver: Initialization method. “pmedian” (canonical, O(n^{3/2}))
+is the only fully paper-faithful option. Legacy “greedy” and
+“nearest_neighbor” are retained for backward compatibility but
+do not construct G and fall back to a KDTree (O(p log p) rebuild).
+seed: Random seed for reproducibility.
+wastes: Mapping global node index → waste level.
+capacity: Vehicle capacity.
+R: Revenue per unit waste collected.
+C: Monetary cost per unit distance travelled.
+vrpp: If True, nodes may be left unvisited (VRPP mode). Unvisited
+nodes are represented as singleton parts (Issue 3).
+profit_aware_operators: If True, uses profit-biased d_assign metric
+during p-median initialization (Issue 1).
+k_prox: Retained for API compatibility. In the refactored code,
+G degree is set to subproblem_size + 2 during initialization.
+seed_strategy: Seed selection strategy (“lifo”, “fifo”, “random”).</p>
+<p>Returns:
+routes: List of optimized routes (each a list of global node indices).
+total_routing_cost: Total travel cost (distance * C).
+total_profit: Total net profit (revenue − travel cost).
+info: Dictionary with diagnostic keys: iterations, num_routes,
+num_singletons_final, p_initial.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._evaluate_slots">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_evaluate_slots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.html#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.POPMUSICState" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.POPMUSICState"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.POPMUSICState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._evaluate_slots" title="Link to this definition">#</a></dt>
+<dd><p>Compute net profit for a set of slots (routes + singletons).</p>
+<p>Singleton slots contribute revenue but zero travel cost (they are not
+currently routed). This is consistent with the VRPP objective where
+unvisited nodes generate no revenue.</p>
+<p>Args:
+slots: List of slot indices to evaluate.
+state: Current POPMUSICState.
+distance_matrix: Full distance matrix.
+wastes_dict: Waste levels per node.
+R: Revenue per unit waste.
+C: Cost per unit distance.</p>
+<p>Returns:
+Net profit (float).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_optimize_subproblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_solver_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem" title="Link to this definition">#</a></dt>
-<dd><p>Optimize subproblem using the selected base_solver.</p>
+<dd><p>Dispatch to the appropriate base solver for subproblem optimization.</p>
+<p>The subproblem_nodes list is guaranteed to satisfy the r-part invariant
+(Issue 3): it is exactly the union of customer nodes from r parts, where
+each part is either a proper route or a singleton unvisited node.</p>
 <p>Args:
-base_solver: Name of the base solver to use for solving subproblems.
-base_solver_config: Configuration for the base solver.
-subproblem_nodes: Nodes in the subproblem.
-distance_matrix: Distance matrix.
-wastes_dict: Waste levels for each node.
+base_solver: “fast_tsp”, “hgs”, or “alns”.
+base_solver_config: Solver-specific configuration.
+subproblem_nodes: Customer nodes in the subproblem (global indices).
+distance_matrix: Full distance matrix.
+wastes_dict: Waste levels per node.
 capacity: Vehicle capacity.
 R: Revenue per unit waste.
 C: Cost per unit distance.
-neighborhood_indices: Indices of nodes in the neighborhood.
-mandatory: Mandatory nodes.
-seed: Random seed for reproducibility.
-vrpp: Whether to solve the VRPP.
-profit_aware_operators: Whether to use profit-aware operators.</p>
+neighborhood_indices: Slot indices of the subproblem parts (for
+HGS/ALNS vehicle count hinting).
+mandatory: Global mandatory node indices.
+seed: Random seed.
+vrpp: VRPP mode flag.
+profit_aware_operators: Profit-aware operator flag.</p>
 <p>Returns:
-Tuple of (routes, total_cost, total_profit, info_dict).</p>
+Tuple of (new_routes, new_profit).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_fast_tsp">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_optimize_with_fast_tsp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subproblem_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_fast_tsp" title="Link to this definition">#</a></dt>
-<dd><p>Optimize subproblem using FastTSP and greedy split.</p>
-<p>Args:
-subproblem_nodes: Nodes in the subproblem.
-distance_matrix: Distance matrix.
-wastes_dict: Waste levels for each node.
-capacity: Vehicle capacity.
-R: Revenue per unit waste.
-C: Cost per unit distance.
-config: Configuration for FastTSP.
-time_limit: Time limit for optimization.
-seed: Random seed for reproducibility.
-vrpp: Whether to solve the VRPP.</p>
-<p>Returns:
-Tuple of (routes, total_cost, total_profit, info_dict).</p>
+<dd><p>Optimize subproblem using FastTSP + LinearSplit.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_hgs">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_optimize_with_hgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_hgs" title="Link to this definition">#</a></dt>
 <dd><p>Optimize subproblem using Hybrid Genetic Search (HGS).</p>
-<p>Args:
-distance_matrix: Distance matrix.
-wastes_dict: Waste levels for each node.
-capacity: Vehicle capacity.
-R: Revenue per unit waste.
-C: Cost per unit distance.
-neighborhood_indices: Indices of nodes in the neighborhood.
-mandatory: Mandatory nodes.
-config: Configuration for HGS.
-time_limit: Time limit for optimization.
-seed: Random seed for reproducibility.
-vrpp: Whether to solve the VRPP.
-profit_aware_operators: Whether to use profit-aware operators.
-subproblem_nodes: Nodes in the subproblem.</p>
-<p>Returns:
-Tuple of (routes, total_cost, total_profit, info_dict).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_alns">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">_optimize_with_alns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subproblem_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_alns" title="Link to this definition">#</a></dt>
 <dd><p>Optimize subproblem using Adaptive Large Neighborhood Search (ALNS).</p>
-<p>Args:
-distance_matrix: Distance matrix.
-wastes_dict: Waste levels for each node.
-capacity: Vehicle capacity.
-R: Revenue per unit waste.
-C: Cost per unit distance.
-mandatory: Mandatory nodes.
-config: Configuration for ALNS.
-time_limit: Time limit for optimization.
-seed: Random seed for reproducibility.
-vrpp: Whether to solve the VRPP.
-profit_aware_operators: Whether to use profit-aware operators.
-subproblem_nodes: Nodes in the subproblem.</p>
-<p>Returns:
-Tuple of (routes, total_cost, total_profit, info_dict).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">find_route_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centroids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kdtree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">scipy.spatial.KDTree</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_prox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors" title="Link to this definition">#</a></dt>
-<dd><p>Find k nearest route indices to the seed route based on centroids.</p>
-<p>Args:
-seed_idx: Index of the seed route.
-centroids: Centroids of all routes.
-k: Number of nearest routes to find.
-kdtree: KD-Tree for proximity search.
-k_prox: Number of neighbors to consider.</p>
-<p>Returns:
-List of nearest route indices.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.split_tour">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.</span></span><span class="sig-name descname"><span class="pre">split_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.split_tour" title="Link to this definition">#</a></dt>
-<dd><p>Simple greedy split of a giant tour into k routes.</p>
-<p>Args:
-tour: The tour to split (list of node indices).
-k: The number of routes to split into.
-distance_matrix: Distance matrix.</p>
-<p>Returns:
-List of routes (each route is a list of node indices starting and ending with 0).</p>
 </dd></dl>
 
 </section>
@@ -695,12 +895,12 @@ List of routes (each route is a list of node indices starting and ending with 0)
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.html"
+       href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.state</span></code></p>
       </div>
     </a>
     <a class="right-next"
@@ -731,13 +931,19 @@ List of routes (each route is a list of node indices starting and ending with 0)
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_assign"><code class="docutils literal notranslate"><span class="pre">_compute_d_assign()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._compute_d_prox"><code class="docutils literal notranslate"><span class="pre">_compute_d_prox()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._pmedian_alternating"><code class="docutils literal notranslate"><span class="pre">_pmedian_alternating()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._build_proximity_network"><code class="docutils literal notranslate"><span class="pre">_build_proximity_network()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._initialize_pmedian"><code class="docutils literal notranslate"><span class="pre">_initialize_pmedian()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid"><code class="docutils literal notranslate"><span class="pre">_route_centroid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem"><code class="docutils literal notranslate"><span class="pre">_assemble_subproblem()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.run_popmusic"><code class="docutils literal notranslate"><span class="pre">run_popmusic()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._evaluate_slots"><code class="docutils literal notranslate"><span class="pre">_evaluate_slots()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem"><code class="docutils literal notranslate"><span class="pre">_optimize_subproblem()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_fast_tsp"><code class="docutils literal notranslate"><span class="pre">_optimize_with_fast_tsp()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_hgs"><code class="docutils literal notranslate"><span class="pre">_optimize_with_hgs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_with_alns"><code class="docutils literal notranslate"><span class="pre">_optimize_with_alns()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors"><code class="docutils literal notranslate"><span class="pre">find_route_neighbors()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.split_tour"><code class="docutils literal notranslate"><span class="pre">split_tour()</span></code></a></li>
 </ul>
 </li>
 </ul>

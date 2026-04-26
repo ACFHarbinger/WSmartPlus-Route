@@ -477,12 +477,14 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.beta"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.beta</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.rho"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.rho</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_0"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.tau_0</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_min"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.tau_min</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_max"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.tau_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.Q"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.Q</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.lambda_val"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.lambda_val</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.use_dynamic_lambda"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.use_dynamic_lambda</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitism_ratio"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.elitism_ratio</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.seed"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.seed</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.q0"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.q0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.stagnation_limit"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.stagnation_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.sequence_length"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.sequence_length</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.local_search"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.local_search</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.local_search_iterations</span></code></a></li>
@@ -544,11 +546,16 @@ alpha: Pheromone importance factor.
 beta: Heuristic (distance) importance factor.
 rho: Pheromone evaporation rate.
 tau_0: Initial pheromone level.
-tau_min: Minimum pheromone bound.
-tau_max: Maximum pheromone bound.
+Q: Pheromone floor constant added to every improving-journey deposit.
+lambda_val: Base for the visibility exponential when use_dynamic_lambda=False.
+use_dynamic_lambda: If True (default), replace λ^I with exp(I / Z) where Z is
+a running EMA of |improvement|. This achieves scale invariance across
+problem sizes and is the recommended setting for the VRPP. Set to False for
+strict paper fidelity (λ = 1.0001 as base).
 max_iterations: Maximum number of ACO iterations.
+elitism_ratio: Fraction of the swarm teleported to the global best.
 time_limit: Maximum time in seconds for the solver.
-q0: Probability of exploitation vs exploration (ACS-style).
+stagnation_limit: Number of iterations without improvement before pheromone update.
 sequence_length: Length of operator sequence for hyper-heuristic ACO.
 local_search: Whether to apply local search after construction.
 local_search_iterations: Number of local search iterations.
@@ -587,21 +594,33 @@ route_improvement: List of route improvement operations to apply.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_min">
-<span class="sig-name descname"><span class="pre">tau_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_min" title="Link to this definition">#</a></dt>
-<dd><p>0.01</p>
+<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.Q" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_max">
-<span class="sig-name descname"><span class="pre">tau_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_max" title="Link to this definition">#</a></dt>
-<dd><p>10.0</p>
+<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.lambda_val">
+<span class="sig-name descname"><span class="pre">lambda_val</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.lambda_val" title="Link to this definition">#</a></dt>
+<dd><p>1.0001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.use_dynamic_lambda">
+<span class="sig-name descname"><span class="pre">use_dynamic_lambda</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.use_dynamic_lambda" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.max_iterations">
 <span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.max_iterations" title="Link to this definition">#</a></dt>
 <dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitism_ratio">
+<span class="sig-name descname"><span class="pre">elitism_ratio</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitism_ratio" title="Link to this definition">#</a></dt>
+<dd><p>0.5</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -617,9 +636,9 @@ route_improvement: List of route improvement operations to apply.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.q0">
-<span class="sig-name descname"><span class="pre">q0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.q0" title="Link to this definition">#</a></dt>
-<dd><p>0.9</p>
+<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.stagnation_limit">
+<span class="sig-name descname"><span class="pre">stagnation_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.stagnation_limit" title="Link to this definition">#</a></dt>
+<dd><p>10</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -736,12 +755,14 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.beta"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.beta</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.rho"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.rho</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_0"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.tau_0</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_min"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.tau_min</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.tau_max"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.tau_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.Q"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.Q</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.lambda_val"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.lambda_val</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.use_dynamic_lambda"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.use_dynamic_lambda</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitism_ratio"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.elitism_ratio</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.seed"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.seed</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.q0"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.q0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.stagnation_limit"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.stagnation_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.sequence_length"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.sequence_length</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.local_search"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.local_search</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.local_search_iterations</span></code></a></li>

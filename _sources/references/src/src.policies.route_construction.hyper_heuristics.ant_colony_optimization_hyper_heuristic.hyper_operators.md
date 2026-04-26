@@ -127,6 +127,14 @@
 
 ````
 
+````{py:method} get_dist(i: int, j: int) -> float
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext.get_dist
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext.get_dist
+```
+
+````
+
 ````{py:method} _update_map(affected_indices: set)
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._update_map
 

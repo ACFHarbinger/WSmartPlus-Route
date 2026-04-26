@@ -172,6 +172,17 @@
 
 ````
 
+````{py:attribute} sa_max_trials
+:canonical: src.configs.policies.lkh3.LKH3Config.sa_max_trials
+:type: int
+:value: >
+   10000
+
+```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.sa_max_trials
+```
+
+````
+
 ````{py:attribute} perturb_operator_weights
 :canonical: src.configs.policies.lkh3.LKH3Config.perturb_operator_weights
 :type: typing.List[float]

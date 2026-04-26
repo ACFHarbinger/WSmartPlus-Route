@@ -966,10 +966,14 @@ rcspp_dp.py: <code class="docutils literal notranslate"><span class="pre">solve<
 <p>§4.3 – Divergence Node Branching
 Two highest-λ fractional routes are traced step-by-step from the depot.
 The first node where they diverge is the branching node d.  arc_set_1
-contains the arc of the longer-remaining-path route (child 1 is explored
-first in DFS — better basis warm-start).  arc_set_2 covers all other
-outgoing arcs from d.  Falls back to aggregate-flow heuristic when no
-common prefix exists.
+contains the arc of the <em>shorter</em> path (path p in the paper); arc_set_2
+contains the remaining outgoing arcs including the longer path’s arc.
+strategies.py swaps arc_p1/arc_p2 when path1 is longer, ensuring nxt_p1
+(shorter path’s arc) heads the flow-sorted list and lands in arc_set_1.
+left_child  forbids arc_set_1 → longer path kept  (Paper’s Child 1).
+right_child forbids arc_set_2 → shorter path kept (Paper’s Child 2,
+explored FIRST per §3.2: “we choose the side where A(d,a2) is forbidden”).
+Falls back to aggregate-flow heuristic when no common prefix exists.
 Implementation: <code class="docutils literal notranslate"><span class="pre">MultiEdgePartitionBranching.find_divergence_node</span></code>
 in branching.py.</p>
 <p>§5 – DFS Node Selection

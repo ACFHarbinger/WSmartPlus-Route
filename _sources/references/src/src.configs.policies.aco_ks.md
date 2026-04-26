@@ -117,6 +117,17 @@
 
 ````
 
+````{py:attribute} scale
+:canonical: src.configs.policies.aco_ks.KSparseACOConfig.scale
+:type: float
+:value: >
+   5.0
+
+```{autodoc2-docstring} src.configs.policies.aco_ks.KSparseACOConfig.scale
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.aco_ks.KSparseACOConfig.time_limit
 :type: float
@@ -135,17 +146,6 @@
    None
 
 ```{autodoc2-docstring} src.configs.policies.aco_ks.KSparseACOConfig.seed
-```
-
-````
-
-````{py:attribute} q0
-:canonical: src.configs.policies.aco_ks.KSparseACOConfig.q0
-:type: float
-:value: >
-   0.9
-
-```{autodoc2-docstring} src.configs.policies.aco_ks.KSparseACOConfig.q0
 ```
 
 ````

@@ -474,6 +474,32 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gamma"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.seed"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.overflow_penalty</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_base_rho"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ph_base_rho</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ph_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ph_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_max_routes"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_max_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_rc_tolerance"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_rc_tolerance</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_remove_fraction"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_remove_fraction</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.dive_penalty_M"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.dive_penalty_M</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_tabu_length"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_tabu_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_unfix"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_max_unfix</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_strategy"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ml_reliability_c"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ml_reliability_c</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ml_pseudocost_ema_alpha"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ml_pseudocost_ema_alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.sc_consensus_threshold"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.sc_consensus_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.benders_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.benders_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_cut_pool_max"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.benders_cut_pool_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.max_visits_per_bin"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.max_visits_per_bin</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.theta_upper_bound"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.theta_upper_bound</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_master_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_master_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_sub_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_sub_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_mip_gap"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_mip_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_output_flag"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_output_flag</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.subproblem_relax"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.subproblem_relax</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -521,8 +547,34 @@ ABPCHGConfig(gamma=0.95, seed=None)</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.abpc_hg.</span></span><span class="sig-name descname"><span class="pre">ABPCHGConfig</span></span><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig" title="Link to this definition">#</a></dt>
 <dd><p>Config for Adaptive Branch-and-Price-and-Cut with Heuristic Guidance (ABPC-HG).</p>
 <p>Attributes:
-gamma (float): Gamma parameter for adaptive branching.
-seed (Optional[int]): Random seed.</p>
+gamma (float): Inter-day discount factor.
+seed (Optional[int]): Random seed.
+overflow_penalty (float): Revenue multiplier for projected overflows.
+ph_base_rho (float): Base penalty for PH consensus.
+ph_max_iterations (int): Max PH iterations.
+ph_convergence_tol (float): PH convergence tolerance.
+alns_iterations (int): Max ALNS cycles per pricing call.
+alns_max_routes (int): Max routes returned per ALNS call.
+alns_rc_tolerance (float): Reduced-cost threshold for ALNS.
+alns_remove_fraction (float): Fraction of nodes removed in destroy step.
+dive_penalty_M (float): Big-M penalty for diving infeasibility.
+fo_tabu_length (int): Tabu list length for Fix-and-Optimize.
+fo_max_unfix (int): Max bins unfixed in F&amp;O corridor.
+fo_strategy (str): Cluster selection strategy for F&amp;O.
+fo_max_iterations (int): Max F&amp;O passes.
+ml_reliability_c (float): Reliability branching blending coefficient.
+ml_pseudocost_ema_alpha (float): Alpha for pseudo-cost EMA.
+sc_consensus_threshold (float): Base threshold for scenario consensus.
+benders_max_iterations (int): Max Benders master-subproblem cycles.
+benders_convergence_tol (float): Gap tolerance for Benders termination.
+benders_cut_pool_max (int): Max Benders cuts in pool.
+max_visits_per_bin (int): Max visits per bin over horizon.
+theta_upper_bound (float): Initial UB for theta in master MIP.
+gurobi_master_time_limit (float): Gurobi time limit for master (s).
+gurobi_sub_time_limit (float): Gurobi time limit for subproblem (s).
+gurobi_mip_gap (float): Gurobi relative MIP gap.
+gurobi_output_flag (bool): Enable Gurobi console output.
+subproblem_relax (bool): Solve subproblems as LPs (True) or MIPs (False).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.gamma">
 <span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gamma" title="Link to this definition">#</a></dt>
@@ -533,6 +585,162 @@ seed (Optional[int]): Random seed.</p>
 <dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.seed" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.overflow_penalty">
+<span class="sig-name descname"><span class="pre">overflow_penalty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.overflow_penalty" title="Link to this definition">#</a></dt>
+<dd><p>2.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.ph_base_rho">
+<span class="sig-name descname"><span class="pre">ph_base_rho</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_base_rho" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.ph_max_iterations">
+<span class="sig-name descname"><span class="pre">ph_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>100</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.ph_convergence_tol">
+<span class="sig-name descname"><span class="pre">ph_convergence_tol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_convergence_tol" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.alns_iterations">
+<span class="sig-name descname"><span class="pre">alns_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.alns_max_routes">
+<span class="sig-name descname"><span class="pre">alns_max_routes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_max_routes" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.alns_rc_tolerance">
+<span class="sig-name descname"><span class="pre">alns_rc_tolerance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_rc_tolerance" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.alns_remove_fraction">
+<span class="sig-name descname"><span class="pre">alns_remove_fraction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_remove_fraction" title="Link to this definition">#</a></dt>
+<dd><p>0.25</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.dive_penalty_M">
+<span class="sig-name descname"><span class="pre">dive_penalty_M</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.dive_penalty_M" title="Link to this definition">#</a></dt>
+<dd><p>10000.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.fo_tabu_length">
+<span class="sig-name descname"><span class="pre">fo_tabu_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_tabu_length" title="Link to this definition">#</a></dt>
+<dd><p>10</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_unfix">
+<span class="sig-name descname"><span class="pre">fo_max_unfix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_unfix" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.fo_strategy">
+<span class="sig-name descname"><span class="pre">fo_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">overflow_urgency</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">scenario_divergence</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_strategy" title="Link to this definition">#</a></dt>
+<dd><p>‘overflow_urgency’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_iterations">
+<span class="sig-name descname"><span class="pre">fo_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>20</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.ml_reliability_c">
+<span class="sig-name descname"><span class="pre">ml_reliability_c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ml_reliability_c" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.ml_pseudocost_ema_alpha">
+<span class="sig-name descname"><span class="pre">ml_pseudocost_ema_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ml_pseudocost_ema_alpha" title="Link to this definition">#</a></dt>
+<dd><p>0.5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.sc_consensus_threshold">
+<span class="sig-name descname"><span class="pre">sc_consensus_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.sc_consensus_threshold" title="Link to this definition">#</a></dt>
+<dd><p>0.95</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.benders_max_iterations">
+<span class="sig-name descname"><span class="pre">benders_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.benders_convergence_tol">
+<span class="sig-name descname"><span class="pre">benders_convergence_tol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_convergence_tol" title="Link to this definition">#</a></dt>
+<dd><p>0.001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.benders_cut_pool_max">
+<span class="sig-name descname"><span class="pre">benders_cut_pool_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_cut_pool_max" title="Link to this definition">#</a></dt>
+<dd><p>500</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.max_visits_per_bin">
+<span class="sig-name descname"><span class="pre">max_visits_per_bin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.max_visits_per_bin" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.theta_upper_bound">
+<span class="sig-name descname"><span class="pre">theta_upper_bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.theta_upper_bound" title="Link to this definition">#</a></dt>
+<dd><p>1000000.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_master_time_limit">
+<span class="sig-name descname"><span class="pre">gurobi_master_time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_master_time_limit" title="Link to this definition">#</a></dt>
+<dd><p>60.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_sub_time_limit">
+<span class="sig-name descname"><span class="pre">gurobi_sub_time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_sub_time_limit" title="Link to this definition">#</a></dt>
+<dd><p>30.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_mip_gap">
+<span class="sig-name descname"><span class="pre">gurobi_mip_gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_mip_gap" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_output_flag">
+<span class="sig-name descname"><span class="pre">gurobi_output_flag</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_output_flag" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.subproblem_relax">
+<span class="sig-name descname"><span class="pre">subproblem_relax</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.subproblem_relax" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
 </dd></dl>
@@ -592,6 +800,32 @@ seed (Optional[int]): Random seed.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gamma"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.seed"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.overflow_penalty</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_base_rho"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ph_base_rho</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ph_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ph_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ph_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_max_routes"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_max_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_rc_tolerance"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_rc_tolerance</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.alns_remove_fraction"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.alns_remove_fraction</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.dive_penalty_M"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.dive_penalty_M</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_tabu_length"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_tabu_length</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_unfix"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_max_unfix</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_strategy"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.fo_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.fo_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ml_reliability_c"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ml_reliability_c</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.ml_pseudocost_ema_alpha"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.ml_pseudocost_ema_alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.sc_consensus_threshold"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.sc_consensus_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_max_iterations"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.benders_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_convergence_tol"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.benders_convergence_tol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.benders_cut_pool_max"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.benders_cut_pool_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.max_visits_per_bin"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.max_visits_per_bin</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.theta_upper_bound"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.theta_upper_bound</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_master_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_master_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_sub_time_limit"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_sub_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_mip_gap"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_mip_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gurobi_output_flag"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.gurobi_output_flag</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.abpc_hg.ABPCHGConfig.subproblem_relax"><code class="docutils literal notranslate"><span class="pre">ABPCHGConfig.subproblem_relax</span></code></a></li>
 </ul>
 </li>
 </ul>

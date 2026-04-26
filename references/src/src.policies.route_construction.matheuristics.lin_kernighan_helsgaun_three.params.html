@@ -486,6 +486,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.alns_iterations"><code class="docutils literal notranslate"><span class="pre">LKH3Params.alns_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Params.plateau_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.deep_plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Params.deep_plateau_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.sa_max_trials"><code class="docutils literal notranslate"><span class="pre">LKH3Params.sa_max_trials</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.perturb_operator_weights"><code class="docutils literal notranslate"><span class="pre">LKH3Params.perturb_operator_weights</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.seed"><code class="docutils literal notranslate"><span class="pre">LKH3Params.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.vrpp"><code class="docutils literal notranslate"><span class="pre">LKH3Params.vrpp</span></code></a></li>
@@ -553,6 +554,8 @@ profit_aware_operators: Whether to use VRPP-specific operators.
 alns_iterations: Iterations for Adaptive Large Neighborhood Search (VRPP mode).
 plateau_limit: Iterations without improvement before triggering perturbation.
 deep_plateau_limit: Iterations for deeper search before restart.
+metaheuristic: Metaheuristic to use. Options: “ls_cgh” or “alns”.
+sa_max_trials: Maximum number of trials for Simulated Annealing.
 perturb_operator_weights: Probability distribution for perturbation operators.
 seed: Random seed for reproducibility.
 vrpp: Whether to solve as a Vehicle Routing Problem with Profits.</p>
@@ -638,6 +641,12 @@ vrpp: Whether to solve as a Vehicle Routing Problem with Profits.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.deep_plateau_limit">
 <span class="sig-name descname"><span class="pre">deep_plateau_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.deep_plateau_limit" title="Link to this definition">#</a></dt>
 <dd><p>30</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.sa_max_trials">
+<span class="sig-name descname"><span class="pre">sa_max_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.sa_max_trials" title="Link to this definition">#</a></dt>
+<dd><p>10000</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -757,6 +766,7 @@ Dict[str, Any]: Mapping of parameter names to their values.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.alns_iterations"><code class="docutils literal notranslate"><span class="pre">LKH3Params.alns_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Params.plateau_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.deep_plateau_limit"><code class="docutils literal notranslate"><span class="pre">LKH3Params.deep_plateau_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.sa_max_trials"><code class="docutils literal notranslate"><span class="pre">LKH3Params.sa_max_trials</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.perturb_operator_weights"><code class="docutils literal notranslate"><span class="pre">LKH3Params.perturb_operator_weights</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.seed"><code class="docutils literal notranslate"><span class="pre">LKH3Params.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.vrpp"><code class="docutils literal notranslate"><span class="pre">LKH3Params.vrpp</span></code></a></li>

@@ -83,6 +83,14 @@
 
 ````
 
+````{py:method} add_multistar_cut(node_list: typing.List[int], coefficients: typing.Dict[int, float]) -> bool
+:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin.add_multistar_cut
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin.add_multistar_cut
+```
+
+````
+
 ````{py:method} add_set_packing_capacity_cut(node_list: typing.List[int], rhs: float) -> bool
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin.add_set_packing_capacity_cut
 

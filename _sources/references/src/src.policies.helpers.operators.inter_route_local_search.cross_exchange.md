@@ -49,7 +49,7 @@
 ```
 ````
 
-````{py:function} _seg_boundary_cost(d, prev_node: int, seg: typing.List[int], next_node: int) -> float
+````{py:function} _seg_boundary_cost(ls: typing.Any, prev_node: int, seg: typing.List[int], next_node: int) -> float
 :canonical: src.policies.helpers.operators.inter_route_local_search.cross_exchange._seg_boundary_cost
 
 ```{autodoc2-docstring} src.policies.helpers.operators.inter_route_local_search.cross_exchange._seg_boundary_cost

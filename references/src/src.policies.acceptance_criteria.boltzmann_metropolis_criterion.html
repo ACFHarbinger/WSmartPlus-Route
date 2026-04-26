@@ -473,6 +473,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.setup"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.setup()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_temperature"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.get_temperature</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.set_temperature"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.set_temperature()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.accept"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.accept()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.step"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_state"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.get_state()</span></code></a></li>
@@ -544,6 +546,22 @@ seed (Optional[int]): Random seed. Defaults to 42.</p>
 <dd><p>Initialize the criterion state.</p>
 <p>Args:
 initial_objective (ObjectiveValue): The initial solution’s objective.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_temperature">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_temperature" title="Link to this definition">#</a></dt>
+<dd><p>Get the current temperature parameter.</p>
+<p>Returns:
+float: The current temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.set_temperature">
+<span class="sig-name descname"><span class="pre">set_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.set_temperature" title="Link to this definition">#</a></dt>
+<dd><p>Set the current temperature parameter.</p>
+<p>Args:
+value (float): The new temperature value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -635,6 +653,8 @@ Dict[str, Any]: State dictionary containing ‘temperature’.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.setup"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.setup()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_temperature"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.get_temperature</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.set_temperature"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.set_temperature()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.accept"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.accept()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.step"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_state"><code class="docutils literal notranslate"><span class="pre">BoltzmannAcceptance.get_state()</span></code></a></li>

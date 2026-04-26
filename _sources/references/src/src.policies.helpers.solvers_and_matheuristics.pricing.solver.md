@@ -35,6 +35,10 @@
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem
     :summary:
     ```
+* - {py:obj}`_MultistarItem <src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem>`
+  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem
+    :summary:
+    ```
 ````
 
 ### API
@@ -55,6 +59,16 @@
    None
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem
+```
+
+````
+
+````{py:data} _MultistarItem
+:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem
 ```
 
 ````
@@ -143,7 +157,7 @@
 
 ````
 
-````{py:method} _label_correcting_algorithm(max_routes: int, forbidden_arcs: typing.FrozenSet[typing.Tuple[int, int]], required_successors: typing.Dict[int, int], required_predecessors: typing.Dict[int, int], rf_separate: typing.Set[typing.Tuple[int, int]], rf_together: typing.Set[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri_subsets: typing.List[typing.FrozenSet[int]], sri_dual_values: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], edge_clique_duals: typing.Dict[typing.Tuple[int, int], float], lci_cover_items: typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem], exact_mode: bool = False) -> typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]
+````{py:method} _label_correcting_algorithm(max_routes: int, forbidden_arcs: typing.FrozenSet[typing.Tuple[int, int]], required_successors: typing.Dict[int, int], required_predecessors: typing.Dict[int, int], rf_separate: typing.Set[typing.Tuple[int, int]], rf_together: typing.Set[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri_subsets: typing.List[typing.FrozenSet[int]], sri_dual_values: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], edge_clique_duals: typing.Dict[typing.Tuple[int, int], float], lci_cover_items: typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem], multistar_items: typing.Optional[typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem]] = None, exact_mode: bool = False) -> typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._label_correcting_algorithm
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._label_correcting_algorithm
@@ -159,7 +173,7 @@
 
 ````
 
-````{py:method} _extend_to_depot(label: logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label) -> typing.Optional[logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label]
+````{py:method} _extend_to_depot(label: logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label, duals: typing.Dict[str, typing.Any]) -> typing.Optional[logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._extend_to_depot
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._extend_to_depot
@@ -175,7 +189,7 @@
 
 ````
 
-````{py:method} _extend_label(label: logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label, next_node: int, forbidden: typing.FrozenSet[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri: typing.List[typing.FrozenSet[int]], sri_duals: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], edge_clique_duals: typing.Dict[typing.Tuple[int, int], float], lci_cover_items: typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem]) -> typing.Optional[logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label]
+````{py:method} _extend_label(label: logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label, next_node: int, forbidden: typing.FrozenSet[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri: typing.List[typing.FrozenSet[int]], sri_duals: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], edge_clique_duals: typing.Dict[typing.Tuple[int, int], float], lci_cover_items: typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem], multistar_items: typing.Optional[typing.List[src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem]] = None) -> typing.Optional[logic.src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._extend_label
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._extend_label

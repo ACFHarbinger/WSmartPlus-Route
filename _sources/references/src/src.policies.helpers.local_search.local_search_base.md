@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, neighbors: typing.Optional[typing.Dict[int, typing.List[int]]] = None, penalty_capacity: float = 1.0, acceptance_criterion: typing.Optional[logic.src.interfaces.IAcceptanceCriterion] = None)
+`````{py:class} LocalSearch(dist_matrix: typing.Optional[numpy.ndarray], waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, neighbors: typing.Optional[typing.Dict[int, typing.List[int]]] = None, penalty_capacity: float = 1.0, acceptance_criterion: typing.Optional[logic.src.interfaces.IAcceptanceCriterion] = None, node_coords: typing.Optional[numpy.ndarray] = None)
 :canonical: src.policies.helpers.local_search.local_search_base.LocalSearch
 
 Bases: {py:obj}`abc.ABC`
@@ -36,6 +36,30 @@ Bases: {py:obj}`abc.ABC`
 
 ```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch.__init__
 ```
+
+````{py:method} get_dist(i: int, j: int) -> float
+:canonical: src.policies.helpers.local_search.local_search_base.LocalSearch.get_dist
+
+```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch.get_dist
+```
+
+````
+
+````{py:method} _compute_top_insertions(route_idx: typing.Optional[int] = None)
+:canonical: src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions
+
+```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions
+```
+
+````
+
+````{py:method} _cost(routes: typing.List[typing.List[int]]) -> float
+:canonical: src.policies.helpers.local_search.local_search_base.LocalSearch._cost
+
+```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch._cost
+```
+
+````
 
 ````{py:method} optimize(solution: typing.Any) -> typing.Any
 :canonical: src.policies.helpers.local_search.local_search_base.LocalSearch.optimize
@@ -58,22 +82,6 @@ Bases: {py:obj}`abc.ABC`
 :canonical: src.policies.helpers.local_search.local_search_base.LocalSearch._calc_load_fresh
 
 ```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch._calc_load_fresh
-```
-
-````
-
-````{py:method} _compute_top_insertions(route_idx: typing.Optional[int] = None)
-:canonical: src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions
-
-```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions
-```
-
-````
-
-````{py:method} _cost(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.helpers.local_search.local_search_base.LocalSearch._cost
-
-```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch._cost
 ```
 
 ````
