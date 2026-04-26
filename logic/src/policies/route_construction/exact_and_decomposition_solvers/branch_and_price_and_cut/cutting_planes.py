@@ -47,7 +47,7 @@ Example:
 import hashlib
 import itertools
 from abc import ABC, abstractmethod
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -1210,6 +1210,206 @@ class SaturatedArcLCIEngine(CuttingPlaneEngine):
         return "saturated_arc_lci"
 
 
+class RoundedMultistarCutEngine(CuttingPlaneEngine):
+    r"""Fractional/Rounded Multistar Inequality separation engine for VRPP.
+
+    Targets the Generalized Multistar Inequalities (Letchford, Eglese, Lysgaard 2002),
+    adapted for the VRPP Set Partitioning formulation.
+
+    Mathematical Formulation:
+    -------------------------
+    For S ⊆ V \ {0}:
+        ∑_{e ∈ δ(S)} x_e ≥ (2/Q) ∑_{i ∈ S} d_i y_i
+                           + (2/Q) ∑_{j ∉ S∪{0}} d_j · (∑_{i ∈ S} x_{ij})
+
+    Re-written in route variables as ∑_k a_k λ_k ≥ 0, where per route k:
+        a_k = crossings(k,S) − (2/Q)·visit_demand(k,S) − (2/Q)·adj_demand(k,S)
+
+    Stored in Gurobi as ∑_k (−a_k) λ_k ≤ 0 with dual γ_S ≥ 0.
+
+    Pricing Dual Integration:
+    -------------------------
+    When extending label from node u to v, the per-arc contribution to a_k is:
+
+    Case (u∈S, v∉S) — crossing out:
+        arc_a_k = 1 − (2/Q)·d_v     (d_v = adj demand; 0 if v is depot)
+    Case (v∈S, u∉S) — crossing in:
+        arc_a_k = 1 − (2/Q)·d_u − (2/Q)·d_v
+        (d_u = adj demand of u if u ≠ depot; d_v = visit demand of v)
+    Case (u∈S, v∈S) — interior:
+        arc_a_k = −(2/Q)·d_v
+    Case (u∉S, v∉S) — exterior:
+        arc_a_k = 0
+
+    Reduced cost delta = +arc_a_k · γ_S  (positive because coefficient in LP
+    is −a_k; dual γ_S ≥ 0 for ≤ constraint in maximisation).
+
+    This is implemented in RCSPPSolver._extend_label via the
+    ``multistar_items`` argument — see solver.py.
+
+    Attributes:
+        v_model (VRPPModel): Model for problem data.
+        sep_engine (SeparationEngine): Shared separation utilities.
+        epsilon (float): Violation threshold.
+    """
+
+    def __init__(self, v_model: VRPPModel, sep_engine: SeparationEngine, epsilon: float = 0.01) -> None:
+        """Initializes the Multistar separation engine.
+
+        Args:
+            v_model: VRPP model for problem data.
+            sep_engine: Separation engine for candidate cluster generation.
+            epsilon: Minimum violation threshold to add a cut.
+        """
+        self.v_model = v_model
+        self.sep_engine = sep_engine
+        self.epsilon = epsilon
+
+    def _add_inequalities(  # noqa: C901
+        self,
+        master: "VRPPMasterProblem",
+        edge_vars: Dict[Tuple[int, int], float],
+        node_visits: Dict[int, float],
+        candidate_ineqs: List[Any],
+        max_cuts: int,
+    ) -> int:
+        """Adds the multistar inequalities to the master problem.
+
+        Args:
+            master: Master problem instance with current fractional LP solution.
+            edge_vars: Edge usage variables.
+            node_visits: Node visitation variables.
+            candidate_ineqs: List of candidate inequalities to add.
+            max_cuts: Maximum number of cuts to add.
+
+        Returns:
+            int: Number of cuts successfully added.
+        """
+        added = 0
+        already_added: List[Set[int]] = []
+        Q = self.v_model.capacity
+        for ineq in candidate_ineqs:
+            if added >= max_cuts:
+                break
+            if not isinstance(ineq, CapacityCut):
+                continue
+
+            S: Set[int] = set(ineq.node_set)
+            if any(prev_S == S for prev_S in already_added):
+                continue
+
+            # Compute LP violation of the multistar inequality
+            cross_flow = 0.0
+            adj_demand = 0.0
+            for (u, v), val in edge_vars.items():
+                u_in, v_in = u in S, v in S
+                if u_in != v_in:
+                    cross_flow += val
+                    if u_in and v != 0 and not v_in:
+                        adj_demand += self.v_model.get_node_demand(v) * val
+                    elif v_in and u != 0 and not u_in:
+                        adj_demand += self.v_model.get_node_demand(u) * val
+
+            visit_demand = sum(self.v_model.get_node_demand(i) * node_visits.get(i, 0.0) for i in S)
+            rhs_val = (2.0 / Q) * visit_demand + (2.0 / Q) * adj_demand
+
+            if rhs_val - cross_flow <= self.epsilon:
+                continue  # Not violated
+
+            # Compute per-route structural coefficients.
+            # No LP variable value (var.X) is needed here — coefficients depend
+            # only on the route's structural relationship to S, not on λ_k.
+            coefficients: Dict[int, float] = {}
+            for ridx, route in enumerate(master.routes):
+                path = [0] + route.nodes + [0]
+                k_cross = 0
+                k_adj_demand = 0.0
+                k_visit_demand = sum(self.v_model.get_node_demand(n) for n in route.nodes if n in S)
+                for p in range(len(path) - 1):
+                    u, v = path[p], path[p + 1]
+                    u_in, v_in = u in S, v in S
+                    if u_in != v_in:
+                        k_cross += 1
+                        if u_in and v != 0 and not v_in:
+                            k_adj_demand += self.v_model.get_node_demand(v)
+                        elif v_in and u != 0 and not u_in:
+                            k_adj_demand += self.v_model.get_node_demand(u)
+
+                # Constraint: Σ a_k λ_k ≥ 0  →  Σ (−a_k) λ_k ≤ 0
+                a_k = k_cross - (2.0 / Q) * k_visit_demand - (2.0 / Q) * k_adj_demand
+                if abs(a_k) > 1e-6:
+                    coefficients[ridx] = -a_k  # negate for ≤ 0 Gurobi constraint
+
+            if not coefficients:
+                continue
+
+            # Add to master — prefer dedicated method for correct dual registration
+            # (multistar duals are then passed to the RCSPP via multistar_duals key).
+            success = False
+            if hasattr(master, "add_multistar_cut"):
+                success = master.add_multistar_cut(list(S), coefficients)
+            else:
+                success = master.add_lci_cut(list(S), 0.0, coefficients)
+
+            if success:
+                already_added.append(S)
+                added += 1
+
+        return added
+
+    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+        """Separate Fractional Multistar Inequalities and add violated ones.
+
+        Args:
+            master: Master problem instance with current fractional LP solution.
+            max_cuts: Maximum number of cuts to add.
+            kwargs: Forwarded kwargs (e.g., node_depth, cut_orthogonality_threshold).
+
+        Returns:
+            int: Number of cuts successfully added.
+        """
+        if master.model is None or not master.lambda_vars:
+            return 0
+
+        edge_vars = master.get_edge_usage(only_elementary=True)
+        if not edge_vars:
+            return 0
+
+        # Build x_vals and y_vals for the separation engine
+        x_vals = np.zeros(len(self.v_model.edges))
+        for (i, j), val in edge_vars.items():
+            edge_tuple = (min(i, j), max(i, j))
+            if edge_tuple in self.v_model.edge_to_idx:
+                x_vals[self.v_model.edge_to_idx[edge_tuple]] = val
+
+        node_visits = master.get_node_visitation()
+        n_customers = self.v_model.n_nodes - 1
+        y_vals = np.zeros(n_customers)
+        for node, val in node_visits.items():
+            if 1 <= node <= n_customers:
+                y_vals[node - 1] = min(val, 1.0)
+
+        node_depth = kwargs.get("node_depth", 0)
+        candidate_ineqs = self.sep_engine.separate_fractional(
+            x_vals, y_vals=y_vals, max_cuts=max_cuts * 3, node_count=node_depth
+        )
+        return self._add_inequalities(
+            master,
+            edge_vars,
+            node_visits,
+            candidate_ineqs=candidate_ineqs,
+            max_cuts=max_cuts,
+        )
+
+    def get_name(self) -> str:
+        """Returns the identifier for this engine.
+
+        Returns:
+            str: The engine name 'multistar'.
+        """
+        return "multistar"
+
+
 def create_cutting_plane_engine(
     engine_name: str,
     v_model: VRPPModel,
@@ -1248,6 +1448,10 @@ def create_cutting_plane_engine(
         return PhysicalCapacityLCIEngine(v_model)
     elif engine_name == "saturated_arc_lci":
         return SaturatedArcLCIEngine(v_model)
+    elif engine_name == "multistar":
+        if sep_engine is None:
+            raise ValueError("Multistar engine requires sep_engine parameter")
+        return RoundedMultistarCutEngine(v_model, sep_engine)
     elif engine_name == "cover":
         if sep_engine is None:
             raise ValueError("Cover engine requires sep_engine parameter")
@@ -1264,6 +1468,7 @@ def create_cutting_plane_engine(
         engines.append(SaturatedArcLCIEngine(v_model))  # type: ignore[arg-type]
         if sep_engine is not None:
             engines.append(KnapsackCoverEngine(v_model, sep_engine))  # type: ignore[arg-type]
+            engines.append(RoundedMultistarCutEngine(v_model, sep_engine))  # type: ignore[arg-type]
 
         comp = CompositeCuttingPlaneEngine(engines)  # type: ignore[arg-type]
         return comp
@@ -1276,6 +1481,7 @@ def create_cutting_plane_engine(
             "fleet_cover",
             "physical_lci",
             "saturated_arc_lci",
+            "multistar",
             "cover",
             "all",
             "composite",

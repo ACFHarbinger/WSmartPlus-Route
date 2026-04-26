@@ -288,6 +288,21 @@ def get_exact_penalty_delta(  # noqa: C901
     # O(1): retrieve old penalty from state
     old_penalty = state.get_total_penalty()
 
+    # --- FAST PATH: ZERO PENALTY SHORT-CIRCUIT ---
+    # If the current solution is strictly feasible, we only need to check if
+    # the sum of demand across ALL merged affected routes exceeds vehicle capacity.
+    if old_penalty <= 1e-6:
+        affected_routes = get_affected_route_indices(broken_edges, state)
+        # If the move is strictly intra-route, penalty remains 0.
+        if len(affected_routes) == 1 and -1 not in affected_routes:
+            return 0.0
+
+        # Upper bound check: if the combined mass of all affected routes
+        # is less than capacity, the new reconnections CANNOT exceed capacity.
+        max_possible_load = sum(state.route_loads.get(r, 0.0) for r in affected_routes if r != -1)
+        if max_possible_load <= capacity + 1e-6:
+            return 0.0
+
     # O(N): compute new penalty by virtually tracing the transformed graph
     tour = curr_tour[:-1] if len(curr_tour) > 1 and curr_tour[-1] == curr_tour[0] else curr_tour
 

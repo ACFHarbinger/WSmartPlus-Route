@@ -44,6 +44,9 @@ logger = logging.getLogger(__name__)
 # source_arc_or_none is (i, j) for arc-saturation LCI, None for node/capacity LCI.
 _LCICoverItem = Tuple[FrozenSet[int], Dict[int, float], float, Optional[Tuple[int, int]]]
 
+# Multistar cut item: (cover_set, dual).  Capacity Q comes from self.capacity.
+_MultistarItem = Tuple[FrozenSet[int], float]
+
 
 class RCSPPSolver:
     """Exact / ng-relaxed solver for the Resource-Constrained Shortest Path Problem.
@@ -270,6 +273,7 @@ class RCSPPSolver:
             lci_duals_raw = complex_duals.get("lci_duals", {})
             lci_node_alphas_raw = complex_duals.get("lci_node_alphas", {})
             lci_arcs_raw = complex_duals.get("lci_arcs", {})
+            multistar_duals_raw = complex_duals.get("multistar_duals", {})
         else:
             node_duals = dual_values  # type: ignore
             rcc_duals = capacity_cut_duals or {}
@@ -279,6 +283,7 @@ class RCSPPSolver:
             lci_duals_raw = {}
             lci_node_alphas_raw = {}
             lci_arcs_raw = {}
+            multistar_duals_raw = {}
 
         # Build LCI cover items for DP extension: list of (cover_set, node_alpha, dual, arc_or_none).
         # Only include cuts with non-negligible dual to avoid wasted iteration in the inner loop.
@@ -286,6 +291,11 @@ class RCSPPSolver:
             (cover_set, lci_node_alphas_raw.get(cover_set, {}), dual, lci_arcs_raw.get(cover_set))
             for cover_set, dual in lci_duals_raw.items()
             if dual > 1e-8
+        ]
+
+        # Build multistar items: only active duals to minimise inner-loop overhead.
+        multistar_items: List[_MultistarItem] = [
+            (cover_set, dual) for cover_set, dual in multistar_duals_raw.items() if dual > 1e-8
         ]
 
         # 2. Reset state
@@ -345,6 +355,7 @@ class RCSPPSolver:
                 node_to_sri=node_to_sri,
                 edge_clique_duals=edge_clique_duals,
                 lci_cover_items=lci_cover_items,
+                multistar_items=multistar_items,
                 exact_mode=exact_mode,
             )
         finally:
@@ -477,6 +488,7 @@ class RCSPPSolver:
         node_to_sri: Dict[int, List[int]],
         edge_clique_duals: Dict[Tuple[int, int], float],
         lci_cover_items: List[_LCICoverItem],
+        multistar_items: Optional[List[_MultistarItem]] = None,
         exact_mode: bool = False,
     ) -> List[Route]:
         """Forward label-correcting algorithm using a priority queue.
@@ -494,11 +506,13 @@ class RCSPPSolver:
             node_to_sri: Mapping from node to SRI indices it belongs to.
             edge_clique_duals: Duals for edge clique cuts.
             lci_cover_items: Items for LCI dual penalties.
+            multistar_items: Items for Multistar dual penalties (cover_set, dual).
             exact_mode: If True, uses all neighbors.
 
         Returns:
             List of profitable routes found.
         """
+        _multistar_items: List[_MultistarItem] = multistar_items or []
 
         use_ng = self.use_ng_routes
         initial_sri = tuple([0] * len(active_sri_subsets))
@@ -572,6 +586,7 @@ class RCSPPSolver:
                     node_to_sri,
                     edge_clique_duals,
                     lci_cover_items,
+                    _multistar_items,
                 )
                 if new_label is None:
                     continue
@@ -632,37 +647,59 @@ class RCSPPSolver:
 
         return self._sorted_neighbors[node][:limit]
 
-    def _extend_to_depot(self, label: Label) -> Optional[Label]:
-        """Extend a label from its current node back to the depot.
+    def _extend_to_depot(self, label: Label, duals: Dict[str, Any]) -> Optional[Label]:
+        """Extends a label to the depot, applying ALL final dual penalties.
 
         Args:
             label: Current label at a customer node.
+            duals: Dictionary of dual values for all constraints.
 
         Returns:
             Completed label at the depot, or None if infeasible.
         """
-        edge_cost = (self.cost_matrix[label.node, self.depot] * self.C) if not self.is_farkas else 0.0
+        current_node = label.node
+        next_node = self.depot
 
-        # RCC crossing penalty for the depot-return arc.
-        # The depot (node 0) is never inside a customer cut set S, so an arc
-        # from label.node ∈ S back to the depot is always a boundary exit crossing
-        # and must carry the RCC dual penalty.
-        crossing_penalty = sum(
-            mu
-            for S, mu in getattr(self, "_rcc_duals_for_bounds", {}).items()
-            if label.node in S and self.depot not in S
-        )
+        # Base transition costs
+        cost = self.cost_matrix[current_node, next_node] * self.C
+        rc_delta = -cost
 
-        if self.is_farkas:
-            # Add duals to maximize PI * A
-            new_rc = label.reduced_cost - edge_cost + self.vehicle_dual + crossing_penalty
-        else:
-            new_rc = label.reduced_cost - edge_cost - self.vehicle_dual - crossing_penalty
+        # 1. RCC Duals (Boundary check)
+        for subset, dual in duals.get("rcc_duals", []):
+            if (current_node in subset) != (next_node in subset):
+                rc_delta += dual if self.is_farkas else -dual
+
+        # 2. Edge Clique Cuts
+        for (u, v), dual in duals.get("edge_clique_duals", {}).items():
+            if (current_node == u and next_node == v) or (current_node == v and next_node == u):
+                rc_delta += dual if self.is_farkas else -dual
+
+        # 3. SRI Cuts (Depot return does not trigger new visits, but we check state)
+        # Standard formulation ignores depot for SRI parity, so no penalty added here.
+
+        # 4. Multistar Cuts
+        for cover_set, dual in duals.get("multistar_duals", []):
+            if current_node in cover_set and next_node not in cover_set:
+                # Crossing out: cross=1, adj_demand=0.0 (since v is depot)
+                arc_a_k = 1.0
+                rc_delta += (arc_a_k * dual) if self.is_farkas else -(arc_a_k * dual)
+
+        # 5. Saturated Arc LCIs
+        for (u, v), dual in duals.get("lci_arc_duals", {}).items():
+            if current_node == u and next_node == v:
+                rc_delta += dual if self.is_farkas else -dual
+
+        # Calculate final reduced cost
+        new_rc = label.reduced_cost + rc_delta
+
+        # Final feasibility check
+        if self.is_farkas and new_rc < -1e-6 or not self.is_farkas and new_rc < -1e-6:
+            return None
 
         return Label(
-            reduced_cost=new_rc,
-            node=self.depot,
+            node=next_node,
             load=label.load,
+            reduced_cost=new_rc,
             visited=label.visited,
             ng_memory=label.ng_memory,
             rf_unmatched=label.rf_unmatched,
@@ -695,7 +732,7 @@ class RCSPPSolver:
         waste = sum(self.wastes.get(n, 0.0) for n in nodes)
         return Route(nodes, cost, revenue, waste, set(nodes))
 
-    def _extend_label(
+    def _extend_label(  # noqa: C901
         self,
         label: Label,
         next_node: int,
@@ -706,6 +743,7 @@ class RCSPPSolver:
         node_to_sri: Dict[int, List[int]],
         edge_clique_duals: Dict[Tuple[int, int], float],
         lci_cover_items: List[_LCICoverItem],
+        multistar_items: Optional[List[_MultistarItem]] = None,
     ) -> Optional[Label]:
         """Extend a label along an arc to a new node.
 
@@ -719,6 +757,7 @@ class RCSPPSolver:
             node_to_sri: Node-to-SRI index mapping.
             edge_clique_duals: Duals for edge clique cuts.
             lci_cover_items: Items for LCI dual penalties.
+            multistar_items: Items for Multistar dual penalties.
 
         Returns:
             New label at next_node, or None if infeasible/pruned.
@@ -731,7 +770,6 @@ class RCSPPSolver:
         if load > self.capacity + 1e-6:
             return None
 
-        # Task 1: Basic BC calculation (profit - dist - duals)
         dist = self.cost_matrix[label.node, next_node]
         cost = (dist * self.C) if not self.is_farkas else 0.0
 
@@ -740,29 +778,24 @@ class RCSPPSolver:
         else:
             rev = (self.wastes.get(next_node, 0.0) * self.R) if not self.is_farkas else 0.0
 
+        # Node visitation duals act as rewards in both phases to drive coverage
         rc_delta = (
             (rev - cost - self.dual_values.get(next_node, 0.0))
             if not self.is_farkas
             else self.dual_values.get(next_node, 0.0)
         )
 
-        # RCC duals: penalise each boundary CROSSING, not each node visit.
-        # A crossing occurs when the arc (label.node → next_node) transitions
-        # between the interior and exterior of cut set S.
+        # 1. RCC duals: penalise each boundary CROSSING
         for subset, dual in rcc_duals.items():
             if (label.node in subset) != (next_node in subset):
-                rc_delta += dual if self.is_farkas else -dual
+                rc_delta -= dual
 
-        # Edge-Clique dual penalty (Barnhart et al. 2000, §4.2).
-        # For a cut on edge (u, v) with dual γ, every route traversing (u, v)
-        # must have its reduced cost decreased by γ.
+        # 2. Edge-Clique dual penalty
         if edge_clique_duals:
             can_edge = tuple(sorted((label.node, next_node)))
             rc_delta -= edge_clique_duals.get(can_edge, 0.0)  # type: ignore[arg-type]
 
-        # Fix 4: SRI Dual Penalty
-        # 1st visit: no penalty yet.
-        # 2nd visit: apply penalty exactly once.
+        # 3. SRI Dual Penalty
         new_sri = list(label.sri_state)
         for idx in node_to_sri.get(next_node, []):
             if new_sri[idx] == 0:
@@ -771,10 +804,7 @@ class RCSPPSolver:
                 new_sri[idx] = 2
                 rc_delta -= sri_duals[idx]
 
-        # LCI Dual Penalty — Barnhart, Hane, Vance (2000) §4.2
-        # Two penalty modes depending on cut origin:
-        # 1. Arc-saturation LCI
-        # 2. Node/capacity LCI
+        # 4. LCI Dual Penalty
         for cover_set, node_alpha, dual, lci_arc in lci_cover_items:
             if lci_arc:
                 if (label.node, next_node) == lci_arc:
@@ -782,7 +812,27 @@ class RCSPPSolver:
             elif next_node in cover_set:
                 rc_delta -= node_alpha.get(next_node, 1.0) * dual
 
-        # NG-Memory transition
+        # 5. Multistar Dual Penalty
+        if multistar_items:
+            u, v = label.node, next_node
+            Q = self.capacity
+            demand_v = self.wastes.get(v, 0.0)
+            demand_u = self.wastes.get(u, 0.0)
+            for cover_set, dual in multistar_items:
+                u_in = u in cover_set
+                v_in = v in cover_set
+                if u_in and not v_in:
+                    adj_v = demand_v if v != self.depot else 0.0
+                    arc_a_k = 1.0 - (2.0 / Q) * adj_v
+                elif not u_in and v_in:
+                    adj_u = demand_u if u != self.depot else 0.0
+                    arc_a_k = 1.0 - (2.0 / Q) * adj_u - (2.0 / Q) * demand_v
+                elif u_in and v_in:
+                    arc_a_k = -(2.0 / Q) * demand_v
+                else:
+                    continue
+                rc_delta -= arc_a_k * dual
+
         return Label(
             node=next_node,
             load=load,

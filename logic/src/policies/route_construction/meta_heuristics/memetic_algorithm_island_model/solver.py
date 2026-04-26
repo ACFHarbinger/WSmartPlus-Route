@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.helpers.local_search.local_search_general import GeneralLocalSearch
 from logic.src.policies.helpers.operators import (
     greedy_insertion,
     greedy_profit_insertion,
@@ -91,7 +91,7 @@ class MemeticAlgorithmIslandModelSolver:
             profit_aware_operators=self.params.profit_aware_operators,
             seed=self.params.seed,
         )
-        self.ls = ACOLocalSearch(
+        self.ls = GeneralLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
             capacity=self.capacity,

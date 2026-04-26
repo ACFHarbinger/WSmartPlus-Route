@@ -50,7 +50,6 @@ class KSACOParams:
         elitist_weight: Weight for best-so-far solution in pheromone update.
         vrpp: Whether to use VRPP (Vehicle Routing Problem with Profits) mode.
         profit_aware_operators: Whether to use profit-aware feasibility checks.
-        q0: Probability of best-edge selection.
         seed: Random seed for reproducibility.
         acceptance_criterion: Acceptance criterion for solutions.
 
@@ -70,12 +69,15 @@ class KSACOParams:
     tau_max: float = 10.0
     max_iterations: int = 100
     time_limit: float = 30.0
-    local_search: bool = True
+
+    # Disabled by default to isolate the effect of memory limitations
+    # purely on the stigmergic operations, per Hale (2021).
+    local_search: bool = False
     local_search_iterations: int = 100
+
     elitist_weight: float = 1.0
     vrpp: bool = True
     profit_aware_operators: bool = False
-    q0: float = 0.9  # Probability of best-edge selection
     seed: Optional[int] = 42
     acceptance_criterion: Optional[IAcceptanceCriterion] = None
 

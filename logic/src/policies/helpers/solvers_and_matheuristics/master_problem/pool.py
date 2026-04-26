@@ -92,6 +92,10 @@ class GlobalCutPool:
         # When set, the pricing dual fires ONLY when the DP traverses that specific arc,
         # not on any visit to a node in the cover set.  None for node/capacity LCI.
         self.lci_arcs: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = {}
+        # Multistar: maps node_set -> route_coefficients {route_idx: -a_k}
+        # Duals γ_S are applied per-arc in the RCSPP via multistar_duals.
+        # (Letchford, Eglese, Lysgaard 2002 — Generalized Multistar Inequalities)
+        self.multistar_cuts: Dict[FrozenSet[int], Dict[int, float]] = {}
 
     def add_cut(self, cut_type: str, data: Any) -> None:
         """Archive a globally valid cut in the pool.
@@ -137,6 +141,49 @@ class GlobalCutPool:
                 arc = None
             self.lci_cuts[node_set] = (rhs, coefficients, node_alphas)
             self.lci_arcs[node_set] = arc
+        elif cut_type == "multistar":
+            # data = (node_set, coefficients) where coefficients = {route_idx: -a_k}
+            node_set, coefficients = data
+            # Only keep/update if this is a new or more restrictive cut for the same S.
+            self.multistar_cuts[node_set] = coefficients
+
+    def _inject_multistar_cut(self, master: MasterProblemSupport) -> bool:
+        """Inject multistar cuts into the master problem.
+
+        Args:
+            master: MasterProblem instance to receive the cuts.
+
+        Returns:
+            True if the cut was successfully applied, False otherwise.
+        """
+        # Re-inject Multistar cuts.  Coefficients are recomputed from current route pool
+        # because route indices shift across B&B nodes (column deletion/addition).
+        cut_added = False
+        if hasattr(master, "add_multistar_cut") and self.multistar_cuts:
+            for node_set, _stale_coeffs in self.multistar_cuts.items():
+                S = set(node_set)
+                Q = master.capacity  # type: ignore[attr-defined]
+                new_coeffs: Dict[int, float] = {}
+                for idx, route in enumerate(master.routes):  # type: ignore[union-attr]
+                    path = [0] + route.nodes + [0]
+                    k_cross = 0
+                    k_adj = 0.0
+                    k_visit = sum(master.wastes.get(n, 0.0) for n in route.nodes if n in S)  # type: ignore[attr-defined]
+                    for p in range(len(path) - 1):
+                        u, v = path[p], path[p + 1]
+                        u_in, v_in = u in S, v in S
+                        if u_in != v_in:
+                            k_cross += 1
+                            if u_in and v != 0 and not v_in:
+                                k_adj += master.wastes.get(v, 0.0)  # type: ignore[attr-defined]
+                            elif v_in and u != 0 and not u_in:
+                                k_adj += master.wastes.get(u, 0.0)  # type: ignore[attr-defined]
+                    a_k = k_cross - (2.0 / Q) * k_visit - (2.0 / Q) * k_adj
+                    if abs(a_k) > 1e-6:
+                        new_coeffs[idx] = -a_k
+                if new_coeffs and master.add_multistar_cut(list(S), new_coeffs):
+                    cut_added = True
+        return cut_added
 
     def apply_to_master(self, master: MasterProblemSupport) -> int:
         """Inject all pooled global cuts into a fresh Master Problem instance.
@@ -166,6 +213,7 @@ class GlobalCutPool:
         for edge_tuple in self.edge_clique_cuts:
             if master.add_edge_clique_cut(edge_tuple[0], edge_tuple[1]):
                 added += 1
+
         # Re-inject LCI cuts — recompute route coefficients from node_alphas using the
         # current master's route list.  The stale coefficients stored at discovery time
         # reference route indices from the discovery B&B node; at a descendant node the
@@ -185,4 +233,8 @@ class GlobalCutPool:
                     new_coefficients[idx] = alpha_k
             if master.add_lci_cut(list(node_set), rhs, new_coefficients, node_alphas=node_alphas, arc=lci_arc):
                 added += 1
+
+        # Re-inject Multistar cuts.  Coefficients are recomputed from current route pool
+        # because route indices shift across B&B nodes (column deletion/addition).
+        added += 1 if self._inject_multistar_cut(master) else 0
         return added

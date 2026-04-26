@@ -37,6 +37,8 @@ class LKH3Params:
         alns_iterations: Iterations for Adaptive Large Neighborhood Search (VRPP mode).
         plateau_limit: Iterations without improvement before triggering perturbation.
         deep_plateau_limit: Iterations for deeper search before restart.
+        metaheuristic: Metaheuristic to use. Options: "ls_cgh" or "alns".
+        sa_max_trials: Maximum number of trials for Simulated Annealing.
         perturb_operator_weights: Probability distribution for perturbation operators.
         seed: Random seed for reproducibility.
         vrpp: Whether to solve as a Vehicle Routing Problem with Profits.
@@ -56,6 +58,7 @@ class LKH3Params:
     alns_iterations: int = 100
     plateau_limit: int = 10
     deep_plateau_limit: int = 30
+    sa_max_trials: int = 10000
     perturb_operator_weights: List[float] = dataclasses.field(default_factory=lambda: [0.6, 0.4])
     seed: int = 42
     vrpp: bool = True
@@ -90,6 +93,7 @@ class LKH3Params:
             alns_iterations=getattr(config, "alns_iterations", 100),
             plateau_limit=getattr(config, "plateau_limit", 10),
             deep_plateau_limit=getattr(config, "deep_plateau_limit", 30),
+            sa_max_trials=getattr(config, "sa_max_trials", 10000),
             perturb_operator_weights=getattr(config, "perturb_operator_weights", [0.6, 0.4]),
             seed=getattr(config, "seed", 42),
             vrpp=getattr(config, "vrpp", True),

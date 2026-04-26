@@ -81,27 +81,6 @@ class SparsePheromoneTau:
             return self._pheromone[i][j]
         return self.default_value
 
-    def set(self, i: int, j: int, value: float) -> None:
-        """
-        Set pheromone value with MMAS bounds.
-
-        This method does NOT enforce capacity limits. Instead, precision-based
-        pruning during evaporation controls memory usage.
-
-        Args:
-            i: Source node index.
-            j: Destination node index.
-            value: New pheromone value (will be clamped to [tau_min, tau_max]).
-
-        Returns:
-            None.
-        """
-        # Apply MMAS bounds
-        value = max(self.tau_min, min(self.tau_max, value))
-
-        # Store the value explicitly (pruning happens during evaporation)
-        self._pheromone[i][j] = value
-
     def deposit_edge(self, i: int, j: int, delta: float) -> None:
         """
         Deposit pheromone on edge (i, j).
@@ -118,7 +97,7 @@ class SparsePheromoneTau:
             None.
         """
         current = self.get(i, j)
-        self.set(i, j, current + delta)
+        self._pheromone[i][j] = current + delta
 
     def evaporate_all(self, rho: float) -> None:
         """
@@ -135,8 +114,8 @@ class SparsePheromoneTau:
         Returns:
             None.
         """
-        # Step 1: Evaporate the default value and apply MMAS lower bound
-        self.default_value = max(self.tau_min, self.default_value * (1 - rho))
+        # Step 1: Evaporate the default value and strictly coerce into [tau_min, tau_max]
+        self.default_value = max(self.tau_min, min(self.tau_max, self.default_value * (1 - rho)))
 
         # Step 2: Calculate precision threshold for pruning
         precision = 10**-self.scale

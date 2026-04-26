@@ -19,7 +19,7 @@ Reference:
 """
 
 import random
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 import numpy as np
 
@@ -33,11 +33,10 @@ class SolutionConstructor:
     Uses the k-sparse pheromone matrix and heuristic values for selection.
 
     Attributes:
-        dist_matrix: Square distance matrix.
+        node_coords: Array of node coordinates.
         wastes: Node fill levels.
         capacity: Vehicle capacity.
         pheromone: Sparse pheromone matrix.
-        eta: Heuristic visibility matrix.
         candidate_lists: K-sparse candidate neighbor lists.
         nodes: List of customer nodes.
         params: Algorithm parameters.
@@ -50,11 +49,10 @@ class SolutionConstructor:
 
     def __init__(
         self,
-        dist_matrix: np.ndarray,
+        node_coords: np.ndarray,
         wastes: Dict[int, float],
         capacity: float,
         pheromone: SparsePheromoneTau,
-        eta: np.ndarray,
         candidate_lists: Dict[int, List[int]],
         nodes: List[int],
         params: KSACOParams,
@@ -66,11 +64,10 @@ class SolutionConstructor:
         """Initializes the Solution Constructor for ACO ants.
 
         Args:
-            dist_matrix (np.ndarray): Distance matrix between nodes.
+            node_coords (np.ndarray): Array of node coordinates.
             wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
             capacity (float): Maximum vehicle collection capacity.
             pheromone (SparsePheromoneTau): Sparse pheromone matrix.
-            eta (np.ndarray): Heuristic information matrix (inverse distances).
             candidate_lists (Dict[int, List[int]]): K-nearest neighbor lists.
             nodes (List[int]): List of all nodes (excluding depot).
             params (KSACOParams): Algorithm-specific parameters.
@@ -79,11 +76,10 @@ class SolutionConstructor:
             C (float): Cost multiplier.
             mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
         """
-        self.dist_matrix = dist_matrix
+        self.node_coords = node_coords
         self.wastes = wastes
         self.capacity = capacity
         self.pheromone = pheromone
-        self.eta = eta
         self.candidate_lists = candidate_lists
         self.nodes = nodes
         self.params = params
@@ -142,60 +138,6 @@ class SolutionConstructor:
 
         return routes
 
-    def _any_profitable_nodes(self, unvisited: Set[int]) -> bool:
-        """Check if any remaining node is profitable to visit from depot.
-
-        Args:
-            unvisited: Set of nodes not yet visited in the current construction.
-
-        Returns:
-            True if at least one node is profitable, False otherwise.
-        """
-        # In CVRP (not VRPP), all nodes are considered "profitable" to visit until exhausted
-        if not self.params.vrpp:
-            return True
-
-        for j in sorted(unvisited):
-            revenue = self.wastes.get(j, 0) * self.R
-            if revenue > (self.dist_matrix[0][j] + self.dist_matrix[j][0]) * self.C:
-                return True
-        return False
-
-    def _get_feasible_nodes(
-        self, unvisited: Set[int], mandatory_unvisited: Set[int], load: float, current: int
-    ) -> List[int]:
-        """Find nodes that can be added to the current route.
-
-        Args:
-            unvisited: Set of nodes not yet visited.
-            mandatory_unvisited: Set of mandatory nodes not yet visited.
-            load: Current vehicle load.
-            current: Current node index.
-
-        Returns:
-            List of feasible node indices.
-        """
-        feasible = []
-        use_profit_check = self.params.vrpp and self.params.profit_aware_operators
-
-        for j in sorted(unvisited):
-            if load + self.wastes.get(j, 0) <= self.capacity:
-                if j in mandatory_unvisited:
-                    feasible.append(j)
-                elif use_profit_check:
-                    revenue = self.wastes.get(j, 0) * self.R
-                    # Skip if immediately unprofitable compared to staying at depot
-                    if (
-                        revenue
-                        > (self.dist_matrix[current][j] + self.dist_matrix[j][0] - self.dist_matrix[current][0])
-                        * self.C
-                    ):
-                        feasible.append(j)
-                else:
-                    # In CVRP or if profit check is disabled, all capacity-feasible nodes are candidates
-                    feasible.append(j)
-        return feasible
-
     def _cleanup_unvisited(self, unvisited: Set[int], mandatory_unvisited: Set[int]) -> None:
         """Remove nodes that can never fit in any route to avoid infinite loops.
 
@@ -217,6 +159,47 @@ class SolutionConstructor:
 
         if not still_constructible:
             unvisited.clear()
+
+    def _dist(self, i: int, j: int) -> np.floating[Any]:
+        """Compute exact Euclidean distance on-demand.
+
+        Args:
+            i: Index of the first node.
+            j: Index of the second node.
+
+        Returns:
+            Euclidean distance between nodes i and j.
+        """
+        return np.linalg.norm(self.node_coords[i] - self.node_coords[j])
+
+    def _any_profitable_nodes(self, unvisited: Set[int]) -> bool:
+        if not self.params.vrpp:
+            return True
+
+        for j in sorted(unvisited):
+            revenue = self.wastes.get(j, 0) * self.R
+            dist_j = self._dist(0, j)
+            if revenue > (dist_j * 2) * self.C:
+                return True
+        return False
+
+    def _get_feasible_nodes(
+        self, unvisited: Set[int], mandatory_unvisited: Set[int], load: float, current: int
+    ) -> List[int]:
+        feasible = []
+        use_profit_check = self.params.vrpp and self.params.profit_aware_operators
+        for j in sorted(unvisited):
+            if load + self.wastes.get(j, 0) <= self.capacity:
+                if j in mandatory_unvisited:
+                    feasible.append(j)
+                elif use_profit_check:
+                    revenue = self.wastes.get(j, 0) * self.R
+                    marginal_cost = (self._dist(current, j) + self._dist(j, 0) - self._dist(current, 0)) * self.C
+                    if revenue > marginal_cost:
+                        feasible.append(j)
+                else:
+                    feasible.append(j)
+        return feasible
 
     def _select_next_node(self, current: int, feasible: List[int]) -> int:
         """
@@ -240,25 +223,39 @@ class SolutionConstructor:
         candidates_in_feasible = [j for j in self.candidate_lists.get(current, []) if j in feasible]
         selection_pool = candidates_in_feasible if candidates_in_feasible else feasible
 
-        # Compute selection probabilities
-        probs = []
-        for j in selection_pool:
-            tau = self.pheromone.get(current, j)
-            eta = self.eta[current][j]
-            probs.append((tau**self.params.alpha) * (eta**self.params.beta))
+        if not selection_pool:
+            return -1  # Failsafe
 
-        total = sum(probs)
+        # 1. Vectorized Distance Computation
+        pool_array = np.array(selection_pool)
+        current_coord = self.node_coords[current]
+        target_coords = self.node_coords[pool_array]
+
+        # Calculate all distances in C-backend simultaneously
+        diffs = target_coords - current_coord
+        dists = np.linalg.norm(diffs, axis=1)
+
+        # 2. Vectorized Eta Computation (avoid div by zero)
+        etas = np.zeros_like(dists)
+        valid_mask = dists > 0
+        etas[valid_mask] = 1.0 / dists[valid_mask]
+
+        # 3. Fetch Taus (requires Python iteration due to Sparse dict structure)
+        taus = np.array([self.pheromone.get(current, j) for j in selection_pool])
+
+        # 4. Vectorized Probability Calculation
+        probs = (taus**self.params.alpha) * (etas**self.params.beta)
+        total = np.sum(probs)
+
         if total <= 0:
-            # Fallback to uniform random selection if all probabilities are zero
             return self.random.choice(selection_pool)
 
-        # Roulette-wheel selection
+        # Vectorized Roulette Wheel
         r = self.random.uniform(0, total)
-        cumsum = 0.0
-        for idx, p in enumerate(probs):
-            cumsum += p
-            if cumsum >= r:
-                return selection_pool[idx]
+        cumsum = np.cumsum(probs)
+        chosen_idx = np.searchsorted(cumsum, r)
 
-        # Fallback (should rarely happen due to floating-point precision)
-        return selection_pool[-1]
+        # searchsorted can occasionally return out of bounds due to float precision
+        chosen_idx = min(chosen_idx, len(selection_pool) - 1)
+
+        return selection_pool[chosen_idx]

@@ -36,7 +36,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.helpers.local_search.local_search_general import GeneralLocalSearch
 from logic.src.policies.helpers.operators import (
     greedy_insertion,
     greedy_profit_insertion,
@@ -67,7 +67,7 @@ class SLCSolver:
         params (SLCParams): Algorithm parameters.
         mandatory_nodes (Optional[List[int]]): Mandatory nodes.
         random (np.random.Generator): Random number generator.
-        ls (ACOLocalSearch): Local search instance.
+        ls (GeneralLocalSearch): Local search instance.
     """
 
     def __init__(
@@ -109,7 +109,7 @@ class SLCSolver:
             profit_aware_operators=self.params.profit_aware_operators,
             seed=self.params.seed,
         )
-        self.ls = ACOLocalSearch(
+        self.ls = GeneralLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
             capacity=self.capacity,
@@ -143,6 +143,9 @@ class SLCSolver:
         self.superstars: List[Tuple[List[List[int]], float]] = []
         self._update_superstars(teams)
 
+        best_routes = self.superstars[0][0]
+        best_profit = self.superstars[0][1]
+        best_cost = self._cost(best_routes)
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break

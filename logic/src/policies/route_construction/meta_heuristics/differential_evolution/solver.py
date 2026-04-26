@@ -30,7 +30,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.helpers.local_search.local_search_general import GeneralLocalSearch
 from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
     KSACOParams,
@@ -143,7 +143,7 @@ class DESolver:
             profit_aware_operators=self.params.profit_aware_operators,
             seed=self.params.seed,
         )
-        self.ls = ACOLocalSearch(
+        self.ls = GeneralLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
             capacity=self.capacity,
